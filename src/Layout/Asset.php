@@ -33,7 +33,10 @@ class Asset
         ],
         '@dcat' => [
             'js'  => '@admin/dcat/js/dcat-app.js',
-            'css' => '@admin/dcat/css/dcat-app.css',
+            'css' => [
+                '@admin/dcat/css/dcat-app.css',
+                '@admin/dcat/css/dcatplus.css'
+            ],
         ],
         '@vendors' => [
             'js'  => '@admin/dcat/plugins/vendors.min.js',
