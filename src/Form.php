@@ -486,7 +486,7 @@ class Form implements Renderable
     }
 
     /**
-     * @return \Dcat\Admin\Form\Layout
+     * @return \Dcatplus\Admin\Form\Layout
      */
     public function layout()
     {

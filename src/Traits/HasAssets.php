@@ -5,7 +5,7 @@ namespace Dcatplus\Admin\Traits;
 trait HasAssets
 {
     /**
-     * @return \Dcat\Admin\Layout\Asset
+     * @return \Dcatplus\Admin\Layout\Asset
      */
     public static function asset()
     {

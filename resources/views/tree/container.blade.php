@@ -61,7 +61,7 @@
         $.post({
             url: '{{ $url }}',
             data: {
-                '{{ \Dcat\Admin\Tree::SAVE_ORDER_NAME }}': JSON.stringify(serialize)
+                '{{ \Dcatplus\Admin\Tree::SAVE_ORDER_NAME }}': JSON.stringify(serialize)
             },
             success: function (data) {
                 _this.buttonLoading(false);

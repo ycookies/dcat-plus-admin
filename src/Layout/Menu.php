@@ -196,7 +196,7 @@ class Menu
     /**
      * 判断用户.
      *
-     * @param  array|\Dcat\Admin\Models\Menu  $item
+     * @param  array|\Dcatplus\Admin\Models\Menu  $item
      * @return bool
      */
     protected function userCanSeeMenu($item)

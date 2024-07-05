@@ -287,7 +287,7 @@ class Manager
     /**
      * 添加扩展.
      *
-     * @param  \Dcat\Admin\Extend\ServiceProvider  $serviceProvider
+     * @param  \Dcatplus\Admin\Extend\ServiceProvider  $serviceProvider
      */
     public function addExtension(ServiceProvider $serviceProvider)
     {

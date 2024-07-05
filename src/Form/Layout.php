@@ -105,7 +105,7 @@ class Layout
         $this->column($width, function (Column $column) use ($callback) {
             $this->form->layoutColumn = $column;
 
-            $column->row(function (\Dcat\Admin\Layout\Row $row) use ($callback) {
+            $column->row(function (\Dcatplus\Admin\Layout\Row $row) use ($callback) {
                 $form = $this->form();
 
                 $form->layoutRow = $row;

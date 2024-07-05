@@ -64,8 +64,8 @@
 
     function replaceNestedFormIndex(value) {
         return String(value)
-            .replace(/{{ Dcat\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}/g, nestedIndex)
-            .replace(/{{ Dcat\Admin\Form\NestedForm::DEFAULT_PARENT_KEY_NAME }}/g, nestedIndex);
+            .replace(/{{ Dcatplus\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}/g, nestedIndex)
+            .replace(/{{ Dcatplus\Admin\Form\NestedForm::DEFAULT_PARENT_KEY_NAME }}/g, nestedIndex);
     }
 
     $(container).on('click', '.{{$columnClass}}-add', function () {
@@ -80,7 +80,7 @@
         var $form = $(this).closest('.has-many-{{ $columnClass }}-form');
 
         $form.hide();
-        $form.find('.{{ Dcat\Admin\Form\NestedForm::REMOVE_FLAG_CLASS }}').val(1);
+        $form.find('.{{ Dcatplus\Admin\Form\NestedForm::REMOVE_FLAG_CLASS }}').val(1);
         $form.find('[required]').prop('required', false);
     });
 </script>

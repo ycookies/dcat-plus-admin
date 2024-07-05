@@ -258,7 +258,7 @@ trait HasEvents
     /**
      * 触发文件上传事件.
      *
-     * @param  UploadFieldInterface|\Dcat\Admin\Form\Field  $field
+     * @param  UploadFieldInterface|\Dcatplus\Admin\Form\Field  $field
      * @param  UploadedFile  $file
      * @return mixed|null
      */
@@ -270,7 +270,7 @@ trait HasEvents
     /**
      * 触发文件上传完成事件.
      *
-     * @param  UploadFieldInterface|\Dcat\Admin\Form\Field  $field
+     * @param  UploadFieldInterface|\Dcatplus\Admin\Form\Field  $field
      * @param  UploadedFile  $file
      * @param  Response  $response
      * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\RedirectResponse|void
@@ -283,7 +283,7 @@ trait HasEvents
     /**
      * 触发文件删除事件.
      *
-     * @param  UploadFieldInterface|\Dcat\Admin\Form\Field  $field
+     * @param  UploadFieldInterface|\Dcatplus\Admin\Form\Field  $field
      * @param  UploadedFile  $file
      * @param  Response  $response
      * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\RedirectResponse|void
@@ -296,7 +296,7 @@ trait HasEvents
     /**
      * 触发文件删除完成事件.
      *
-     * @param  UploadFieldInterface|\Dcat\Admin\Form\Field  $field
+     * @param  UploadFieldInterface|\Dcatplus\Admin\Form\Field  $field
      * @param  UploadedFile  $file
      * @param  Response  $response
      * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\RedirectResponse|void

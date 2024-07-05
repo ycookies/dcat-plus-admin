@@ -3,10 +3,10 @@
         {{ $configData['navbar_class'] === 'fixed-top' ? 'navbar-fixed-top' : '' }} " >
 
 <script>
-    var Dcat = CreateDcat({!! Dcat\Admin\Admin::jsVariables() !!});
+    var Dcat = CreateDcat({!! Dcatplus\Admin\Admin::jsVariables() !!});
 </script>
 
-{!! admin_section(Dcat\Admin\Admin::SECTION['BODY_INNER_BEFORE']) !!}
+{!! admin_section(Dcatplus\Admin\Admin::SECTION['BODY_INNER_BEFORE']) !!}
 
 <div class="wrapper">
     @include('admin::partials.sidebar')
@@ -26,7 +26,7 @@
                 Powered by
                 <a target="_blank" href="https://github.com/jqhph/dcat-admin">Dcat Admin</a>
                 <span>&nbsp;·&nbsp;</span>
-                v{{ Dcat\Admin\Admin::VERSION }}
+                v{{ Dcatplus\Admin\Admin::VERSION }}
             </span>
 
         <button class="btn btn-primary btn-icon scroll-top pull-right" style="position: fixed;bottom: 2%; right: 10px;display: none">
@@ -35,9 +35,9 @@
     </p>
 </footer>
 
-{!! admin_section(Dcat\Admin\Admin::SECTION['BODY_INNER_AFTER']) !!}
+{!! admin_section(Dcatplus\Admin\Admin::SECTION['BODY_INNER_AFTER']) !!}
 
-{!! Dcat\Admin\Admin::asset()->jsToHtml() !!}
+{!! Dcatplus\Admin\Admin::asset()->jsToHtml() !!}
 
 <script>Dcat.boot();</script>
 

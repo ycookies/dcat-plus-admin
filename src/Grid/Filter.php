@@ -315,7 +315,7 @@ class Filter implements Renderable
     /**
      * Get grid.
      *
-     * @return \Dcat\Admin\Grid
+     * @return \Dcatplus\Admin\Grid
      */
     public function grid()
     {

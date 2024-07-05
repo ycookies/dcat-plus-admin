@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
  * Trait HasTree.
  *
  *
- * @method \Dcat\Admin\Grid grid()
+ * @method \Dcatplus\Admin\Grid grid()
  */
 trait HasTree
 {

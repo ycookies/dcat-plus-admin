@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 abstract class AbstractExporter implements ExporterInterface
 {
     /**
-     * @var \Dcat\Admin\Grid
+     * @var \Dcatplus\Admin\Grid
      */
     protected $grid;
 

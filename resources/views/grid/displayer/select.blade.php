@@ -1,7 +1,7 @@
 <div class="input-group input-group-sm">
     <select style="width: 100%;" class="grid-column-select" data-reload="{{ $refresh }}" data-url="{{ $url }}" data-name="{{ $column }}">
         @foreach($options as $k => $v)
-            @php($selected = Dcat\Admin\Support\Helper::equal($k, $value)  ? 'selected' : '')
+            @php($selected = Dcatplus\Admin\Support\Helper::equal($k, $value)  ? 'selected' : '')
 
             <option value="{{ $k }}" {{ $selected }}>{{ $v }}</option>
         @endforeach

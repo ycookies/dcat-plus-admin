@@ -45,7 +45,7 @@ class Grid
     /**
      * The grid data model instance.
      *
-     * @var \Dcat\Admin\Grid\Model
+     * @var \Dcatplus\Admin\Grid\Model
      */
     protected $model;
 

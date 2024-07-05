@@ -32,7 +32,7 @@ class ValueController
 
     /**
      * @param  Request  $request
-     * @return \Dcat\Admin\Traits\InteractsWithApi
+     * @return \Dcatplus\Admin\Traits\InteractsWithApi
      *
      * @throws Exception
      */

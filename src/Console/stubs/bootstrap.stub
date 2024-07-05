@@ -15,9 +15,9 @@ use Dcatplus\Admin\Show;
  * Here you can remove builtin form field:
  *
  * extend custom field:
- * Dcat\Admin\Form::extend('php', PHPEditor::class);
- * Dcat\Admin\Grid\Column::extend('php', PHPEditor::class);
- * Dcat\Admin\Grid\Filter::extend('php', PHPEditor::class);
+ * Dcatplus\Admin\Form::extend('php', PHPEditor::class);
+ * Dcatplus\Admin\Grid\Column::extend('php', PHPEditor::class);
+ * Dcatplus\Admin\Grid\Filter::extend('php', PHPEditor::class);
  *
  * Or require js and css assets:
  * Admin::css('/packages/prettydocs/css/styles.css');

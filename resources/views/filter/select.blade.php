@@ -6,7 +6,7 @@
     <select class="form-control {{ $class }}" name="{{$name}}" data-value="{{ $value }}" style="width: 100%;">
         <option value=""></option>
         @foreach($options as $select => $option)
-            <option value="{{$select}}" {{ Dcat\Admin\Support\Helper::equal($select, $value) ?'selected':'' }}>{{$option}}</option>
+            <option value="{{$select}}" {{ Dcatplus\Admin\Support\Helper::equal($select, $value) ?'selected':'' }}>{{$option}}</option>
         @endforeach
     </select>
 </div>

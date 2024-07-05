@@ -19,7 +19,7 @@ class FilterButton extends AbstractTool
     protected $btnClassName;
 
     /**
-     * @return \Dcat\Admin\Grid\Filter
+     * @return \Dcatplus\Admin\Grid\Filter
      */
     protected function filter()
     {

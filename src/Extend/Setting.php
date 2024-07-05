@@ -36,7 +36,7 @@ abstract class Setting extends Form implements LazyRenderable
      * 处理请求.
      *
      * @param  array  $input
-     * @return \Dcat\Admin\Http\JsonResponse
+     * @return \Dcatplus\Admin\Http\JsonResponse
      */
     public function handle(array $input)
     {

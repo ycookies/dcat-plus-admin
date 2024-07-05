@@ -14,7 +14,7 @@ if (! function_exists('admin_setting')) {
      *
      * @param  string|array  $key
      * @param  mixed  $default
-     * @return \Dcat\Admin\Support\Setting|mixed
+     * @return \Dcatplus\Admin\Support\Setting|mixed
      */
     function admin_setting($key = null, $default = null)
     {
@@ -38,7 +38,7 @@ if (! function_exists('admin_setting_array')) {
      *
      * @param  string  $key
      * @param  mixed  $default
-     * @return \Dcat\Admin\Support\Setting|mixed
+     * @return \Dcatplus\Admin\Support\Setting|mixed
      */
     function admin_setting_array(?string $key, $default = [])
     {
@@ -59,7 +59,7 @@ if (! function_exists('admin_extension_setting')) {
     {
         $extension = app($extension);
 
-        if ($extension instanceof Dcat\Admin\Extend\ServiceProvider) {
+        if ($extension instanceof Dcatplus\Admin\Extend\ServiceProvider) {
             return $extension->config($key, $default);
         }
     }
@@ -437,7 +437,7 @@ if (! function_exists('admin_extension_path')) {
 if (! function_exists('admin_color')) {
     /**
      * @param  string|null  $color
-     * @return string|\Dcat\Admin\Color
+     * @return string|\Dcatplus\Admin\Color
      */
     function admin_color(?string $color = null)
     {
@@ -528,7 +528,7 @@ if (! function_exists('admin_javascript')) {
      */
     function admin_javascript(string $scripts)
     {
-        return Dcat\Admin\Support\JavaScript::make($scripts);
+        return Dcatplus\Admin\Support\JavaScript::make($scripts);
     }
 }
 
@@ -539,7 +539,7 @@ if (! function_exists('admin_javascript_json')) {
      */
     function admin_javascript_json($data)
     {
-        return Dcat\Admin\Support\JavaScript::format($data);
+        return Dcatplus\Admin\Support\JavaScript::format($data);
     }
 }
 

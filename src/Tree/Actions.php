@@ -47,7 +47,7 @@ class Actions implements Renderable
     ];
 
     /**
-     * @param  string|Renderable|\Dcat\Admin\Actions\Action|\Illuminate\Contracts\Support\Htmlable  $action
+     * @param  string|Renderable|\Dcatplus\Admin\Actions\Action|\Illuminate\Contracts\Support\Htmlable  $action
      * @return $this
      */
     public function append($action)
@@ -60,7 +60,7 @@ class Actions implements Renderable
     }
 
     /**
-     * @param  string|Renderable|\Dcat\Admin\Actions\Action|\Illuminate\Contracts\Support\Htmlable  $action
+     * @param  string|Renderable|\Dcatplus\Admin\Actions\Action|\Illuminate\Contracts\Support\Htmlable  $action
      * @return $this
      */
     public function prepend($action)

@@ -24,7 +24,7 @@
 @endsection
 
 @section('app')
-    {!! Dcat\Admin\Admin::asset()->styleToHtml() !!}
+    {!! Dcatplus\Admin\Admin::asset()->styleToHtml() !!}
 
     <div class="content-header">
         @yield('content-header')
@@ -32,27 +32,27 @@
 
     <div class="content-body" id="app">
         {{-- 页面埋点--}}
-        {!! admin_section(Dcat\Admin\Admin::SECTION['APP_INNER_BEFORE']) !!}
+        {!! admin_section(Dcatplus\Admin\Admin::SECTION['APP_INNER_BEFORE']) !!}
 
         @yield('content')
 
         {{-- 页面埋点--}}
-        {!! admin_section(Dcat\Admin\Admin::SECTION['APP_INNER_AFTER']) !!}
+        {!! admin_section(Dcatplus\Admin\Admin::SECTION['APP_INNER_AFTER']) !!}
     </div>
 
-    {!! Dcat\Admin\Admin::asset()->scriptToHtml() !!}
-    <div class="extra-html">{!! Dcat\Admin\Admin::html() !!}</div>
+    {!! Dcatplus\Admin\Admin::asset()->scriptToHtml() !!}
+    <div class="extra-html">{!! Dcatplus\Admin\Admin::html() !!}</div>
 @endsection
 
 @if(! request()->pjax())
     @include('admin::layouts.page')
 @else
-    <title>{{ Dcat\Admin\Admin::title() }} @if($header) | {{ $header }}@endif</title>
+    <title>{{ Dcatplus\Admin\Admin::title() }} @if($header) | {{ $header }}@endif</title>
 
     <script>Dcat.wait()</script>
 
-    {!! Dcat\Admin\Admin::asset()->cssToHtml() !!}
-    {!! Dcat\Admin\Admin::asset()->jsToHtml() !!}
+    {!! Dcatplus\Admin\Admin::asset()->cssToHtml() !!}
+    {!! Dcatplus\Admin\Admin::asset()->jsToHtml() !!}
 
     @yield('app')
 @endif

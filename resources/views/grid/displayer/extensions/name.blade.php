@@ -23,12 +23,12 @@
 
 <div style="height: 10px"></div>
 
-@if($row->type === Dcat\Admin\Extend\ServiceProvider::TYPE_THEME)
+@if($row->type === Dcatplus\Admin\Extend\ServiceProvider::TYPE_THEME)
     <span>{{ trans('admin.theme') }}</span>
 @endif
 
 @if($row->version)
-    @if($row->type === Dcat\Admin\Extend\ServiceProvider::TYPE_THEME)
+    @if($row->type === Dcatplus\Admin\Extend\ServiceProvider::TYPE_THEME)
         &nbsp;|&nbsp;
     @endif
 

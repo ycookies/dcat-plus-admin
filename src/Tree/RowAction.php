@@ -7,7 +7,7 @@ use Dcatplus\Admin\Actions\Action;
 class RowAction extends Action
 {
     /**
-     * @var \Dcat\Admin\Tree\Actions;
+     * @var \Dcatplus\Admin\Tree\Actions;
      */
     protected $actions;
 

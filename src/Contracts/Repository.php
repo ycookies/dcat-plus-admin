@@ -73,7 +73,7 @@ interface Repository
      * 新增记录.
      *
      * @param  Form  $form
-     * @return int|bool|\Dcat\Admin\Http\JsonResponse
+     * @return int|bool|\Dcatplus\Admin\Http\JsonResponse
      */
     public function store(Form $form);
 
@@ -89,7 +89,7 @@ interface Repository
      * 更新数据.
      *
      * @param  Form  $form
-     * @return bool|\Dcat\Admin\Http\JsonResponse
+     * @return bool|\Dcatplus\Admin\Http\JsonResponse
      */
     public function update(Form $form);
 
@@ -98,7 +98,7 @@ interface Repository
      *
      * @param  Form  $form
      * @param  array  $deletingData
-     * @return mixed|\Dcat\Admin\Http\JsonResponse
+     * @return mixed|\Dcatplus\Admin\Http\JsonResponse
      */
     public function delete(Form $form, array $deletingData);
 

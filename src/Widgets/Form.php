@@ -427,7 +427,7 @@ class Form implements Renderable
     {
         $failedValidators = [];
 
-        /** @var \Dcat\Admin\Form\Field $field */
+        /** @var \Dcatplus\Admin\Form\Field $field */
         foreach ($this->fields() as $field) {
             if (! $validator = $field->getValidator($request->all())) {
                 continue;
@@ -541,7 +541,7 @@ class Form implements Renderable
      */
     public static function findFieldClass($method)
     {
-        $class = Arr::get(\Dcat\Admin\Form::extensions(), $method);
+        $class = Arr::get(\Dcatplus\Admin\Form::extensions(), $method);
 
         if (class_exists($class)) {
             return $class;

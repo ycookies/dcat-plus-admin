@@ -30,7 +30,7 @@ class BlockForm extends WidgetForm
     protected $title;
 
     /**
-     * @var \Dcat\Admin\Layout\Row
+     * @var \Dcatplus\Admin\Layout\Row
      */
     public $layoutRow;
 

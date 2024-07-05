@@ -73,7 +73,7 @@ trait HasPaginator
     /**
      * Get the grid paginator.
      *
-     * @return \Dcat\Admin\Grid\Tools\Paginator
+     * @return \Dcatplus\Admin\Grid\Tools\Paginator
      */
     public function paginator()
     {

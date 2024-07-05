@@ -1,6 +1,6 @@
 <div class="input-group input-group-sm">
     @php
-        $radio = new \Dcat\Admin\Widgets\Radio($name, $options);
+        $radio = new \Dcatplus\Admin\Widgets\Radio($name, $options);
         if ($inline) $radio->inline();
 
         $radio->check(request($name, is_null($value) ? [] : $value));
