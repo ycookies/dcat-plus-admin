@@ -1,14 +1,14 @@
 {
-    "name": "dcat-saas/laravel-admin",
-    "description": "dcat saas admin",
+    "name": "dcat-plus/laravel-admin",
+    "description": "dcat plus admin",
     "type": "library",
     "keywords": ["dcat","saas","laravel", "admin", "grid", "form", "laravel admin"],
-    "homepage": "https://github.com/ycookies/dcat-saas-admin",
+    "homepage": "https://github.com/ycookies/dcat-plus-admin",
     "license": "MIT",
     "authors": [
         {
-            "name": "jqh",
-            "email": "841324345@qq.com"
+            "name": "demo.saishiyun.net",
+            "email": "3664839@qq.com"
         }
     ],
     "require": {
