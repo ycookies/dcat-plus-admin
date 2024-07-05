@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcat\Admin\Grid\Column;
+namespace Dcatplus\Admin\Grid\Column;
 
-use Dcat\Admin\Exception\RuntimeException;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Grid\Model;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Exception\RuntimeException;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Grid\Model;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Traits;
+namespace Dcatplus\Admin\Traits;
 
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Admin;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 

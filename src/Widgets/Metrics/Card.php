@@ -1,12 +1,12 @@
 <?php
 
-namespace Dcat\Admin\Widgets\Metrics;
+namespace Dcatplus\Admin\Widgets\Metrics;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Traits\InteractsWithApi;
-use Dcat\Admin\Widgets\ApexCharts\Chart;
-use Dcat\Admin\Widgets\Widget;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Traits\InteractsWithApi;
+use Dcatplus\Admin\Widgets\ApexCharts\Chart;
+use Dcatplus\Admin\Widgets\Widget;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;

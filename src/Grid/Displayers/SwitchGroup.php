@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Displayers;
+namespace Dcatplus\Admin\Grid\Displayers;
 
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Admin;
 use Illuminate\Support\Arr;
 
 class SwitchGroup extends SwitchDisplay

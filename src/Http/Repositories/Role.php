@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Http\Repositories;
+namespace Dcatplus\Admin\Http\Repositories;
 
-use Dcat\Admin\Repositories\EloquentRepository;
+use Dcatplus\Admin\Repositories\EloquentRepository;
 
 class Role extends EloquentRepository
 {

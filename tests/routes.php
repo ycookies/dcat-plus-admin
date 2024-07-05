@@ -1,6 +1,6 @@
 <?php
 
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Admin;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 

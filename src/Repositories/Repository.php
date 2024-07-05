@@ -1,12 +1,12 @@
 <?php
 
-namespace Dcat\Admin\Repositories;
+namespace Dcatplus\Admin\Repositories;
 
-use Dcat\Admin\Contracts\Repository as RepositoryInterface;
-use Dcat\Admin\Contracts\TreeRepository;
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Show;
+use Dcatplus\Admin\Contracts\Repository as RepositoryInterface;
+use Dcatplus\Admin\Contracts\TreeRepository;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Show;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
 use RuntimeException;

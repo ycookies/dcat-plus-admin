@@ -2,7 +2,7 @@
 
 namespace Tests\Repositories;
 
-use Dcat\Admin\Repositories\EloquentRepository;
+use Dcatplus\Admin\Repositories\EloquentRepository;
 use Tests\Models\User as Model;
 
 class User extends EloquentRepository

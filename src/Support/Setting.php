@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Support;
+namespace Dcatplus\Admin\Support;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Models\Setting as Model;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Models\Setting as Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;

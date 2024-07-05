@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Column;
+namespace Dcatplus\Admin\Grid\Column;
 
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Admin;
 use Illuminate\Support\Arr;
 
 class ValueFilter

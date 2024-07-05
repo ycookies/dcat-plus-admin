@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Form\Events;
+namespace Dcatplus\Admin\Form\Events;
 
 class Creating extends Event
 {

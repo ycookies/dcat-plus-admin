@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use Dcat\Admin\Models\Administrator;
+use Dcatplus\Admin\Models\Administrator;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;

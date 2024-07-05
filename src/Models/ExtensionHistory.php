@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Models;
+namespace Dcatplus\Admin\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

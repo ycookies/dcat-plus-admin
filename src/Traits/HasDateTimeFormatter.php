@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Traits;
+namespace Dcatplus\Admin\Traits;
 
 trait HasDateTimeFormatter
 {

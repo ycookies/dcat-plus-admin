@@ -1,10 +1,10 @@
 <?php
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid\Filter;
-use Dcat\Admin\Show;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid\Filter;
+use Dcatplus\Admin\Show;
 
 /**
  * Dcat-admin - admin builder based on Laravel.

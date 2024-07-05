@@ -1,7 +1,7 @@
 <?php
 
-namespace Dcat\Admin\Widgets;
-use Dcat\Admin\Admin;
+namespace Dcatplus\Admin\Widgets;
+use Dcatplus\Admin\Admin;
 
 class PricingCard extends Widget {
     /**

@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Form;
+namespace Dcatplus\Admin\Form;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Widgets\Form as WidgetForm;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Widgets\Form as WidgetForm;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Collection;
 

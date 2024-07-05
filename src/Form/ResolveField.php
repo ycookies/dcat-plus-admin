@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Form;
+namespace Dcatplus\Admin\Form;
 
 trait ResolveField
 {

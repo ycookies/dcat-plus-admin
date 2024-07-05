@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Exception;
+namespace Dcatplus\Admin\Exception;
 
 class RuntimeException extends AdminException
 {

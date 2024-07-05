@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Grid\Tools;
+namespace Dcatplus\Admin\Grid\Tools;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Widgets\Checkbox;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Widgets\Checkbox;
 use Illuminate\Support\Collection;
 
 class ColumnSelector extends AbstractTool

@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Http\Controllers;
+namespace Dcatplus\Admin\Http\Controllers;
 
-use Dcat\Admin\Layout\Content;
+use Dcatplus\Admin\Layout\Content;
 
 trait HasNestedResource
 {

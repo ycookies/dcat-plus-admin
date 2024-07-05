@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Widgets;
+namespace Dcatplus\Admin\Widgets;
 
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Support\Arr;
 
 class Checkbox extends Radio

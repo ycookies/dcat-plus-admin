@@ -2,10 +2,10 @@
 
 namespace Tests\Controllers;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Http\Controllers\AdminController;
-use Dcat\Admin\Show;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Http\Controllers\AdminController;
+use Dcatplus\Admin\Show;
 use Tests\Models\Painter;
 use Tests\Models\Painting;
 

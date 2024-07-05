@@ -1,13 +1,13 @@
 <?php
 
-namespace Dcat\Admin\Widgets;
+namespace Dcatplus\Admin\Widgets;
 
 use Closure;
-use Dcat\Admin\Admin;
-use Dcat\Admin\Contracts\LazyRenderable;
-use Dcat\Admin\Grid\LazyRenderable as LazyGrid;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Traits\InteractsWithRenderApi;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Contracts\LazyRenderable;
+use Dcatplus\Admin\Grid\LazyRenderable as LazyGrid;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Traits\InteractsWithRenderApi;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Str;
 

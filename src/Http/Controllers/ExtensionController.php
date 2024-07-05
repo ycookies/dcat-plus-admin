@@ -1,16 +1,16 @@
 <?php
 
-namespace Dcat\Admin\Http\Controllers;
+namespace Dcatplus\Admin\Http\Controllers;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Http\Actions\Extensions\InstallFromLocal;
-use Dcat\Admin\Http\Actions\Extensions\Marketplace;
-use Dcat\Admin\Http\Displayers\Extensions;
-use Dcat\Admin\Http\Repositories\Extension;
-use Dcat\Admin\Layout\Content;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Support\StringOutput;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Http\Actions\Extensions\InstallFromLocal;
+use Dcatplus\Admin\Http\Actions\Extensions\Marketplace;
+use Dcatplus\Admin\Http\Displayers\Extensions;
+use Dcatplus\Admin\Http\Repositories\Extension;
+use Dcatplus\Admin\Layout\Content;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Support\StringOutput;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
 

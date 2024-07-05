@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Widgets;
+namespace Dcatplus\Admin\Widgets;
 
 use Illuminate\Contracts\Support\Arrayable;
 

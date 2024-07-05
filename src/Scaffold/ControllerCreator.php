@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Scaffold;
+namespace Dcatplus\Admin\Scaffold;
 
-use Dcat\Admin\Exception\AdminException;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Exception\AdminException;
+use Dcatplus\Admin\Support\Helper;
 
 class ControllerCreator
 {

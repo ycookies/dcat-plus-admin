@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Support;
+namespace Dcatplus\Admin\Support;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;

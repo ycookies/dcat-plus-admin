@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Form;
+namespace Dcatplus\Admin\Form;
 
-use Dcat\Admin\Form;
+use Dcatplus\Admin\Form;
 
 /**
  * @mixin Form

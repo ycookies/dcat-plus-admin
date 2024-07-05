@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use Dcat\Admin\Http\Controllers\AuthController as BaseAuthController;
+use Dcatplus\Admin\Http\Controllers\AuthController as BaseAuthController;
 
 class AuthController extends BaseAuthController
 {

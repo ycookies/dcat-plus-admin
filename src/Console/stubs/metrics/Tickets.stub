@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use Dcat\Admin\Widgets\Metrics\RadialBar;
+use Dcatplus\Admin\Widgets\Metrics\RadialBar;
 use Illuminate\Http\Request;
 
 class Tickets extends RadialBar

@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Grid;
+namespace Dcatplus\Admin\Grid;
 
 use Closure;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Jsonable;

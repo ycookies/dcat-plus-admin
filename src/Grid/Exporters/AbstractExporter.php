@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Exporters;
+namespace Dcatplus\Admin\Grid\Exporters;
 
-use Dcat\Admin\Grid;
+use Dcatplus\Admin\Grid;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;

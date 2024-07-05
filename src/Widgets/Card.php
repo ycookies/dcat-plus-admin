@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Widgets;
+namespace Dcatplus\Admin\Widgets;
 
-use Dcat\Admin\Grid\LazyRenderable as LazyGrid;
-use Dcat\Admin\Traits\LazyWidget;
+use Dcatplus\Admin\Grid\LazyRenderable as LazyGrid;
+use Dcatplus\Admin\Traits\LazyWidget;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Str;
 

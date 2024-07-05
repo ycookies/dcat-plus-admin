@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Console;
+namespace Dcatplus\Admin\Console;
 
-use Dcat\Admin\Models\AdminTablesSeeder;
+use Dcatplus\Admin\Models\AdminTablesSeeder;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command

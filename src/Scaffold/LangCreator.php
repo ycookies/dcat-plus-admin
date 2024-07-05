@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Scaffold;
+namespace Dcatplus\Admin\Scaffold;
 
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Support\Facades\App;
 
 class LangCreator

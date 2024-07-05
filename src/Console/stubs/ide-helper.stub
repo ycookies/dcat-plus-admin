@@ -7,7 +7,7 @@
  *
  * @author jqh <841324345@qq.com>
  */
-namespace Dcat\Admin {
+namespace Dcatplus\Admin {
     use Illuminate\Support\Collection;
 
     /**
@@ -29,7 +29,7 @@ namespace Dcat\Admin {
 
 }
 
-namespace Dcat\Admin\Grid {
+namespace Dcatplus\Admin\Grid {
     /**
      {grid-column}
      */
@@ -41,7 +41,7 @@ namespace Dcat\Admin\Grid {
     class Filter {}
 }
 
-namespace Dcat\Admin\Show {
+namespace Dcatplus\Admin\Show {
     /**
      {show-column}
      */

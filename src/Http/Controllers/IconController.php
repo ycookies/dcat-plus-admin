@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcat\Admin\Http\Controllers;
+namespace Dcatplus\Admin\Http\Controllers;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Layout\Content;
-use Dcat\Admin\Layout\Row;
-use Dcat\Admin\Widgets\Tab;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Layout\Content;
+use Dcatplus\Admin\Layout\Row;
+use Dcatplus\Admin\Widgets\Tab;
 use Illuminate\Routing\Controller;
 
 class IconController extends Controller

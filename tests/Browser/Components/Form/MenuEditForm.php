@@ -2,7 +2,7 @@
 
 namespace Tests\Browser\Components\Form;
 
-use Dcat\Admin\Models\Menu;
+use Dcatplus\Admin\Models\Menu;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Components\Form\Field\MultipleSelect2;
 use Tests\Browser\Components\Form\Field\Select2;

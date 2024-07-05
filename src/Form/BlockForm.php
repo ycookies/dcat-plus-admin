@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Form;
+namespace Dcatplus\Admin\Form;
 
-use Dcat\Admin\Exception\RuntimeException;
-use Dcat\Admin\Form;
-use Dcat\Admin\Widgets\Form as WidgetForm;
+use Dcatplus\Admin\Exception\RuntimeException;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Widgets\Form as WidgetForm;
 
 /**
  * Class BlockForm.

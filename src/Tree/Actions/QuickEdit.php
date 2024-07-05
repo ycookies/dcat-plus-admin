@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Tree\Actions;
+namespace Dcatplus\Admin\Tree\Actions;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Tree\RowAction;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Tree\RowAction;
 
 class QuickEdit extends RowAction
 {

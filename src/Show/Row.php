@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Show;
+namespace Dcatplus\Admin\Show;
 
-use Dcat\Admin\Show;
+use Dcatplus\Admin\Show;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Collection;
 

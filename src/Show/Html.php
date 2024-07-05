@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Show;
+namespace Dcatplus\Admin\Show;
 
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Support\Helper;
 
 class Html extends Field
 {

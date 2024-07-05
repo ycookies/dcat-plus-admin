@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Concerns;
+namespace Dcatplus\Admin\Grid\Concerns;
 
-use Dcat\Admin\Grid;
+use Dcatplus\Admin\Grid;
 
 /**
  * @method Grid\Model model()

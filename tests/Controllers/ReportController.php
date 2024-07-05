@@ -3,8 +3,8 @@
 namespace Tests\Controllers;
 
 use App\Http\Controllers\Controller;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Layout\Content;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Layout\Content;
 use Tests\Repositories\Report;
 
 class ReportController extends Controller

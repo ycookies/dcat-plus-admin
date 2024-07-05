@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcat\Admin\Grid\Concerns;
+namespace Dcatplus\Admin\Grid\Concerns;
 
-use Dcat\Admin\Contracts\Grid\ColumnSelectorStore;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Grid\Tools\ColumnSelector;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Contracts\Grid\ColumnSelectorStore;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Grid\Tools\ColumnSelector;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Support\Collection;
 
 trait CanHidesColumns

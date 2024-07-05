@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Console;
+namespace Dcatplus\Admin\Console;
 
 class ActionCommand extends GeneratorCommand
 {

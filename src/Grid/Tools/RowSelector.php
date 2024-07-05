@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Grid\Tools;
+namespace Dcatplus\Admin\Grid\Tools;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid;
 use Illuminate\Support\Arr;
 
 class RowSelector

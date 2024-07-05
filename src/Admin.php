@@ -1,22 +1,22 @@
 <?php
 
-namespace Dcat\Admin;
+namespace Dcatplus\Admin;
 
 use Closure;
-use Dcat\Admin\Contracts\ExceptionHandler;
-use Dcat\Admin\Contracts\Repository;
-use Dcat\Admin\Exception\InvalidArgumentException;
-use Dcat\Admin\Http\Controllers\AuthController;
-use Dcat\Admin\Http\JsonResponse;
-use Dcat\Admin\Layout\Menu;
-use Dcat\Admin\Layout\Navbar;
-use Dcat\Admin\Layout\SectionManager;
-use Dcat\Admin\Repositories\EloquentRepository;
-use Dcat\Admin\Support\Composer;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Traits\HasAssets;
-use Dcat\Admin\Traits\HasHtml;
-use Dcat\Admin\Traits\HasPermissions;
+use Dcatplus\Admin\Contracts\ExceptionHandler;
+use Dcatplus\Admin\Contracts\Repository;
+use Dcatplus\Admin\Exception\InvalidArgumentException;
+use Dcatplus\Admin\Http\Controllers\AuthController;
+use Dcatplus\Admin\Http\JsonResponse;
+use Dcatplus\Admin\Layout\Menu;
+use Dcatplus\Admin\Layout\Navbar;
+use Dcatplus\Admin\Layout\SectionManager;
+use Dcatplus\Admin\Repositories\EloquentRepository;
+use Dcatplus\Admin\Support\Composer;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Traits\HasAssets;
+use Dcatplus\Admin\Traits\HasHtml;
+use Dcatplus\Admin\Traits\HasPermissions;
 use Illuminate\Auth\GuardHelpers;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;

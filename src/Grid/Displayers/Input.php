@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Displayers;
+namespace Dcatplus\Admin\Grid\Displayers;
 
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Admin;
 
 class Input extends Editable
 {

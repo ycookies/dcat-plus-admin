@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Grid\Displayers;
+namespace Dcatplus\Admin\Grid\Displayers;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Support\Helper;
 
 class Label extends AbstractDisplayer
 {

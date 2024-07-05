@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Grid\Filter;
+namespace Dcatplus\Admin\Grid\Filter;
 
 class Equal extends AbstractFilter
 {

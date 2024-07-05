@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Actions;
+namespace Dcatplus\Admin\Actions;
 
-use Dcat\Admin\Http\JsonResponse;
+use Dcatplus\Admin\Http\JsonResponse;
 
 class Response extends JsonResponse
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Console;
+namespace Dcatplus\Admin\Console;
 
 use Illuminate\Console\Command;
 

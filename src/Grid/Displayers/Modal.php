@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Grid\Displayers;
+namespace Dcatplus\Admin\Grid\Displayers;
 
-use Dcat\Admin\Contracts\LazyRenderable;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Widgets\Modal as WidgetModal;
+use Dcatplus\Admin\Contracts\LazyRenderable;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Widgets\Modal as WidgetModal;
 
 class Modal extends AbstractDisplayer
 {

@@ -1,22 +1,22 @@
 <?php
 
-namespace Dcat\Admin;
+namespace Dcatplus\Admin;
 
-use Dcat\Admin\Contracts\ExceptionHandler;
-use Dcat\Admin\Exception\Handler;
-use Dcat\Admin\Extend\Manager;
-use Dcat\Admin\Extend\UpdateManager;
-use Dcat\Admin\Extend\VersionManager;
-use Dcat\Admin\Layout\Asset;
-use Dcat\Admin\Layout\Content;
-use Dcat\Admin\Layout\Menu;
-use Dcat\Admin\Layout\Navbar;
-use Dcat\Admin\Layout\SectionManager;
-use Dcat\Admin\Support\Context;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Support\Setting;
-use Dcat\Admin\Support\Translator;
-use Dcat\Admin\Support\WebUploader;
+use Dcatplus\Admin\Contracts\ExceptionHandler;
+use Dcatplus\Admin\Exception\Handler;
+use Dcatplus\Admin\Extend\Manager;
+use Dcatplus\Admin\Extend\UpdateManager;
+use Dcatplus\Admin\Extend\VersionManager;
+use Dcatplus\Admin\Layout\Asset;
+use Dcatplus\Admin\Layout\Content;
+use Dcatplus\Admin\Layout\Menu;
+use Dcatplus\Admin\Layout\Navbar;
+use Dcatplus\Admin\Layout\SectionManager;
+use Dcatplus\Admin\Support\Context;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Support\Setting;
+use Dcatplus\Admin\Support\Translator;
+use Dcatplus\Admin\Support\WebUploader;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;

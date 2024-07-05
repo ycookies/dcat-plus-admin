@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Grid\Column\Filter;
+namespace Dcatplus\Admin\Grid\Column\Filter;
 
-use Dcat\Admin\Grid\Column\Filter;
-use Dcat\Admin\Grid\Model;
+use Dcatplus\Admin\Grid\Column\Filter;
+use Dcatplus\Admin\Grid\Model;
 
 class In extends Filter
 {

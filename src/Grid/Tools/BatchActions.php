@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Grid\Tools;
+namespace Dcatplus\Admin\Grid\Tools;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid\BatchAction;
-use Dcat\Admin\Traits\HasVariables;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid\BatchAction;
+use Dcatplus\Admin\Traits\HasVariables;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
 

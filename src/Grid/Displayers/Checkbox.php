@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Displayers;
+namespace Dcatplus\Admin\Grid\Displayers;
 
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Support\Arr;
 
 class Checkbox extends Editable

@@ -1,13 +1,13 @@
 <?php
 
-namespace Dcat\Admin\Show;
+namespace Dcatplus\Admin\Show;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Show;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Traits\HasBuilderEvents;
-use Dcat\Admin\Traits\HasVariables;
-use Dcat\Admin\Widgets\Dump;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Show;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Traits\HasBuilderEvents;
+use Dcatplus\Admin\Traits\HasVariables;
+use Dcatplus\Admin\Widgets\Dump;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Arr;

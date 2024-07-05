@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcat\Admin\Grid\Column;
+namespace Dcatplus\Admin\Grid\Column;
 
-use Dcat\Admin\Grid\Column;
-use Dcat\Admin\Grid\Events\Fetching;
-use Dcat\Admin\Grid\Model;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Grid\Column;
+use Dcatplus\Admin\Grid\Events\Fetching;
+use Dcatplus\Admin\Grid\Model;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Renderable;
 
 abstract class Filter implements Renderable

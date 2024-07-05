@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Grid\Tools;
+namespace Dcatplus\Admin\Grid\Tools;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid;
 use Illuminate\Contracts\Support\Renderable;
 
 class CreateButton implements Renderable

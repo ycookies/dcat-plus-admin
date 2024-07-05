@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Http\Controllers;
+namespace Dcatplus\Admin\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;

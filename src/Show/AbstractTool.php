@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Show;
+namespace Dcatplus\Admin\Show;
 
-use Dcat\Admin\Actions\Action;
-use Dcat\Admin\Show;
+use Dcatplus\Admin\Actions\Action;
+use Dcatplus\Admin\Show;
 
 abstract class AbstractTool extends Action
 {

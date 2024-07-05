@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcat\Admin\Extend;
+namespace Dcatplus\Admin\Extend;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Contracts\LazyRenderable;
-use Dcat\Admin\Traits\LazyWidget;
-use Dcat\Admin\Widgets\Form;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Contracts\LazyRenderable;
+use Dcatplus\Admin\Traits\LazyWidget;
+use Dcatplus\Admin\Widgets\Form;
 
 abstract class Setting extends Form implements LazyRenderable
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Form\Field;
+namespace Dcatplus\Admin\Form\Field;
 
 class Email extends Text
 {

@@ -8,11 +8,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Dcat\Admin\Contracts;
+namespace Dcatplus\Admin\Contracts;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Show;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Show;
 use Illuminate\Support\Collection;
 
 interface Repository

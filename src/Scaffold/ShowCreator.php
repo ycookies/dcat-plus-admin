@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Scaffold;
+namespace Dcatplus\Admin\Scaffold;
 
 trait ShowCreator
 {

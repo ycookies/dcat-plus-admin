@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Form\Concerns;
+namespace Dcatplus\Admin\Form\Concerns;
 
 use Closure;
-use Dcat\Admin\Form\Row;
+use Dcatplus\Admin\Form\Row;
 
 trait HasRows
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Http\Actions\Extensions;
+namespace Dcatplus\Admin\Http\Actions\Extensions;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid\RowAction;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid\RowAction;
 
 class Update extends RowAction
 {

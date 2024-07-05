@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Form\Concerns;
+namespace Dcatplus\Admin\Form\Concerns;
 
 use Closure;
-use Dcat\Admin\Form\Layout;
+use Dcatplus\Admin\Form\Layout;
 
 trait HasLayout
 {

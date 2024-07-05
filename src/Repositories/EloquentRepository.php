@@ -1,14 +1,14 @@
 <?php
 
-namespace Dcat\Admin\Repositories;
+namespace Dcatplus\Admin\Repositories;
 
-use Dcat\Admin\Contracts\TreeRepository;
-use Dcat\Admin\Exception\AdminException;
-use Dcat\Admin\Exception\RuntimeException;
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Show;
-use Dcat\Laravel\Database\SoftDeletes as DcatSoftDeletes;
+use Dcatplus\Admin\Contracts\TreeRepository;
+use Dcatplus\Admin\Exception\AdminException;
+use Dcatplus\Admin\Exception\RuntimeException;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Show;
+use Dcatplus\Laravel\Database\SoftDeletes as DcatSoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations;

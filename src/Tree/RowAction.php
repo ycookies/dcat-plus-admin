@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Tree;
+namespace Dcatplus\Admin\Tree;
 
-use Dcat\Admin\Actions\Action;
+use Dcatplus\Admin\Actions\Action;
 
 class RowAction extends Action
 {

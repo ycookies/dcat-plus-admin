@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Show;
+namespace Dcatplus\Admin\Show;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Collection;

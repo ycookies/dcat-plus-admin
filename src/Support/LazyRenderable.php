@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Support;
+namespace Dcatplus\Admin\Support;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Contracts\LazyRenderable as Renderable;
-use Dcat\Admin\Traits\LazyWidget;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Contracts\LazyRenderable as Renderable;
+use Dcatplus\Admin\Traits\LazyWidget;
 
 abstract class LazyRenderable implements Renderable
 {

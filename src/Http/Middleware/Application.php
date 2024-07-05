@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Http\Middleware;
+namespace Dcatplus\Admin\Http\Middleware;
 
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Admin;
 
 class Application
 {

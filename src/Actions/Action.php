@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Actions;
+namespace Dcatplus\Admin\Actions;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Traits\HasHtmlAttributes;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Traits\HasHtmlAttributes;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Str;
 

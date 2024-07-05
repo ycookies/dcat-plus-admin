@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcat\Admin\Widgets;
+namespace Dcatplus\Admin\Widgets;
 
 class MediaList extends Widget {
     /**

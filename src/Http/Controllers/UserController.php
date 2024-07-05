@@ -1,15 +1,15 @@
 <?php
 
-namespace Dcat\Admin\Http\Controllers;
+namespace Dcatplus\Admin\Http\Controllers;
 
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Http\Auth\Permission;
-use Dcat\Admin\Http\Repositories\Administrator;
-use Dcat\Admin\Models\Administrator as AdministratorModel;
-use Dcat\Admin\Show;
-use Dcat\Admin\Support\Helper;
-use Dcat\Admin\Widgets\Tree;
+use Dcatplus\Admin\Form;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Http\Auth\Permission;
+use Dcatplus\Admin\Http\Repositories\Administrator;
+use Dcatplus\Admin\Models\Administrator as AdministratorModel;
+use Dcatplus\Admin\Show;
+use Dcatplus\Admin\Support\Helper;
+use Dcatplus\Admin\Widgets\Tree;
 
 class UserController extends AdminController
 {

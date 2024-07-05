@@ -8,7 +8,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Dcat\Admin\Contracts;
+namespace Dcatplus\Admin\Contracts;
 
 interface TreeRepository
 {

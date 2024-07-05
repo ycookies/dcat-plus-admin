@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcat\Admin\Grid\Concerns;
+namespace Dcatplus\Admin\Grid\Concerns;
 
 use Closure;
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Support\Collection;
 
 trait HasFilter

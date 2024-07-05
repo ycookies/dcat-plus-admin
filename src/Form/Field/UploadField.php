@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Form\Field;
+namespace Dcatplus\Admin\Form\Field;
 
-use Dcat\Admin\Exception\UploadException;
-use Dcat\Admin\Traits\HasUploadedFile;
+use Dcatplus\Admin\Exception\UploadException;
+use Dcatplus\Admin\Traits\HasUploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;

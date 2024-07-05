@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Widgets\Metrics;
+namespace Dcatplus\Admin\Widgets\Metrics;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Support\JavaScript;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Support\JavaScript;
 
 /**
  * 环形图卡片.

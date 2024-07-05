@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Grid\ColumnSelector;
+namespace Dcatplus\Admin\Grid\ColumnSelector;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Contracts\Grid\ColumnSelectorStore;
-use Dcat\Admin\Grid;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Contracts\Grid\ColumnSelectorStore;
+use Dcatplus\Admin\Grid;
 
 class SessionStore implements ColumnSelectorStore
 {

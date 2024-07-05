@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use Dcat\Admin\Widgets\Metrics\Line;
+use Dcatplus\Admin\Widgets\Metrics\Line;
 use Illuminate\Http\Request;
 
 class NewUsers extends Line

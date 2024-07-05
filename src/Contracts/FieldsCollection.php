@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Contracts;
+namespace Dcatplus\Admin\Contracts;
 
-use Dcat\Admin\Form\Field;
+use Dcatplus\Admin\Form\Field;
 use Illuminate\Support\Collection;
 
 interface FieldsCollection

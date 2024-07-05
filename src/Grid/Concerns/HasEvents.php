@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Concerns;
+namespace Dcatplus\Admin\Grid\Concerns;
 
-use Dcat\Admin\Grid\Events;
+use Dcatplus\Admin\Grid\Events;
 use Illuminate\Support\Facades\Event;
 
 trait HasEvents

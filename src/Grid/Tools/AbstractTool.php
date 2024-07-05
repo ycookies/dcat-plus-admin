@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Tools;
+namespace Dcatplus\Admin\Grid\Tools;
 
-use Dcat\Admin\Grid;
+use Dcatplus\Admin\Grid;
 
 abstract class AbstractTool extends Grid\GridAction
 {

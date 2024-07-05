@@ -1,13 +1,13 @@
 <?php
 
-namespace Dcat\Admin\Grid\Concerns;
+namespace Dcatplus\Admin\Grid\Concerns;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid\Column;
-use Dcat\Admin\Grid\Events\ApplyQuickSearch;
-use Dcat\Admin\Grid\Model;
-use Dcat\Admin\Grid\Tools;
-use Dcat\Admin\Support\Helper;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid\Column;
+use Dcatplus\Admin\Grid\Events\ApplyQuickSearch;
+use Dcatplus\Admin\Grid\Model;
+use Dcatplus\Admin\Grid\Tools;
+use Dcatplus\Admin\Support\Helper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 

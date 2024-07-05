@@ -2,8 +2,8 @@
 
 namespace {namespace};
 
-use Dcat\Admin\Extend\ServiceProvider;
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Extend\ServiceProvider;
+use Dcatplus\Admin\Admin;
 
 class {className}ServiceProvider extends ServiceProvider
 {

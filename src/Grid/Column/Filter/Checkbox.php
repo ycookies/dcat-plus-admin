@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcat\Admin\Grid\Column\Filter;
+namespace Dcatplus\Admin\Grid\Column\Filter;
 
-use Dcat\Admin\Admin;
+use Dcatplus\Admin\Admin;
 
 trait Checkbox
 {

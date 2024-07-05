@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Grid\Tools;
+namespace Dcatplus\Admin\Grid\Tools;
 
-use Dcat\Admin\Admin;
-use Dcat\Admin\Grid\Filter;
+use Dcatplus\Admin\Admin;
+use Dcatplus\Admin\Grid\Filter;
 use Illuminate\Support\Str;
 
 class FilterButton extends AbstractTool

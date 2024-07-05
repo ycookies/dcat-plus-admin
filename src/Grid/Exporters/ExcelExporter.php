@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcat\Admin\Grid\Exporters;
+namespace Dcatplus\Admin\Grid\Exporters;
 
-use Dcat\Admin\Exception\RuntimeException;
-use Dcat\Admin\Grid;
-use Dcat\EasyExcel\Excel;
+use Dcatplus\Admin\Exception\RuntimeException;
+use Dcatplus\Admin\Grid;
+use Dcatplus\EasyExcel\Excel;
 
 class ExcelExporter extends AbstractExporter
 {

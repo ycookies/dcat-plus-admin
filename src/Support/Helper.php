@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcat\Admin\Support;
+namespace Dcatplus\Admin\Support;
 
-use Dcat\Admin\Grid;
-use Dcat\Laravel\Database\WhereHasInServiceProvider;
+use Dcatplus\Admin\Grid;
+use Dcatplus\Laravel\Database\WhereHasInServiceProvider;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Jsonable;
