@@ -1,5 +1,5 @@
 
-{!! admin_section(Dcatplus\Admin\Admin::SECTION['NAVBAR_BEFORE']) !!}
+{!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_BEFORE']) !!}
 
 <nav class="header-navbar navbar-expand-lg navbar
     navbar-with-menu {{ $configData['navbar_class'] }}
@@ -22,7 +22,7 @@
 
             <div class="navbar-collapse d-flex justify-content-between">
                 <div class="navbar-left d-flex align-items-center">
-                    {!! Dcatplus\Admin\Admin::navbar()->render('left') !!}
+                    {!! Dcat\Admin\Admin::navbar()->render('left') !!}
                 </div>
 
                 @if($configData['horizontal_menu'])
@@ -38,13 +38,13 @@
                 @endif
 
                 <div class="navbar-right d-flex align-items-center">
-                    {!! Dcatplus\Admin\Admin::navbar()->render() !!}
+                    {!! Dcat\Admin\Admin::navbar()->render() !!}
 
                     <ul class="nav navbar-nav">
                         {{--User Account Menu--}}
-                        {!! admin_section(Dcatplus\Admin\Admin::SECTION['NAVBAR_USER_PANEL']) !!}
+                        {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_USER_PANEL']) !!}
 
-                        {!! admin_section(Dcatplus\Admin\Admin::SECTION['NAVBAR_AFTER_USER_PANEL']) !!}
+                        {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_AFTER_USER_PANEL']) !!}
                     </ul>
                 </div>
             </div>
@@ -52,4 +52,4 @@
     </div>
 </nav>
 
-{!! admin_section(Dcatplus\Admin\Admin::SECTION['NAVBAR_AFTER']) !!}
+{!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_AFTER']) !!}

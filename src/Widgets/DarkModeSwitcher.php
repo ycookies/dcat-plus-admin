@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Widgets;
+namespace Dcat\Admin\Widgets;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 use Illuminate\Contracts\Support\Renderable;
 
 class DarkModeSwitcher implements Renderable

@@ -2,8 +2,8 @@
 
 namespace DummyNamespace;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Widgets\Metrics\Bar;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Widgets\Metrics\Bar;
 use Illuminate\Http\Request;
 
 class Sessions extends Bar

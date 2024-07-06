@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Displayers;
+namespace Dcat\Admin\Grid\Displayers;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Contracts\LazyRenderable;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Contracts\LazyRenderable;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Str;
 
 class Expand extends AbstractDisplayer

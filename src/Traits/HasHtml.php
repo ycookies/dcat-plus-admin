@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Traits;
+namespace Dcat\Admin\Traits;
 
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Support\Helper;
 use DOMDocument;
 use DOMElement;
 

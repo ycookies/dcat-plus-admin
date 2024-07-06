@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Extend;
+namespace Dcat\Admin\Extend;
 
 trait HasExtension
 {

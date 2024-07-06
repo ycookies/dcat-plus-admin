@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Widgets;
+namespace Dcat\Admin\Widgets;
 
-use Dcatplus\Admin\Grid\LazyRenderable as LazyGrid;
+use Dcat\Admin\Grid\LazyRenderable as LazyGrid;
 use Illuminate\Contracts\Support\Renderable;
 
 class Box extends Widget

@@ -19,11 +19,11 @@
                 <ul class="nav nav-pills nav-sidebar {{ $configData['horizontal_menu'] ? '' : 'flex-column' }}"
                     {!! $configData['horizontal_menu'] ? '' : 'data-widget="treeview"' !!}
                      style="padding-top: 10px">
-                    {!! admin_section(Dcatplus\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_TOP']) !!}
+                    {!! admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_TOP']) !!}
 
-                    {!! admin_section(Dcatplus\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU']) !!}
+                    {!! admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU']) !!}
 
-                    {!! admin_section(Dcatplus\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_BOTTOM']) !!}
+                    {!! admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_BOTTOM']) !!}
                 </ul>
             </div>
         </aside>

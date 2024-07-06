@@ -1,20 +1,20 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Filter;
+namespace Dcat\Admin\Grid\Filter;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Exception\RuntimeException;
-use Dcatplus\Admin\Grid\Filter;
-use Dcatplus\Admin\Grid\Filter\Presenter\Checkbox;
-use Dcatplus\Admin\Grid\Filter\Presenter\DateTime;
-use Dcatplus\Admin\Grid\Filter\Presenter\MultipleSelect;
-use Dcatplus\Admin\Grid\Filter\Presenter\Presenter;
-use Dcatplus\Admin\Grid\Filter\Presenter\Radio;
-use Dcatplus\Admin\Grid\Filter\Presenter\Select;
-use Dcatplus\Admin\Grid\Filter\Presenter\Text;
-use Dcatplus\Admin\Grid\LazyRenderable;
-use Dcatplus\Admin\Traits\HasVariables;
-use Dcatplus\Laravel\Database\WhereHasInServiceProvider;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Exception\RuntimeException;
+use Dcat\Admin\Grid\Filter;
+use Dcat\Admin\Grid\Filter\Presenter\Checkbox;
+use Dcat\Admin\Grid\Filter\Presenter\DateTime;
+use Dcat\Admin\Grid\Filter\Presenter\MultipleSelect;
+use Dcat\Admin\Grid\Filter\Presenter\Presenter;
+use Dcat\Admin\Grid\Filter\Presenter\Radio;
+use Dcat\Admin\Grid\Filter\Presenter\Select;
+use Dcat\Admin\Grid\Filter\Presenter\Text;
+use Dcat\Admin\Grid\LazyRenderable;
+use Dcat\Admin\Traits\HasVariables;
+use Dcat\Laravel\Database\WhereHasInServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 

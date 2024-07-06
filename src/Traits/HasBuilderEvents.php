@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Traits;
+namespace Dcat\Admin\Traits;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 
 trait HasBuilderEvents
 {

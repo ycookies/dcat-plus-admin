@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Events;
+namespace Dcat\Admin\Grid\Events;
 
 class ApplySelector extends Event
 {

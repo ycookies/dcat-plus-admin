@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Displayers;
+namespace Dcat\Admin\Grid\Displayers;
 
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Facades\Storage;
 
 class Downloadable extends AbstractDisplayer

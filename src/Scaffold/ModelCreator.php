@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Scaffold;
+namespace Dcat\Admin\Scaffold;
 
-use Dcatplus\Admin\Exception\AdminException;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Exception\AdminException;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Str;
 
 class ModelCreator
@@ -174,7 +174,7 @@ class ModelCreator
         $import = $use = '';
 
         if (version_compare(app()->version(), '7.0.0') >= 0) {
-            $import = 'use Dcatplus\\Admin\\Traits\\HasDateTimeFormatter;';
+            $import = 'use Dcat\\Admin\\Traits\\HasDateTimeFormatter;';
             $use = 'use HasDateTimeFormatter;';
         }
 

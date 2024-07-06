@@ -8,7 +8,7 @@
 
     <div class="{{$viewClass['field']}}">
         <span name="{{$name}}"></span>
-        <input name="{{ $name }}[{{ \Dcatplus\Admin\Form\Field\KeyValue::DEFAULT_FLAG_NAME }}]" type="hidden" />
+        <input name="{{ $name }}[{{ \Dcat\Admin\Form\Field\KeyValue::DEFAULT_FLAG_NAME }}]" type="hidden" />
 
         <div class="help-block with-errors"></div>
 

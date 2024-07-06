@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Field;
+namespace Dcat\Admin\Form\Field;
 
-use Dcatplus\Admin\Exception\RuntimeException;
-use Dcatplus\Admin\Form\Field;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Exception\RuntimeException;
+use Dcat\Admin\Form\Field;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 

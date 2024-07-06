@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Layout;
+namespace Dcat\Admin\Layout;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Color;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Color;
 use Illuminate\Support\Str;
 
 class Asset
@@ -32,7 +32,12 @@ class Asset
             'css' => '@admin/dcat/css/nunito.css',
         ],
         '@dcat' => [
-            'js'  => '@admin/dcat/js/dcat-app.js',
+            'js'  => [
+                '@admin/dcat/js/dcat-app.js',
+                '@admin/dcat/js/vue-2.6.10.js',
+                '@admin/dcat/js/clipboard.min.js',
+                //'@admin/dcat/js/dcatplus.js',
+            ],
             'css' => [
                 '@admin/dcat/css/dcat-app.css',
                 '@admin/dcat/css/dcatplus.css'

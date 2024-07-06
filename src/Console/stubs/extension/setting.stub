@@ -2,7 +2,7 @@
 
 namespace {namespace};
 
-use Dcatplus\Admin\Extend\Setting as Form;
+use Dcat\Admin\Extend\Setting as Form;
 
 class Setting extends Form
 {

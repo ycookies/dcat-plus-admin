@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Traits;
+namespace Dcat\Admin\Traits;
 
 use Illuminate\Support\Str;
 

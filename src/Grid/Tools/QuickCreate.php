@@ -1,13 +1,13 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Tools;
+namespace Dcat\Admin\Grid\Tools;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Form\Field;
-use Dcatplus\Admin\Form\Field\MultipleSelect;
-use Dcatplus\Admin\Form\Field\Select;
-use Dcatplus\Admin\Form\Field\Text;
-use Dcatplus\Admin\Grid;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Form\Field;
+use Dcat\Admin\Form\Field\MultipleSelect;
+use Dcat\Admin\Form\Field\Select;
+use Dcat\Admin\Form\Field\Text;
+use Dcat\Admin\Grid;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;

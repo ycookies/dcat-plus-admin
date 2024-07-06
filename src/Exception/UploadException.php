@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Exception;
+namespace Dcat\Admin\Exception;
 
 class UploadException extends AdminException
 {

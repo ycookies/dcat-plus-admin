@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Controllers;
+namespace Dcat\Admin\Http\Controllers;
 
 trait HasResourceActions
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Form;
+namespace Dcat\Admin\Form;
 
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Layout\Column;
-use Dcatplus\Admin\Widgets\Form as WidgetForm;
+use Dcat\Admin\Form;
+use Dcat\Admin\Layout\Column;
+use Dcat\Admin\Widgets\Form as WidgetForm;
 
 class Layout
 {
@@ -105,7 +105,7 @@ class Layout
         $this->column($width, function (Column $column) use ($callback) {
             $this->form->layoutColumn = $column;
 
-            $column->row(function (\Dcatplus\Admin\Layout\Row $row) use ($callback) {
+            $column->row(function (\Dcat\Admin\Layout\Row $row) use ($callback) {
                 $form = $this->form();
 
                 $form->layoutRow = $row;

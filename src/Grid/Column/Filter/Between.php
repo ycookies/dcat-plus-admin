@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Column\Filter;
+namespace Dcat\Admin\Grid\Column\Filter;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Grid\Column\Filter;
-use Dcatplus\Admin\Grid\Model;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Grid\Column\Filter;
+use Dcat\Admin\Grid\Model;
 
 class Between extends Filter
 {

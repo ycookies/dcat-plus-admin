@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Field;
+namespace Dcat\Admin\Form\Field;
 
-use Dcatplus\Admin\Form\Field;
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Widgets\Checkbox as WidgetCheckbox;
+use Dcat\Admin\Form\Field;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Widgets\Checkbox as WidgetCheckbox;
 use Illuminate\Contracts\Support\Arrayable;
 
 class Tree extends Field

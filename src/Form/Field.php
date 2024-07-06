@@ -1,13 +1,13 @@
 <?php
 
-namespace Dcatplus\Admin\Form;
+namespace Dcat\Admin\Form;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Traits\HasBuilderEvents;
-use Dcatplus\Admin\Traits\HasVariables;
-use Dcatplus\Admin\Widgets\Form as WidgetForm;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Form;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Traits\HasBuilderEvents;
+use Dcat\Admin\Traits\HasVariables;
+use Dcat\Admin\Widgets\Form as WidgetForm;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Arr;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Contracts;
+namespace Dcat\Admin\Contracts;
 
 interface ExceptionHandler
 {

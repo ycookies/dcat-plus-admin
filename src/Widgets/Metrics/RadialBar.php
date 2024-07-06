@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Widgets\Metrics;
+namespace Dcat\Admin\Widgets\Metrics;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Renderable;
 
 /**

@@ -1,17 +1,17 @@
 <?php
 
-namespace Dcatplus\Admin;
+namespace Dcat\Admin;
 
 use Closure;
-use Dcatplus\Admin\Contracts\TreeRepository;
-use Dcatplus\Admin\Exception\InvalidArgumentException;
-use Dcatplus\Admin\Repositories\EloquentRepository;
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Traits\HasBuilderEvents;
-use Dcatplus\Admin\Traits\HasVariables;
-use Dcatplus\Admin\Tree\AbstractTool;
-use Dcatplus\Admin\Tree\Actions;
-use Dcatplus\Admin\Tree\Tools;
+use Dcat\Admin\Contracts\TreeRepository;
+use Dcat\Admin\Exception\InvalidArgumentException;
+use Dcat\Admin\Repositories\EloquentRepository;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Traits\HasBuilderEvents;
+use Dcat\Admin\Traits\HasVariables;
+use Dcat\Admin\Tree\AbstractTool;
+use Dcat\Admin\Tree\Actions;
+use Dcat\Admin\Tree\Tools;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Builder;

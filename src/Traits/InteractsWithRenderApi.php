@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Traits;
+namespace Dcat\Admin\Traits;
 
-use Dcatplus\Admin\Contracts\LazyRenderable;
+use Dcat\Admin\Contracts\LazyRenderable;
 
 /**
  * @property string $target

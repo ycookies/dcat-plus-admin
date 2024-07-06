@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Widgets;
+namespace Dcat\Admin\Widgets;
 
-use Dcatplus\Admin\Grid\LazyRenderable;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Grid\LazyRenderable;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Renderable;
 
 class DialogTable extends Widget

@@ -7,7 +7,7 @@
     </button>
     <ul class="dropdown-menu" role="menu">
         @foreach($actions as $action)
-            @if ($action instanceof Dcatplus\Admin\Grid\Tools\ActionDivider)
+            @if ($action instanceof Dcat\Admin\Grid\Tools\ActionDivider)
                 <li class="dropdown-divider"></li>
             @else
                 <li class="dropdown-item">

@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Column;
+namespace Dcat\Admin\Grid\Column;
 
-use Dcatplus\Admin\Grid;
+use Dcat\Admin\Grid;
 use Illuminate\Contracts\Support\Renderable;
 
 class Sorter implements Renderable

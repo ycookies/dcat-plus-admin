@@ -2,7 +2,7 @@
 
 namespace Tests\Browser\Cases;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 use Laravel\Dusk\Browser;
 use Tests\TestCase;
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Middleware;
+namespace Dcat\Admin\Http\Middleware;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Support\WebUploader as Uploader;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Support\WebUploader as Uploader;
 use Illuminate\Http\Request;
 
 /**

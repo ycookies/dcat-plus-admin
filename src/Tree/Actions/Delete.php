@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Tree\Actions;
+namespace Dcat\Admin\Tree\Actions;
 
-use Dcatplus\Admin\Tree\RowAction;
+use Dcat\Admin\Tree\RowAction;
 
 class Delete extends RowAction
 {

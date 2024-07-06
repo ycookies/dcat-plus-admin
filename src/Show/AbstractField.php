@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Show;
+namespace Dcat\Admin\Show;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Fluent;

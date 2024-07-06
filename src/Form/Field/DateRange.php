@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Field;
+namespace Dcat\Admin\Form\Field;
 
-use Dcatplus\Admin\Form\Field;
+use Dcat\Admin\Form\Field;
 
 class DateRange extends Field
 {

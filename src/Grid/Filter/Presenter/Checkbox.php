@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Filter\Presenter;
+namespace Dcat\Admin\Grid\Filter\Presenter;
 
 class Checkbox extends Radio
 {

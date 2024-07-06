@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Displayers;
+namespace Dcat\Admin\Grid\Displayers;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 
 class SwitchDisplay extends AbstractDisplayer
 {

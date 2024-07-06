@@ -2,7 +2,7 @@
 
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 
 Admin::routes();
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Controllers;
+namespace Dcat\Admin\Http\Controllers;
 
-use Dcatplus\Admin\Actions\Action;
-use Dcatplus\Admin\Actions\Response;
-use Dcatplus\Admin\Exception\AdminException;
+use Dcat\Admin\Actions\Action;
+use Dcat\Admin\Actions\Response;
+use Dcat\Admin\Exception\AdminException;
 use Illuminate\Http\Request;
 
 class HandleActionController

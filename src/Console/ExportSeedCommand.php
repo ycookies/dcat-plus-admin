@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Console;
+namespace Dcat\Admin\Console;
 
 use Illuminate\Console\Command;
 
@@ -85,7 +85,7 @@ class ExportSeedCommand extends Command
 
     protected function getTableName($config)
     {
-        return trim(str_replace('Dcatplus\\Admin\\', '', config($config)), '\\');
+        return trim(str_replace('Dcat\\Admin\\', '', config($config)), '\\');
     }
 
     /**

@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Displayers;
+namespace Dcat\Admin\Grid\Displayers;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Support\Helper;
 
 class Limit extends AbstractDisplayer
 {

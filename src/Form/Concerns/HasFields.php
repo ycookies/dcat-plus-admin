@@ -8,10 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Dcatplus\Admin\Form\Concerns;
+namespace Dcat\Admin\Form\Concerns;
 
-use Dcatplus\Admin\Contracts\FieldsCollection;
-use Dcatplus\Admin\Form\Field;
+use Dcat\Admin\Contracts\FieldsCollection;
+use Dcat\Admin\Form\Field;
 use Illuminate\Support\Collection;
 
 trait HasFields

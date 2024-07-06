@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcatplus\Admin\Extend;
+namespace Dcat\Admin\Extend;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Contracts\LazyRenderable;
-use Dcatplus\Admin\Traits\LazyWidget;
-use Dcatplus\Admin\Widgets\Form;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Contracts\LazyRenderable;
+use Dcat\Admin\Traits\LazyWidget;
+use Dcat\Admin\Widgets\Form;
 
 abstract class Setting extends Form implements LazyRenderable
 {
@@ -36,7 +36,7 @@ abstract class Setting extends Form implements LazyRenderable
      * 处理请求.
      *
      * @param  array  $input
-     * @return \Dcatplus\Admin\Http\JsonResponse
+     * @return \Dcat\Admin\Http\JsonResponse
      */
     public function handle(array $input)
     {

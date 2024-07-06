@@ -3,10 +3,10 @@
         {{ $configData['navbar_class'] === 'fixed-top' ? 'navbar-fixed-top' : '' }} " >
 
 <script>
-    var Dcat = CreateDcat({!! Dcatplus\Admin\Admin::jsVariables() !!});
+    var Dcat = CreateDcat({!! Dcat\Admin\Admin::jsVariables() !!});
 </script>
 
-{!! admin_section(Dcatplus\Admin\Admin::SECTION['BODY_INNER_BEFORE']) !!}
+{!! admin_section(Dcat\Admin\Admin::SECTION['BODY_INNER_BEFORE']) !!}
 
 <div class="wrapper">
     @include('admin::partials.sidebar')
@@ -24,9 +24,9 @@
     <p class="clearfix blue-grey lighten-2 mb-0 text-center">
             <span class="text-center d-block d-md-inline-block mt-25">
                 Powered by
-                <a target="_blank" href="https://github.com/jqhph/dcat-admin">Dcat Admin</a>
+                <a target="_blank" href="https://github.com/ycookies/dcat-plus-admin">Dcat Admin (程序邦)</a>
                 <span>&nbsp;·&nbsp;</span>
-                v{{ Dcatplus\Admin\Admin::VERSION }}
+                v{{ Dcat\Admin\Admin::VERSION }}
             </span>
 
         <button class="btn btn-primary btn-icon scroll-top pull-right" style="position: fixed;bottom: 2%; right: 10px;display: none">
@@ -35,11 +35,24 @@
     </p>
 </footer>
 
-{!! admin_section(Dcatplus\Admin\Admin::SECTION['BODY_INNER_AFTER']) !!}
+{!! admin_section(Dcat\Admin\Admin::SECTION['BODY_INNER_AFTER']) !!}
 
-{!! Dcatplus\Admin\Admin::asset()->jsToHtml() !!}
+{!! Dcat\Admin\Admin::asset()->jsToHtml() !!}
 
-<script>Dcat.boot();</script>
+<script>
+    (function () {
+        var clipboard = new ClipboardJS('.copy');
+        clipboard.on('success', function(e) {
+            e.clearSelection();
+            layer.msg('已复制');
+        });
+        clipboard.on('error', function(e) {
+            e.clearSelection();
+            layer.msg('复制内容失败');
+        });
+    })();
+    Dcat.boot();
+</script>
 
 </body>
 

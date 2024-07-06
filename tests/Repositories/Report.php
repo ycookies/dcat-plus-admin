@@ -2,8 +2,8 @@
 
 namespace Tests\Repositories;
 
-use Dcatplus\Admin\Grid;
-use Dcatplus\Admin\Repositories\Repository;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Repositories\Repository;
 use Faker\Factory;
 use Illuminate\Pagination\LengthAwarePaginator;
 

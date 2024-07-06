@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Form;
+namespace Dcat\Admin\Form;
 
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Form;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 

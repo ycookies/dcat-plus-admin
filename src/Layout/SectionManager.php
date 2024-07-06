@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Layout;
+namespace Dcat\Admin\Layout;
 
-use Dcatplus\Admin\Exception\RuntimeException;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Exception\RuntimeException;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Fluent;

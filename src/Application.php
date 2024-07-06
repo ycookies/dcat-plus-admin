@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin;
+namespace Dcat\Admin;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Route;

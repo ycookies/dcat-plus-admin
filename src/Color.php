@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin;
+namespace Dcat\Admin;
 
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Traits\Macroable;
 
 /**

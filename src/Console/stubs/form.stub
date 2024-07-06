@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use Dcatplus\Admin\Widgets\Form;
+use Dcat\Admin\Widgets\Form;
 
 class DummyClass extends Form
 {

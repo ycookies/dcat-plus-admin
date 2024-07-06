@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Concerns;
+namespace Dcat\Admin\Grid\Concerns;
 
 use Closure;
-use Dcatplus\Admin\Actions\Action;
-use Dcatplus\Admin\Grid\BatchAction;
-use Dcatplus\Admin\Grid\Tools;
+use Dcat\Admin\Actions\Action;
+use Dcat\Admin\Grid\BatchAction;
+use Dcat\Admin\Grid\Tools;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 

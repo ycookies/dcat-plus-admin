@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Field;
+namespace Dcat\Admin\Form\Field;
 
-use Dcatplus\Admin\Exception\AdminException;
+use Dcat\Admin\Exception\AdminException;
 
 class Captcha extends Text
 {

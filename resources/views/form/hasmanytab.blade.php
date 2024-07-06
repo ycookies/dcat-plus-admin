@@ -44,14 +44,14 @@
 
     <template class="nav-tab-tpl">
         <li class="new nav-item">
-            <a href="#{{ $relationName . '_new_' . \Dcatplus\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}" class="nav-link" data-toggle="tab">
-                &nbsp;New {{ \Dcatplus\Admin\Form\NestedForm::DEFAULT_KEY_NAME }} <i class="feather icon-alert-circle text-red d-none"></i>
+            <a href="#{{ $relationName . '_new_' . \Dcat\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}" class="nav-link" data-toggle="tab">
+                &nbsp;New {{ \Dcat\Admin\Form\NestedForm::DEFAULT_KEY_NAME }} <i class="feather icon-alert-circle text-red d-none"></i>
             </a>
             <i class="close-tab feather icon-trash text-red" ></i>
         </li>
     </template>
     <template class="pane-tpl">
-        <div class="tab-pane fields-group new" id="{{ $relationName . '_new_' . Dcatplus\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}">
+        <div class="tab-pane fields-group new" id="{{ $relationName . '_new_' . Dcat\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}">
             {!! $template !!}
         </div>
     </template>
@@ -67,7 +67,7 @@
         if( $pane.hasClass('new') ){
             $pane.remove();
         }else{
-            $pane.removeClass('active').find('.{{ Dcatplus\Admin\Form\NestedForm::REMOVE_FLAG_CLASS }}').val(1);
+            $pane.removeClass('active').find('.{{ Dcat\Admin\Form\NestedForm::REMOVE_FLAG_CLASS }}').val(1);
         }
         if($navTab.closest('li').hasClass('active')){
             $navTab.closest('li').remove();
@@ -80,7 +80,7 @@
     var nestedIndex = {!! $count !!};
 
     function replaceNestedFormIndex(value) {
-        return String(value).replace(/{{ Dcatplus\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}/g, nestedIndex);
+        return String(value).replace(/{{ Dcat\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}/g, nestedIndex);
     }
 
     $(container+' > .header').off('click', '.add').on('click', '.add', function(){

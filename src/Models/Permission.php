@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Models;
+namespace Dcat\Admin\Models;
 
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Traits\HasDateTimeFormatter;
-use Dcatplus\Admin\Traits\ModelTree;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Traits\HasDateTimeFormatter;
+use Dcat\Admin\Traits\ModelTree;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;

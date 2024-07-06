@@ -28,7 +28,7 @@
                 <div class="col-md-3">
                     <dl>
                         <dt>订单号</dt>
-                        <dd>292349393923 <a class="clipboard-txt" data-clipboard-text='292349393923'
+                        <dd>292349393923 <a class="copy" data-clipboard-text='292349393923'
                                             href="javascript:void(0);"> <i class='feather icon-copy'></i></a></dd>
                         <dt>交易流水</dt>
                         <dd>8999888sdf</dd>

@@ -2,11 +2,11 @@
 
 namespace Tests\Controllers;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Layout\Content;
-use Dcatplus\Admin\Layout\Row;
-use Dcatplus\Admin\Widgets\Box;
-use Dcatplus\Admin\Widgets\Dropdown;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Layout\Row;
+use Dcat\Admin\Widgets\Box;
+use Dcat\Admin\Widgets\Dropdown;
 use Illuminate\Routing\Controller;
 
 class DropdownController extends Controller

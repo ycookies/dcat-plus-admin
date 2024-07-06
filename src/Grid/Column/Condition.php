@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Column;
+namespace Dcat\Admin\Grid\Column;
 
-use Dcatplus\Admin\Grid\Column;
+use Dcat\Admin\Grid\Column;
 
 /**
  * @mixin Column

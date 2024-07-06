@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Console\Development;
+namespace Dcat\Admin\Console\Development;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 

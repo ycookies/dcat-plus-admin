@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Extend;
+namespace Dcat\Admin\Extend;
 
-use Dcatplus\Admin\Exception\AdminException;
+use Dcat\Admin\Exception\AdminException;
 use Illuminate\Support\Facades\Artisan;
 
 /**

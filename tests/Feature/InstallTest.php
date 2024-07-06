@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 use Tests\TestCase;
 
 /**

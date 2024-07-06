@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Displayers;
+namespace Dcat\Admin\Grid\Displayers;
 
 class ProgressBar extends AbstractDisplayer
 {

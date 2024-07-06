@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Field;
+namespace Dcat\Admin\Form\Field;
 
-use Dcatplus\Admin\Form\NestedForm;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Form\NestedForm;
+use Dcat\Admin\Support\Helper;
 
 class ArrayField extends HasMany
 {

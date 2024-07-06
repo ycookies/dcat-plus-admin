@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcatplus\Admin\Traits;
+namespace Dcat\Admin\Traits;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Form\Field\File;
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Support\WebUploader;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Form\Field\File;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Support\WebUploader;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 

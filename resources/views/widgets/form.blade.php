@@ -4,7 +4,7 @@
             @include('admin::form.tab', compact('tabObj'))
 
             @foreach($fields as $field)
-                @if($field instanceof \Dcatplus\Admin\Form\Field\Hidden)
+                @if($field instanceof \Dcat\Admin\Form\Field\Hidden)
                     {!! $field->render() !!}
                 @endif
             @endforeach

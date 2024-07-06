@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Widgets\Metrics;
+namespace Dcat\Admin\Widgets\Metrics;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 
 class Donut extends Card
 {

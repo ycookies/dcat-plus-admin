@@ -2,9 +2,9 @@
 
 namespace DummyNamespace;
 
-use Dcatplus\Admin\Form\AbstractTool;
-use Dcatplus\Admin\Actions\Response;
-use Dcatplus\Admin\Traits\HasPermissions;
+use Dcat\Admin\Form\AbstractTool;
+use Dcat\Admin\Actions\Response;
+use Dcat\Admin\Traits\HasPermissions;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;

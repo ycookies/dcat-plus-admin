@@ -1,12 +1,12 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Displayers\Extensions;
+namespace Dcat\Admin\Http\Displayers\Extensions;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Grid\Displayers\AbstractDisplayer;
-use Dcatplus\Admin\Http\Actions\Extensions\Disable;
-use Dcatplus\Admin\Http\Actions\Extensions\Enable;
-use Dcatplus\Admin\Http\Actions\Extensions\Uninstall;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Grid\Displayers\AbstractDisplayer;
+use Dcat\Admin\Http\Actions\Extensions\Disable;
+use Dcat\Admin\Http\Actions\Extensions\Enable;
+use Dcat\Admin\Http\Actions\Extensions\Uninstall;
 
 class Name extends AbstractDisplayer
 {

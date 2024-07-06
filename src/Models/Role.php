@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Models;
+namespace Dcat\Admin\Models;
 
-use Dcatplus\Admin\Traits\HasDateTimeFormatter;
+use Dcat\Admin\Traits\HasDateTimeFormatter;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;

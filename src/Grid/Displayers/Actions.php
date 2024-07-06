@@ -1,14 +1,14 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Displayers;
+namespace Dcat\Admin\Grid\Displayers;
 
-use Dcatplus\Admin\Actions\Action;
-use Dcatplus\Admin\Grid\Actions\Delete;
-use Dcatplus\Admin\Grid\Actions\Edit;
-use Dcatplus\Admin\Grid\Actions\QuickEdit;
-use Dcatplus\Admin\Grid\Actions\Show;
-use Dcatplus\Admin\Grid\RowAction;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Actions\Action;
+use Dcat\Admin\Grid\Actions\Delete;
+use Dcat\Admin\Grid\Actions\Edit;
+use Dcat\Admin\Grid\Actions\QuickEdit;
+use Dcat\Admin\Grid\Actions\Show;
+use Dcat\Admin\Grid\RowAction;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Traits\Macroable;

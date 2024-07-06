@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Contracts\Grid;
+namespace Dcat\Admin\Contracts\Grid;
 
-use Dcatplus\Admin\Grid;
+use Dcat\Admin\Grid;
 
 interface ColumnSelectorStore
 {

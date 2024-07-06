@@ -2,8 +2,8 @@
 
 namespace DummyNamespace;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Widgets\Metrics\Donut;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Widgets\Metrics\Donut;
 
 class NewDevices extends Donut
 {

@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=7.4.0",
-        "laravel/framework": "~8.0|~9.0|~10.0",
+        "laravel/framework": "~8.0|~9.0|~10.0|~11.0",
         "spatie/eloquent-sortable": "3.*|4.*",
         "doctrine/dbal": "^2.6|^3.0"
     },
@@ -26,7 +26,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Dcatplus\\Admin\\": "src/"
+            "Dcat\\Admin\\": "src/"
         },
         "files": [
             "src/Support/helpers.php"
@@ -34,7 +34,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Dcatplus\\Admin\\Tests\\": "tests/"
+            "Dcat\\Admin\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -44,7 +44,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Dcatplus\\Admin\\AdminServiceProvider"
+                "Dcat\\Admin\\AdminServiceProvider"
             ]
         }
     }

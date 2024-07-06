@@ -1,12 +1,12 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Controllers;
+namespace Dcat\Admin\Http\Controllers;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Http\Repositories\Permission;
-use Dcatplus\Admin\Layout\Content;
-use Dcatplus\Admin\Tree;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Form;
+use Dcat\Admin\Http\Repositories\Permission;
+use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Tree;
 use Illuminate\Support\Str;
 
 class PermissionController extends AdminController

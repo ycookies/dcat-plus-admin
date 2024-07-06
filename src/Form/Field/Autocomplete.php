@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Field;
+namespace Dcat\Admin\Form\Field;
 
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Support\JavaScript;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Support\JavaScript;
 
 class Autocomplete extends Text
 {

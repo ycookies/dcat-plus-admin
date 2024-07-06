@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Console;
+namespace Dcat\Admin\Console;
 
-use Dcatplus\Admin\Admin;
+use Dcat\Admin\Admin;
 use Illuminate\Console\Command;
 
 class ExtensionRollbackCommand extends Command

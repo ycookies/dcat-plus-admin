@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Show;
+namespace Dcat\Admin\Show;
 
-use Dcatplus\Admin\Grid;
-use Dcatplus\Admin\Show;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Show;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Fluent;
 

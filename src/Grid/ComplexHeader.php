@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Grid;
+namespace Dcat\Admin\Grid;
 
-use Dcatplus\Admin\Grid;
-use Dcatplus\Admin\Grid\Column\Help;
-use Dcatplus\Admin\Widgets\Widget;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Grid\Column\Help;
+use Dcat\Admin\Widgets\Widget;
 use Illuminate\Support\Collection;
 
 class ComplexHeader extends Widget

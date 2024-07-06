@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Show;
+namespace Dcat\Admin\Show;
 
 class Newline extends Field
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Controllers;
+namespace Dcat\Admin\Http\Controllers;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Http\Repositories\Administrator;
-use Dcatplus\Admin\Layout\Content;
-use Dcatplus\Admin\Traits\HasFormResponse;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Form;
+use Dcat\Admin\Http\Repositories\Administrator;
+use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Traits\HasFormResponse;
 use Illuminate\Auth\GuardHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -21,7 +21,7 @@ class AuthController extends Controller
     /**
      * @var string
      */
-    protected $view = 'admin::pages.login';
+    protected $view = 'admin::pages.login-plus';
 
     /**
      * @var string

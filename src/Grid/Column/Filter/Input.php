@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Column\Filter;
+namespace Dcat\Admin\Grid\Column\Filter;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Grid\Column\ValueFilter;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Grid\Column\ValueFilter;
 
 trait Input
 {

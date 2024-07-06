@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Console;
+namespace Dcat\Admin\Console;
 
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Filesystem\Filesystem;
 
 class AppCommand extends InstallCommand

@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Actions;
+namespace Dcat\Admin\Grid\Actions;
 
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Grid\RowAction;
+use Dcat\Admin\Form;
+use Dcat\Admin\Grid\RowAction;
 
 class QuickEdit extends RowAction
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Support;
+namespace Dcat\Admin\Support;
 
 use Illuminate\Http\Request;
 use Symfony\Component\Finder\Finder;

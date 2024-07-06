@@ -11,7 +11,7 @@
         <div class="help-block with-errors"></div>
 
         <span name="{{$name}}"></span>
-        <input name="{{ $name }}[values][{{ Dcatplus\Admin\Form\Field\ListField::DEFAULT_FLAG_NAME }}]" type="hidden" />
+        <input name="{{ $name }}[values][{{ Dcat\Admin\Form\Field\ListField::DEFAULT_FLAG_NAME }}]" type="hidden" />
 
         <table class="table table-hover">
 

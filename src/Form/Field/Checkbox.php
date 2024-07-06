@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Field;
+namespace Dcat\Admin\Form\Field;
 
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Widgets\Checkbox as WidgetCheckbox;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Widgets\Checkbox as WidgetCheckbox;
 
 class Checkbox extends MultipleSelect
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Console;
+namespace Dcat\Admin\Console;
 
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Grid;
-use Dcatplus\Admin\Show;
+use Dcat\Admin\Form;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Show;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;

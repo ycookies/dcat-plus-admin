@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Scaffold;
+namespace Dcat\Admin\Scaffold;
 
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Support\Helper;
 
 class RepositoryCreator
 {

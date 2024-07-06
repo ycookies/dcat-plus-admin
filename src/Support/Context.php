@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Support;
+namespace Dcat\Admin\Support;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;

@@ -133,7 +133,7 @@ return [
         'providers' => [
             'admin' => [
                 'driver' => 'eloquent',
-                'model'  => Dcatplus\Admin\Models\Administrator::class,
+                'model'  => Dcat\Admin\Models\Administrator::class,
             ],
         ],
 
@@ -156,7 +156,7 @@ return [
         | The global Grid action display class.
         |--------------------------------------------------------------------------
         */
-        'grid_action_class' => Dcatplus\Admin\Grid\Displayers\DropdownActions::class,
+        'grid_action_class' => Dcat\Admin\Grid\Displayers\DropdownActions::class,
     ],
 
     /*
@@ -245,19 +245,19 @@ return [
 
         // User tables and model.
         'users_table' => 'admin_users',
-        'users_model' => Dcatplus\Admin\Models\Administrator::class,
+        'users_model' => Dcat\Admin\Models\Administrator::class,
 
         // Role table and model.
         'roles_table' => 'admin_roles',
-        'roles_model' => Dcatplus\Admin\Models\Role::class,
+        'roles_model' => Dcat\Admin\Models\Role::class,
 
         // Permission table and model.
         'permissions_table' => 'admin_permissions',
-        'permissions_model' => Dcatplus\Admin\Models\Permission::class,
+        'permissions_model' => Dcat\Admin\Models\Permission::class,
 
         // Menu table and model.
         'menu_table' => 'admin_menu',
-        'menu_model' => Dcatplus\Admin\Models\Menu::class,
+        'menu_model' => Dcat\Admin\Models\Menu::class,
 
         // Pivot table for table above.
         'role_users_table'       => 'admin_role_users',
@@ -299,7 +299,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'exception_handler' => Dcatplus\Admin\Exception\Handler::class,
+    'exception_handler' => Dcat\Admin\Exception\Handler::class,
 
     /*
     |--------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Grid;
+namespace Dcat\Admin\Grid;
 
 use Illuminate\Support\Fluent;
 

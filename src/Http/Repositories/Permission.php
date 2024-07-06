@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Repositories;
+namespace Dcat\Admin\Http\Repositories;
 
-use Dcatplus\Admin\Repositories\EloquentRepository;
+use Dcat\Admin\Repositories\EloquentRepository;
 
 class Permission extends EloquentRepository
 {

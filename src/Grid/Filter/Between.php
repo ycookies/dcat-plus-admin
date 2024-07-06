@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Filter;
+namespace Dcat\Admin\Grid\Filter;
 
-use Dcatplus\Admin\Grid\Filter\Presenter\DateTime;
+use Dcat\Admin\Grid\Filter\Presenter\DateTime;
 use Illuminate\Support\Arr;
 
 class Between extends AbstractFilter

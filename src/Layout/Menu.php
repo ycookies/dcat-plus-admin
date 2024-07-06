@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Layout;
+namespace Dcat\Admin\Layout;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Facades\Lang;
 
 class Menu
@@ -196,7 +196,7 @@ class Menu
     /**
      * 判断用户.
      *
-     * @param  array|\Dcatplus\Admin\Models\Menu  $item
+     * @param  array|\Dcat\Admin\Models\Menu  $item
      * @return bool
      */
     protected function userCanSeeMenu($item)

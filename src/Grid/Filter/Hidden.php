@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Filter;
+namespace Dcat\Admin\Grid\Filter;
 
 class Hidden extends AbstractFilter
 {

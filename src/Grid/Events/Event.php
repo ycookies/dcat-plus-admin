@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Events;
+namespace Dcat\Admin\Grid\Events;
 
-use Dcatplus\Admin\Grid;
+use Dcat\Admin\Grid;
 
 abstract class Event
 {

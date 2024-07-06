@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Form;
+namespace Dcat\Admin\Form;
 
-use Dcatplus\Admin\Exception\RuntimeException;
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Widgets\Form as WidgetForm;
+use Dcat\Admin\Exception\RuntimeException;
+use Dcat\Admin\Form;
+use Dcat\Admin\Widgets\Form as WidgetForm;
 
 /**
  * Class BlockForm.
@@ -30,7 +30,7 @@ class BlockForm extends WidgetForm
     protected $title;
 
     /**
-     * @var \Dcatplus\Admin\Layout\Row
+     * @var \Dcat\Admin\Layout\Row
      */
     public $layoutRow;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Form\Events;
+namespace Dcat\Admin\Form\Events;
 
 class Deleting extends Event
 {

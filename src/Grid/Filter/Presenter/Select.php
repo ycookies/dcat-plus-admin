@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Filter\Presenter;
+namespace Dcat\Admin\Grid\Filter\Presenter;
 
-use Dcatplus\Admin\Exception\RuntimeException;
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Exception\RuntimeException;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;

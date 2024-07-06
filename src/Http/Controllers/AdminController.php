@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Controllers;
+namespace Dcat\Admin\Http\Controllers;
 
-use Dcatplus\Admin\Layout\Content;
+use Dcat\Admin\Layout\Content;
 use Illuminate\Routing\Controller;
 
 class AdminController extends Controller

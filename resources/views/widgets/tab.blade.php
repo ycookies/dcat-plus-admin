@@ -1,11 +1,11 @@
 <div {!! $attributes !!}>
     <ul class="nav nav-tabs {{ $tabStyle }}" role="tablist">
         @foreach($tabs as $id => $tab)
-            @if($tab['type'] == \Dcatplus\Admin\Widgets\Tab::TYPE_CONTENT)
+            @if($tab['type'] == \Dcat\Admin\Widgets\Tab::TYPE_CONTENT)
                 <li class="nav-item" >
                     <a href="#tab_{{ $tab['id'] }}" class=" nav-link  {{ $id == $active ? 'active' : '' }}" data-toggle="tab">{!! $tab['title'] !!}</a>
                 </li>
-            @elseif($tab['type'] == \Dcatplus\Admin\Widgets\Tab::TYPE_LINK)
+            @elseif($tab['type'] == \Dcat\Admin\Widgets\Tab::TYPE_LINK)
                 <li class="nav-item" >
                     <a href="{{ $tab['href'] }}" class=" nav-link  {{ $id == $active ? 'active' : '' }}">{!! $tab['title'] !!}</a>
                 </li>

@@ -1,14 +1,14 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Controllers;
+namespace Dcat\Admin\Http\Controllers;
 
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Grid;
-use Dcatplus\Admin\Http\Auth\Permission;
-use Dcatplus\Admin\Http\Repositories\Role;
-use Dcatplus\Admin\Show;
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Widgets\Tree;
+use Dcat\Admin\Form;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Http\Auth\Permission;
+use Dcat\Admin\Http\Repositories\Role;
+use Dcat\Admin\Show;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Widgets\Tree;
 
 class RoleController extends AdminController
 {

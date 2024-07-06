@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Concerns;
+namespace Dcat\Admin\Grid\Concerns;
 
-use Dcatplus\Admin\Grid\Tools;
+use Dcat\Admin\Grid\Tools;
 
 trait HasPaginator
 {
@@ -73,7 +73,7 @@ trait HasPaginator
     /**
      * Get the grid paginator.
      *
-     * @return \Dcatplus\Admin\Grid\Tools\Paginator
+     * @return \Dcat\Admin\Grid\Tools\Paginator
      */
     public function paginator()
     {

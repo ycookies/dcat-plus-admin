@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Filter\Presenter;
+namespace Dcat\Admin\Grid\Filter\Presenter;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Grid\Filter\AbstractFilter;
-use Dcatplus\Admin\Traits\HasVariables;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Grid\Filter\AbstractFilter;
+use Dcat\Admin\Traits\HasVariables;
 
 abstract class Presenter
 {

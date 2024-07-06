@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Middleware;
+namespace Dcat\Admin\Http\Middleware;
 
 use Illuminate\Http\Request;
 

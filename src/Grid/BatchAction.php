@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcatplus\Admin\Grid;
+namespace Dcat\Admin\Grid;
 
 abstract class BatchAction extends GridAction
 {

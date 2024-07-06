@@ -1,13 +1,13 @@
 <?php
 
-namespace Dcatplus\Admin\Tree;
+namespace Dcat\Admin\Tree;
 
-use Dcatplus\Admin\Actions\Action;
+use Dcat\Admin\Actions\Action;
 
 class RowAction extends Action
 {
     /**
-     * @var \Dcatplus\Admin\Tree\Actions;
+     * @var \Dcat\Admin\Tree\Actions;
      */
     protected $actions;
 

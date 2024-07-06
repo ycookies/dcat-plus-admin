@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Actions\Extensions;
+namespace Dcat\Admin\Http\Actions\Extensions;
 
-use Dcatplus\Admin\Admin;
-use Dcatplus\Admin\Grid\RowAction;
+use Dcat\Admin\Admin;
+use Dcat\Admin\Grid\RowAction;
 
 class Enable extends RowAction
 {

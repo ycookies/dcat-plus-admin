@@ -12,15 +12,15 @@
     <section class="form-content">{!! $content !!}</section>
 @endsection
 
-{!! Dcatplus\Admin\Admin::asset()->cssToHtml() !!}
-{!! Dcatplus\Admin\Admin::asset()->jsToHtml() !!}
+{!! Dcat\Admin\Admin::asset()->cssToHtml() !!}
+{!! Dcat\Admin\Admin::asset()->jsToHtml() !!}
 
-{!! Dcatplus\Admin\Admin::asset()->styleToHtml() !!}
+{!! Dcat\Admin\Admin::asset()->styleToHtml() !!}
 
 @yield('content')
 
-{!! Dcatplus\Admin\Admin::asset()->scriptToHtml() !!}
-<div class="extra-html">{!! Dcatplus\Admin\Admin::html() !!}</div>
+{!! Dcat\Admin\Admin::asset()->scriptToHtml() !!}
+<div class="extra-html">{!! Dcat\Admin\Admin::html() !!}</div>
 
 {{--select2下拉选框z-index必须大于弹窗的值--}}
 <style>.select2-dropdown {z-index: 99999999999}</style>

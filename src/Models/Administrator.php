@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Models;
+namespace Dcat\Admin\Models;
 
-use Dcatplus\Admin\Traits\HasDateTimeFormatter;
-use Dcatplus\Admin\Traits\HasPermissions;
+use Dcat\Admin\Traits\HasDateTimeFormatter;
+use Dcat\Admin\Traits\HasPermissions;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable;

@@ -1,10 +1,10 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Actions\Extensions;
+namespace Dcat\Admin\Http\Actions\Extensions;
 
-use Dcatplus\Admin\Grid\Tools\AbstractTool;
-use Dcatplus\Admin\Http\Forms\InstallFromLocal as InstallFromLocalForm;
-use Dcatplus\Admin\Widgets\Modal;
+use Dcat\Admin\Grid\Tools\AbstractTool;
+use Dcat\Admin\Http\Forms\InstallFromLocal as InstallFromLocalForm;
+use Dcat\Admin\Widgets\Modal;
 
 class InstallFromLocal extends AbstractTool
 {

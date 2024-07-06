@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Actions;
+namespace Dcat\Admin\Grid\Actions;
 
-use Dcatplus\Admin\Grid\RowAction;
+use Dcat\Admin\Grid\RowAction;
 
 class Show extends RowAction
 {

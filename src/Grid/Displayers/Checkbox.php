@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Displayers;
+namespace Dcat\Admin\Grid\Displayers;
 
-use Dcatplus\Admin\Support\Helper;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Arr;
 
 class Checkbox extends Editable
@@ -22,7 +22,7 @@ class Checkbox extends Editable
 
     protected function renderCheckbox($options)
     {
-        $checkbox = \Dcatplus\Admin\Widgets\Checkbox::make($this->getName().'[]');
+        $checkbox = \Dcat\Admin\Widgets\Checkbox::make($this->getName().'[]');
         $checkbox->options($options);
         $checkbox->class('ie-input');
 

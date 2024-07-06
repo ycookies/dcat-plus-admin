@@ -1,16 +1,16 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Controllers;
+namespace Dcat\Admin\Http\Controllers;
 
-use Dcatplus\Admin\Form;
-use Dcatplus\Admin\Http\Actions\Menu\Show;
-use Dcatplus\Admin\Http\Repositories\Menu;
-use Dcatplus\Admin\Layout\Column;
-use Dcatplus\Admin\Layout\Content;
-use Dcatplus\Admin\Layout\Row;
-use Dcatplus\Admin\Tree;
-use Dcatplus\Admin\Widgets\Box;
-use Dcatplus\Admin\Widgets\Form as WidgetForm;
+use Dcat\Admin\Form;
+use Dcat\Admin\Http\Actions\Menu\Show;
+use Dcat\Admin\Http\Repositories\Menu;
+use Dcat\Admin\Layout\Column;
+use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Layout\Row;
+use Dcat\Admin\Tree;
+use Dcat\Admin\Widgets\Box;
+use Dcat\Admin\Widgets\Form as WidgetForm;
 
 class MenuController extends AdminController
 {
@@ -58,7 +58,7 @@ class MenuController extends AdminController
     }
 
     /**
-     * @return \Dcatplus\Admin\Tree
+     * @return \Dcat\Admin\Tree
      */
     protected function treeView()
     {

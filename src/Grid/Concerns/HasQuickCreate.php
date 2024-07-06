@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Grid\Concerns;
+namespace Dcat\Admin\Grid\Concerns;
 
 use Closure;
-use Dcatplus\Admin\Grid\Tools\QuickCreate;
+use Dcat\Admin\Grid\Tools\QuickCreate;
 
 trait HasQuickCreate
 {

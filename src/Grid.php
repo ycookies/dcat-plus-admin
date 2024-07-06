@@ -1,17 +1,17 @@
 <?php
 
-namespace Dcatplus\Admin;
+namespace Dcat\Admin;
 
 use Closure;
-use Dcatplus\Admin\Contracts\Repository;
-use Dcatplus\Admin\Grid\Column;
-use Dcatplus\Admin\Grid\Concerns;
-use Dcatplus\Admin\Grid\Model;
-use Dcatplus\Admin\Grid\Row;
-use Dcatplus\Admin\Grid\Tools;
-use Dcatplus\Admin\Support\Helper;
-use Dcatplus\Admin\Traits\HasBuilderEvents;
-use Dcatplus\Admin\Traits\HasVariables;
+use Dcat\Admin\Contracts\Repository;
+use Dcat\Admin\Grid\Column;
+use Dcat\Admin\Grid\Concerns;
+use Dcat\Admin\Grid\Model;
+use Dcat\Admin\Grid\Row;
+use Dcat\Admin\Grid\Tools;
+use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Traits\HasBuilderEvents;
+use Dcat\Admin\Traits\HasVariables;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -45,7 +45,7 @@ class Grid
     /**
      * The grid data model instance.
      *
-     * @var \Dcatplus\Admin\Grid\Model
+     * @var \Dcat\Admin\Grid\Model
      */
     protected $model;
 

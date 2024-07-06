@@ -16,12 +16,12 @@
     </div>
     @endforeach
 </div>--}}
-<div {!! $attributes !!}>
+<div {!! $attributes !!} style="margin-bottom: 20px">
     <ul class="list-group">
         @foreach($items as $key => $item)
-        <li class="list-group-item">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
             {{ $item['title'] }}
-            <span class="badge badge-primary badge-pill">14</span>
+            <span class="badge badge-primary badge-pill">{{ $item['content'] }}</span>
         </li>
         @endforeach
     </ul>

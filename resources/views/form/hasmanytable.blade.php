@@ -32,7 +32,7 @@
 
                         @foreach($form->fields() as $field)
 
-                            @if (is_a($field, Dcatplus\Admin\Form\Field\Hidden::class))
+                            @if (is_a($field, Dcat\Admin\Form\Field\Hidden::class))
                                 <?php $hidden .= $field->render(); ?>
                                 @continue
                             @endif
@@ -86,7 +86,7 @@
         container = '.has-many-table-{{ $columnClass }}';
 
     function replaceNestedFormIndex(value) {
-        return String(value).replace(/{{ $parentKey ?: Dcatplus\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}/g, nestedIndex);
+        return String(value).replace(/{{ $parentKey ?: Dcat\Admin\Form\NestedForm::DEFAULT_KEY_NAME }}/g, nestedIndex);
     }
 
     $(document).off('click', container+' .add').on('click', container+' .add', function (e) {
@@ -106,7 +106,7 @@
 
         $form.hide();
         $form.find('[required]').prop('required', false);
-        $form.find('.{{ Dcatplus\Admin\Form\NestedForm::REMOVE_FLAG_CLASS }}').val(1);
+        $form.find('.{{ Dcat\Admin\Form\NestedForm::REMOVE_FLAG_CLASS }}').val(1);
     });
 })();
 </script>

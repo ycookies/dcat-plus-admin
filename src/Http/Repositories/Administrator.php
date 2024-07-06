@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcatplus\Admin\Http\Repositories;
+namespace Dcat\Admin\Http\Repositories;
 
-use Dcatplus\Admin\Grid;
-use Dcatplus\Admin\Repositories\EloquentRepository;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Repositories\EloquentRepository;
 use Illuminate\Pagination\AbstractPaginator;
 
 class Administrator extends EloquentRepository

@@ -1,14 +1,14 @@
 @php
-    $timestamps = Dcatplus\Admin\Widgets\Checkbox::make('timestamps')->inline();
+    $timestamps = Dcat\Admin\Widgets\Checkbox::make('timestamps')->inline();
     $timestamps->options([1 => 'Created_at & Updated_at'])->check(1);
 
-    $soft = Dcatplus\Admin\Widgets\Checkbox::make('soft_deletes')->inline();
+    $soft = Dcat\Admin\Widgets\Checkbox::make('soft_deletes')->inline();
     $soft->options([1 => (trans('admin.scaffold.soft_delete'))]);
     if (old('soft_deletes') != NULL) {
         $soft->check(1);
     }
 
-    $actionCreators = Dcatplus\Admin\Widgets\Checkbox::make('create[]')->inline();
+    $actionCreators = Dcat\Admin\Widgets\Checkbox::make('create[]')->inline();
     $actionCreators->options([
         'migration' => (trans('admin.scaffold.create_migration')),
         'model' => (trans('admin.scaffold.create_model')),
