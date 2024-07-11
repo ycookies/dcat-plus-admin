@@ -25,7 +25,7 @@
                 </div>
 
                 <h3 class="widget-user-username">杨光-退伍程序员</h3>
-                <h5 class="widget-user-desc">程序邦总设计师</h5>
+                <h5 class="widget-user-desc">速码邦总设计师</h5>
             </div>
             <div class="card-footer p-0">
                 <ul class="nav flex-column">
@@ -61,7 +61,7 @@
 
             <div class="widget-user-header bg-info">
                 <h3 class="widget-user-username">极速开发 成就非凡</h3>
-                <h5 class="widget-user-desc">程序邦 &amp; CEO</h5>
+                <h5 class="widget-user-desc">速码邦 &amp; CEO</h5>
             </div>
             <div class="widget-user-image">
                 <img class="img-circle elevation-2" src="https://m.saishiyun.net/imgpic/work-photo.png"
@@ -621,7 +621,7 @@
             <div class="card shadow">
                 <div class="card-body p-4 text-center">
                     <span class="avatar avatar-xl mb-3 avatar-rounded" style="background-image: url(https://m.saishiyun.net/imgpic/work-photo.png)"></span>
-                    <h3 class="m-0 mb-1"><a href="#">程序邦</a></h3>
+                    <h3 class="m-0 mb-1"><a href="#">速码邦</a></h3>
                     <div class="text-muted">极速SaaS后台开发</div>
                     <div class="mt-3">
                         <span class="badge bg-purple-lt">Owner</span>

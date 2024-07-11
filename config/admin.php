@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;Dcat Admin',
+    'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;Dcat-plus Admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +42,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'favicon' => null,
+    'favicon' => '@admin/images/favicon.ico',
 
     /*
      |--------------------------------------------------------------------------
@@ -54,6 +54,15 @@ return [
      */
     'default_avatar' => '@admin/images/default-avatar.jpg',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Login page background image
+    |--------------------------------------------------------------------------
+    |
+    | This value is used to set the background image of login page.
+    |
+    */
+    'login_background_image' => '@admin/images/login-bg.jpg',
     /*
     |--------------------------------------------------------------------------
     | dcat-admin route settings
@@ -114,7 +123,7 @@ return [
     | If your page is going to be accessed via https, set it to `true`.
     |
     */
-    'https' => env('ADMIN_HTTPS', false),
+    'https' => env('ADMIN_HTTPS', true),
 
     /*
     |--------------------------------------------------------------------------

@@ -24,7 +24,7 @@
     <p class="clearfix blue-grey lighten-2 mb-0 text-center">
             <span class="text-center d-block d-md-inline-block mt-25">
                 Powered by
-                <a target="_blank" href="https://github.com/ycookies/dcat-plus-admin">Dcat Admin (程序邦)</a>
+                <a target="_blank" href="https://github.com/ycookies/dcat-plus-admin">Dcat-plus Admin (速码邦)</a>
                 <span>&nbsp;·&nbsp;</span>
                 v{{ Dcat\Admin\Admin::VERSION }}
             </span>

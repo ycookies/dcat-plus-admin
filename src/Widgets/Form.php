@@ -252,6 +252,13 @@ class Form implements Renderable
         }
     }
 
+    public function payload(array $payload)
+    {
+        $this->payload = $payload;
+
+        return $this;
+    }
+
     /**
      * Action uri of the form.
      *
