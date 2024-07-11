@@ -194,4 +194,12 @@ trait ImageField
 
         return $this;
     }
+
+    /**
+     * 示例图
+     */
+    public function exampleImg($src){
+        $this->addVariables(['upimgdemo' => $src]);
+        return $this;
+    }
 }

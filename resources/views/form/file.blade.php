@@ -32,12 +32,14 @@
         <input name="{{ $name }}" class="file-input" type="hidden" {!! $attributes !!}/>
 
         <div class="web-uploader {{ $fileType }}">
-            <div class="queueList dnd-area">
+            <div class="queueList dnd-area" @if(!empty($upimgdemo)) style="width: 220px;float: left;" @endif>
                 <div class="placeholder">
                     <div class="file-picker"></div>
                     <p>{{trans('admin.uploader.drag_file')}}</p>
                 </div>
             </div>
+            {{-- 上传图片示例--}}
+            @include('admin::form.upload-img-demo')
             <div class="statusBar" style="display:none;">
                 <div class="upload-progress progress progress-bar-primary pull-left">
                     <div class="progress-bar progress-bar-striped active" style="line-height:18px">0%</div>

@@ -19,7 +19,7 @@
             </a>
             <ul class="dropdown-menu">
                 @foreach($dropDown as $link)
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="{{ $link['href'] }}">{!! $link['name'] !!}</a></li>
+                <li role="presentation" class="dropdown-item"><a role="menuitem" tabindex="-1" href="{{ $link['href'] }}">{!! $link['name'] !!}</a></li>
                 @endforeach
             </ul>
         </li>

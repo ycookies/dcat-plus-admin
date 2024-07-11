@@ -20,6 +20,9 @@ use Dcat\Admin\Support\WebUploader;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Dcat\Admin\Form\Steps\FormStepServiceProvider;
+use Dcat\Admin\Form\Extend\Distpicker\DcatDistpickerServiceProvider;
+use Dcat\Admin\Form\Extend\Diyforms\DcatDiyFormServiceProvider;
 
 class AdminServiceProvider extends ServiceProvider
 {
@@ -112,6 +115,10 @@ class AdminServiceProvider extends ServiceProvider
         $this->compatibleBlade();
         $this->bootExtensions();
         $this->registerBladeDirective();
+
+        $this->app->register(FormStepServiceProvider::class);
+        $this->app->register(DcatDistpickerServiceProvider::class);
+        $this->app->register(DcatDiyFormServiceProvider::class);
     }
 
     protected function aliasAdmin()

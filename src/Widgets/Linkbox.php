@@ -18,7 +18,7 @@ class Linkbox extends Widget
     protected $items = [];
 
     protected $hot = false;
-
+    protected $target = '_self';
     /**
      * Collapse constructor.
      */
@@ -29,8 +29,19 @@ class Linkbox extends Widget
         $this->style('margin-bottom: 20px');
     }
 
+    /**
+     * 分组标题
+     */
     public function groupTitle($title){
         $this->group_title = $title;
+        return $this;
+    }
+
+    /**
+     * 链接打开方式 _self  _blank
+     */
+    public function target($target = '_self') {
+        $this->target = $target;
         return $this;
     }
 
@@ -58,11 +69,6 @@ class Linkbox extends Widget
     
     public function hot($v = true){
         $this->items[count($this->items)-1]['hot'] = $v;
-
-        /*foreach ($this->items as $key => &$item) {
-            $item['hot'] = $v;
-        }*/
-        //$this->hot = $v;
         return $this;
     }
 
@@ -75,7 +81,7 @@ class Linkbox extends Widget
             'id'         => $this->id,
             'group_title' => $this->group_title,
             'items'      => $this->items,
-            //'hot' => $this->hot,
+            'target'     => $this->target,
             'attributes' => $this->formatAttributes(),
         ];
     }

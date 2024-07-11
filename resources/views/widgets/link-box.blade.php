@@ -50,7 +50,7 @@
     }
 </style>
 <div class="link-box {{ $id }}">
-    <div class="link-box-title">{{$group_title}}</div>
+    <div class="link-box-title">{!! $group_title !!}</div>
     <div class="row">
         @foreach($items as $key => $item)
         <div class="col-md-3 col-sm-6 col-12">
@@ -68,7 +68,7 @@
                 @endif
             <span class="info-box-icon {{$item['bg_value'] ?? 'bg-info'}}">
                 <i class="{{$item['icon']}}"></i></span>
-                <a class="info-box-content"  @if(isset($item['sub_title'])) style="align-items:normal;flex-direction:column;justify-content:center" @endif href="{{$item['link']}}">
+                <a class="info-box-content" target="{{$target}}"  @if(isset($item['sub_title'])) style="align-items:normal;flex-direction:column;justify-content:center" @endif href="{{$item['link']}}">
                     @if(isset($item['sub_title']))
                         <span class="info-box-number">{{$item['title']}}</span>
                         <span class="info-box-text">{{$item['sub_title']}}</span>

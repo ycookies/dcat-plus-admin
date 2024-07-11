@@ -34,9 +34,11 @@ class Asset
         '@dcat' => [
             'js'  => [
                 '@admin/dcat/js/dcat-app.js',
-                '@admin/dcat/js/vue-2.6.10.js',
+                '@admin/dcat/js/vue.js',
                 '@admin/dcat/js/clipboard.min.js',
-                //'@admin/dcat/js/dcatplus.js',
+                '@admin/dcat/js/jquery.smartWizard.js',
+                '@admin/dcat/js/dcatplus.js',
+                '@admin/dcat/js/distpicker.js',
             ],
             'css' => [
                 '@admin/dcat/css/dcat-app.css',
