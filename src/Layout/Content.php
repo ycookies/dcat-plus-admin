@@ -434,6 +434,8 @@ class Content implements Renderable
             'footer_type'       => '',
             'body_class'        => [],
             'horizontal_menu'   => false,
+            'full_screen'=> false,
+            'home_url' => '',
         ];
 
         $data = array_merge(
@@ -450,6 +452,8 @@ class Content implements Renderable
             'navbar_color'      => [],
             'navbar_class'      => ['floating' => 'floating-nav', 'sticky' => 'fixed-top', 'hidden' => 'd-none'],
             'horizontal_menu'   => [],
+            'full_screen'=> false,
+            'home_url' => '',
         ];
 
         $maps = [
@@ -500,6 +504,8 @@ class Content implements Renderable
             'body_class'        => implode(' ', $data['body_class']),
             'sidebar_style'     => $data['sidebar_style'],
             'horizontal_menu'   => $data['horizontal_menu'],
+            'full_screen'=> $data['full_screen'],
+            'home_url' => $data['home_url'],
         ];
     }
 

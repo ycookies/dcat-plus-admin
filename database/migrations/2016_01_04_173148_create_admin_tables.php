@@ -55,7 +55,7 @@ class CreateAdminTables extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('parent_id')->default(0);
             $table->integer('order')->default(0);
-            $table->string('title', 50);
+            $table->string('title', 255);
             $table->string('icon', 50)->nullable();
             $table->string('uri', 50)->nullable();
 

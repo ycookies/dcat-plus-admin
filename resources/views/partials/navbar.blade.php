@@ -39,7 +39,13 @@
 
                 <div class="navbar-right d-flex align-items-center">
                     {!! Dcat\Admin\Admin::navbar()->render() !!}
+                    @if(!empty($configData['home_url']))
+                        <a href="{{$configData['home_url']}}" target="_blank" class="nav-link"><i class="fa fa-home f18"></i></a>
+                    @endif
 
+                    @if(isset($configData['full_screen']) && $configData['full_screen'])
+                    <a href="javascript:;"  data-check-screen="full" class="nav-link"><i class="feather icon-maximize f16"></i></a>
+                    @endif
                     <ul class="nav navbar-nav">
                         {{--User Account Menu--}}
                         {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_USER_PANEL']) !!}

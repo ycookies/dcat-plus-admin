@@ -123,7 +123,7 @@ return [
     | If your page is going to be accessed via https, set it to `true`.
     |
     */
-    'https' => env('ADMIN_HTTPS', true),
+    'https' => env('ADMIN_HTTPS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -345,6 +345,10 @@ return [
 
         // bg-primary, bg-info, bg-warning, bg-success, bg-danger, bg-dark
         'navbar_color' => '',
+
+        'full_screen' => true, // 是否展示全屏按钮
+
+        'home_url'=> env('APP_URL') // 是否展示官网url
     ],
 
     /*
