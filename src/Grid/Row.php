@@ -79,6 +79,24 @@ class Row implements Arrayable
     }
 
     /**
+     * Get column attributes array.
+     *
+     * @param  string  $column
+     * @return string
+     */
+    public function columnAttributesArr($column)
+    {
+        if (
+            ($column = $this->grid->columns()->get($column))
+            && ($attributes = $column->getAttributes())
+        ) {
+            return $attributes;
+        }
+
+        return [];
+    }
+
+    /**
      * Format attributes to html.
      *
      * @param  array  $attributes

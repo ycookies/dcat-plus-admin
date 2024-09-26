@@ -1,6 +1,6 @@
 
 <div align="center">
-    <img src="https://cdn.learnku.com/uploads/images/202009/27/38389/WFQxJ7qZ1k.png!large" height="80"> 
+    <img src="https://jikeadmin.saishiyun.net/img/dcat-plus-logo.png" height="80"> 
 </div>
 <br>
 
@@ -20,13 +20,12 @@
 <p align=""><code>Dcat-plus Admin</code>是一个基于<a href="https://www.laravel-admin.org/" target="_blank">laravel-admin</a>二次开发而成的后台系统构建工具，只需很少的代码即可快速构建出一个功能完善的高颜值后台系统。内置丰富的后台常用组件，开箱即用，让开发者告别冗杂的HTML代码，对后端开发者非常友好。</p>
 
 
-- [官方网站](http://dcat-plus.saishiyun.net)
-- [中文文档](https://learnku.com/docs/dcat-admin)
-- [English documentions](http://www.dcatadmin.com/docs/en-2.x/quick-start.html)
-- [Demo / 在线演示](https://demo.saishiyun.net/admin)
-- [Demo源码](https://github.com/ycookies/dcat-plus-admin)
-- [Demo源码 (码云)](https://gitee.com/jqhph/dcat-admin-demo)
-- [扩展](#)
+- [官方网站](https://jikeadmin.saishiyun.net)
+- [中文文档](https://jikeadmin.saishiyun.net/books/dcat-admin/#/)
+- [github](https://github.com/ycookies/dcat-plus-admin)
+- [Demo/在线演示](https://jikeadmin.saishiyun.net/admin)
+- [示例源码](https://github.com/ycookies/dcatplus-demo)
+- [技术社区](https://forum.saishiyun.net/t/dcat-admin)
 
 
 ![](https://cdn.learnku.com/uploads/images/202101/28/38389/YLmL7PLqH7.png!large)
@@ -62,7 +61,7 @@
 
 ### 环境
  - PHP >= 7.1.0
- - Laravel 5.5.0 ~ 9.*
+ - Laravel 5.5.0 ~ 11.*
  - Fileinfo PHP Extension
 
 ### 安装
@@ -90,15 +89,17 @@ DB_PASSWORD=
 安装`dcat-admin`
 
 
-```
+```shell
 cd {项目名称}
 
-composer require dcat/laravel-admin
+#  dcat-admin plus版 (杨光维护)
+composer require dcat-plus/laravel-admin
+
 ```
 
 然后运行下面的命令来发布资源：
 
-```
+```shell
 php artisan admin:publish
 ```
 
@@ -134,7 +135,7 @@ location / {
 
 
 ### 鸣谢
-`Dcat Admin` 基于以下组件:
+`Dcat-plus Admin` 基于以下组件:
 
 + [Laravel](https://laravel.com/)
 + [Laravel Admin](https://www.laravel-admin.org/)
