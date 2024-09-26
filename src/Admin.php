@@ -542,7 +542,10 @@ class Admin
 
         $jsVariables['pjax_container_selector'] = $pjaxId ? ('#'.$pjaxId) : '';
         $jsVariables['token'] = csrf_token();
-        $jsVariables['lang'] = ($lang = __('admin.client')) ? array_merge($lang, $jsVariables['lang'] ?? []) : [];
+        $lang = __('admin.client'); // 获取翻译结果
+        $js_lang = !empty($jsVariables['lang']) && is_array($jsVariables['lang']) ? $jsVariables['lang']:[];
+        $jsVariables['lang'] = is_array($lang) ? array_merge($lang, $js_lang) : [$lang]; // 确保 $lang 是数组
+        //$jsVariables['lang'] = ($lang = __('admin.client')) ? array_merge($lang, $jsVariables['lang'] ?? []) : [];
         $jsVariables['colors'] = static::color()->all();
         $jsVariables['dark_mode'] = static::isDarkMode();
         $jsVariables['sidebar_dark'] = config('admin.layout.sidebar_dark') || ($sidebarStyle === 'dark');
