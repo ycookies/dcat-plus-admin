@@ -18,6 +18,7 @@ trait HasTools
      */
     protected $tools;
 
+    protected $right_tools;
     /**
      * Setup grid tools.
      */
@@ -27,13 +28,22 @@ trait HasTools
     }
 
     /**
+     * Setup grid right tools.
+     */
+    protected function setUpRightTools(){
+        $this->right_tools = new Tools($this);
+        $this->right_tools->disableRefreshButton();
+        $this->right_tools->disableFilterButton();
+    }
+
+    /**
      * @param  bool  $value
      * @return $this
      */
     public function toolsWithOutline(bool $value = true)
     {
         $this->tools->withOutline($value);
-
+        $this->right_tools->withOutline($value);
         return $this;
     }
 
@@ -67,6 +77,35 @@ trait HasTools
     }
 
     /**
+     * Get or setup grid tools.
+     *
+     * @param  Closure|array|Action|Tools\AbstractTool|Renderable|Htmlable|string  $value
+     * @return $this|Tools
+     */
+    public function rightTools($value = null)
+    {
+        if ($value === null) {
+            return $this->right_tools;
+        }
+
+        if ($value instanceof Closure) {
+            $value($this->right_tools);
+
+            return $this;
+        }
+
+        if (! is_array($value)) {
+            $value = [$value];
+        }
+
+        foreach ($value as $tool) {
+            $this->right_tools->append($tool);
+        }
+
+        return $this;
+    }
+
+    /**
      * Set grid batch-action callback.
      *
      * @param  Closure|BatchAction|BatchAction[]  $value
@@ -89,6 +128,16 @@ trait HasTools
     public function renderTools()
     {
         return $this->tools->render();
+    }
+
+    /**
+     * Render custom tools.
+     *
+     * @return string
+     */
+    public function renderRightTools()
+    {
+        return $this->right_tools->render();
     }
 
     /**

@@ -20,6 +20,7 @@
                     {!! $grid->renderTools() !!}  {!! $grid->renderQuickSearch() !!}
 
                     <div class="pull-right" data-responsive-table-toolbar="{{$tableId}}">
+                        {!! $grid->renderRightTools() !!}
                         {!! $grid->renderColumnSelector() !!}
                         {!! $grid->renderCreateButton() !!}
                         {!! $grid->renderExportButton() !!}

@@ -217,6 +217,7 @@ class Grid
         $this->model->setGrid($this);
 
         $this->setUpTools();
+        $this->setUpRightTools();
         $this->setUpFilter();
 
         $this->callResolving();
