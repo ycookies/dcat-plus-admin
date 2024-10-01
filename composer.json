@@ -7,7 +7,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "dcat-plus.saishiyun.net",
+            "name": "jikeadmin.saishiyun.net",
             "email": "3664839@qq.com"
         }
     ],
@@ -15,7 +15,8 @@
         "php": ">=7.4.0",
         "laravel/framework": "~8.0|~9.0|~10.0|~11.0",
         "spatie/eloquent-sortable": "3.*|4.*",
-        "doctrine/dbal": "^2.6|^3.0|^4.0"
+        "doctrine/dbal": "^2.6|^3.0|^4.0",
+        "dcat/easy-excel":"*"
     },
     "require-dev": {
         "laravel/dusk": "~5.9|~6|~7.0|~8.0",

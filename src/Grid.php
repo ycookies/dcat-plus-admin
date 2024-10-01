@@ -32,6 +32,7 @@ class Grid
     use Concerns\HasSelector;
     use Concerns\HasQuickCreate;
     use Concerns\HasQuickSearch;
+    use Concerns\HasSummarizer;
     use Concerns\CanFixColumns;
     use Concerns\CanHidesColumns;
     use Macroable {
@@ -172,6 +173,8 @@ class Grid
         'actions_class'       => null,
         'batch_actions_class' => null,
         'paginator_class'     => null,
+        'summarizers'         => false,
+        'column_link'         => false,
     ];
 
     /**
@@ -825,6 +828,23 @@ HTML;
     public function allowCreateButton()
     {
         return $this->options['create_button'];
+    }
+
+    /**
+     *  set column Link
+     * @return $this
+     */
+    public function columnLink(bool $bool = true) {
+        return $this->option('column_link', $bool);
+    }
+
+    /**
+     * If allow column_link.
+     *
+     * @return bool
+     */
+    public function allowColumnLink() {
+        return $this->options['column_link'];
     }
 
     /**

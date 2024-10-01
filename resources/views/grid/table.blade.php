@@ -56,7 +56,7 @@
             @endforeach
 
             @foreach($grid->rows() as $row)
-                <tr {!! $row->rowAttributes() !!}>
+                <tr {!! $row->rowAttributes() !!} @if($grid->allowColumnLink()) onclick="window.location.href = '{{$grid->resource()}}/{{$row->id}}'" @endif>
 
                     @foreach($grid->getVisibleColumnNames() as $name)
                         @if(!empty($mergerow_arr[$row->column($name)]))
