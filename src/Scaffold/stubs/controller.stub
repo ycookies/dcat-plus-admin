@@ -7,9 +7,23 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Admin;
 
 class DummyClass extends AdminController
 {
+    /**
+     * page index
+     */
+    public function index(Content $content)
+    {
+        return $content
+            ->header('列表')
+            ->description('全部')
+            ->breadcrumb(['text'=>'列表','url'=>''])
+            ->body($this->grid());
+    }
+
     /**
      * Make a grid builder.
      *
