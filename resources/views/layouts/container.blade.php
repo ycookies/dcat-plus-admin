@@ -26,7 +26,7 @@
                 Powered by
                 <a target="_blank" href="https://github.com/ycookies/dcat-plus-admin">Dcat-plus Admin (速码邦)</a>
                 <span>&nbsp;·&nbsp;</span>
-                v{{ Dcat\Admin\Admin::VERSION }}
+                {{ \Dcat\Admin\Support\Helper::getPackageVersion('dcat-plus/laravel-admin') }}
             </span>
 
         <button class="btn btn-primary btn-icon scroll-top pull-right" style="position: fixed;bottom: 2%; right: 10px;display: none">

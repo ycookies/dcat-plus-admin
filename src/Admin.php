@@ -30,9 +30,7 @@ class Admin
 {
     use HasAssets;
     use HasHtml;
-
-    const VERSION = '1.1.7';
-
+    const VERSION='1.2.2';
     const SECTION = [
         // 往 <head> 标签内输入内容
         'HEAD' => 'ADMIN_HEAD',
@@ -72,7 +70,7 @@ class Admin
      */
     public static function longVersion()
     {
-        return sprintf('Dcat Admin <comment>version</comment> <info>%s</info>', static::VERSION);
+        return sprintf('Dcat Admin <comment>version</comment> <info>%s</info>', \Dcat\Admin\Support\Helper::getPackageVersion('dcat-plus/laravel-admin'));
     }
 
     /**

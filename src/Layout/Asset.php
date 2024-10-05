@@ -695,7 +695,7 @@ class Asset
             $url .= '?';
         }
 
-        $ver = 'v'.Admin::VERSION;
+        $ver = 'v'.\Dcat\Admin\Support\Helper::getPackageVersion('dcat-plus/laravel-admin');
 
         return Str::endsWith($url, '?') ? $url.$ver : $url.'&'.$ver;
     }

@@ -999,4 +999,29 @@ class Helper
 
         return redirect($to, in_array($statusCode, $redirectCodes, true) ? $statusCode : 302);
     }
+
+    /**
+     * @desc 获取已安装扩展包的版本号
+     * @param $package_name
+     * author eRic
+     * dateTime 2024-10-05 15:12
+     */
+    public static function getPackageVersion($package_name){
+        // 获取已安装扩展包信息
+        $installedPackages = json_decode(file_get_contents(base_path('vendor/composer/installed.json')), true);
+
+        // 指定要获取版本号的扩展包名称
+        $packageName = $package_name;
+        // 查找指定扩展包的版本号
+        $packageVersion = '';
+        if(!empty($installedPackages['packages'])){
+            foreach ($installedPackages['packages'] as $package) {
+                if ($package['name'] === $packageName) {
+                    $packageVersion = $package['version'];
+                    break;
+                }
+            }
+        }
+        return $packageVersion;
+    }
 }
