@@ -378,4 +378,14 @@ return [
         // the extension files will be generated in this directory.
         'dir' => base_path('dcat-admin-extensions'),
     ],
+    /*
+    |--------------------------------------------------------------------------
+    | 多应用
+    |--------------------------------------------------------------------------
+    */ 
+    'multi_app'                 => [
+        // 'seller'    => true,
+        // 'reseller'  => true,
+        // 'brand'     => true,
+    ],
 ];

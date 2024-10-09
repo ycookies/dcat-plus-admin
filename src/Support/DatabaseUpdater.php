@@ -32,7 +32,10 @@ class DatabaseUpdater
 
         Model::unguard();
 
-        $this->transaction(function () use ($object, $callback) {
+        // 开始数据库事务
+        \DB::beginTransaction();
+
+        try {
             if ($object instanceof Migration) {
                 $object->up();
             } elseif ($object instanceof Seeder) {
@@ -40,7 +43,15 @@ class DatabaseUpdater
             }
 
             $callback && $callback();
-        });
+
+            // 提交事务
+            \DB::commit();
+        } catch (\Exception $e) {
+            // 回滚事务并记录错误
+            \DB::rollBack();
+            info($e->getMessage());
+            return false;
+        }
 
         Model::reguard();
 
@@ -62,13 +73,31 @@ class DatabaseUpdater
 
         Model::unguard();
 
-        $this->transaction(function () use ($object, $callback) {
+        /*$this->transaction(function () use ($object, $callback) {
             if ($object instanceof Migration) {
                 $object->down();
             }
 
             $callback && $callback();
         });
+
+        Model::reguard();*/
+
+        // 开始数据库事务
+        \DB::beginTransaction();
+        try {
+            if ($object instanceof Migration) {
+                $object->down();
+            }
+            $callback && $callback();
+            // 提交事务
+            \DB::commit();
+        } catch (\Exception $e) {
+            // 回滚事务并记录错误
+            \DB::rollBack();
+            info($e->getMessage());
+            return false;
+        }
 
         Model::reguard();
 

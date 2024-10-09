@@ -79,7 +79,7 @@ export default class Menu {
             }
 
             if (! horizontalMenuTop) {
-                horizontalMenuTop = $horizontalMenu.offset().top + 15;
+                horizontalMenuTop = $horizontalMenu.offset().top + 75;
             }
 
             let height = $horizontalMenu.height(),

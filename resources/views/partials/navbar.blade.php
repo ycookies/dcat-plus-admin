@@ -1,6 +1,6 @@
 
 {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_BEFORE']) !!}
-
+@if(!$configData['horizontal_menu'])
 <nav class="header-navbar navbar-expand-lg navbar
     navbar-with-menu {{ $configData['navbar_class'] }}
     {{ $configData['navbar_color'] }}
@@ -57,5 +57,5 @@
         </div>
     </div>
 </nav>
-
+@endif
 {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_AFTER']) !!}
