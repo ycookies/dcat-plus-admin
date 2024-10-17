@@ -196,14 +196,14 @@ class VersionManager
     {
         $name = $this->manager->getName($name);
 
-        if ($version === null) {
-            $version = static::NO_VERSION_VALUE;
-        }
-
         $versions = $this->getFileVersions($name);
-
+        
         $position = array_search($version, array_keys($versions));
 
+        if ($position === false) {
+            return $versions;
+        }
+        
         return array_slice($versions, ++$position);
     }
 
