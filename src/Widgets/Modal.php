@@ -67,6 +67,11 @@ class Modal extends Widget
     protected $join = false;
 
     /**
+     * @var bool
+     */
+    protected $static = false;
+
+    /**
      * Modal constructor.
      *
      * @param  string|Closure|Renderable  $title
@@ -106,6 +111,19 @@ class Modal extends Widget
 
         return $this;
     }
+
+    /**
+     * 设置弹窗为静态 只能手动关闭
+     * @desc
+     * @param bool $bool
+     * @return $this
+     */
+    public function staticBackdrop($bool = true){
+        $this->static = $bool;
+
+        return $this;
+    }
+    
 
     /**
      * 设置弹窗尺寸.
@@ -367,9 +385,13 @@ JS
 
     public function html()
     {
+        $statick_backdrop = '';
+        if($this->static){
+            $statick_backdrop = 'data-backdrop="static"';
+        }
         return <<<HTML
-<div {$this->formatHtmlAttributes()} role="dialog">
-    <div class="modal-dialog {$this->centered} {$this->scrollable} modal-{$this->size}">
+<div {$this->formatHtmlAttributes()} {$statick_backdrop} role="dialog">
+    <div class="modal-dialog shadow {$this->centered} {$this->scrollable} modal-{$this->size}">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{$this->renderTitle()}</h4>

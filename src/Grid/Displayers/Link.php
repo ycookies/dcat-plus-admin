@@ -4,7 +4,7 @@ namespace Dcat\Admin\Grid\Displayers;
 
 class Link extends AbstractDisplayer
 {
-    public function display($href = '', $target = '_blank')
+    public function display($href = '', $target = '_blank',$view = '')
     {
         if ($href instanceof \Closure) {
             $href = $href->bindTo($this->row);
@@ -13,7 +13,11 @@ class Link extends AbstractDisplayer
         } else {
             $href = $href ?: $this->value;
         }
+        $str = $this->value;
+        if(!empty($view)){
+            $str = $view;
+        }
 
-        return "<a href='$href' target='$target'>{$this->value}</a>";
+        return "<a href='$href' target='$target'>{$str}</a>";
     }
 }
