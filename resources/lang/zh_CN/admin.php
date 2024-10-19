@@ -72,6 +72,7 @@ return [
     'browse'                => '浏览',
     'reset'                 => '重置',
     'export'                => '导出',
+    'import'                => '导入',
     'batch_delete'          => '批量删除',
     'save'                  => '保存',
     'refresh'               => '刷新',
