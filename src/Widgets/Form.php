@@ -45,6 +45,7 @@ use Illuminate\Validation\Validator;
  * @method Field\Slider slider($column, $label = '')
  * @method Field\Map map($latitude, $longitude, $label = '')
  * @method Field\Editor editor($column, $label = '')
+ * @method Field\WangEditor wangEditor($column, $label = '')
  * @method Field\Date date($column, $label = '')
  * @method Field\Datetime datetime($column, $label = '')
  * @method Field\Time time($column, $label = '')
@@ -170,6 +171,13 @@ class Form implements Renderable
      */
     protected $validationErrorToastr = true;
 
+    protected $buttonLabel = ''; // 提交按钮文字
+
+    protected $submitButtonCenter = false; // 提交按钮居中
+
+    protected $submitButtonIcon = "<i class=\"feather icon-save\"></i>"; // 提交按钮图标
+
+    protected $submitButtonSize = ''; // 提交按钮大小
     /**
      * Form constructor.
      *
@@ -626,11 +634,14 @@ class Form implements Renderable
         if (empty($this->buttons['reset']) && empty($this->buttons['submit'])) {
             return;
         }
-
+        $submitButtonCenter = '';
+        if($this->submitButtonCenter){
+            $submitButtonCenter = 'text-center';
+        }
         return <<<HTML
 <div class="box-footer row d-flex">
-    <div class="col-md-2"> &nbsp;</div>
-    <div class="col-md-8">{$this->renderResetButton()}{$this->renderSubmitButton()}</div>
+    <div class="col-md-{$this->width['label']}"> &nbsp;</div>
+    <div class="col-md-{$this->width['field']} {$submitButtonCenter}">{$this->renderResetButton()}{$this->renderSubmitButton()}</div>
 </div>
 HTML;
     }
@@ -647,8 +658,58 @@ HTML;
     protected function renderSubmitButton()
     {
         if (! empty($this->buttons['submit'])) {
-            return "<button type=\"submit\" class=\"btn btn-primary pull-right\"><i class=\"feather icon-save\"></i> {$this->getSubmitButtonLabel()}</button>";
+            if($this->submitButtonCenter){
+                return "<button type=\"submit\" class=\"btn {$this->submitButtonSize} btn-primary\">{$this->submitButtonIcon} {$this->getSubmitButtonLabel()}</button>";
+
+            }else{
+                return "<button type=\"submit\" class=\"btn btn-primary pull-right\">{$this->submitButtonIcon} {$this->getSubmitButtonLabel()}</button>";
+
+            }
         }
+    }
+
+    /**
+     * 设置提交按钮的大小
+     *
+     * @return string
+     */
+    protected function setSubmitButtonSize($string)
+    {
+        $this->submitButtonSize = $string;
+        return $this;
+    }
+
+    /**
+     * 设置提交按钮的图标
+     *
+     * @return string
+     */
+    protected function setSubmitButtonIcon($string)
+    {
+        $this->submitButtonIcon = $string;
+        return $this;
+    }
+
+    /**
+     * 设置提交按钮居中
+     *
+     * @return string
+     */
+    protected function submitButtonCenter()
+    {
+        $this->submitButtonCenter = true;
+        return $this;
+    }
+
+    /**
+     * 设置按钮文本.
+     *
+     * @return string
+     */
+    protected function setSubmitButtonLabel($string)
+    {
+        $this->buttonLabel = $string;
+        return $this;
     }
 
     /**
@@ -658,7 +719,12 @@ HTML;
      */
     protected function getSubmitButtonLabel()
     {
-        return trans('admin.submit');
+        if(!empty($this->buttonLabel)){
+            return $this->buttonLabel;
+        }else{
+            return trans('admin.submit');
+        }
+
     }
 
     /**

@@ -70,6 +70,10 @@ class Asset
         '@tinymce' => [
             'js' => '@admin/dcat/plugins/tinymce/tinymce.min.js',
         ],
+        '@wang-editor' => [
+            'js' => '@admin/dcat/plugins/wangeditor/wangEditor.min.js',
+            'css' => '@admin/dcat/plugins/wangeditor/wangeditor.css',
+        ],
         '@pjax' => [
             'js' => '@admin/dcat/plugins/jquery-pjax/jquery.pjax.min.js',
         ],

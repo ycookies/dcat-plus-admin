@@ -47,6 +47,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @method Field\Slider slider($column, $label = '')
  * @method Field\Map map($latitude, $longitude, $label = '')
  * @method Field\Editor editor($column, $label = '')
+ * @method Field\WangEditor wangEditor($column, $label = '')
  * @method Field\Date date($column, $label = '')
  * @method Field\Datetime datetime($column, $label = '')
  * @method Field\Time time($column, $label = '')
@@ -128,6 +129,7 @@ class Form implements Renderable {
         'divider'             => Field\Divide::class,
         'embeds'              => Field\Embeds::class,
         'editor'              => Field\Editor::class,
+        'wangEditor'          => Field\WangEditor::class,
         'email'               => Field\Email::class,
         'hidden'              => Field\Hidden::class,
         'id'                  => Field\Id::class,
