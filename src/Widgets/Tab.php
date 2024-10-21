@@ -26,6 +26,7 @@ class Tab extends Widget
         'active'   => 0,
         'padding'  => null,
         'tabStyle' => '',
+        'icon' => '',
     ];
 
     /**
@@ -50,6 +51,12 @@ class Tab extends Widget
             $this->data['active'] = count($this->data['tabs']) - 1;
         }
 
+        return $this;
+    }
+
+    public function icon($icon){
+        $this->data['tabs'];
+        $this->data['tabs'][count( $this->data['tabs'])-1]['icon'] = $icon;
         return $this;
     }
 
