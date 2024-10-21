@@ -17,4 +17,4 @@
 @endif
 &nbsp;|&nbsp;
 
-<a href="javascript:void(0)">{{ trans('admin.view') }}</a>
+{!! $viewReadmeAction !!}

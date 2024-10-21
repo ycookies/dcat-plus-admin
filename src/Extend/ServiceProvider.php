@@ -254,6 +254,19 @@ abstract class ServiceProvider extends LaravelServiceProvider
     }
 
     /**
+     * 获取 Readme 内容
+     *
+     * @return string
+     *
+     * @throws \ReflectionException
+     */
+    public function getReadme()
+    {
+        $path =  $this->path('README.md');
+        return file_get_contents($path);
+    }
+
+    /**
      * @return string
      */
     public function getLogoBase64()

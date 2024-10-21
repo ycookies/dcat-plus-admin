@@ -6,7 +6,7 @@ use Dcat\Admin\Admin;
 use Dcat\Admin\Grid\Displayers\AbstractDisplayer;
 use Dcat\Admin\Http\Actions\Extensions\Update;
 use Dcat\Admin\Widgets\Modal;
-
+use Dcat\Admin\Widgets\Markdown;
 class Description extends AbstractDisplayer
 {
     public function display()
@@ -15,6 +15,7 @@ class Description extends AbstractDisplayer
             'value' => $this->value,
             'row'   => $this->row,
             'settingAction' => $this->resolveSettingForm(),
+            'viewReadmeAction' => $this->resolveViewReadmeForm(),
             'updateAction' => $this->resolveAction(Update::class),
         ]);
     }
@@ -33,6 +34,20 @@ class Description extends AbstractDisplayer
             ->lg()
             ->title($this->getModalTitle($extension))
             ->body($extension->settingForm())
+            ->button($label);
+    }
+
+    protected function resolveViewReadmeForm()
+    {
+        $extension = Admin::extension()->get($this->getKey());
+        
+        $label = trans('admin.view_readme');
+
+        return Modal::make()
+            ->lg()
+            ->title('查看说明')
+            ->body(Markdown::make($extension->getReadme()))
+            ->scrollable(true)
             ->button($label);
     }
 

@@ -47,6 +47,7 @@ return [
     'login'                 => 'Login',
     'logout'                => 'Logout',
     'setting'               => 'Setting',
+    'view_readme'           => 'View readme',
     'name'                  => 'Name',
     'username'              => 'Username',
     'user'                  => 'User',
