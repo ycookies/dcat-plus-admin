@@ -23,6 +23,7 @@
                         {!! $grid->renderRightTools() !!}
                         {!! $grid->renderColumnSelector() !!}
                         {!! $grid->renderCreateButton() !!}
+                        {!! $grid->renderImportButton() !!}
                         {!! $grid->renderExportButton() !!}
                     </div>
                 @endif

@@ -78,6 +78,7 @@ return [
     'reset'                 => 'Reset',
     'export'                => 'Export',
     'import'                => 'Import',
+    'import_data'           => 'Import Data',
     'batch_delete'          => 'Batch delete',
     'save'                  => 'Save',
     'refresh'               => 'Refresh',

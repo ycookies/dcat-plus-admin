@@ -28,6 +28,7 @@ class Grid
     use Concerns\HasActions;
     use Concerns\HasPaginator;
     use Concerns\HasExporter;
+    use Concerns\HasImporter;
     use Concerns\HasComplexHeaders;
     use Concerns\HasSelector;
     use Concerns\HasQuickCreate;
@@ -475,7 +476,7 @@ class Grid
         if (! $this->buildable()) {
             $this->callBuilder();
             $this->handleExportRequest();
-
+            $this->handleImportRequest();
             $this->prependRowSelectorColumn();
             $this->appendActionsColumn();
 
