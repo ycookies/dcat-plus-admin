@@ -535,4 +535,15 @@ class Manager
 
         return $results;
     }
+
+    /**
+     * 获取laravel版本
+     * @return string
+     */
+    public function getEnv()
+    {
+        $ver = app()->version();
+        $ver_one = explode('.',$ver);
+        return 'laravel'.$ver_one[0];
+    }
 }

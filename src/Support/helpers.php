@@ -593,3 +593,187 @@ if (! function_exists('format_byte')) {
         return round($value, $dec).$prefix_arr[$i];
     }
 }
+// 新增
+
+if (!function_exists('array_build')) {
+    function array_build($array, callable $callback)
+    {
+        $results = [];
+
+        foreach ($array as $key => $value) {
+            list($innerKey, $innerValue) = call_user_func($callback, $key, $value);
+
+            $results[$innerKey] = $innerValue;
+        }
+
+        return $results;
+    }
+}
+
+if (!function_exists('starts_with')) {
+    /**
+     * 检查字符串是否以给定的子字符串开头
+     *
+     * 此函数接受一个字符串（$haystack）和一个或多个子字符串（$needles），并检查这些子字符串是否是原始字符串的前缀
+     * 它将遍历子字符串数组，使用多字节字符串处理函数mb_strpos来判断是否有一个子字符串与原始字符串的开头匹配
+     * 如果任何一个子字符串与原始字符串的开头匹配，则函数返回true；否则返回false
+     *
+     * @param string $haystack 原始字符串
+     * @param mixed $needles 一个或多个要检查的子字符串，可以是字符串或字符串数组
+     * @return bool 如果原始字符串以任何一个子字符串开头，则返回true；否则返回false
+     */
+    function starts_with($haystack, $needles)
+    {
+        foreach ((array)$needles as $needle) {
+            if ($needle != '' && mb_strpos($haystack, $needle) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+if (!function_exists('array_get')) {
+    /**
+     * 从数组中安全地获取值
+     *
+     * @param array $array 要从中获取值的数组
+     * @param string|null $key 要获取的键值，可以是嵌套键的字符串，用点分隔
+     * @param mixed $default 如果键不存在时返回的默认值
+     * @return mixed 返回键对应的值，如果键不存在，则返回默认值
+     */
+    function array_get($array, $key, $default = null)
+    {
+        if (is_null($key)) {
+            return $array;
+        }
+
+        if (isset($array[$key])) {
+            return $array[$key];
+        }
+
+        foreach (explode('.', $key) as $segment) {
+            if (!is_array($array) || !array_key_exists($segment, $array)) {
+                return value($default);
+            }
+
+            $array = $array[$segment];
+        }
+
+        return $array;
+    }
+}
+
+
+if (!function_exists('array_has')) {
+    /**
+     * 检查数组中是否存在指定的键。
+     *
+     * 此函数支持检查多级数组中是否存在指定的键。键可以是以点号分隔的字符串形式，用于指定多级数组的路径。
+     *
+     * @param array $array 要检查的数组
+     * @param string $key 要检查的键，可以是多级键（使用点号分隔）
+     * @return bool 如果数组中存在指定的键，则返回true，否则返回false
+     */
+    function array_has($array, $key)
+    {
+        if (empty($array) || is_null($key)) {
+            return false;
+        }
+
+        if (array_key_exists($key, $array)) {
+            return true;
+        }
+
+        foreach (explode('.', $key) as $segment) {
+            if (!is_array($array) || !array_key_exists($segment, $array)) {
+                return false;
+            }
+
+            $array = $array[$segment];
+        }
+
+        return true;
+    }
+}
+
+if (!function_exists('array_except')) {
+    /**
+     * 从数组中移除指定的键。
+     *
+     * 此函数用于从给定数组中移除一个或多个指定的键。它通过引用操作数组，
+     * 因此不会返回一个新的数组，而是直接修改原始数组。这提供了一种便捷的方法
+     * 来过滤掉不需要的数组元素。
+     *
+     * @param array $array 要处理的原始数组。
+     * @param mixed $keys 单个键或键的数组，这些键将从数组中被移除。
+     * @return array 返回处理后的数组，即移除指定键后的数组。
+     */
+    function array_except($array, $keys)
+    {
+        array_forget($array, $keys);
+
+        return $array;
+    }
+}
+
+if (!function_exists('array_forget')) {
+    /**
+     * 从数组中移除指定的键。
+     *
+     * 此函数用于从给定数组中移除一个或多个指定的键。它通过引用操作数组，
+     * 因此不会返回一个新的数组，而是直接修改原始数组。这提供了一种便捷的方法
+     * 来过滤掉不需要的数组元素。
+     *
+     * @param array $array 要处理的原始数组。
+     * @param mixed $keys 单个键或键的数组，这些键将从数组中被移除。
+     * @return array 返回处理后的数组，即移除指定键后的数组。
+     */
+    function array_forget(&$array, $keys)
+    {
+        $original = &$array;
+
+        $keys = (array)$keys;
+
+        if (count($keys) === 0) {
+            return;
+        }
+
+        foreach ($keys as $key) {
+            $parts = explode('.', $key);
+
+            while (count($parts) > 1) {
+                $part = array_shift($parts);
+
+                if (isset($array[$part]) && is_array($array[$part])) {
+                    $array = &$array[$part];
+                } else {
+                    $parts = [];
+                }
+            }
+
+            unset($array[array_shift($parts)]);
+
+            // clean up after each pass
+            $array = &$original;
+        }
+    }
+}
+if (!function_exists('ends_with')) {
+    /**
+     * 检查字符串是否以指定的后缀结束
+     *
+     * @param string $haystack 被检查的字符串
+     * @param mixed $needles 后缀字符串或后缀字符串数组
+     * @return bool 如果字符串以任一后缀结束返回true，否则返回false
+     */
+    function ends_with($haystack, $needles)
+    {
+        foreach ((array)$needles as $needle) {
+            if ((string)$needle === mb_substr($haystack, -mb_strlen($needle))) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
