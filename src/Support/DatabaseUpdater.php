@@ -115,16 +115,26 @@ class DatabaseUpdater
         if (is_object($file)) {
             return $file;
         }
-
-        if (! is_file($file)) {
+    
+        if (!is_file($file)) {
             return;
         }
-
-        require_once $file;
-
+    
+        // 捕获 require_once 的返回值
+        $result = require_once $file;
+    
+        // 如果返回的是对象（如匿名类的实例），直接返回
+        if (is_object($result)) {
+            return $result;
+        }
+    
+        // 如果返回值不是对象，尝试通过 getClassFromFile 获取类名并实例化
         if ($class = $this->getClassFromFile($file)) {
             return new $class;
         }
+    
+        // 如果无法解析，返回 null 或抛出异常
+        return null;
     }
 
     /**
