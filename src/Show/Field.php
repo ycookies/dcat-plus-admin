@@ -408,10 +408,16 @@ HTML;
 
         return $this->unescape()->as(function ($value) use ($field) {
             $content = is_string($value) ? json_decode($value, true) : $value;
-
+            if (is_array($content)) {
+                array_walk($content, function (&$v, $k) {
+                    $v = htmlspecialchars($v);
+                });
+            } else {
+                $content = htmlspecialchars($content);
+            }
             $field->wrap(false);
 
-            return Dump::make($content);
+            return Dump::make($content)->runScript(false);
         });
     }
 
