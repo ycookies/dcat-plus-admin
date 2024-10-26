@@ -90,6 +90,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @method Field\Button button(string $html = null)
  * @method Field\Autocomplete autocomplete($column, $label = '')
  * @method Field\MultiDate multiDate($column, $label = '')
+ * @method Field\SkuField sku($column, $label = '')
  */
 class Form implements Renderable {
     use HasBuilderEvents;
@@ -175,6 +176,7 @@ class Form implements Renderable {
         'multipleSelectTable' => Field\MultipleSelectTable::class,
         'autocomplete'        => Field\Autocomplete::class,
         'multiDate'           => Field\MultiDate::class,
+        'sku'                 => Field\SkuField::class,
     ];
 
     /**

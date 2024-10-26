@@ -72,7 +72,7 @@ class AssetsUtil
 
     public static function fixFullFromConfig($configKey)
     {
-        $value = modstart_config($configKey);
+        $value = admin_setting($configKey);
         if (empty($value)) {
             return null;
         }

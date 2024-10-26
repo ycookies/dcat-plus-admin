@@ -1,46 +1,71 @@
 <div class="">
+    <style >
+        .icon-list-demo i{
+            font-size: 2.28rem;
+        }
+    </style>
+    <div class="alert alert-info alert-dismissable">
+        <h4><i class="fa fa-info"></i>&nbsp; 使用说明</h4>
+        推荐的引用方法是： <code> &lt;i class="fa fa-bluetooth"&gt;&lt;/i&gt; </code><br/>
+        <p>
+        <h3> 定义图标的动作（动态效果）</h3>
+        缩放效果:<code> &lt;i class="fa fa-bluetooth zi_zoom"&gt;&lt;/i&gt; </code><br/>
+        弹跳效果:<code> &lt;i class="fa fa-bluetooth zi_bounce"&gt;&lt;/i&gt; </code><br/>
+        警灯闪烁效果:<code> &lt;i class="fa fa-bluetooth zi_danger"&gt;&lt;/i&gt; </code><br/>
+        渐入效果:<code> &lt;i class="fa fa-bluetooth zi_load"&gt;&lt;/i&gt; </code><br/>
+        无缝旋转效果:<code> &lt;i class="fa fa-bluetooth zi_spin"&gt;&lt;/i&gt; </code><br/>
+        分步式加载:<code> &lt;i class="fa fa-bluetooth zi_pulse"&gt;&lt;/i&gt; </code><br/>
+        拉开效果:<code> &lt;i class="fa fa-bluetooth zi_pull"&gt;&lt;/i&gt; </code><br/>
+        <h3>  与Bootstrap结合开发</h3>
+        你也可以直接用Bootstrap的装饰符（颜色类）来定义zico图标<br/>
+        图标颜色:<code> &lt;i class="fa fa-bluetooth text-primary"&gt;&lt;/i&gt; </code><br/>
+        <h3> 调整大小</h3>
+        <code> &lt;i class="fa fa-mixcloud zi_2x"&gt;&lt;/i&gt; </code><br/>
+        </p>
+    </div>
     <section>
         <h4 class="m-t-0 page-header header-title">20 New Icons in 4.5 </h4>
         <div class="icon-list-demo row">
             <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-bluetooth"></i>fa fa-bluetooth</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-bluetooth-b"></i>fa fa-bluetooth-b</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-bluetooth-b zi_bounce"></i>fa fa-bluetooth-b</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-codiepie"></i>fa fa-codiepie</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-codiepie zi_zoom"></i>fa fa-codiepie</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-credit-card-alt"></i>fa fa-credit-card-alt</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-credit-card-alt zi_danger"></i>fa fa-credit-card-alt</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-edge"></i>fa fa-edge</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-edge zi_load"></i>fa fa-edge</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-spinner zi_spin"></i>fa fa-edge</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-fort-awesome"></i>fa fa-fort-awesome</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-fort-awesome zi_spin"></i>fa fa-fort-awesome</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-hashtag"></i>fa fa-hashtag</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-hashtag zi_pulse"></i>fa fa-hashtag</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-mixcloud"></i>fa fa-mixcloud</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-mixcloud zi_pull"></i>fa fa-mixcloud</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-modx"></i>fa fa-modx</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-modx text-primary"></i>fa fa-modx</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-pause-circle"></i>fa fa-pause-circle</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-pause-circle text-warning"></i>fa fa-pause-circle</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-pause-circle-o"></i>fa fa-pause-circle-o</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-pause-circle-o text-warning"></i>fa fa-pause-circle-o</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-percent"></i>fa fa-percent</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-percent text-success"></i>fa fa-percent</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-product-hunt"></i>fa fa-product-hunt</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-product-hunt text-danger"></i>fa fa-product-hunt</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-reddit-alien"></i>fa fa-reddit-alien</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-reddit-alien text-warning"></i>fa fa-reddit-alien</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-scribd"></i>fa fa-scribd</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-scribd text-info"></i>fa fa-scribd</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-shopping-bag"></i>fa fa-shopping-bag</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-shopping-bag text-light"></i>fa fa-shopping-bag</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-shopping-basket"></i>fa fa-shopping-basket</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-shopping-basket text-dark"></i>fa fa-shopping-basket</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-stop-circle"></i>fa fa-stop-circle</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-stop-circle text-body"></i>fa fa-stop-circle</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-stop-circle-o"></i>fa fa-stop-circle-o</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-stop-circle-o text-muted"></i>fa fa-stop-circle-o</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-usb"></i>fa fa-usb</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-usb text-white-50"></i>fa fa-usb</div>
 
         </div>
     </section>
@@ -48,17 +73,17 @@
     <section>
         <h4 class="page-header header-title">66 Icons in 4.4 </h4>
         <div class="icon-list-demo row">
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-500px"></i>fa fa-500px</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-500px"></i> fa fa-500px</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-amazon"></i>fa fa-amazon</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-amazon zi_1x zi_w3"></i> fa fa-amazon</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-balance-scale"></i>fa fa-balance-scale</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-balance-scale text-pink"></i> fa fa-balance-scale</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-battery-0"></i>fa fa-battery-0</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-battery-0 text-cyan"></i> fa fa-battery-0</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-battery-1"></i> fa fa-battery-1</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-battery-1 purple"></i> fa fa-battery-1</div>
 
-            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-battery-2"></i> fa fa-battery-2</div>
+            <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-battery-2 cyan-darker"></i> fa fa-battery-2</div>
 
             <div class="col-sm-6 col-md-4 col-lg-3"><i class="fa fa-battery-3"></i> fa fa-battery-3</div>
 
@@ -1686,3 +1711,20 @@
 
     </section>
 </div>
+<script>
+    Dcat.ready(function () {
+        var clipboard4 = new ClipboardJS('.fa', {
+            text: function (trigger) {
+                return trigger.getAttribute('class');
+            }
+        });
+        clipboard4.on('success', function (e) {
+            e.clearSelection();
+            layer.msg('已复制');
+        });
+        clipboard4.on('error', function (e) {
+            e.clearSelection();
+            layer.msg('复制内容失败');
+        });
+    });
+</script>

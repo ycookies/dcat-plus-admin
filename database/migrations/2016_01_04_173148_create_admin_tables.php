@@ -25,10 +25,14 @@ class CreateAdminTables extends Migration
     {
         Schema::create($this->config('database.users_table'), function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->bigInteger('parent_id')->default(0);
             $table->string('username', 120)->unique();
             $table->string('password', 80);
             $table->string('name');
             $table->string('avatar')->nullable();
+            $table->integer('order')->default(0);
+            $table->string('email', 100)->nullable();
+            $table->string('wx_openid', 255)->nullable();
             $table->string('remember_token', 100)->nullable();
             $table->timestamps();
         });

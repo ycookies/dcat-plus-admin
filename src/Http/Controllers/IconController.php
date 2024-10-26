@@ -29,8 +29,9 @@ class IconController extends Controller
             $tab = Tab::make()
                 ->withCard()
                 ->padding('20px')
-                ->add(('Feather'), view('admin::helpers.feather'))
-                ->add(('Font Awesome'), view('admin::helpers.font-awesome'));
+                ->add(('Feather'), view('admin::helpers.feather'),'','icon-Feather')
+                ->add(('Font Awesome'), view('admin::helpers.font-awesome'),'','icon-Font-Awesome')
+                ->add('dcat 内置字体颜色', view('admin::helpers.font-color'),'','icon-Font-Color');
 
             $row->column(12, $tab);
         });

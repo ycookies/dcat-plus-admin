@@ -42,7 +42,8 @@ class Asset
             ],
             'css' => [
                 '@admin/dcat/css/dcat-app.css',
-                '@admin/dcat/css/dcatplus.css'
+                '@admin/dcat/css/dcatplus.css',
+                '@admin/dcat/css/zico.min.css'
             ],
         ],
         '@vendors' => [
@@ -98,6 +99,24 @@ class Asset
         '@bootstrap-datetimepicker' => [
             'js'  => '@admin/dcat/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js',
             'css' => '@admin/dcat/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css',
+        ],
+        '@bootstrap-datepicker' => [
+            'js'  => [
+                '@admin/dcat/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js',
+                '@admin/dcat/plugins/bootstrap-datepicker/bootstrap-datepicker.zh-CN.min.js'
+            ],
+            'css' => '@admin/dcat/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css',
+        ],
+        '@goods-sku' => [
+            'js'  => '@admin/dcat/plugins/goods-sku/sku.js',
+            'css' => '@admin/dcat/plugins/goods-sku/sku.css',
+        ],
+        '@form-media' => [
+            'js'  => [
+                '@admin/dcat/plugins/form-media/field.js',
+                '@admin/dcat/plugins/form-media/jquery.dragsort.js',
+            ],
+            'css' => '@admin/dcat/plugins/form-media/field.css',
         ],
         '@moment' => [
             'js' => [

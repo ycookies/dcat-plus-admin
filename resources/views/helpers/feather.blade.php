@@ -21,6 +21,19 @@
 </style>
 
 <div>
+    <div class="feather-tips">
+        <div class="alert alert-info alert-dismissable">
+            <h4><i class="fa fa-info"></i>&nbsp; 使用说明</h4>
+            推荐的引用方法是： <code> &lt;i class="feather icon-activity"&gt;&lt;/i&gt; </code><br/>
+            <p>
+            <h3>附加样式</h3>
+            控制大小:<code> &lt;i class="feather icon-activity f10"&gt;&lt;/i&gt; </code><br/>
+            控制颜色:<code> &lt;i class="feather icon-activity text-success"&gt;&lt;/i&gt; </code><br/>
+
+
+            </p>
+        </div>
+    </div>
     <div class="feather-icons overflow-hidden row">
         <div class="col-md-4 col-sm-6 col-12 fonticon-container">
             <div class="fonticon-wrap">
@@ -1458,3 +1471,20 @@
         </div>
     </div>
 </div>
+<script>
+    Dcat.ready(function () {
+        var clipboard3 = new ClipboardJS('.feather', {
+            text: function (trigger) {
+                return trigger.getAttribute('class');
+            }
+        });
+        clipboard3.on('success', function (e) {
+            e.clearSelection();
+            layer.msg('已复制');
+        });
+        clipboard3.on('error', function (e) {
+            e.clearSelection();
+            layer.msg('复制内容失败');
+        });
+    });
+</script>

@@ -1,0 +1,177 @@
+.lake-form-media .lake-form-media-img-show {
+    border-radius: 5px;
+    border: 1px solid #e9ecec;
+    padding: 8px;
+    width: 100%;
+    margin-bottom: 5px;
+}
+.lake-form-media .lake-form-media-preview-item {
+    margin: 3px 0;
+}
+.lake-form-media .lake-form-media-row-col {
+    overflow: hidden;
+    padding: 5px 6px;
+    position: relative;
+    border: 1px solid #f5f6f9;
+    border-radius: 5px;
+    background: #fff;
+}
+.lake-form-media .lake-form-media-row-col:hover {
+    border: 1px solid #dfe1e6;
+}
+.lake-form-media .lake-form-media-row-col .lake-form-media-row-img {
+    height: 110px;
+    text-align: center;
+    font-size: 65px;
+    overflow: hidden;
+}
+.lake-form-media .lake-form-media-row-col .lake-form-media-row-img > img {
+    vertical-align: middle;
+}
+.lake-form-media .lake-form-media-row-col .lake-form-media-row-img .lake-form-media-preview-fa {
+    vertical-align: middle;
+    border: 1px solid #f9f7f7;
+    display: block;
+    width: 100%;
+    height: 100%;
+    font-size: 65px;
+    padding-top: 20px;
+}
+.lake-form-media .lake-form-media-row-col .row-icon {
+    position: absolute;
+    top: 5px;
+    left: 6px;
+    background: #fff;
+    border-radius: .15rem;
+}
+.lake-form-media .lake-form-media-row-col .row-icon .fa {
+    color: #abafb5;
+    font-size: 13px;
+}
+.lake-form-media .lake-form-media-row-col .row-title {
+    text-align: center;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    color: #a4a9ad;
+    font-size: 12px;
+    padding: 3px 0;
+}
+.lake-form-media .lake-form-media-row-col .caption {
+    text-align: right;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn {
+    line-height: 1.1 !important;
+    padding: .25rem 0 .25rem 1.1rem !important;
+    height: auto !important;
+    box-shadow: none !important;
+    border: 0px !important;
+    color: #8f98a7 !important;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn:first-child {
+    padding-left: 0 !important;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn.lake-form-media-img-show-item-preview i {
+    color: #abafb5;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn.lake-form-media-img-show-item-preview:hover i {
+    color: #292e35;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn.lake-form-media-img-show-item-delete i {
+    color: #f76687;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn.lake-form-media-img-show-item-delete:hover i {
+    color: #f7055e;
+    font-weight: bold;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn.lake-form-media-img-show-item-dragsort i {
+    color: #abafb5;
+}
+.lake-form-media .lake-form-media-row-col .caption .btn.lake-form-media-img-show-item-dragsort:hover i {
+    color: #292e35;
+}
+
+.lake-form-media-modal {
+    z-index: 99999999 !important;
+}
+.lake-form-media-modal .modal-dialog {
+    border: 1px solid #d4d6da;
+}
+.lake-form-media-modal .lake-form-media-body-table .files>li {
+    float: left;
+    width: 150px;
+    border: 1px solid #eee;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    position: relative;
+}
+.lake-form-media-modal .lake-form-media-body-table .files>li>.file-select {
+    position: absolute;
+    top: -4px;
+    left: -1px;
+}
+.lake-form-media-modal .lake-form-media-body-table .file-icon {
+    text-align: center;
+    font-size: 65px;
+    color: #666;
+    display: block;
+    height: 110px;
+    overflow: hidden;
+}
+.lake-form-media-modal .lake-form-media-body-table .file-info {
+    text-align: center;
+    padding: 10px;
+    background: #f4f4f4;
+}
+.lake-form-media-modal .lake-form-media-body-table .file-name {
+    font-weight: bold;
+    color: #666;
+    display: block;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+}
+.lake-form-media-modal .lake-form-media-body-table .file-size {
+    color: #999;
+    font-size: 12px;
+    display: block;
+}
+.lake-form-media-modal .lake-form-media-body-table .files {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.lake-form-media-modal .lake-form-media-body-table .file-icon.has-img {
+    padding: 0;
+}
+.lake-form-media-modal .lake-form-media-body-table .file-icon.has-img>img {
+    max-width: 100%;
+    height: auto;
+    max-height: 92px;
+}
+.lake-form-media-modal .thumbnail {
+    border: 1px solid #fff;
+    margin: 3px 0;
+}
+.lake-form-media-modal .thumbnail:hover {
+    cursor: pointer;
+    border: 1px solid #ededed;
+}
+.lake-form-media-modal .thumbnail.lake-form-media-selected {
+    border: 1px solid #4c60a3;
+}
+.lake-form-media-modal .lake-form-media-empty {
+    text-align: center;
+    padding: 35px 0;
+    color: #bfc2cc;
+    background: #f7f5f5;
+    border-radius: .5rem;
+}
+.lake-form-media-modal .lake-form-media-modal-page {
+    position: absolute;
+    bottom: 1rem;
+    margin-left: 1rem;
+}
+.lake-form-media-modal .lake-form-media-modal-page .btn {
+    margin-right: .25rem;
+}
