@@ -40,7 +40,7 @@
             <tr>
                 <td colspan="2">
                     <div class="list-add btn btn-primary btn-outline btn-sm pull-left">
-                        <i class="feather icon-save"></i>&nbsp;{{ __('admin.new') }}
+                        <i class="feather icon-plus-circle"></i>&nbsp;{{ __('admin.new') }}
                     </div>
                     <div class="text-center">
                         @include('admin::form.help-block')

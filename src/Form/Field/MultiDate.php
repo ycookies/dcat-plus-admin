@@ -6,11 +6,10 @@ class MultiDate extends Text
 {
     public static $js = [
         '@moment',
-        'https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
-        'https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/locales/bootstrap-datepicker.zh-CN.min.js',
+        '@bootstrap-datepicker',
     ];
     public static $css = [
-        'https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css',
+        '@bootstrap-datepicker',
     ];
 
     protected $format = 'yyyy-mm-dd';

@@ -246,7 +246,14 @@ class Manager
             $this->registerPsr4($directory, $psr4);
         }
 
-        $serviceProvider = new $serviceProvider($this->app);
+        try {
+            $serviceProvider = new $serviceProvider($this->app);
+        } catch (\Error $error) {
+
+        } catch (\Exception $exception) {
+
+        }
+
 
         return $serviceProvider->withComposerProperty($composerProperty);
     }
