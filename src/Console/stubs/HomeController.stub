@@ -22,7 +22,7 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-        $alert = Alert::make('<ul><li><code> Dcat-plus Admin </code> 是基于dcat-admin 的功能增强版，主要是加强两方面，加强灵活的布局; 丰富更多的页面组件。以及修正原有的一些问题。最终做成 汇聚Filament，Laravel-admin , Dcat-admin 优点于一身的基于Laravel + Bootstrap 的极速开发框架。</li><li>灵活的页面布局，丰富的页面组件，精细化的组件控制,多管理面板， 多应用开发场景支持。一键把Model自动生成crud，自带多种js插件,能为您的产品开发节省50%时间。</li><li>Dcatplus 官方 <a href="https://dcat-plus.saishiyun.net/">查看</a></li> <li>快速体验Dcatplus 可安装 [Dcatplus 示例大全] <code> composer require ycookies/dcatplus-demo</code>  <a class="copy" data-clipboard-text="composer require ycookies/dcatplus-demo" href="javascript:void(0);"><i class="feather icon-copy"></i></a></li><ul>','Dcat-plus Admin 特色');
+        $alert = Alert::make('<ul><li><code> Dcat-plus Admin </code> 是基于dcat-admin 的功能增强版，主要是加强两方面，加强灵活的布局; 丰富更多的页面组件。以及修正原有的一些问题。最终做成 汇聚Filament，Laravel-admin , Dcat-admin 优点于一身的基于Laravel + Bootstrap 的极速开发框架。</li><li>灵活的页面布局，丰富的页面组件，精细化的组件控制,多管理面板， 多应用开发场景支持。一键把Model自动生成crud，自带多种js插件,能为您的产品开发节省50%时间。</li><li>Dcatplus 官方 <a href="https://dcat-plus.saishiyun.net/">查看</a></li> <li>快速体验Dcatplus 可安装 [Dcatplus 示例大全] <code> composer require ycookies/dcatplus-demo</code>  <a class="copy" copy-text="composer require ycookies/dcatplus-demo" href="javascript:void(0);"><i class="feather icon-copy"></i></a></li><ul>','Dcat-plus Admin 特色');
                 $content =  $content
                     ->header('Dcat-plus Admin')
                     ->description('只为习得《极速开发》神功，实现人身自由，工作自由，财务自由之路')

@@ -75,6 +75,13 @@ class Asset
             'js' => '@admin/dcat/plugins/wangeditor/wangEditor.min.js',
             'css' => '@admin/dcat/plugins/wangeditor/wangeditor.css',
         ],
+        '@fullcalendar' => [
+            'js' => [
+                '@admin/dcat/plugins/fullcalendar/main.js',
+                '@admin/dcat/plugins/fullcalendar/locales-all.js',
+            ],
+            'css' => '@admin/dcat/plugins/fullcalendar/main.css',
+        ],
         '@pjax' => [
             'js' => '@admin/dcat/plugins/jquery-pjax/jquery.pjax.min.js',
         ],
