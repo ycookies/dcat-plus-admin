@@ -45,9 +45,14 @@ JS;
         $depth = $this->grid->model()->getDepthFromRequest();
         $indents = str_repeat(' &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ', $depth);
 
+        $icon = '<i class="fa fa-angle-right"></i>';
+        $model =  get_class($this->grid->model()->repository()->model());
+        $num = $model::where(['parent_id'=> $key])->count();
+        if(empty($num)) $icon = '';
+
         return <<<EOT
 <a href="javascript:void(0)" class="{$tableId}-grid-load-children" data-depth="{$depth}" data-inserted="0" data-key="{$key}">
-   {$indents}<i class="fa fa-angle-right"></i> &nbsp; {$this->value}
+   {$indents}{$icon} &nbsp; {$this->value}
 </a>
 EOT;
     }
