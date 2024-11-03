@@ -122,6 +122,7 @@ class AdminServiceProvider extends ServiceProvider
         $this->app->register(DcatDistpickerServiceProvider::class);
         $this->app->register(DcatDiyFormServiceProvider::class);
         $this->app->register(FormMediaServiceProvider::class);
+        \Dcat\Admin\Widgets\Tooltip::make('.tips')->purple();
     }
 
     protected function aliasAdmin()
