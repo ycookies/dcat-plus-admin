@@ -28,8 +28,8 @@ class {className}ServiceProvider extends ServiceProvider
     // 定义菜单
     protected $menu = [
         [
-            'title' => '页面组件示例',
-            'uri'   => 'multi-widgets',
+            'title' => '菜单名称',
+            'uri'   => '{path}',
             'icon'  => 'feather icon-book',
         ]
     ];
