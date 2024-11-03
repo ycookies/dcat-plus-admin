@@ -123,10 +123,18 @@ class Tooltip extends Widget
             <<<JS
 $('{$this->selector}').on('mouseover', function () {
     var title = '{$title}' || $(this).data('title');
+    var tipsConfig = ['{$this->placement}', '{$background}']; // 定义 tips 配置
     var idx = layer.tips(title, this, {
-      tips: ['{$this->placement}', '{$background}'],
+      tips: tipsConfig,
       time: 0,
       maxWidth: {$this->maxWidth},
+      success: function (layero, index) {
+        if (tipsConfig[0] === '1') {
+         let oldLeft = layero.css("left");
+         oldLeft = oldLeft.substring(0,oldLeft.indexOf('px'));
+         layero.css("left", (oldLeft-15)+'px');
+        }
+      }
     });
     
     $(this).attr('layer-idx', idx);

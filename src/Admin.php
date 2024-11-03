@@ -592,7 +592,7 @@ class Admin
                     }
                 });
 
-                $router->resource('auth/extensions', 'Dcat\Admin\Http\Controllers\ExtensionController', ['only' => ['index', 'store', 'update']]);
+                $router->resource('auth/extensions', 'Dcat\Admin\Http\Controllers\ExtensionController');
 
                 $authController = config('admin.auth.controller', AuthController::class);
 

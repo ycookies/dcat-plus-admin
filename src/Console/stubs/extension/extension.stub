@@ -12,6 +12,28 @@ class {className}ServiceProvider extends ServiceProvider
 		'css/index.css',
 	];
 
+	// 使用中间件
+    protected $middleware = [
+        /*'middle' => [ // 注册中间件
+           //LogOperation::class,
+        ],*/
+    ];
+
+    // 路由白名单
+    protected $exceptRoutes = [
+        'auth' => [
+            // 'cashier/paycenter/page',
+        ]
+    ];
+    // 定义菜单
+    protected $menu = [
+        [
+            'title' => '页面组件示例',
+            'uri'   => 'multi-widgets',
+            'icon'  => 'feather icon-book',
+        ]
+    ];
+
 	public function register()
 	{
 		//

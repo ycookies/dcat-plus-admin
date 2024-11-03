@@ -13,8 +13,14 @@ use Dcat\Admin\Support\Helper;
 use Dcat\Admin\Support\StringOutput;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Contracts\Support\Renderable;
+use Dcat\Admin\Form\NestedForm;
+use Dcat\Admin\Widgets\Alert;
+use Dcat\Admin\Widgets\Tab;
+use Dcat\Admin\Http\Controllers\AdminController;
+use Dcat\Admin\Admin;
 
-class ExtensionController extends Controller
+class ExtensionController extends AdminController
 {
     use HasResourceActions;
 
@@ -51,7 +57,7 @@ class ExtensionController extends Controller
             });
 
             $grid->disablePagination();
-            $grid->disableCreateButton();
+            // $grid->disableCreateButton();
             $grid->disableDeleteButton();
             $grid->disableBatchDelete();
             $grid->disableFilterButton();
@@ -84,7 +90,65 @@ class ExtensionController extends Controller
         });
     }
 
-    public function form()
+    /**
+     * Make a form builder.
+     *
+     * @return Form
+     */
+    protected function form()
+    {
+        return Form::make(new Extension(), function (Form $form) {
+            //$form->display('id');
+            $form->text('alias','中文名')->help('如:微信扫码登陆')->required();
+            $form->text('name','包名')->help('例如: dcat-admin/demo')->rules(function () {
+                return [
+                    'required',
+                    function ($attribute, $value, $fail) {
+                        if (! Helper::validateExtensionName($value)) {
+                            return $fail(
+                                "[$value] is not a valid package name, please type a name like \"vendor/name\""
+                            );
+                        }
+                    },
+                ];
+            })->required();
+            $form->text('namespace','命名空间')->help('例如: Dcat\Admin\Demo')->required();
+            $form->image('logo','图标')->width(3)->removable(false)->default('/cxbanglogo.png')->required();
+            $form->select('type','类型')->help('')->options([1 => trans('admin.application'), 2 => trans('admin.theme')])
+                ->attribute('style', 'width:140px!important')
+                ->default(1)
+                ->required();
+            $form->text('description','功能描述')->help('');
+            $form->text('authors_name','作者')->default('杨光');
+            $form->text('authors_email','联系邮箱')->default('3664839@qq.com');
+            $form->divider();
+            $form->table('extra','菜单', function (NestedForm $table) {
+                $table->text('title' ,'菜单名')->required();
+                $table->text('uri','链接地址');
+                $table->icon('icon','图标')->default('fa-circle-o');
+            });
+            $self = $this;
+            $form->saving(function (Form $form) use ($self) {
+                $package = $form->name;
+                $namespace = $form->namespace;
+                $type = $form->type;
+
+                if ($package) {
+                    $results = $self->createExtension($package, $namespace, $type);
+
+                    return $form
+                        ->response()
+                        ->refresh()
+                        ->timeout(10)
+                        ->success($results);
+                }
+            });
+
+            return $form;
+        });
+    }
+
+    public function form2()
     {
         $form = new Form(new Extension());
 

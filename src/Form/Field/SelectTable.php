@@ -23,6 +23,8 @@ class SelectTable extends Field
 
     protected $key;
 
+    protected $rButton;
+
     public function __construct($column, $arguments = [])
     {
         parent::__construct($column, $arguments);
@@ -96,6 +98,18 @@ class SelectTable extends Field
     {
         $this->dialog->from($renderable);
 
+        return $this;
+    }
+
+    // 隐藏后的事件
+    public function onHide(string $script){
+        $this->dialog->onHidden($script)->runScript(true);
+        return $this;
+    }
+    
+    // 设置btn内容
+    public function btn(string $str){
+        $this->rButton = $str;
         return $this;
     }
 
@@ -212,6 +226,9 @@ class SelectTable extends Field
 
     protected function renderButton()
     {
+        if(!empty($this->rButton)){
+            return $this->rButton;
+        }
         return <<<HTML
 <div class="btn btn-{$this->style}">
     &nbsp;<i class="feather icon-arrow-up"></i>&nbsp;
