@@ -124,6 +124,23 @@ class Modal extends Widget
         return $this;
     }
     
+    // 启用放大动画
+    public function enlargedTransform(){
+        Admin::style(
+            <<<CSS
+    .modal.fade .modal-dialog {
+    transform: scale(0.8);
+    transition: transform 0.3s ease; 
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1); 
+}
+CSS
+        );
+        return $this;
+    }
+    
 
     /**
      * 设置弹窗尺寸.
