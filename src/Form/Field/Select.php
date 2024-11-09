@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 
 class Select extends Field
 {
+    use PlainInput;
     use CanCascadeFields;
     use CanLoadFields;
     use Sizeable;
@@ -228,12 +229,13 @@ class Select extends Field
             'groups'        => $this->groups,
             'configs'       => $this->config,
             'cascadeScript' => $this->getCascadeScript(),
+            'prepend' => $this->prepend,
+            'append'  => $this->append,
         ]);
 
         $this->initSize();
 
         $this->attribute('data-value', implode(',', Helper::array($this->value())));
-
         return parent::render();
     }
 

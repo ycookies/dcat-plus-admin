@@ -16,7 +16,7 @@
             <input {!! $attributes !!} />
 
             @if ($append)
-                <span class="input-group-append">{!! $append !!}</span>
+                <span class="input-group-append"><span class="input-group-text bg-white" style="padding:.5rem .9rem;">{!! $append !!}</span></span>
             @endif
         </div>
 
