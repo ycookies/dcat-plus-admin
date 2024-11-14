@@ -142,18 +142,20 @@ trait HasImporter
         $html = <<<HTML
 <button type="button" class="btn btn-success">
         <i class="feather icon-upload"></i>
-        <span class="d-none d-sm-inline">&nbsp;{$import}&nbsp;</span>
+        <span class="d-none d-sm-inline">&nbsp;{$import}&nbsp</span>
     </button>
 HTML;
+
+
+        $model_name = base64_encode(get_class($this->model()->repository()->model()));
         $modal = Modal::make()
             ->lg()
             ->title(trans('admin.import_data'))
-            ->body(GirdImportFrom::make()->payload(['model'=> $this,'import_tpl_url'=>$import_tpl_url]))
+            ->body(GirdImportFrom::make()->payload(['model'=>$model_name,'table_titles'=> '1','import_tpl_url'=>$import_tpl_url]))
             ->button($html);
         
         return $modal->render();
     }
-
     /**
      * If grid show export btn.
      *
