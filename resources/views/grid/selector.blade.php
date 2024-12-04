@@ -1,3 +1,11 @@
+<style>
+    .grid-selector .select-options a.active span{
+        border: 2px solid #939393;
+        width: 20px !important;
+        height: 20px !important;
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+    }
+</style>
 <div class="grid-selector">
     @foreach($self->all(true) as $column => $selector)
         <div class="wrap">
@@ -10,7 +18,7 @@
                         @endphp
                         <li>
                             <a href="{{ $self->url($column, $value, true) }}"
-                               class="{{$active ? 'active' : ''}}">{{ $option }}</a>
+                               class="{{$active ? 'active' : ''}}">{!!   $option !!}</a>
                             @if(!$active && $selector['type'] == 'many')
                                 &nbsp;
                                 <a href="{{ $self->url($column, $value) }}" class="add"><i class="feather icon-plus-square"></i></a>
