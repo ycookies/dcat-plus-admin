@@ -61,7 +61,34 @@ class Importer
     public function __construct(Grid $grid)
     {
         $this->grid = $grid;
+        // 如果是导出模板请求
+        if (request('_export_') === 'field') {
+            return $this->exportTemplate();
+        }
     }
+
+    /**
+     * 导出模板
+     */
+    protected function exportTemplate()
+    {
+        $model = $this->grid->model()->repository()->model();
+        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing($model->getTable());
+
+        // 移除一些自动管理的字段
+        $excludeColumns = ['id', 'password', 'created_at', 'updated_at'];
+        $tableColumns = array_diff($tableColumns, $excludeColumns);
+        $tableColumns = array_merge(['numberNo'], $tableColumns);
+
+        $exporter = \Dcat\EasyExcel\Excel::export();
+        $exporter->data([]);
+        $exporter->headings($tableColumns);
+
+        $filename = '导入数据模板文件'.date('Ymd-His').'.xlsx';
+        $exporter->download($filename);
+        exit;
+    }
+    
 
     /**
      *  Get or set option for exporter.

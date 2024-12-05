@@ -150,7 +150,7 @@
 --}}
 <script>
     Dcat.ready(function () {
-        const app = new Vue({
+        /*const app = new Vue({
             el: '#app',
             data() {
                 return {
@@ -266,6 +266,6 @@
             mounted: function () {
                 this.getDetail();
             },
-        });
+        });*/
     });
 </script>

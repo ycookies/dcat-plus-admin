@@ -146,6 +146,7 @@ class Tree implements Renderable {
     protected $draggable_autosave = false;
     // 工具栏
     protected $toolbar = true;
+    protected $createBtnTxt;
 
     /**
      * Menu constructor.
@@ -334,6 +335,11 @@ class Tree implements Renderable {
      */
     public function draggableAutoSave(bool $value = true) {
         $this->draggable_autosave = $value;
+        return $this;
+    }
+    
+    public function setCreateBtnTxt($txt){
+        $this->createBtnTxt = $txt;
         return $this;
     }
 
@@ -611,7 +617,9 @@ class Tree implements Renderable {
 
         $url = $this->url . '/create';
         $new = trans('admin.new');
-
+        if(!empty($this->createBtnTxt)){
+            $new = $this->createBtnTxt; 
+        }
         $quickBtn = $btn = '';
         if ($this->useCreate) {
             $btn = "<a href='{$url}' class='btn btn-sm btn-primary'><i class='feather icon-plus'></i><span class='d-none d-sm-inline'>&nbsp;{$new}</span></a>";

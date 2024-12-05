@@ -70,18 +70,18 @@
 
     // 添加 change 事件监听
     @if($draggable_autosave)
-        tree.on('change', function () {
-            // 获取序列化后的数据
-            var serialize = tree.nestable('serialize');
-            console.log('拖拽完成，新的顺序:', serialize);
+    tree.on('change', function () {
+        // 获取序列化后的数据
+        var serialize = tree.nestable('serialize');
+        console.log('拖拽完成，新的顺序:', serialize);
 
-            // 自动保存
-            saveOrder(serialize);
-        });
+        // 自动保存
+        autoSave(serialize);
+    });
     @endif
 
     // 封装保存函数
-    function saveOrder(serialize) {
+    function autoSave(serialize) {
         // 显示加载状态
         //var loading = Dcat.loading();
 
@@ -92,7 +92,8 @@
             },
             success: function (data) {
                 //loading.remove();
-                Dcat.handleJsonResponse(data);
+                Dcat.success(data.data.message);
+                //Dcat.handleJsonResponse(data);
             },
             error: function () {
                 //loading.remove();

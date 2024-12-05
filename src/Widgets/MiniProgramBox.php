@@ -10,7 +10,8 @@ class MiniProgramBox extends Widget
      * @var string
      */
     protected $view = 'admin::widgets.mini-program-box';
-
+    protected $title;
+    protected $content;
     /**
      * @var array
      */
@@ -19,48 +20,28 @@ class MiniProgramBox extends Widget
     /**
      * Collapse constructor.
      */
-    public function __construct()
+    public function __construct($title = '',$content = null)
     {
+        $this->content($content);
         $this->id('MiniProgramBox-'.uniqid());
         $this->class('box-group');
         $this->style('margin-bottom: 20px');
     }
 
     /**
-     * Add item.
-     *
-     * @param string $title
-     * @param string $content
-     *
+     * @param  string|\Closure|Renderable|LazyWidget $content
      * @return $this
      */
-    public function add($title = '', $content ='',$link="javascript:void(0);")
-    {
-        $this->items[] = [
-            'title'   => $title,
-            'content' => $content,
-            'link'=> $link,
-            'avatar_circle' => '',
-        ];
-        return $this;
-    }
-    // 背景图片
-    public function bg($img){
-        $this->items[count($this->items)-1]['bg'] = $img;
-        return $this;
-    }
+    public function content($content) {
+        if ($content instanceof LazyGrid) {
+            $content->simple();
+        }
 
-    // 头像
-    public function avatar($avatar){
-        $this->items[count($this->items)-1]['avatar'] = $avatar;
-        return $this;
-    }
-    // 头像 圆形
-    public function avatarCircle($bool = true){
-        $this->items[count($this->items)-1]['avatar_circle'] = 'avatar-rounded';
-        return $this;
-    }
+        $this->content = $this->formatRenderable($content);
 
+        return $this;
+    }
+    
     /**
      * {@inheritdoc}
      */
@@ -68,7 +49,8 @@ class MiniProgramBox extends Widget
     {
         return [
             'id'         => $this->id,
-            'items'      => $this->items,
+            'title'      => $this->title,
+            'content'    => $this->toString($this->content),
             'attributes' => $this->formatAttributes(),
         ];
     }

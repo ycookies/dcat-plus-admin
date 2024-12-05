@@ -137,7 +137,7 @@ trait HasImporter
         if (! $this->allowImporter()) {
             return '';
         }
-        $import_tpl_url = $this->resource().'?_import_=all_field';//$this->grid->importUrl('selected', '__rows__');
+        $import_tpl_url = $this->resource().'?_export_=field';//$this->grid->importUrl('selected', '__rows__');
         $import = trans('admin.import');
         $html = <<<HTML
 <button type="button" class="btn btn-success">
