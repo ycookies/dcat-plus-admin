@@ -31,7 +31,6 @@ class GirdImportFrom extends Form implements LazyRenderable
 
         // 获取上传文件路径
         $filePath = $this->getFilePath($file);
-:qualifiedArgType(q)
         // 读取Excel文件
         $excel = Excel::import($filePath);
 
