@@ -34,6 +34,7 @@ trait HasTools
         $this->right_tools = new Tools($this);
         $this->right_tools->disableRefreshButton();
         $this->right_tools->disableFilterButton();
+        $this->right_tools->disableBatchActions();
     }
 
     /**
