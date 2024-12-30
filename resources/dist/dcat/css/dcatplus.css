@@ -41,24 +41,6 @@
 .lake-form-field-iconimg .input-group {
     width: 260px !important;
 }
-.main-sidebar, .main-sidebar:before{
-    width:220px;
-}
-.sidebar-collapse .main-sidebar,.sidebar-collapse .main-sidebar:before {
-    margin-left: -220px
-}
-.sidebar-mini.sidebar-collapse .main-sidebar.sidebar-focused,.sidebar-mini.sidebar-collapse .main-sidebar.sidebar-focused .brand-link,.sidebar-mini.sidebar-collapse .main-sidebar:hover,.sidebar-mini.sidebar-collapse .main-sidebar:hover .brand-link {
-    width: 220px
-}
-.sidebar-mini.sidebar-collapse.layout-fixed .main-sidebar:hover .brand-link {
-    width: 220px
-}
-body:not(.sidebar-mini-md) .content-wrapper, body:not(.sidebar-mini-md) .main-footer, body:not(.sidebar-mini-md) .main-header{
-    margin-left:220px;
-}
-.header-navbar.fixed-top{
-    left: 220px;
-}
 .form-group{
     margin-bottom: .5rem !important;
 }

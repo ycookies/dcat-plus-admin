@@ -25,20 +25,22 @@ JS;
 
         return <<<HTML
 <div>
-    <div class="mt-2 text-center mb-2 form-divider">
-      <span>
+    <fieldset class="mt-2 text-center mb-2 border rounded">
+      <legend class="w-auto" style="font-size: 14px">
         <a data-toggle="collapse" href="#{$this->name}" class="{$this->name}-title">
           <i class="fa fa-angle-double-up"></i>&nbsp;&nbsp;{$title}
         </a>
-      </span>
-</div>
-<div class="collapse show" id="{$this->name}">
+      </legend>
+      
+      <div class="collapse show" id="{$this->name}">
+
+
 HTML;
     }
 
     public function end()
     {
-        return '</div></div>';
+        return '</div></fieldset></div></div>';
     }
 
     public function collapsed()
