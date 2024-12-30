@@ -20,65 +20,128 @@ use Dcat\Admin\Widgets\CoverCard;
 class HomeController extends Controller
 {
     public function index(Content $content)
-    {
+        {
 
-        $alert = Alert::make('<ul><li><code> Dcat-plus Admin </code> 是基于dcat-admin 的功能增强版，主要是加强两方面，加强灵活的布局; 丰富更多的页面组件。以及修正原有的一些问题。最终做成 汇聚Filament，Laravel-admin , Dcat-admin 优点于一身的基于Laravel + Bootstrap 的极速开发框架。</li><li>灵活的页面布局，丰富的页面组件，精细化的组件控制,多管理面板， 多应用开发场景支持。一键把Model自动生成crud，自带多种js插件,能为您的产品开发节省50%时间。</li><li>Dcatplus 官方 <a href="https://dcat-plus.saishiyun.net/">查看</a></li> <li>快速体验Dcatplus 可安装 [Dcatplus 示例大全] <code> composer require ycookies/dcatplus-demo</code>  <a class="copy" copy-text="composer require ycookies/dcatplus-demo" href="javascript:void(0);"><i class="feather icon-copy"></i></a></li><ul>','Dcat-plus Admin 特色');
-                $content =  $content
-                    ->header('Dcat-plus Admin')
-                    ->description('只为习得《极速开发》神功，实现人身自由，工作自由，财务自由之路')
-                    ->row($alert->info())
-                    ->row(function (Row $row) {
-                        $row->column(6, function (Column $column) {
-                            $column->row(Dashboard::author());
-                            $column->row(new Examples\Tickets());
-                        });
+            $alert = Alert::make('<ul><li><code> Dcat-plus Admin </code> 是基于dcat-admin 的功能增强版，主要是加强两方面，加强灵活的布局; 丰富更多的页面组件。以及修正原有的一些问题。最终做成 汇聚Filament，Laravel-admin , Dcat-admin 优点于一身的基于Laravel + Bootstrap 的极速开发框架。</li><li>灵活的页面布局，丰富的页面组件，精细化的组件控制,多管理面板， 多应用开发场景支持。一键把Model自动生成crud，自带多种js插件,能为您的产品开发节省50%时间。</li><li>Dcatplus 官方 <a href="https://dcat-admin.com/">查看</a></li> <li>快速体验Dcatplus 可安装 [Dcatplus 示例大全] <code> composer require ycookies/dcatplus-demo</code>  <a class="copy" copy-text="composer require ycookies/dcatplus-demo" href="javascript:void(0);"><i class="feather icon-copy"></i></a></li><ul>','Dcat-plus Admin 特色');
+            $content =  $content
+                ->header('Dcat-plus Admin')
+                ->description('只为习得《极速开发》神功，实现人身自由，工作自由，财务自由之路')
+                ->row($alert->info())
+                ->row(function (Row $row) {
+                    $row->column(9, function (Column $column) {
+                        $yue = date('m');
+                        $events_list = [
+                            [
+                                'title' => '今天的事项',
+                                'start' => '2024-'.$yue.'-01 14:00:00', // 示例日期，您可以根据需要替换
+                                'backgroundColor' => '#f56954', // red
+                                'borderColor' => '#f56954', // red
+                                'allDay' => false, // 指示事件是否为全天事件。默认为 false
+                                'description' => '这是今天的事项描述', // 描述信息
+                                'showModal' => true,
+                            ],
+                            [
+                                'title' => '长事项',
+                                'start' => '2024-'.$yue.'-27 00:00:00', // 示例日期，您可以根据需要替换
+                                'end' => '2024-'.$yue.'-30 00:00:00', // 示例日期，您可以根据需要替换
+                                'backgroundColor' => '#f39c12', // yellow
+                                'borderColor' => '#f39c12', // yellow
+                                'description' => '长事项描述', // 描述信息
+                                'showModal' => true,
+                            ],
+                            [
+                                'title' => 'Meeting 11111',
+                                'start' => '2024-'.$yue.'-02 10:30:00', // 示例日期，您可以根据需要替换
+                                'allDay' => false,
+                                'backgroundColor' => '#0073b7', // Blue
+                                'borderColor' => '#0073b7', // Blue
+                            ],
+                            [
+                                'title' => 'Lunch 2222',
+                                'start' => '2024-'.$yue.'-02 12:00:00', // 示例日期，您可以根据需要替换
+                                'end' => '2024-'.$yue.'-02 14:00:00', // 示例日期，您可以根据需要替换
+                                'allDay' => false,
+                                'backgroundColor' => '#00c0ef', // Info (aqua)
+                                'borderColor' => '#00c0ef', // Info (aqua)
+                            ],
+                            [
+                                'title' => 'Birthday Party',
+                                'start' => '2024-'.$yue.'-03 19:00:00', // 示例日期，您可以根据需要替换
+                                'end' => '2024-'.$yue.'-03 22:30:00', // 示例日期，您可以根据需要替换
+                                'allDay' => false,
+                                'backgroundColor' => '#00a65a', // Success (green)
+                                'borderColor' => '#00a65a', // Success (green)
+                            ],
+                            [
+                                'title' => 'Click for baidu',
+                                'start' => '2024-'.$yue.'-28 00:00:00', // 示例日期，您可以根据需要替换
+                                'end' => '2024-'.$yue.'-29 00:00:00', // 示例日期，您可以根据需要替换
+                                'url' => 'https://www.baidu.com/',
+                                'backgroundColor' => '#3c8dbc', // Primary (light-blue)
+                                'borderColor' => '#3c8dbc', // Primary (light-blue)
+                            ],
+                        ];
+                        $calendar = \Dcat\Admin\Widgets\Calendar::make();
+                        $calendar->eventItem($events_list);
+                        $Card = Card::make($calendar->render());
+                        $column->row($Card->render());
+                    });
+                    $row->column(3, function (Column $column) {
 
-                        $row->column(6, function (Column $column) {
-                            $group = ListGroup::make();
+                        $cover_card = CoverCard::make()->add('开源公众号','关注公众号 随时了解更新动态')
+                            ->bg('https://dcat-plus.saishiyun.net/img/card-bg1.jpeg')
+                            ->avatar('https://dcat-plus.saishiyun.net/img/wxgzh_qrcode.jpg');
+                        $column->row($cover_card->render());
+                        $cover_card1 = CoverCard::make()->add('赞助捐助开源','鼓励作者持续更新')
+                            ->bg('https://dcat-plus.saishiyun.net/img/card-bg2.jpeg')
+                            ->avatar('https://dcat-plus.saishiyun.net/img/weixinpay.jpg');
+                        $column->row($cover_card1->render());
+                        $group = ListGroup::make();
 
-                            // 获取已安装扩展包信息
-                            $installedPackages = json_decode(file_get_contents(base_path('vendor/composer/installed.json')), true);
+                        // 获取已安装扩展包信息
+                        $installedPackages = json_decode(file_get_contents(base_path('vendor/composer/installed.json')), true);
 
-                            // 指定要获取版本号的扩展包名称
-                            $packageName = 'dcat-plus/laravel-admin';
+                        // 指定要获取版本号的扩展包名称
+                        $packageName = 'dcat-plus/laravel-admin';
 
-                            // 查找指定扩展包的版本号
-                            $packageVersion = '--';
-                            if(!empty($installedPackages['packages'])){
-                                foreach ($installedPackages['packages'] as $package) {
-                                    if ($package['name'] === $packageName) {
-                                        $packageVersion = $package['version'];
-                                        break;
-                                    }
+                        // 查找指定扩展包的版本号
+                        $packageVersion = '--';
+                        if(!empty($installedPackages['packages'])){
+                            foreach ($installedPackages['packages'] as $package) {
+                                if ($package['name'] === $packageName) {
+                                    $packageVersion = $package['version'];
+                                    break;
                                 }
                             }
-                            $group->add('Dcat-plus Admin  Version',  $packageVersion,'#');
-                            $group->add('PHP Version',  phpversion(),'#');
-                            $group->add('Laravel Version', app()->version(),'#');
-                            $group->add('Dcat-plus Admin 下载次数', 896,'#');
+                        }
+                        $group->add('Dcat-plus Admin  Version',  $packageVersion,'#');
+                        $group->add('PHP Version',  phpversion(),'#');
+                        $group->add('Laravel Version', app()->version(),'#');
+                        $group->add('Dcat-plus Admin 下载次数', 896,'#');
 
-                            //$group->add('这是第5个标题', '这是第5个');
-                            $column->row($group->render());
-                            $column->row(function (Row $row) {
-                                $cover_card = CoverCard::make()->add('开源公众号','关注公众号 随时了解更新动态')
-                                    ->bg('https://dcat-plus.saishiyun.net/img/card-bg1.jpeg')
-                                    ->avatar('https://dcat-plus.saishiyun.net/img/wxgzh_qrcode.jpg');
-                                $row->column(6, $cover_card->render());
+                        //$group->add('这是第5个标题', '这是第5个');
+                        $column->row($group->render());
 
-                                $cover_card1 = CoverCard::make()->add('赞助捐助开源','鼓励作者持续更新')
-                                    ->bg('https://dcat-plus.saishiyun.net/img/card-bg2.jpeg')
-                                    ->avatar('https://dcat-plus.saishiyun.net/img/weixinpay.jpg');
-                                $row->column(6, $cover_card1->render());
-
-                                $row->column(6, new Examples\NewUsers());
-                                $row->column(6, new Examples\NewDevices());
-                            });
-
-                            $column->row(new Examples\Sessions());
-                            $column->row(new Examples\ProductOrders());
-                        });
+                    });
+                })
+                ->row(function (Row $row) {
+                    $row->column(6, function (Column $column) {
+                        $column->row(Dashboard::author());
+                        $column->row(new Examples\Tickets());
                     });
 
-        return $content;
-    }
+                    $row->column(6, function (Column $column) {
+
+                        $column->row(function (Row $row) {
+                            $row->column(6, new Examples\NewUsers());
+                            $row->column(6, new Examples\NewDevices());
+                        });
+
+                        $column->row(new Examples\Sessions());
+                        $column->row(new Examples\ProductOrders());
+                    });
+                });
+
+            return $content;
+        }
 }
