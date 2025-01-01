@@ -4,6 +4,7 @@ namespace Dcat\Admin\Grid\Displayers;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Facades\Storage;
+use Dcat\Admin\Support\Helper;
 
 class Image extends AbstractDisplayer
 {
@@ -12,7 +13,7 @@ class Image extends AbstractDisplayer
         if ($this->value instanceof Arrayable) {
             $this->value = $this->value->toArray();
         }
-
+        $this->value = Helper::array($this->value);
         return collect((array) $this->value)->filter()->map(function ($path) use ($server, $width, $height) {
             if (url()->isValidUrl($path) || mb_strpos($path, 'data:image') === 0) {
                 $src = $path;
