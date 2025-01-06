@@ -228,4 +228,7 @@ return [
         'minlength' => 'The :attribute must be at least :min characters.',
         'maxlength' => 'The :attribute may not be greater than :max characters.',
     ],
+    'attr_name'=> 'Attr Name ',
+    'attr_type' => 'Attr Type ',
+    'attr_value' => 'Attr Value',
 ];

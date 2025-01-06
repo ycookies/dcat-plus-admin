@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-
+use Dcat\Admin\Grid\Concerns\CanFormatState;
 /**
  * @method $this input(bool|array $options = [])
  * @method $this textarea(bool|array $options = [])
@@ -59,6 +59,7 @@ class Column
     use HasBuilderEvents;
     use Grid\Column\HasHeader;
     use Grid\Column\HasDisplayers;
+    use CanFormatState;
     use Macroable {
         __call as __macroCall;
     }

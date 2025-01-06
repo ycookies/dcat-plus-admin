@@ -29,15 +29,15 @@ class AddSkuAttrFrom extends Form implements LazyRenderable
             'sort' => $input['sort'],
         ];
         SkuAttribute::firstOrCreate(['attr_name' => $input['attr_name']],$data);
-        return $this->response()->success('添加成功')->refresh();
+        return $this->response()->success(trans('admin.save_succeeded'))->refresh();
     }
 
     public function form()
     {
-        $this->text('attr_name', '属性名称')->required();
-        $this->radio('attr_type', '属性类型')->options(SkuAttribute::$attrType)->required();
-        $this->list('attr_value', '属性值');
-        $this->number('sort', '排序')->default(0)->min(0)->max(100);
+        $this->text('attr_name', trans('admin.attr_name'))->required();
+        $this->radio('attr_type', trans('admin.attr_type'))->options(SkuAttribute::$attrType)->required();
+        $this->list('attr_value', trans('admin.attr_value'));
+        $this->number('sort', trans('admin.order'))->default(0)->min(0)->max(100);
     }
     
 }

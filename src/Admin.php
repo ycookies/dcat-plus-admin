@@ -607,6 +607,7 @@ class Admin
                 $router->post('lake-form-media/upload', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@upload')->name('admin.lake-form-media.upload');
                 $router->post('lake-form-media/create-folder', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@createFolder')->name('admin.lake-form-media.create-folder');
                 // sku-image
+                $router->resource('sku-action', \Dcat\Admin\Http\Controllers\SkuAttributeController::class);
                 $router->post('sku-image-upload', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@store')->name('admin.sku-image-upload');
                 $router->post('sku-image-remove', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@delete')->name('admin.sku-image-remove');
 

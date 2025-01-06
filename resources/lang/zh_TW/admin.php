@@ -226,4 +226,7 @@ return [
         'minlength' => ':attribute 長度不能少於 :min。',
         'maxlength' => ':attribute 長度不能超過 :max。',
     ],
+    'attr_name'=> '属性名称',
+    'attr_type' => '属性类型',
+    'attr_value' => '属性值',
 ];

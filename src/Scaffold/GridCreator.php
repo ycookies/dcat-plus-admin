@@ -37,7 +37,13 @@ trait GridCreator
         }
 
         $rows[] = <<<EOF
-        
+            // \$grid->setActionClass(Grid\Displayers\Actions::class); // 行操作按钮显示方式 图标方式
+            \$grid->actions(function (Grid\Displayers\Actions \$actions) {
+                // \$actions->disableDelete(); //  禁用删除
+                // \$actions->disableEdit();   //  禁用修改
+                // \$actions->disableQuickEdit(); //禁用快速修改(弹窗形式)
+                // \$actions->disableView(); //  禁用查看
+            });
             \$grid->filter(function (Grid\Filter \$filter) {
                 \$filter->equal('$primaryKey');
         

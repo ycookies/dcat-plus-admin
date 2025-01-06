@@ -41,6 +41,7 @@
 .lake-form-field-iconimg .input-group {
     width: 260px !important;
 }
+.limit-text span{word-break: break-all; white-space: normal; display: block;}
 .form-group{
     margin-bottom: .5rem !important;
 }

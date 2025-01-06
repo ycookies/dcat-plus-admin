@@ -19,21 +19,25 @@ class SkuAttributesTable extends LazyRenderable
     public function grid(): Grid
     {
         return Grid::make(new SkuAttribute(), function (Grid $grid) {
+            $grid->setResource('/sku-action');
             $grid->model()->orderByDesc('id');
-            $grid->id->sortable();
-            $grid->column('attr_name', '属性名称');
-            $grid->column('attr_type', '属性类型')
-                ->using(SkuAttribute::$attrType)
-                ->label([
-                    'checkbox' => 'info',
-                    'radio' => 'primary'
-                ]);
-            $grid->column('sort', '排序')->help('排序越大越靠前');
-            $grid->column('attr_value', '属性值')->explode()->label();
-            $grid->created_at;
+            $grid->number();
+            $grid->column('attr_name', admin_trans('admin.attr_name'));
+            $grid->column('attr_type', admin_trans('admin.attr_type'))
+                ->using(SkuAttribute::$attrType);
+            $grid->column('sort', admin_trans('admin.order'));
+            $grid->column('attr_value', admin_trans('admin.attr_value'))->explode()->label();
+            $grid->created_at->dateTime('Y-m-d H:s');
             $grid->disableViewButton();
             $grid->disableRowSelector();
             $grid->disableCreateButton();
+            $title = '<a  href="javascript:void(0);" data-url="'.admin_url('sku-action/create').'" class="btn btn-success btn-sm add-sku">添加规格</a>';
+            \Dcat\Admin\Form::dialog('添加规格')
+                ->click('.add-sku')
+                ->success('Dcat.reload()')
+                ->dimensions('800px', '600px');
+            $grid->showQuickEditButton();
+            $grid->tools($title);
             $grid->setActionClass(Grid\Displayers\Actions::class);
             $grid->actions(function ($actions) {
                 // 去掉删除
@@ -45,8 +49,8 @@ class SkuAttributesTable extends LazyRenderable
             });
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id')->width(3);
-                $filter->like('attr_name', '属性名称')->width(3);
-                $filter->equal('attr_type', '属性类型')->width(3)->select($this->attrType);
+                $filter->like('attr_name', admin_trans('admin.attr_name'))->width(3);
+                $filter->equal('attr_type', admin_trans('admin.attr_type'))->width(3)->select($this->attrType);
             });
         });
     }

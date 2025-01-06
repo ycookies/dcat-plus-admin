@@ -19,7 +19,7 @@ class DelSkuAttrAction extends RowAction
         SkuAttribute::where(['id'=> $id])->delete();
         return $this->response()->success('删除成功')->refresh();
     }
-
+    
     /**
      * 确认弹窗信息，如不需要可以删除此方法
      *

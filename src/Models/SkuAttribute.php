@@ -12,8 +12,8 @@ class SkuAttribute extends Model
     public  $table = 'sku_attribute';
     public  $guarded = [];
     public static $attrType = [
-        'checkbox' => '复选框',
-        'radio' => '单选框',
+        'radio' => '单选',
+        'checkbox' => '多选',
     ];
 
     protected $casts = [

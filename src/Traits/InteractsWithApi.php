@@ -181,7 +181,7 @@ trait InteractsWithApi
      *
      * @return null|string
      */
-    public function buildRequestScript()
+    public function buildRequestScript($id = null)
     {
         if (! $this->allowBuildRequest()) {
             return;
@@ -189,39 +189,41 @@ trait InteractsWithApi
 
         $fetching = implode(';', $this->requestScripts['fetching']);
         $fetched = implode(';', $this->requestScripts['fetched']);
-
         return <<<JS
 (function () {
-    var loading;
-    function request(data) {
-        if (loading) {
-            return;
+    if($("#{$id}").length >= 1) {
+        var loading;
+        function request(data) {
+            if (loading) {
+                return;
+            }
+            loading = 1;
+    
+            data = $.extend({$this->formatRequestData()}, data || {});
+    
+            {$fetching};
+    
+            $.ajax({
+              url: '{$this->getRequestUrl()}',
+              dataType: 'json',
+              method: '{$this->method}',
+              data: data,
+              success: function (response) {
+                loading = 0;
+                {$fetched};
+              },
+              error: function (a, b, c) {
+                  loading = 0;
+                  Dcat.handleAjaxError(a, b, c)
+              },
+            });
         }
-        loading = 1;
-
-        data = $.extend({$this->formatRequestData()}, data || {});
-
-        {$fetching};
-
-        $.ajax({
-          url: '{$this->getRequestUrl()}',
-          dataType: 'json',
-          method: '{$this->method}',
-          data: data,
-          success: function (response) {
-            loading = 0;
-            {$fetched};
-          },
-          error: function (a, b, c) {
-              loading = 0;
-              Dcat.handleAjaxError(a, b, c)
-          },
-        });
+       
+          request();
+        
+    
+        {$this->buildBindingScript()}
     }
-
-    request();
-
-    {$this->buildBindingScript()}
 })();
 JS;
     }

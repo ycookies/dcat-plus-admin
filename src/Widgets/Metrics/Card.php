@@ -159,7 +159,9 @@ class Card extends Widget
      */
     public function useChart()
     {
-        return $this->chart ?: ($this->chart = Chart::make());
+        $charts =  $this->chart ?: ($this->chart = Chart::make());
+        $charts->setCardId($this->id());
+        return $charts;
     }
 
     /**
@@ -462,7 +464,7 @@ JS
             $this->chart->merge($this)->click($clickable);
         } else {
             // 没有图表，需要构建卡片数据请求js代码.
-            $cardRequestScript = $this->click($clickable)->buildRequestScript();
+            $cardRequestScript = $this->click($clickable)->buildRequestScript($id);
         }
 
         // 按钮显示选中文本

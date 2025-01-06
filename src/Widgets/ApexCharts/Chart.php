@@ -25,6 +25,8 @@ class Chart extends Widget
     protected $containerSelector;
 
     protected $built = false;
+    
+    protected $cardSelector;
 
     public function __construct($selector = null, $options = [])
     {
@@ -36,6 +38,10 @@ class Chart extends Widget
         $this->selector($selector);
 
         $this->options($options);
+    }
+    
+    public function setCardId($id){
+        $this->cardSelector = $id;
     }
 
     /**
@@ -200,12 +206,57 @@ class Chart extends Widget
         return <<<JS
 (function () {
     var options = {$options};
+    var chart;
+    
+    // 确保全局存储只初始化一次
+    if (!window.apexChartsInstances) {
+        window.apexChartsInstances = new Map();
+        
+        // 全局事件监听器只需添加一次
+        window.addEventListener('beforeunload', function() {
+            window.apexChartsInstances.forEach(function(chart) {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            window.apexChartsInstances.clear();
+        });
+        
+        window.addEventListener('popstate', function() {
+            window.apexChartsInstances.forEach(function(chart) {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            window.apexChartsInstances.clear();
+        });
+    }
+    
+    try {
+        var chartContainer = $("{$this->containerSelector}")[0];
 
-    var chart = new ApexCharts(
-        $("{$this->containerSelector}")[0], 
-        options
-    );
-    chart.render();
+        if (!chartContainer) {
+            console.log('Chart container not found');
+            loadingTubiao = false;
+            return;
+        }
+        
+        // 清理已存在的图表实例
+        var existingChart = window.apexChartsInstances.get("{$this->containerSelector}");
+        if (existingChart) {
+            existingChart.destroy();
+            window.apexChartsInstances.delete("{$this->containerSelector}");
+        }
+        
+        chart = new ApexCharts(chartContainer, options);
+        chart.render();
+        
+        // 存储新的图表实例
+        window.apexChartsInstances.set("{$this->containerSelector}", chart);
+        
+    } catch (e) {
+        console.warn('Chart initialization failed:', e);
+    }
 })();
 JS;
     }
@@ -240,8 +291,8 @@ if (chartBox.length) {
 }
 JS
         );
-
-        return $this->script = $this->buildRequestScript();
+        
+        return $this->script = $this->buildRequestScript($this->cardSelector);
     }
 
     /**
