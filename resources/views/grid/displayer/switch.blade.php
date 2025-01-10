@@ -44,6 +44,9 @@
                     reload && Dcat.reload();
                 } else {
                     Dcat.error(msg);
+                    that.prop('checked', !that.is(':checked'));
+                    that.parent().find('.switchery').remove();
+                    new Switchery(that[0], that.data());
                 }
             }
         });
