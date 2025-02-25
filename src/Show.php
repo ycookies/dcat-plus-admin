@@ -12,6 +12,7 @@ use Dcat\Admin\Show\Newline;
 use Dcat\Admin\Show\Panel;
 use Dcat\Admin\Show\Relation;
 use Dcat\Admin\Show\Row;
+use Dcat\Admin\Show\Descriptions;
 use Dcat\Admin\Show\Tools;
 use Dcat\Admin\Traits\HasBuilderEvents;
 use Illuminate\Contracts\Support\Arrayable;
@@ -402,7 +403,7 @@ class Show implements Renderable
         $field->setParent($this);
 
         $this->overwriteExistingField($name);
-
+        
         $this->fields->push($field);
 
         return $field;
@@ -439,7 +440,6 @@ class Show implements Renderable
         if ($this->fields->isEmpty()) {
             return;
         }
-
         $this->fields = $this->fields->filter(
             function (Field $field) use ($name) {
                 return $field->getName() != $name;
@@ -707,5 +707,13 @@ class Show implements Renderable
     public function __get($name)
     {
         return $this->call($name);
+    }
+
+    
+    public function card(Closure $callback)
+    {
+        $this->rows->push(new Descriptions($callback, $this));
+
+        return $this;
     }
 }

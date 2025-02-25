@@ -94,6 +94,9 @@ class Field implements Renderable
      */
     protected $width = ['field' => 8, 'label' => 2];
 
+    protected $dedicated_line = false;
+
+    protected $help;
     /**
      * Field constructor.
      *
@@ -236,7 +239,7 @@ class Field implements Renderable
                     }
                 }
 
-                return "<img data-action='preview-img' src='$src' style='max-width:{$width}px;max-height:{$height}px' class='img' />";
+                return "<img data-action='preview-img' src='$src' style='max-width:{$width}px;max-height:{$height}px' class='img img-thumbnail' />";
             })->implode('&nbsp;');
         });
     }
@@ -711,6 +714,8 @@ HTML;
             'label'   => $this->getLabel(),
             'wrapped' => $this->border,
             'width'   => $this->width,
+            'dedicated_line'   => $this->dedicated_line,
+            'help'=> $this->help
         ];
     }
 
@@ -740,6 +745,34 @@ HTML;
         }
 
         return view($this->view, $this->variables());
+    }
+
+    /**
+     * Render this field.
+     *
+     * @return string
+     */
+    public function getVariables()
+    {
+        if ($this->showAs->isNotEmpty()) {
+            $this->showAs->each(function ($callable) {
+                [$callable, $params] = $callable;
+
+                if (! $callable instanceof \Closure) {
+                    $this->value = $callable;
+
+                    return;
+                }
+
+                $this->value = $callable->call(
+                    $this->parent->model(),
+                    $this->value,
+                    ...$params
+                );
+            });
+        }
+
+        return $this->variables();
     }
 
     /**
@@ -777,5 +810,32 @@ HTML;
 
             return format_byte($value, $dec);
         });
+    }
+
+    /**
+     * @desc descriptions 独占一行
+     * author eRic
+     * dateTime 2025-02-15 12:37
+     */
+    public function dedicatedLine(){
+        $this->dedicated_line = true;
+        return $this;
+    }
+
+    /**
+     * @desc show help
+     * author eRic
+     * dateTime 2025-02-15 12:37
+     */
+    public function help($text = '',$color = 'text-warning',$icon = 'feather icon-help-circle'){
+        $this->help = '<i class="fa feather icon-help-circle tips '.$color.'" data-title="'.$text.'"></i>';
+        return $this;
+    }
+    
+    
+    public function limit($limit = 100, $end = '...'){
+        $this->variables()['content'] = Helper::strLimit($this->value, $limit, $end);
+        
+        return $this;
     }
 }
