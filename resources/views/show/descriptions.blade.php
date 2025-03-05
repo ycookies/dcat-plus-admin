@@ -63,6 +63,7 @@
     <style>
         .descriptions-box{
             margin-bottom: 10px;
+           {{$desc_shadow}}
         }
         .descriptions-1-columns,
         .descriptions-2-columns,

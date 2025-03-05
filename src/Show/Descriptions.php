@@ -5,6 +5,7 @@ namespace Dcat\Admin\Show;
 use Dcat\Admin\Show;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Collection;
+use Dcat\Admin\Show\Html;
 
 class Descriptions implements Renderable
 {
@@ -57,6 +58,7 @@ class Descriptions implements Renderable
     protected $footer = null;
 
     protected $shadow = null;
+    protected $desc_shadow = '';
     
     protected $label_justify_content = 'center';
     protected $content_justify_content = 'flex-start';
@@ -142,6 +144,20 @@ class Descriptions implements Renderable
         return $this;
     }
 
+
+    /**
+     * Set desc shadow.
+     *
+     * @param string $shadow
+     * @return $this
+     */
+    public function descShadow()
+    {
+        $this->desc_shadow = 'box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);';
+
+        return $this;
+    }
+
     /**
      * Set card footer.
      *
@@ -173,7 +189,7 @@ class Descriptions implements Renderable
     public function contentWhiteSpace(bool $value = true)
     {
         if($value){
-            $this->content_white_space = 'white-space:';
+            $this->content_white_space = 'white-space:normal';
         }
 
 
@@ -218,6 +234,8 @@ class Descriptions implements Renderable
         return $field;
     }
 
+
+
     /**
      * Render the row.
      *
@@ -233,6 +251,7 @@ class Descriptions implements Renderable
             'header' => $this->header,
             'footer' => $this->footer,
             'shadow' => $this->shadow,
+            'desc_shadow' => $this->desc_shadow,
             'label_justify_content' => $this->label_justify_content,
             'content_justify_content' => $this->content_justify_content,
             'content_white_space' => $this->content_white_space,

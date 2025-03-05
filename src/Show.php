@@ -13,6 +13,7 @@ use Dcat\Admin\Show\Panel;
 use Dcat\Admin\Show\Relation;
 use Dcat\Admin\Show\Row;
 use Dcat\Admin\Show\Descriptions;
+use Dcat\Admin\Show\Fieldset;
 use Dcat\Admin\Show\Tools;
 use Dcat\Admin\Traits\HasBuilderEvents;
 use Illuminate\Contracts\Support\Arrayable;
@@ -713,6 +714,13 @@ class Show implements Renderable
     public function card(Closure $callback)
     {
         $this->rows->push(new Descriptions($callback, $this));
+
+        return $this;
+    }
+
+    public function fieldset(Closure $callback)
+    {
+        $this->rows->push(new Fieldset($callback, $this));
 
         return $this;
     }

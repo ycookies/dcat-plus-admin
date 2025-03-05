@@ -815,7 +815,6 @@ HTML;
     /**
      * @desc descriptions 独占一行
      * author eRic
-     * dateTime 2025-02-15 12:37
      */
     public function dedicatedLine(){
         $this->dedicated_line = true;
@@ -825,7 +824,6 @@ HTML;
     /**
      * @desc show help
      * author eRic
-     * dateTime 2025-02-15 12:37
      */
     public function help($text = '',$color = 'text-warning',$icon = 'feather icon-help-circle'){
         $this->help = '<i class="fa feather icon-help-circle tips '.$color.'" data-title="'.$text.'"></i>';
@@ -837,5 +835,55 @@ HTML;
         $this->variables()['content'] = Helper::strLimit($this->value, $limit, $end);
         
         return $this;
+    }
+
+    /**
+     * @desc 渲染html内容
+     * @param string $html
+     * @return Field
+     * author eRic
+     */
+    public function html($html = ''){
+        return $this->unescape()->as(function ($value) use ($html) {
+            if(!empty($html)){
+                $value = $html;
+            }
+            return $value;
+        });
+    }
+
+    /**
+     * @desc 展示音频
+     * @param string $server
+     * @param string $width
+     * @param string $height
+     * @return Field
+     * author eRic
+     */
+    public function audio($server = '', $width='100%', $height = '26px'){
+        return $this->unescape()->as(function ($path) use ($server, $width, $height) {
+            if(!empty($server)){
+                $path = $server;
+            }
+            return '<audio controls src="'.$path.'" style="width: '.$width.'; height: '.$height.';"></audio>';
+        });
+    }
+
+    /**
+     * @desc 展示视频
+     * @param string $server
+     * @param string $width
+     * @param string $height
+     * @return Field
+     * author eRic
+     */
+    public function video($server = '', $width='100', $height = '100'){
+        
+        return $this->unescape()->as(function ($path) use ($server, $width, $height) {
+            if(!empty($server)){
+                $path = $server;
+            }
+            return '<video height="'.$height.'" width="'.$width.'" controls src="'.$path.'"></video>';
+        });
     }
 }
