@@ -1,6 +1,6 @@
 
 <div align="center">
-    <img src="https://jikeadmin.saishiyun.net/img/dcat-plus-logo.png" height="80"> 
+    <img src="https://www.dcat-admin.com/img/dcat-plus-logo.png" height="80"> 
 </div>
 <br>
 
@@ -17,11 +17,11 @@
     <a><img src="https://img.shields.io/badge/laravel-5.5+-59a9f8.svg?style=flat" ></a>
 </p>
 
-<p align=""><code>Dcat-plus Admin</code>是一个基于<a href="https://www.laravel-admin.org/" target="_blank">laravel-admin</a>二次开发而成的后台系统构建工具，只需很少的代码即可快速构建出一个功能完善的高颜值后台系统。内置丰富的后台常用组件，开箱即用，让开发者告别冗杂的HTML代码，对后端开发者非常友好。</p>
+<p align=""><code>Dcat-plus Admin</code>是一个基于 `Dcat Admin `二次开发而成的后台系统构建工具，只需很少的代码即可快速构建出一个功能完善的高颜值后台系统。内置丰富的后台常用组件，开箱即用，让开发者告别冗杂的HTML代码，对后端开发者非常友好。</p>
 
 
-- [官方网站](https://jikeadmin.saishiyun.net)
-- [中文文档](https://jikeadmin.saishiyun.net/books/dcat-admin/#/)
+- [官方网站](https://www.dcat-admin.com)
+- [中文文档](https://www.dcat-admin.com/books/dcatplus-admin/#/)
 - [github](https://github.com/ycookies/dcat-plus-admin)
 - [Demo/在线演示](https://jikeadmin.saishiyun.net/admin)
 - [示例源码](https://github.com/ycookies/dcatplus-demo)
@@ -60,8 +60,8 @@
 
 
 ### 环境
- - PHP >= 7.1.0
- - Laravel 5.5.0 ~ 11.*
+ - PHP >= 7.4.0
+ - Laravel 8.0 ~ 12.*
  - Fileinfo PHP Extension
 
 ### 安装
