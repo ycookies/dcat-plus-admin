@@ -70,7 +70,7 @@ class GirdImportFrom extends Form implements LazyRenderable
                     }
                     // 检查字段是否允许为空
                     $columnType = Schema::getColumnType($modelInstance->getTable(), $column);
-                    $isNullable = Schema::getConnection()->getDoctrineColumn($modelInstance->getTable(), $column)->getNotnull();
+                    $isNullable = isTableColumnNullable($modelInstance->getTable(), $column);
                     if ($isNullable && ($value === null || $value === '')) {
                         $errors[] = "第{$rowNumber}行的 {$column} 字段不能为空";
                         continue;

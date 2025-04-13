@@ -777,3 +777,26 @@ if (!function_exists('ends_with')) {
         return false;
     }
 }
+
+if (!function_exists('isTableColumnNullable')) {
+    /**
+     * 空值检查
+     * @desc
+     * @param $table 表名
+     * @param $column 列名
+     * @return bool
+     */
+    function isTableColumnNullable($table, $column) {
+        // Laravel 11+ 方式
+        if (method_exists(Schema::getConnection(), 'getSchemaBuilder')) {
+            $columnInfo = Schema::getColumns($table);
+            $columnDef = collect($columnInfo)->firstWhere('name', $column);
+            return !empty($columnDef['nullable']) ? false : true;
+        }
+
+        // Laravel 10 方式
+        return !Schema::getConnection()
+            ->getDoctrineColumn($table, $column)
+            ->getNotnull();
+    }
+}
