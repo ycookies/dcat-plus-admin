@@ -46,6 +46,38 @@ if (! function_exists('admin_setting_array')) {
     }
 }
 
+if (! function_exists('admin_setting_multiple')) {
+    /**
+     * 一次获取多个配置参数并转化为数组格式.
+     *
+     * @param  string  $key
+     * @param  mixed  $default
+     * @return \Dcat\Admin\Support\Setting|mixed
+     */
+    function admin_setting_multiple(?array $key)
+    {
+        return app('admin.setting')->getMultiple($key);
+    }
+}
+
+if (! function_exists('admin_setting_group')) {
+    /**
+     * 获取系列分组配置参数.
+     *
+     * @param  string  $group_name
+     * @param  mixed  $group_data
+     * @return \Dcat\Admin\Support\Setting|mixed
+     */
+    function admin_setting_group(?string $group_name,$group_data = [])
+    {
+        if(!empty($group_data)){
+            app('admin.setting')->groupSave($group_name,$group_data);
+            return;
+        }
+        return app('admin.setting')->getByGroup($group_name);
+    }
+}
+
 if (! function_exists('admin_extension_setting')) {
     /**
      * 获取扩展配置参数.

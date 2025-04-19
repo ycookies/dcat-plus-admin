@@ -137,4 +137,101 @@ class Setting extends Fluent
 
         return new static($values);
     }
+
+    /**
+     * 获取多个键的值，返回键值对数组
+     *
+     * @param  array  $keys  要获取的键名数组
+     * @return array
+     */
+    public function getMultiple(array $keys)
+    {
+        $result = [];
+
+        foreach ($keys as $key) {
+            $result[$key] = $this->get($key);
+        }
+
+        return $result;
+    }
+
+    /**
+     * 根据分组名称获取设置项列表（键值对）
+     *
+     * @param  string  $groupName  分组名称
+     * @return array
+     */
+    public function getByGroup($groupName)
+    {
+        try {
+            return Model::query()
+                ->where('group_name', $groupName)
+                ->pluck('value', 'slug')
+                ->toArray();
+        } catch (QueryException $e) {
+            Admin::reportException($e);
+            return [];
+        }
+    }
+
+    /**
+     * 按分组批量保存设置数据
+     *
+     * @param string $groupName 分组名称
+     * @param array $groupData 分组数据 [key => value]
+     * @return bool
+     */
+    public function groupSave($groupName, array $groupData)
+    {
+        if (empty($groupName)) {
+            return false;
+        }
+
+        try {
+            return Model::query()->getConnection()->transaction(function () use ($groupName, $groupData) {
+                // 获取该分组下现有的所有slug
+                $existingSlugs = Model::query()
+                    ->where('group_name', $groupName)
+                    ->pluck('slug')
+                    ->toArray();
+
+                // 需要删除的旧记录
+                $toDelete = array_diff($existingSlugs, array_keys($groupData));
+                if (!empty($toDelete)) {
+                    Model::query()
+                        ->where('group_name', $groupName)
+                        ->whereIn('slug', $toDelete)
+                        ->delete();
+                }
+
+                // 批量更新或创建记录
+                foreach ($groupData as $slug => $value) {
+                    $value = is_array($value) ? json_encode($value) : (string) $value;
+
+                    // 手动实现updateOrCreate逻辑以确保兼容性
+                    $model = Model::query()->where('slug', $slug)->first();
+
+                    if ($model) {
+                        // 更新现有记录
+                        $model->update([
+                            'value' => $value,
+                            'group_name' => $groupName
+                        ]);
+                    } else {
+                        // 创建新记录
+                        Model::create([
+                            'slug' => $slug,
+                            'value' => $value,
+                            'group_name' => $groupName
+                        ]);
+                    }
+                }
+
+                return true;
+            });
+        } catch (QueryException $e) {
+            Admin::reportException($e);
+            return false;
+        }
+    }
 }

@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    protected $primaryKey = 'slug';
+    //protected $primaryKey = 'slug';
     public $incrementing = false;
-    protected $fillable = ['slug', 'value'];
+    protected $fillable = ['id','group_name','slug', 'value'];
 
     /**
      * {@inheritDoc}

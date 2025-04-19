@@ -24,7 +24,9 @@ class CreateAdminSettingsTable extends Migration
     public function up()
     {
         Schema::create($this->config('database.settings_table') ?: 'admin_settings', function (Blueprint $table) {
-            $table->string('slug', 100)->primary();
+            $table->id();
+            $table->string('group_name',200)->nullable();
+            $table->string('slug', 100)->unique();
             $table->longText('value');
             $table->timestamps();
         });
