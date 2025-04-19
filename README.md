@@ -64,13 +64,16 @@
  - Laravel 8.0 ~ 12.*
  - Fileinfo PHP Extension
 
+### 推荐环境组合
+`PHP 8.2`,`Laravel 10`
+
 ### 安装
 
 > 如果安装过程中出现`composer`下载过慢或安装失败的情况，请运行命令`composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/`把`composer`镜像更换为阿里云镜像。
 
 首先需要安装`laravel`框架，如已安装可以跳过此步骤。如果您是第一次使用`laravel`，请务必先阅读文档 [安装 《Laravel中文文档》](https://learnku.com/docs/laravel/8.x/installation/9354) ！
 ```bash
-composer create-project --prefer-dist laravel/laravel 项目名称 7.*
+composer create-project --prefer-dist laravel/laravel 项目名称 10.*
 # 或
 composer create-project --prefer-dist laravel/laravel 项目名称
 ```
@@ -94,6 +97,9 @@ cd {项目名称}
 
 #  dcat-admin plus版 (杨光维护)
 composer require dcat-plus/laravel-admin
+
+# 或指定版本号
+composer require dcat-plus/laravel-admin:1.3.7
 
 ```
 
@@ -119,8 +125,28 @@ location / {
 	try_files $uri $uri/ /index.php?$query_string;
 }
 ```
+### 设置目录权限（这一步至关重要,很多问题是由目录文件权限引起的）
 
+```dotenv
+
+cd /path/to/laravel-project
+
+# 设置目录权限
+chmod -R 775 storage/
+chmod -R 775 bootstrap/cache/
+chmod -R 775 lang/
+chmod -R 755 public/
+
+
+# 设置文件所有者（假设运行用户为nginx或apache）
+chown -R nginx:nginx .  # 如果使用Nginx
+# 或
+chown -R apache:apache .  # 如果使用Apache
+```
+
+### 
 启动服务后，在浏览器打开 `http://localhost/admin`，使用用户名 `admin` 和密码 `admin`登陆。
+
 
 
 <a name="extensions"></a>
