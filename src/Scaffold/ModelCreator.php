@@ -76,6 +76,7 @@ class ModelCreator
             ->replaceDatetimeFormatter($stub)
             ->replaceTable($stub, $this->name)
             ->replaceTimestamp($stub, $timestamps)
+            ->replaceFillable($stub)
             ->replacePrimaryKey($stub, $keyName)
             ->replaceSpace($stub);
 
@@ -231,6 +232,71 @@ class ModelCreator
         $stub = str_replace('DummyTimestamp', $useTimestamps, $stub);
 
         return $this;
+    }
+
+    /**
+     * Replace fillable dummy.
+     *
+     * @param  string  $stub
+     * @param  bool  $timestamps
+     * @return $this
+     */
+    protected function replaceFillable(&$stub)
+    {
+        $modelFillable = $this->formatFillableWithComments();
+        $stub = str_replace('DummyFillable', $modelFillable, $stub);
+
+        return $this;
+    }
+
+    /**
+     * 获取表的所有字段及其注释
+     */
+    protected  function getTableColumnsWithComments()
+    {
+        $fields = \DB::getSchemaBuilder()->getColumnListing($this->tableName);
+
+        // 获取字段注释（MySQL 示例）
+        $comments = \Illuminate\Support\Facades\DB::table('information_schema.columns')
+            ->where('table_schema', config('database.connections.mysql.database'))
+            ->where('table_name', $this->tableName)
+            ->pluck('column_comment', 'column_name')
+            ->toArray();
+
+        // 排除的字段
+        $excludedFields = ['id', 'created_at', 'updated_at','deleted_at', 'password'];
+        // 组合字段和注释
+        $result = [];
+        foreach ($fields as $column) {
+            // 跳过排除的字段
+            if (in_array($column, $excludedFields)) {
+                continue;
+            }
+            $result[$column] = $comments[$column] ?? null; // 如果字段没有注释，返回 null
+        }
+        return $result;
+    }
+
+    /**
+     * 将字段和注释转换为 protected $fillable 的形式
+     */
+    protected  function formatFillableWithComments()
+    {
+        $columnsWithComments = $this->getTableColumnsWithComments();
+        $fillable = [];
+
+        foreach ($columnsWithComments as $column => $comment) {
+            // 格式化每个字段和注释
+            $fillable[] = "'{$column}', // {$comment}";
+        }
+
+        // 拼接成 protected $fillable 的形式
+        $fillableString = "// 可以被批量赋值的属性 也方便查看表所有字段及注释\n";
+        $fillableString  .= "   /** protected \$fillable = [\n";
+        $fillableString .= '        ' . implode(" \n        ", $fillable) . "\n";
+        $fillableString .= '    ]; */';
+
+        return $fillableString;
     }
 
     /**
