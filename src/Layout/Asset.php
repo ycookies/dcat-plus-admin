@@ -43,7 +43,8 @@ class Asset
             'css' => [
                 '@admin/dcat/css/dcat-app.css',
                 '@admin/dcat/css/dcatplus.css',
-                '@admin/dcat/css/zico.min.css'
+                '@admin/dcat/css/zico.min.css',
+                '@admin/fonts/flag/flag-icons.min.css'
             ],
         ],
         '@vendors' => [
