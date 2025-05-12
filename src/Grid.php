@@ -184,6 +184,7 @@ class Grid
         'paginator_class'     => null,
         'summarizers'         => false,
         'column_link'         => false,
+        'table_wrapper_style' => '',
     ];
 
     /**
@@ -1033,6 +1034,55 @@ HTML;
         return $this;
     }
 
+    /**
+     * @desc 是否固定表头(方式一)
+     * @param bool $value
+     * author eRic
+     * dateTime 2025-05-12 14:23
+     */
+    public function tableHeaderFixed(bool $value = true){
+        if($value){
+            $this->addTableClass('fixed-header-table');
+        }
+        return $this;
+    }
+
+    /**
+     * @desc 是否固定表头(方式二)
+     * @param bool $value
+     * author eRic
+     * dateTime 2025-05-12 14:23
+     */
+    public function gridHeaderFixed(bool $value = true){
+        if($value){
+            $this->setTableWrapperStyle('max-height: 680px; overflow-y: auto;');
+            $this->addTableClass('fixed-header-grid');
+        }
+        return $this;
+    }
+
+    /**
+     * @desc 数据表容器样式设置
+     * @param array $style
+     * author eRic
+     * dateTime 2025-05-12 14:57
+     */
+    public function setTableWrapperStyle(string $style){
+
+        $this->options['table_wrapper_style'] = $style;
+        return $this;
+    }
+
+    /**
+     * @desc 获取数据表容器样式
+     * @param array $style
+     * author eRic
+     * dateTime 2025-05-12 14:57
+     */
+    public function getTableWrapperStyle(){
+
+        return $this->options['table_wrapper_style'];
+    }
     /**
      * @return string
      */

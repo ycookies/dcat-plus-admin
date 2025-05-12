@@ -1126,3 +1126,19 @@
     font-weight: normal !important;
 }
 /* end setp form*/
+
+/*固定grid 表头*/
+.fixed-header-table thead th {
+    position: sticky;
+    top: 60px;
+    background: #ececf1;
+    z-index: 100;
+    box-shadow: 0 1px 0 #eee;
+}
+
+.fixed-header-grid thead th{
+    position: sticky !important;top:0;
+    background:#ececf1;
+    z-index: 2;
+    box-shadow:0 2px 4px rgba(e,0,0,0.1);
+}
