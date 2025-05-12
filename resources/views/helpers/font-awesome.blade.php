@@ -1,4 +1,4 @@
-<div class="">
+<div class="font-awesome-box">
     <style >
         .icon-list-demo i{
             font-size: 2.28rem;
@@ -1713,7 +1713,7 @@
 </div>
 <script>
     Dcat.ready(function () {
-        var clipboard4 = new ClipboardJS('.fa', {
+        var clipboard4 = new ClipboardJS('.font-awesome-box .fa', {
             text: function (trigger) {
                 return trigger.getAttribute('class');
             }

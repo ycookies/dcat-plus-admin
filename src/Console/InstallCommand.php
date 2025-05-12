@@ -5,8 +5,7 @@ namespace Dcat\Admin\Console;
 use Dcat\Admin\Models\AdminTablesSeeder;
 use Illuminate\Console\Command;
 
-class InstallCommand extends Command
-{
+class InstallCommand extends Command {
     /**
      * The console command name.
      *
@@ -33,8 +32,7 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    public function handle()
-    {
+    public function handle() {
         $this->initDatabase();
 
         $this->initAdminDirectory();
@@ -47,8 +45,7 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    public function initDatabase()
-    {
+    public function initDatabase() {
         $this->call('migrate');
 
         $userModel = config('admin.database.users_model');
@@ -63,8 +60,7 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    protected function setDirectory()
-    {
+    protected function setDirectory() {
         $this->directory = config('admin.directory');
     }
 
@@ -73,8 +69,7 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    protected function initAdminDirectory()
-    {
+    protected function initAdminDirectory() {
         $this->setDirectory();
 
         if (is_dir($this->directory)) {
@@ -84,10 +79,18 @@ class InstallCommand extends Command
         }
 
         $this->makeDir('/');
-        $this->line('<info>Admin directory was created:</info> '.str_replace(base_path(), '', $this->directory));
+        $this->line('<info>Admin directory was created:</info> ' . str_replace(base_path(), '', $this->directory));
 
         $this->makeDir('Controllers');
         $this->makeDir('Metrics/Examples');
+
+        // start  admin Api
+        $this->makeDir('Api/Controllers');
+        $this->createApiControllerFile();
+        $this->createApiRoutesFile();
+        $this->createApiMiddlewareFile();
+        $this->jwtVendorPublish();
+        // end Admin api
 
         $this->createHomeController();
         $this->createAuthController();
@@ -102,10 +105,9 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    public function createHomeController()
-    {
-        $homeController = $this->directory.'/Controllers/HomeController.php';
-        $contents = $this->getStub('HomeController');
+    public function createHomeController() {
+        $homeController = $this->directory . '/Controllers/HomeController.php';
+        $contents       = $this->getStub('HomeController');
 
         $this->laravel['files']->put(
             $homeController,
@@ -115,7 +117,7 @@ class InstallCommand extends Command
                 $contents
             )
         );
-        $this->line('<info>HomeController file was created:</info> '.str_replace(base_path(), '', $homeController));
+        $this->line('<info>HomeController file was created:</info> ' . str_replace(base_path(), '', $homeController));
     }
 
     /**
@@ -123,10 +125,9 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    public function createAuthController()
-    {
-        $authController = $this->directory.'/Controllers/AuthController.php';
-        $contents = $this->getStub('AuthController');
+    public function createAuthController() {
+        $authController = $this->directory . '/Controllers/AuthController.php';
+        $contents       = $this->getStub('AuthController');
 
         $this->laravel['files']->put(
             $authController,
@@ -136,14 +137,13 @@ class InstallCommand extends Command
                 $contents
             )
         );
-        $this->line('<info>AuthController file was created:</info> '.str_replace(base_path(), '', $authController));
+        $this->line('<info>AuthController file was created:</info> ' . str_replace(base_path(), '', $authController));
     }
 
     /**
      * @return void
      */
-    public function createMetricCards()
-    {
+    public function createMetricCards() {
         $map = [
             '/Metrics/Examples/NewUsers.php'      => 'metrics/NewUsers',
             '/Metrics/Examples/NewDevices.php'    => 'metrics/NewDevices',
@@ -157,7 +157,7 @@ class InstallCommand extends Command
 
         foreach ($map as $path => $stub) {
             $this->laravel['files']->put(
-                $this->directory.$path,
+                $this->directory . $path,
                 str_replace(
                     'DummyNamespace',
                     $namespace,
@@ -168,14 +168,13 @@ class InstallCommand extends Command
     }
 
     /**
-     * @param  string  $name
+     * @param  string $name
      * @return string
      */
-    protected function namespace($name = null)
-    {
+    protected function namespace($name = null) {
         $base = str_replace('\\Controllers', '\\', config('admin.route.namespace'));
 
-        return trim($base, '\\').($name ? "\\{$name}" : '');
+        return trim($base, '\\') . ($name ? "\\{$name}" : '');
     }
 
     /**
@@ -183,13 +182,12 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    protected function createBootstrapFile()
-    {
-        $file = $this->directory.'/bootstrap.php';
+    protected function createBootstrapFile() {
+        $file = $this->directory . '/bootstrap.php';
 
         $contents = $this->getStub('bootstrap');
         $this->laravel['files']->put($file, $contents);
-        $this->line('<info>Bootstrap file was created:</info> '.str_replace(base_path(), '', $file));
+        $this->line('<info>Bootstrap file was created:</info> ' . str_replace(base_path(), '', $file));
     }
 
     /**
@@ -197,13 +195,12 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    protected function createRoutesFile()
-    {
-        $file = $this->directory.'/routes.php';
+    protected function createRoutesFile() {
+        $file = $this->directory . '/routes.php';
 
         $contents = $this->getStub('routes');
         $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
-        $this->line('<info>Routes file was created:</info> '.str_replace(base_path(), '', $file));
+        $this->line('<info>Routes file was created:</info> ' . str_replace(base_path(), '', $file));
     }
 
     /**
@@ -212,18 +209,67 @@ class InstallCommand extends Command
      * @param $name
      * @return string
      */
-    protected function getStub($name)
-    {
-        return $this->laravel['files']->get(__DIR__."/stubs/$name.stub");
+    protected function getStub($name) {
+        return $this->laravel['files']->get(__DIR__ . "/stubs/$name.stub");
     }
 
     /**
      * Make new directory.
      *
-     * @param  string  $path
+     * @param  string $path
      */
-    protected function makeDir($path = '')
-    {
+    protected function makeDir($path = '') {
         $this->laravel['files']->makeDirectory("{$this->directory}/$path", 0755, true, true);
+    }
+
+    //
+    public function createApiRoutesFile() {
+        $file = $this->directory . '/Api/routes.php';
+
+        $contents = $this->getStub('api_routes');
+        $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
+        $this->line('<info>Routes file was created:</info> ' . str_replace(base_path(), '', $file));
+
+    }
+
+    //
+    public function createApiMiddlewareFile(){
+        $file = app_path('/Http/Middleware/AdminApiAuth.php');
+
+        $contents = $this->getStub('AdminApiAuth_Middleware');
+        $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
+        $this->line('<info>Routes middleware file was created:</info> ' . str_replace(base_path(), '', $file));
+
+    }
+    //
+    public function createApiControllerFile() {
+        $map = [
+            '/api/BaseApiController.php'    => 'BaseApiController',
+            '/api/AuthController.php'       => 'AuthController',
+            '/api/UserController.php'       => 'UserController',
+            '/api/MenuController.php'       => 'MenuController',
+            '/api/PermissionController.php' => 'PermissionController',
+            '/api/RoleController.php'       => 'RoleController',
+            '/api/SettingsController.php'   => 'SettingsController',
+        ];
+
+        $namespace = $this->namespace('Api\\Controllers');
+
+        foreach ($map as $path => $stub) {
+            $this->laravel['files']->put(
+                $this->directory . $path,
+                str_replace(
+                    'DummyNamespace',
+                    $namespace,
+                    $this->getStub($stub)
+                )
+            );
+        }
+    }
+    // 发布jwt配置文件
+    public function jwtVendorPublish(){
+        \Illuminate\Support\Facades\Artisan::call('vendor:publish', [
+            '--provider' => 'Tymon\JWTAuth\Providers\LaravelServiceProvider'
+        ]);
     }
 }

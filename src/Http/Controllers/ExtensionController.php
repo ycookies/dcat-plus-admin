@@ -19,6 +19,8 @@ use Dcat\Admin\Widgets\Alert;
 use Dcat\Admin\Widgets\Tab;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Admin;
+use Illuminate\Support\Facades\Cache;
+use function Spatie\Ignition\Config\editorOptions;
 
 class ExtensionController extends AdminController
 {
@@ -89,6 +91,10 @@ class ExtensionController extends AdminController
             });
         });
     }
+    protected function convertToNamespace($input) {
+        // 将字符串按斜杠分割
+
+    }
 
     /**
      * Make a form builder.
@@ -112,8 +118,8 @@ class ExtensionController extends AdminController
                     },
                 ];
             })->required();
-            $form->text('namespace','命名空间')->help('例如: Dcat\Admin\Demo')->required();
-            $form->image('logo','图标')->width(3)->removable(false)->default('/cxbanglogo.png')->required();
+            //$form->text('namespace','命名空间')->help('例如: Dcat\Admin\Demo')->required();
+            $form->image('logo','图标')->width(3)->removable(false)->default('/vendor/dcat-admin/images/cxbanglogo.png')->required();
             $form->select('type','类型')->help('')->options([1 => trans('admin.application'), 2 => trans('admin.theme')])
                 ->attribute('style', 'width:140px!important')
                 ->default(1)
@@ -126,16 +132,27 @@ class ExtensionController extends AdminController
                 $table->text('title' ,'菜单名')->required();
                 $table->text('uri','链接地址');
                 $table->icon('icon','图标')->default('fa-circle-o');
-            });
+            })->useTable();
             $self = $this;
             $form->saving(function (Form $form) use ($self) {
                 $package = $form->name;
-                $namespace = $form->namespace;
+
+                // 把包名转换成命令空间
+                $parts = explode('/', $package);
+                $mkk =  implode('-', $parts);
+                $mkkarr = explode('-', $mkk);
+                $mkkarr = array_map('ucfirst', $mkkarr);
+                $mkkstr = implode('-', $mkkarr);
+                $namespace = str_replace('-',"\\",$mkkstr);
                 $type = $form->type;
-
+                $plugin_name = $form->alias;
+                $plugin_desc = $form->description;
+                $authors_name = $form->authors_name;
+                $authors_email = $form->authors_email;
                 if ($package) {
-                    $results = $self->createExtension($package, $namespace, $type);
-
+                    $menu = $form->extra;
+                    Cache::put($package,$menu);
+                    $results = $self->createExtension($package, $namespace, $type,$plugin_name,$plugin_desc,$authors_name,$authors_email);
                     return $form
                         ->response()
                         ->refresh()
@@ -188,17 +205,21 @@ class ExtensionController extends AdminController
         return $form;
     }
 
-    public function createExtension($package, $namespace, $type)
+    public function createExtension($package, $namespace, $type,$plugin_name,$plugin_desc,$authors_name,$authors_email)
     {
         $namespace = trim($namespace, '\\');
 
         $output = new StringOutput();
-
-        Artisan::call('admin:ext-make', [
+        $pem = [
             'name'        => $package,
             '--namespace' => $namespace ?: 'default',
             '--theme'     => $type == 2,
-        ], $output);
+            '--plugin_name' => $plugin_name,
+            '--plugin_desc' => $plugin_desc,
+            '--authors_name' => $authors_name,
+            '--authors_email' => $authors_email,
+        ];
+        Artisan::call('admin:ext-make-pro', $pem, $output);
 
         return sprintf('<pre class="bg-transparent text-white">%s</pre>', (string) $output->getContent());
     }

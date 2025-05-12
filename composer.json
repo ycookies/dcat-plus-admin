@@ -7,7 +7,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "jikeadmin.saishiyun.net",
+            "name": "杨光",
             "email": "3664839@qq.com"
         }
     ],
@@ -16,7 +16,9 @@
         "laravel/framework": "~8.0|~9.0|~10.0|~11.0|~12.0",
         "spatie/eloquent-sortable": "3.*|4.*",
         "doctrine/dbal": "^2.6|^3.0|^4.0",
-        "dcat/easy-excel":"*"
+        "dcat/easy-excel":"*",
+        'tymon/jwt-auth':"^2.1",
+        "maatwebsite/excel": "^3.1",
     },
     "require-dev": {
         "laravel/dusk": "~5.9|~6|~7.0|~8.0",

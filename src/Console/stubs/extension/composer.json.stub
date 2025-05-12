@@ -1,19 +1,19 @@
 {
     "name": "{package}",
-    "alias": "{alias}",
-    "description": "Description...",
+    "alias": "{pluginName}",
+    "description": "{pluginDesc}",
     "type": "library",
     "keywords": ["dcat-admin", "extension"],
     "homepage": "https://github.com/{package}",
     "license": "MIT",
     "authors": [
         {
-            "name": "your name",
-            "email": "your email"
+            "name": "{authorsName}",
+            "email": "{authorsEmail}"
         }
     ],
     "require": {
-        "php": ">=7.1.0",
+        "php": ">=7.4.0",
         "dcat-plus/laravel-admin": "~1.0"
     },
     "autoload": {

@@ -1,0 +1,177 @@
+<?php
+namespace App\Admin\Api\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
+
+abstract class BaseApiController extends Controller
+{
+    /** @var Model */
+    protected $model;
+
+    public function __construct(Model $model)
+    {
+        $this->model = $model;
+    }
+
+    /**
+     * 获取列表（分页）
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $pageSize = $request->get('pageSize', 10);
+        $query = $this->model->query();
+
+        // 动态过滤（如 ?name=John）
+        foreach ($request->query() as $key => $value) {
+            if (in_array($key, $this->model->getFillable())) {
+                $query->where($key, $value);
+            }
+        }
+
+        // 2. 动态排序（如 ?sort=created_at&order=desc）
+        if ($request->has('sort')) {
+            $sortField = $request->get('sort');
+            $sortOrder = $request->get('order', 'asc'); // 默认升序
+
+            // 验证字段是否可排序（防止 SQL 注入）
+            if(!empty($this->getSortableFields())){
+                if (in_array($sortField, $this->getSortableFields())) {
+                    $query->orderBy($sortField, $sortOrder);
+                }
+            }else{
+                $query->orderBy($sortField, $sortOrder);
+            }
+
+        }
+
+        $items = $query->paginate($pageSize);
+        return $this->returnData(0,1,$this->pageintes($items),'ok');
+    }
+
+    /**
+     * 获取单条记录
+     */
+    public function show(int $id): JsonResponse
+    {
+        $info = $this->model->query()->findOrFail($id);
+        return $this->returnData(0,1,['info'=> $info],'ok');
+    }
+
+    /**
+     * 创建记录
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validationRules = $this->getValidationRules('store');
+        $required = !empty($validationRules[0]) ? $validationRules[0]:[];
+        $required_msg = !empty($validationRules[1]) ? $validationRules[1]:[];
+        if(empty($required)){
+            throw new \Exception('数据校验规则不能为空');
+        }
+        $data = $request->validate($required,$required_msg);
+        $item = $this->model->query()->create($data);
+        return $this->returnData(0,1,[],'ok');
+    }
+
+    /**
+     * 更新记录
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $validationRules = $this->getValidationRules('update');
+        $required = !empty($validationRules[0]) ? $validationRules[0]:[];
+        $required_msg = !empty($validationRules[1]) ? $validationRules[1]:[];
+        if(empty($required)){
+            throw new \Exception('数据校验规则不能为空');
+        }
+
+        $info = $this->model->query()->findOrFail($id);
+        $data = $request->validate($required,$required_msg);
+        $info->update($data);
+        return $this->returnData(0,1,[],'ok');
+    }
+
+    /**
+     * 删除记录
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        $info = $this->model->query()->findOrFail($id);
+        $info->delete();
+        return $this->returnData(0,1,[],'ok');
+    }
+
+    /**
+     * 定义可排序字段（子类可覆盖）
+     */
+    protected function getSortableFields(): array
+    {
+        return []; // 默认所有可填充字段可排序
+    }
+
+    /**
+     * 定义验证规则（子类必须实现）
+     */
+    abstract protected function getValidationRules(string $action): array;
+
+    public function returnData($code = '', $status = '', $data = [], $msg = '') {
+        if ($status == 1) {
+            $status = 'success';
+        } else {
+            $status = 'error';
+        }
+        if (!is_array($data)) {
+            $status = 'error';
+            //$msg = '给予返回的数据不是一个数组';
+        } else {
+            if (count($data) == 0) {
+                $data = (object)array();
+            }
+        }
+        $tipstr = config('errorCode.' . $code);
+        if ($msg != '') {
+            $tipstr = $msg;
+        }
+        return response()->json([
+            'code'   => $code,
+            'status' => $status,
+            'msg'    => $tipstr,
+            'data'   => $data,
+        ]);
+    }
+    /**
+     * @desc 封装分页展示数据
+     * author eRic
+     * $Resource 过滤后的数据
+     * $list_total 记录总数
+     */
+    public function pageintes($list,$pagesize = 20,$Resource = null,$list_total = ''){
+        $page = 1;
+        $total = 0;
+        if($list instanceof LengthAwarePaginator){
+            $items = $list->items();
+            $total = $list->total();
+            $page = $list->currentPage();
+        }else{
+            $items = $list;
+            $total = count(collect($list)->toArray());
+        }
+        if(!empty($Resource)){
+            $items = $Resource;
+        }
+        if(!empty($list_total)){
+            $total =   $list_total;
+        }
+        $data['list'] = $items;
+        $data['page_info'] = [
+            'pagesize' => (int)$pagesize,
+            'page' => $page,
+            'total' => $total,
+        ];
+        return $data;
+    }
+}

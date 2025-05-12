@@ -27,6 +27,8 @@
         width: 100%;
     }
 </style>
+<link rel="stylesheet" href="/vendor/dcat-admin/dcat/plugins/fontawesome-iconpicker/dist/css/fontawesome-iconpicker.min.css">
+<script src="/vendor/dcat-admin/dcat/plugins/fontawesome-iconpicker/dist/js/fontawesome-iconpicker.js"></script>
 <div class="card">
     <div style="height:10px"></div>
     <!-- /.box-header -->
@@ -92,6 +94,65 @@
                     <div class="col-sm-4">
                         <input type="text" name="repository_name" class="form-control text-capitalize" id="inputRepositoryName" placeholder="{{(trans('admin.scaffold.repository'))}}" value="{{ old('repository_name', $namespaceBase."\\Repositories\\") }}">
                     </div>
+                </div>
+
+                <div class="form-group row">
+                    <span for="inputRoutePath" class="col-sm-1 control-label text-capitalize">{{(trans('admin.scaffold.route_path'))}}</span>
+                    <div class="col-sm-4 input-group">
+                        <span class="input-group-prepend"><span class="input-group-text bg-white">admin/</span></span>
+                        <input required="1" type="text" name="route_path" value="" id="inputRoutePath" class="form-control field_route_path _normal_" placeholder="{{(trans('admin.scaffold.route_path'))}}">
+                    </div>
+                    {{--<div class="col-sm-4">
+                        <input type="text" name="route_path" class="form-control"  placeholder="{{(trans('admin.scaffold.route_path'))}}" value="">
+                    </div>--}}
+                </div>
+                <div class="form-group row">
+                    <span for="inputApiRoutePath" class="col-sm-1 control-label">{{(trans('admin.scaffold.api_route_path'))}}</span>
+
+                    <div class="col-sm-4 input-group">
+                        <span class="input-group-prepend"><span class="input-group-text bg-white">admin-api/</span></span>
+                        <input required="1" type="text" name="api_route_path" value="" id="inputApiRoutePath" class="form-control field_api_route_path _normal_" placeholder="{{(trans('admin.scaffold.api_route_path'))}}">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <span for="inputMenuPath" class="col-sm-1 control-label ">{{(trans('admin.scaffold.menu_name'))}}</span>
+
+                    <div class="col-sm-11">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <input type="text" name="menu_name" class="form-control" id="inputMenuName" placeholder="{{(trans('admin.scaffold.menu_name'))}}" value="">
+
+                            </div>
+                            <div class="col-sm-3">
+                                <select class="form-control"  name="parent_menu">
+                                    <option value="">请选择父级菜单</option>
+                                    @foreach ($menu_parent_selectOptions as $key => $value)
+                                        <option value="{{$key}}">{{$value}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-field ">
+                                <div class="input-group iconpicker-container">
+                                    <span class="input-group-prepend"><span class="input-group-text bg-white"><i class="fa ">&nbsp;</i></span></span>
+                                    <input autocomplete="off" style="width: 160px;flex:none" type="text" name="menu_icon" value="" class="form-control scaffold_menu_icon field_icon _normal_ iconpicker-element iconpicker-input" placeholder="选择菜单图标">
+
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="vs-checkbox-con vs-checkbox-primary" style="margin-right: 16px">
+                                    <input value="" name="is_add_menu" type="checkbox" checked>
+                                    <span class="vs-checkbox vs-checkbox-">
+                              <span class="vs-checkbox--check">
+                                <i class="vs-icon feather icon-check"></i>
+                              </span>
+                            </span>
+                                    <span>{{(trans('admin.scaffold.is_add_menu'))}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
 
 
@@ -302,6 +363,9 @@
         var $model = $('#inputModelName'),
             $controller = $('#inputControllerName'),
             $repository = $('#inputRepositoryName'),
+            $route_path = $('#inputRoutePath'),
+            $api_route_path = $('#inputApiRoutePath'),
+            $menu_name = $('#inputMenuName'),
             $table = $('#inputTableName'),
             $fieldsBody = $('#table-fields tbody'),
             tpl = $('#table-field-tpl').html(),
@@ -318,6 +382,9 @@
                     writeController(data.value);
                     writeModel(data.value);
                     witeRepository(data.value);
+                    witeRoutePath(data.value);
+                    witeApiRoutePath(data.value);
+                    witeMenuName(data.value);
                 }
             });
         }, 500);
@@ -516,6 +583,15 @@
         function witeRepository(val) {
             $repository.val(repositoryNamespace + ucfirst(ucfirst(toHump(toLine(val)))))
         }
+        function witeRoutePath(val) {
+            $route_path.val(toGang(val));
+        }
+        function witeApiRoutePath(val) {
+            $api_route_path.val(toGang(val));
+        }
+        function witeMenuName(val) {
+            $menu_name.val(toGang(val));
+        }
 
         function getTR() {
             return $('#table-fields tbody tr');
@@ -526,6 +602,11 @@
             return name.replace(/\_(\w)/g, function (all, letter) {
                 return letter.toUpperCase();
             });
+        }
+
+        // 下划线转换-
+        function toGang(name) {
+            return name.split('_').join('-');
         }
 
         // 驼峰转换下划线
@@ -539,5 +620,34 @@
                 return m.toUpperCase()
             });
         }
+        function strtolower(str) {
+            return str.toLowerCase();
+        }
+
+        setTimeout(function () {
+            var field = $('.scaffold_menu_icon'),
+                parent = field.parents('.form-field'),
+                showIcon = function (icon) {
+                    parent.find('.input-group-prepend .input-group-text').html('<i class="' + icon + '"></i>');
+                };
+
+            field.iconpicker({placement:'bottomLeft', animation: false});
+
+            parent.find('.iconpicker-item').on('click', function (e) {
+                showIcon($(this).find('i').attr('class'));
+            });
+
+            field.on('keyup', function (e) {
+                var val = $(this).val();
+
+                if (val.indexOf('fa-') !== -1) {
+                    if (val.indexOf('fa ') === -1) {
+                        val = 'fa ' + val;
+                    }
+                }
+
+                showIcon(val);
+            })
+        }, 1);
     });
 </script>

@@ -20,7 +20,7 @@
     }
 </style>
 
-<div>
+<div class="feather-box">
     <div class="feather-tips">
         <div class="alert alert-info alert-dismissable">
             <h4><i class="fa fa-info"></i>&nbsp; 使用说明</h4>
@@ -1473,7 +1473,7 @@
 </div>
 <script>
     Dcat.ready(function () {
-        var clipboard3 = new ClipboardJS('.feather', {
+        var clipboard3 = new ClipboardJS('.feather-box .feather', {
             text: function (trigger) {
                 return trigger.getAttribute('class');
             }

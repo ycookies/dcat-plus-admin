@@ -1,0 +1,14 @@
+<?php
+
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Route;
+
+# 无授权可访问的路由
+Route::post('login', 'AuthController@Login');
+Route::post('logout', 'AuthController@logout');
+
+# 需要授权的路由组
+Route::group(['middleware' => ['AdminApiAuth']], function (Router $router) {
+    $router->get('getUserList', 'UserController@getList');
+    $router->get('getMenuList', 'MenuController@getList');
+});

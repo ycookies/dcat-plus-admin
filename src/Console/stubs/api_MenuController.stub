@@ -1,0 +1,10 @@
+<?php
+namespace App\Admin\Api\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+
+class MenuController extends BaseController
+{
+
+}

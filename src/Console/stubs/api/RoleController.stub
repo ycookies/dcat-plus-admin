@@ -1,0 +1,31 @@
+<?php
+namespace App\Admin\Api\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Dcat\Admin\Models\Role;
+// 角色
+class RoleController extends BaseApiController
+{
+    public function __construct()
+    {
+        parent::__construct(new Role());
+    }
+
+    /**
+     * @desc 数据校验证规则
+     * @param string $action 操作类型（store 创建数据，update 更新数据）
+     * @return array
+     */
+    protected function getValidationRules(string $action): array
+    {
+        return [
+                   'store' => [
+                       [],
+                       []
+                   ],
+                   'update' => [],
+               ][$action] ?? [];
+    }
+
+}

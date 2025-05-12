@@ -19,9 +19,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
+use Dcat\Admin\Layout\Menu;
 
-class ScaffoldController extends Controller
-{
+class ScaffoldController extends Controller {
     public static $dbTypes = [
         'string', 'integer', 'text', 'float', 'double', 'decimal', 'boolean', 'date', 'time',
         'dateTime', 'timestamp', 'char', 'mediumText', 'longText', 'tinyInteger', 'smallInteger',
@@ -62,9 +62,8 @@ class ScaffoldController extends Controller
         'longtext'   => 'longText',
     ];
 
-    public function index(Content $content)
-    {
-        if (! config('app.debug')) {
+    public function index(Content $content) {
+        if (!config('app.debug')) {
             Permission::error();
         }
 
@@ -75,47 +74,49 @@ class ScaffoldController extends Controller
         Admin::requireAssets('select2');
         Admin::requireAssets('sortable');
 
-        $dbTypes = static::$dbTypes;
-        $dataTypeMap = static::$dataTypeMap;
-        $action = URL::current();
-        $namespaceBase = 'App\\'.implode('\\', array_map(function ($name) {
-            return Str::studly($name);
-        }, explode(DIRECTORY_SEPARATOR, substr(config('admin.directory'), strlen(app_path().DIRECTORY_SEPARATOR)))));
-        $tables = collect($this->getDatabaseColumns())->map(function ($v) {
+        $dbTypes       = static::$dbTypes;
+        $dataTypeMap   = static::$dataTypeMap;
+        $action        = URL::current();
+        $namespaceBase = 'App\\' . implode('\\', array_map(function ($name) {
+                return Str::studly($name);
+            }, explode(DIRECTORY_SEPARATOR, substr(config('admin.directory'), strlen(app_path() . DIRECTORY_SEPARATOR)))));
+        $tables        = collect($this->getDatabaseColumns())->map(function ($v) {
             return array_keys($v);
         })->toArray();
-
+        
+        $menu_parent_selectOptions = \Dcat\Admin\Models\Menu::selectOptions();
         return $content
             ->title(trans('admin.scaffold.header'))
             ->description(' ')
             ->body(view(
                 'admin::helpers.scaffold',
-                compact('dbTypes', 'action', 'tables', 'dataTypeMap', 'namespaceBase')
+                compact('dbTypes', 'action', 'tables', 'dataTypeMap', 'namespaceBase','menu_parent_selectOptions')
             ));
     }
 
-    protected function singular($tableName)
-    {
+
+    
+    protected function singular($tableName) {
         return [
             'status' => 1,
             'value'  => Str::singular($tableName),
         ];
     }
 
-    public function store(Request $request)
-    {
-        if (! config('app.debug')) {
+    public function store(Request $request) {
+        if (!config('app.debug')) {
             Permission::error();
         }
 
-        $paths = [];
+        $paths   = [];
         $message = '';
 
-        $creates = (array) $request->get('create');
-        $table = Helper::slug($request->get('table_name'), '_');
+        $creates    = (array)$request->get('create');
+        $table      = Helper::slug($request->get('table_name'), '_');
         $controller = $request->get('controller_name');
-        $model = $request->get('model_name');
+        $model      = $request->get('model_name');
         $repository = $request->get('repository_name');
+        $route_path = $request->get('route_path');
 
         try {
             // 1. Create model.
@@ -137,7 +138,7 @@ class ScaffoldController extends Controller
 
             // 3. Create migration.
             if (in_array('migration', $creates)) {
-                $migrationName = 'create_'.$table.'_table';
+                $migrationName = 'create_' . $table . '_table';
 
                 $paths['migration'] = (new MigrationCreator(app('files')))->buildBluePrint(
                     $request->get('fields'),
@@ -172,6 +173,20 @@ class ScaffoldController extends Controller
                 } catch (\Throwable $e) {
                 }
             }
+
+            // 生成资源路由
+            if (!empty($route_path)) {
+                $controller_con  = explode('\\', $controller);
+                $controller_name = array_slice($controller_con, -1)[0];
+                $newRoutes       = "\$router->resource('/" . $route_path . "', Controllers\\" . $controller_name . "::class)";
+                $this->addResourceRouteToAdminRoutes($newRoutes);
+
+            }
+            // 添加权限
+            $this->appendPermissions();
+            // 添加菜单
+            $this->appendMenu();
+
         } catch (\Exception $exception) {
             // Delete generated files if exception thrown.
             app('files')->delete($paths);
@@ -182,14 +197,145 @@ class ScaffoldController extends Controller
         return $this->backWithSuccess($paths, $message);
     }
 
+    // 添加菜单
+    public function appendMenu() {
+        $request = request();
+        $route_path = $request->get('route_path');
+        $menu_name   = $request->get('menu_name');
+        $is_add_menu = $request->has('is_add_menu');
+
+        if ($is_add_menu && !empty($menu_name) && !empty($route_path)) {
+            $menu_icon   = $request->get('menu_icon');
+            $parent_menu_id = $request->get('parent_menu',0);
+
+            $parent_menu_id = !empty($parent_menu_id) ?  $parent_menu_id:0;
+            $menu_icon = !empty($menu_icon) ? $menu_icon:'fa-file-text-o';
+
+            $menuModel = config('admin.database.menu_model');
+            $lastOrder = $menuModel::max('order');
+            $menu_data = [
+              'parent_id' => $parent_menu_id,
+              'order'     => $lastOrder + 1,
+              'title' =>   $menu_name,
+              'icon' =>   $menu_icon,
+              'uri' =>   $route_path,
+            ];
+            $menu = $menuModel::create($menu_data);
+
+            $roleModel = config('admin.database.roles_model');
+            // 获取角色ID为1的角色
+            $role = $roleModel::find(1);
+            if ($role) {
+                // 将菜单附加到角色（通过中间表关联）
+                $role->menus()->attach($menu->id);
+            }
+        }
+    }
+
+    // 添加权限
+    public function appendPermissions() {
+        $request = request();
+        $menu_name   = $request->get('menu_name');
+        $route_path = $request->get('route_path');
+        $permissionsModel = config('admin.database.permissions_model');
+
+        $count = $permissionsModel::where([
+            'slug' =>   str_replace('_','-',$route_path),
+            'http_path' =>   '/'.$route_path.'/*',])->count();
+        if($count > 0){
+            return false;
+        }
+        $permissions_data = [
+            'parent_id' => 0,
+            'name' =>   $menu_name,
+            'slug' =>   str_replace('_','-',$route_path),
+            'http_path' =>   '/'.$route_path.'/*',
+        ];
+        $permissionsinfo =  $permissionsModel::create($permissions_data);
+
+        $roleModel = config('admin.database.roles_model');
+        // 获取角色ID为1的角色
+        $role = $roleModel::find(1);
+
+        if ($role) {
+            // 将权限附加到角色（通过中间表关联）
+            $role->permissions()->attach($permissionsinfo->id);
+        }
+    }
+
+    public function addResourceRouteToAdminRoutes($newRoute) {
+
+        $routesPath = app_path('Admin/routes.php');
+
+        // 验证文件存在且可写
+        if (!file_exists($routesPath) || !is_writable($routesPath)) {
+            throw new \Exception('路由文件不存在或不可写');
+        }
+
+        // 创建备份（放在storage/backups目录）
+        $backupDir = storage_path('backups/routes');
+        if (!is_dir($backupDir)) {
+            mkdir($backupDir, 0755, true);
+        }
+        $backupPath = $backupDir . '/admin_routes_' . date('Ymd_His') . '.php';
+        copy($routesPath, $backupPath);
+
+        // 读取内容
+        $content = file_get_contents($routesPath);
+
+        // 标准化换行符
+        $content = str_replace(["\r\n", "\r"], "\n", $content);
+
+        // 检查路由是否已存在
+        $normalizedRoute = trim($newRoute, '; ') . ';';
+        if (strpos($content, $normalizedRoute) !== false) {
+            throw new \Exception('路由已存在: ' . $normalizedRoute);
+        }
+
+        // 查找插入位置（匹配路由组结束位置）
+        $pattern = '/(\n\s*\}\);\s*$)/';
+        if (!preg_match($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) {
+            throw new \Exception('无法定位路由组结束位置');
+        }
+
+        $endTag      = $matches[1][0];  // 匹配到的结束标记
+        $endPosition = $matches[1][1];  // 结束标记的位置
+
+        // 准备要插入的内容（带正确缩进和换行）
+        $routeToInsert = "\n    " . trim($newRoute, '; ') . ";" .
+            (str_ends_with($endTag, "\n") ? '' : "\n");
+
+        // 构建新内容
+        $newContent = substr_replace(
+            $content,
+            $routeToInsert,
+            $endPosition,
+            0
+        );
+
+        // 验证PHP语法
+        try {
+            eval('?>' . $newContent);
+        } catch (ParseError $e) {
+            copy($backupPath, $routesPath);
+            throw new \Exception('生成的路由文件有语法错误: ' . $e->getMessage());
+        }
+
+        // 写入文件（使用LOCK_EX防止并发写入）
+        if (file_put_contents($routesPath, $newContent, LOCK_EX) === false) {
+            throw new \Exception('写入路由文件失败');
+        }
+
+        return true;
+    }
+
     /**
      * @return array
      */
-    public function table()
-    {
-        $db = addslashes(\request('db'));
+    public function table() {
+        $db    = addslashes(\request('db'));
         $table = \request('tb');
-        if (! $table || ! $db) {
+        if (!$table || !$db) {
             return ['status' => 1, 'list' => []];
         }
 
@@ -208,8 +354,7 @@ class ScaffoldController extends Controller
     /**
      * @return array
      */
-    protected function getDatabaseColumns($db = null, $tb = null)
-    {
+    protected function getDatabaseColumns($db = null, $tb = null) {
         $databases = Arr::where(config('database.connections', []), function ($value) {
             $supports = ['mysql'];
 
@@ -237,10 +382,10 @@ class ScaffoldController extends Controller
                 $tmp = DB::connection($connectName)->select($sql);
 
                 $collection = collect($tmp)->map(function ($v) use ($value) {
-                    if (! $p = Arr::get($value, 'prefix')) {
-                        return (array) $v;
+                    if (!$p = Arr::get($value, 'prefix')) {
+                        return (array)$v;
                     }
-                    $v = (array) $v;
+                    $v = (array)$v;
 
                     $v['TABLE_NAME'] = Str::replaceFirst($p, '', $v['TABLE_NAME']);
 
@@ -250,7 +395,7 @@ class ScaffoldController extends Controller
                 $data[$value['database']] = $collection->groupBy('TABLE_NAME')->map(function ($v) {
                     return collect($v)->keyBy('COLUMN_NAME')->map(function ($v) {
                         $v['COLUMN_TYPE'] = strtolower($v['COLUMN_TYPE']);
-                        $v['DATA_TYPE'] = strtolower($v['DATA_TYPE']);
+                        $v['DATA_TYPE']   = strtolower($v['DATA_TYPE']);
 
                         if (Str::contains($v['COLUMN_TYPE'], 'unsigned')) {
                             $v['DATA_TYPE'] .= '@unsigned';
@@ -273,8 +418,7 @@ class ScaffoldController extends Controller
         return $data;
     }
 
-    protected function backWithException(\Exception $exception)
-    {
+    protected function backWithException(\Exception $exception) {
         $error = new MessageBag([
             'title'   => 'Error',
             'message' => $exception->getMessage(),
@@ -283,12 +427,11 @@ class ScaffoldController extends Controller
         return redirect()->refresh()->withInput()->with(compact('error'));
     }
 
-    protected function backWithSuccess($paths, $message)
-    {
+    protected function backWithSuccess($paths, $message) {
         $messages = [];
 
         foreach ($paths as $name => $path) {
-            $messages[] = ucfirst($name).": $path";
+            $messages[] = ucfirst($name) . ": $path";
         }
 
         $messages[] = "<br />$message";

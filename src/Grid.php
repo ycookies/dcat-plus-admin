@@ -44,6 +44,14 @@ class Grid
     const CREATE_MODE_DIALOG = 'dialog';
     const ASYNC_NAME = '_async_';
 
+    public static string $defaultCurrency = 'cny';
+
+    public static string $defaultDateDisplayFormat = 'Y-m-d';
+
+    public static string $defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
+
+    public static string $defaultTimeDisplayFormat = 'H:i:s';
+    
     /**
      * The grid data model instance.
      *
@@ -690,6 +698,19 @@ class Grid
         return $this;
     }
 
+    public function headerStyle($type)
+    {
+        $this->options['headerStyle'] = $type;
+        return $this;
+    }
+
+    public function headerCenterStyle($width = '400px')
+    {
+        $this->options['headerStyle'] = 'border-bottom: 0;background: #ffffff;padding: 0;margin: auto;margin-top:5px;border-radius: 50px;max-width:'.$width.';';
+
+        return $this;
+    }
+
     /**
      * Render grid header.
      *
@@ -700,9 +721,13 @@ class Grid
         if (! $this->header) {
             return '';
         }
+        $type = 'border-bottom: 0;background: transparent;padding: 0;margin-top:5px';
+        if(!empty($this->options['headerStyle'])){
+            $type = $this->options['headerStyle'];
+        }
 
         return <<<HTML
-<div class="card-header clearfix" style="border-bottom: 0;background: transparent;padding: 0">{$this->renderHeaderOrFooter($this->header)}</div>
+<div class="card-header clearfix" style="{$type}">{$this->renderHeaderOrFooter($this->header)}</div>
 HTML;
     }
 

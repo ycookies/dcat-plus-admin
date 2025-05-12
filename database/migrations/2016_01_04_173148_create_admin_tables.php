@@ -33,6 +33,7 @@ class CreateAdminTables extends Migration
             $table->integer('order')->default(0);
             $table->string('email', 100)->nullable();
             $table->string('wx_openid', 255)->nullable();
+            $table->integer('is_active', 255)->default(1)->nullable();
             $table->string('remember_token', 100)->nullable();
             $table->timestamps();
         });

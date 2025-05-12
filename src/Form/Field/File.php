@@ -128,20 +128,53 @@ class File extends Field implements UploadFieldInterface
     }
 
     /**
+     * @desc 获取自定义格式的值
+     * @return array|mixed|string
+     * author eRic
+     * dateTime 2025-04-12 16:16
+     */
+    protected function getCustomFormatValue(){
+        $key = 'value';
+        $titleArr = '';
+        if($this->customFormat){
+            $titleArr = $this->customFormat
+                ->call(
+                    $this->data(),
+                    $this->{$key},
+                    $this->column,
+                    $this
+                );
+            if(\Illuminate\Support\Str::isJson($titleArr)){
+                $titleArr = json_decode($titleArr);
+            }
+
+            if(!empty($titleArr) && !is_array($titleArr)){
+                $titleArr = Helper::array($titleArr);
+            }
+        }
+
+        return  $titleArr;
+    }
+
+    /**
      * @return array
      */
     protected function initialPreviewConfig()
     {
         $previews = [];
-
-        foreach (Helper::array($this->value()) as $value) {
+        $titleArr = $this->getCustomFormatValue();
+        foreach (Helper::array($this->value()) as $key => $value) {
+            $title = $this->objectUrl($value);
+            if(!empty($titleArr[$key])){
+                $title = $titleArr[$key];
+            }
             $previews[] = [
                 'id'   => $value,
                 'path' => Helper::basename($value),
                 'url'  => $this->objectUrl($value),
+                'title' => $title, // 追加一个值
             ];
         }
-
         return $previews;
     }
 
@@ -160,10 +193,8 @@ class File extends Field implements UploadFieldInterface
         if (! empty($this->value())) {
             $this->setupPreviewOptions();
         }
-
         $this->forceOptions();
         $this->formatValue();
-
         $this->addVariables([
             'fileType'      => $this->options['isImage'] ? '' : 'file',
             'showUploadBtn' => ($this->options['autoUpload'] ?? false) ? false : true,
