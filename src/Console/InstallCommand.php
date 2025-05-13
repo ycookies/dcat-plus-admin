@@ -86,10 +86,13 @@ class InstallCommand extends Command {
 
         // start  admin Api
         $this->makeDir('Api/Controllers');
+        $this->addAdminApiGuards();
+        $this->createApiModelFile();
         $this->createApiControllerFile();
         $this->createApiRoutesFile();
         $this->createApiMiddlewareFile();
         $this->jwtVendorPublish();
+        $this->editLocaleTozh_CN();
         // end Admin api
 
         $this->createHomeController();
@@ -221,12 +224,26 @@ class InstallCommand extends Command {
     protected function makeDir($path = '') {
         $this->laravel['files']->makeDirectory("{$this->directory}/$path", 0755, true, true);
     }
+    
+    
+    public function createApiModelFile() {
+        
+        $model_file = app_path('Models/AdminUser.php');
+        $this->laravel['files']->makeDirectory(app_path('Models/Traits'), 0755, true, true);
+        
+        $model_contents = $this->getStub('api/AdminUserModel');
+        $this->laravel['files']->put($model_file, str_replace('DummyNamespace', $this->namespace('Controllers'), $model_contents));
 
+        $traits_file = app_path('Models/Traits/HasPermissions.php');
+        $traits_contents = $this->getStub('api/TraitsHasPermissions');
+        $this->laravel['files']->put($traits_file, str_replace('DummyNamespace', $this->namespace('Controllers'), $traits_contents));
+        
+    }
     //
     public function createApiRoutesFile() {
         $file = $this->directory . '/Api/routes.php';
 
-        $contents = $this->getStub('api_routes');
+        $contents = $this->getStub('api/routes');
         $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
         $this->line('<info>Routes file was created:</info> ' . str_replace(base_path(), '', $file));
 
@@ -236,7 +253,7 @@ class InstallCommand extends Command {
     public function createApiMiddlewareFile(){
         $file = app_path('/Http/Middleware/AdminApiAuth.php');
 
-        $contents = $this->getStub('AdminApiAuth_Middleware');
+        $contents = $this->getStub('api/AdminApiAuth_Middleware');
         $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
         $this->line('<info>Routes middleware file was created:</info> ' . str_replace(base_path(), '', $file));
 
@@ -244,13 +261,13 @@ class InstallCommand extends Command {
     //
     public function createApiControllerFile() {
         $map = [
-            '/api/BaseApiController.php'    => 'BaseApiController',
-            '/api/AuthController.php'       => 'AuthController',
-            '/api/UserController.php'       => 'UserController',
-            '/api/MenuController.php'       => 'MenuController',
-            '/api/PermissionController.php' => 'PermissionController',
-            '/api/RoleController.php'       => 'RoleController',
-            '/api/SettingsController.php'   => 'SettingsController',
+            '/Api/Controllers/BaseApiController.php'    => 'api/BaseApiController',
+            '/Api/Controllers/AuthController.php'       => 'api/AuthController',
+            '/Api/Controllers/UserController.php'       => 'api/UserController',
+            '/Api/Controllers/MenuController.php'       => 'api/MenuController',
+            '/Api/Controllers/PermissionController.php' => 'api/PermissionController',
+            '/Api/Controllers/RoleController.php'       => 'api/RoleController',
+            '/Api/Controllers/SettingsController.php'   => 'api/SettingsController',
         ];
 
         $namespace = $this->namespace('Api\\Controllers');
@@ -266,10 +283,74 @@ class InstallCommand extends Command {
             );
         }
     }
-    // 发布jwt配置文件
+    
+    // 发布jwt配置文件 生成secret
     public function jwtVendorPublish(){
         \Illuminate\Support\Facades\Artisan::call('vendor:publish', [
             '--provider' => 'Tymon\JWTAuth\Providers\LaravelServiceProvider'
         ]);
+        \Illuminate\Support\Facades\Artisan::call('jwt:secret');
+    }
+
+    // 添加api guards
+    protected function addAdminApiGuards()
+    {
+        $configPath = config_path('auth.php');
+        $content = file_get_contents($configPath);
+
+        // 查找 guards 和 providers 的位置
+        $guardsPos = strpos($content, "'guards' => [");
+        $providersPos = strpos($content, "'providers' => [");
+        $passwordsPos = strpos($content, "'passwords' => [");
+        if ($guardsPos !== false) {
+            $content = $this->insertAfter(
+                $content,
+                "'guards' => [",
+                "\n        'adminapi' => [\n            'driver' => 'jwt',\n            'provider' => 'admin_users',\n        ],",
+                $guardsPos
+            );
+        }
+
+        if ($providersPos !== false) {
+            $content = $this->insertAfter(
+                $content,
+                "'providers' => [",
+                "\n        'admin_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\AdminUser::class,\n        ],",
+                $providersPos
+            );
+        }
+
+        if ($passwordsPos !== false) {
+            $content = $this->insertAfter(
+                $content,
+                "'passwords' => [",
+                "\n        'admin_users' => [\n            'provider' => 'admin_users',\n            'table' => 'password_resets',\n            'expire' => 60,\n            'throttle' => 60,\n        ],",
+                $passwordsPos
+            );
+        }
+
+        file_put_contents($configPath, $content);
+    }
+
+    protected function insertAfter($haystack, $search, $insert, $offset = 0)
+    {
+        $pos = strpos($haystack, $search, $offset);
+        if ($pos === false) {
+            return $haystack;
+        }
+
+        $pos += strlen($search);
+        return substr($haystack, 0, $pos) . $insert . substr($haystack, $pos);
+    }
+
+    protected function editLocaleTozh_CN(){
+        $appPath = config_path('app.php');
+        $content = file_get_contents($appPath);
+        // edit locale
+        $content = str_replace('\'UTC\'','\'Asia/Shanghai\'',$content);
+        $content = str_replace('\'en\'','\'zh_CN\'',$content);
+        $content = str_replace('\'en_US\'','\'zh_CN\'',$content);
+
+        file_put_contents($appPath, $content);
     }
 }

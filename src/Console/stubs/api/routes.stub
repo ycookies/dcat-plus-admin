@@ -9,6 +9,9 @@ Route::post('logout', 'AuthController@logout');
 
 # 需要授权的路由组
 Route::group(['middleware' => ['AdminApiAuth']], function (Router $router) {
-    $router->get('getUserList', 'UserController@getList');
-    $router->get('getMenuList', 'MenuController@getList');
+    $router->apiResource('admin-user', UserController::class);
+    $router->apiResource('menu', MenuController::class);
+    $router->apiResource('permission', PermissionController::class);
+    $router->apiResource('settings', SettingsController::class);
+    $router->apiResource('role', RoleController::class);
 });
