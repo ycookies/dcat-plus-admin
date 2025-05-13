@@ -283,9 +283,11 @@ PHP;
 
     // Admin api routes
     protected function mapAdminApiRoutes() {
-        \Illuminate\Support\Facades\Route::prefix('admin-api')
-            ->middleware('api')
-            ->namespace('App\Admin\Api\Controllers')
-            ->group(base_path('app/Admin/Api/routes.php'));
+        if(file_exists(base_path('app/Admin/Api/routes.php'))){
+            \Illuminate\Support\Facades\Route::prefix('admin-api')
+                ->middleware('api')
+                ->namespace('App\Admin\Api\Controllers')
+                ->group(base_path('app/Admin/Api/routes.php'));
+        }
     }
 }

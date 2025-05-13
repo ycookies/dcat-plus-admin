@@ -6,6 +6,7 @@ use Dcat\Admin\Admin;
 use Dcat\Admin\Http\Auth\Permission;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Scaffold\ControllerCreator;
+use Dcat\Admin\Scaffold\ApiControllerCreator;
 use Dcat\Admin\Scaffold\LangCreator;
 use Dcat\Admin\Scaffold\MigrationCreator;
 use Dcat\Admin\Scaffold\ModelCreator;
@@ -117,7 +118,7 @@ class ScaffoldController extends Controller {
         $model      = $request->get('model_name');
         $repository = $request->get('repository_name');
         $route_path = $request->get('route_path');
-
+        
         try {
             // 1. Create model.
             if (in_array('model', $creates)) {
@@ -178,10 +179,12 @@ class ScaffoldController extends Controller {
             if (!empty($route_path)) {
                 $controller_con  = explode('\\', $controller);
                 $controller_name = array_slice($controller_con, -1)[0];
-                $newRoutes       = "\$router->resource('/" . $route_path . "', Controllers\\" . $controller_name . "::class)";
+                $newRoutes       = "\$router->resource('/" . $route_path . "'," . $controller_name . "::class)";
                 $this->addResourceRouteToAdminRoutes($newRoutes);
-
             }
+            // 添加 api
+            $this->ApiControllerCreator($controller,$model);
+            
             // 添加权限
             $this->appendPermissions();
             // 添加菜单
@@ -328,6 +331,93 @@ class ScaffoldController extends Controller {
 
         return true;
     }
+
+    public function addApiResourceRouteToAdminRoutes($newRoute) {
+
+        $routesPath = app_path('Admin/Api/routes.php');
+
+        // 验证文件存在且可写
+        if (!file_exists($routesPath) || !is_writable($routesPath)) {
+            throw new \Exception('路由文件不存在或不可写');
+        }
+
+        // 创建备份（放在storage/backups目录）
+        $backupDir = storage_path('backups/api_routes');
+        if (!is_dir($backupDir)) {
+            mkdir($backupDir, 0755, true);
+        }
+        $backupPath = $backupDir . '/admin_api_routes_' . date('Ymd_His') . '.php';
+        copy($routesPath, $backupPath);
+
+        // 读取内容
+        $content = file_get_contents($routesPath);
+
+        // 标准化换行符
+        $content = str_replace(["\r\n", "\r"], "\n", $content);
+
+        // 检查路由是否已存在
+        $normalizedRoute = trim($newRoute, '; ') . ';';
+        if (strpos($content, $normalizedRoute) !== false) {
+            throw new \Exception('路由已存在: ' . $normalizedRoute);
+        }
+
+        // 查找插入位置（匹配路由组结束位置）
+        $pattern = '/(\n\s*\}\);\s*$)/';
+        if (!preg_match($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) {
+            throw new \Exception('无法定位路由组结束位置');
+        }
+
+        $endTag      = $matches[1][0];  // 匹配到的结束标记
+        $endPosition = $matches[1][1];  // 结束标记的位置
+
+        // 准备要插入的内容（带正确缩进和换行）
+        $routeToInsert = "\n    " . trim($newRoute, '; ') . ";" .
+            (str_ends_with($endTag, "\n") ? '' : "\n");
+
+        // 构建新内容
+        $newContent = substr_replace(
+            $content,
+            $routeToInsert,
+            $endPosition,
+            0
+        );
+
+        // 验证PHP语法
+        try {
+            eval('?>' . $newContent);
+        } catch (ParseError $e) {
+            copy($backupPath, $routesPath);
+            throw new \Exception('生成的路由文件有语法错误: ' . $e->getMessage());
+        }
+
+        // 写入文件（使用LOCK_EX防止并发写入）
+        if (file_put_contents($routesPath, $newContent, LOCK_EX) === false) {
+            throw new \Exception('写入路由文件失败');
+        }
+
+        return true;
+    }
+
+    // 添加api Controller
+    public function ApiControllerCreator($controller,$model) {
+        $request = request();
+        $api_route_path   = $request->get('api_route_path');
+        if(empty($api_route_path)){
+            return false;
+        }
+        $controller = str_replace('Admin\C','Admin\Api\C',$controller);
+        $controller_con  = explode('\\', $controller);
+        $controller_name = array_slice($controller_con, -1)[0];
+
+        // Create Controller
+        $res = (new ApiControllerCreator($controller))->create($model);
+
+        // append api route
+        $newRoutes       = "\$router->apiResource('/" . $api_route_path . "'," . $controller_name . "::class)";
+        $this->addApiResourceRouteToAdminRoutes($newRoutes);
+        return true;
+    }
+
 
     /**
      * @return array

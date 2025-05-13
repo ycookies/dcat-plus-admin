@@ -8,7 +8,7 @@ Route::post('login', 'AuthController@Login');
 Route::post('logout', 'AuthController@logout');
 
 # 需要授权的路由组
-Route::group(['middleware' => ['AdminApiAuth']], function (Router $router) {
+Route::group(['middleware' => ['admin.apiAuth']], function (Router $router) {
     $router->apiResource('admin-user', UserController::class);
     $router->apiResource('menu', MenuController::class);
     $router->apiResource('permission', PermissionController::class);
