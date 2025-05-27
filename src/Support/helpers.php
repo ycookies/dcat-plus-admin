@@ -832,3 +832,47 @@ if (!function_exists('isTableColumnNullable')) {
             ->getNotnull();
     }
 }
+
+if(!function_exists('isLaravel11OrNewer')){
+    function isLaravel11OrNewer()
+    {
+        $version = \Illuminate\Foundation\Application::VERSION; // 例如 "11.0.0"
+        // Laravel 11+ 版本号格式是主版本号.次版本号.补丁号
+        // 比较主版本号是否 >= 11
+        return (int) explode('.', $version)[0] >= 11;
+    }
+}
+
+if(!function_exists('updateEnv')){
+    function updateEnv(array $values): bool
+    {
+        $envFile = base_path('.env');
+
+        if (!file_exists($envFile)) {
+            return false;
+        }
+
+        // 读取当前 .env 内容
+        $contents = file_get_contents($envFile);
+
+        // 更新每个指定的值
+        foreach ($values as $key => $value) {
+            // 转义值中的特殊字符
+            $escapedValue = '"' . addcslashes($value, '"') . '"';
+
+            // 替换或添加新的键值对
+            if (preg_match("/^{$key}=.*/m", $contents)) {
+                $contents = preg_replace(
+                    "/^{$key}=.*/m",
+                    "{$key}={$escapedValue}",
+                    $contents
+                );
+            } else {
+                $contents .= PHP_EOL . "{$key}={$escapedValue}";
+            }
+        }
+
+        // 写入文件
+        return file_put_contents($envFile, $contents) !== false;
+    }
+}

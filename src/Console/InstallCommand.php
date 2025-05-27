@@ -249,10 +249,23 @@ class InstallCommand extends Command {
 
     }
 
+    // 检查中间件目录是否存在
+    public function ensureMiddlewareDirectoryExists()
+    {
+        $middlewareDir = app_path('Http/Middleware');
+
+        if (!\Illuminate\Support\Facades\File::exists($middlewareDir)) {
+            \Illuminate\Support\Facades\File::makeDirectory($middlewareDir, 0755, true);
+            return true; // 目录已创建
+        }
+
+        return false; // 目录已存在
+    }
+
     //
     public function createApiMiddlewareFile(){
         $file = app_path('/Http/Middleware/AdminApiAuth.php');
-
+        $this->ensureMiddlewareDirectoryExists();
         $contents = $this->getStub('api/AdminApiAuth_Middleware');
         $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
         $this->line('<info>Routes middleware file was created:</info> ' . str_replace(base_path(), '', $file));
@@ -344,13 +357,28 @@ class InstallCommand extends Command {
     }
 
     protected function editLocaleTozh_CN(){
-        $appPath = config_path('app.php');
-        $content = file_get_contents($appPath);
-        // edit locale
-        $content = str_replace('\'UTC\'','\'Asia/Shanghai\'',$content);
-        $content = str_replace('\'en\'','\'zh_CN\'',$content);
-        $content = str_replace('\'en_US\'','\'zh_CN\'',$content);
+        if (isLaravel11OrNewer()) {
+            // Laravel 11+ 的处理逻辑
+            // 要更新的环境变量
+            $updates = [
+                'APP_TIMEZONE' => 'Asia/Shanghai',
+                'APP_LOCALE' => 'zh_CN',
+                'APP_FALLBACK_LOCALE' => 'zh_CN',
+                'APP_FAKER_LOCALE' => 'zh_CN',
+                'DB_CONNECTION' => 'mysql',
+            ];
+            updateEnv($updates);
+        }else{
+            // Laravel 10 及更早版本的处理逻辑
+            $appPath = config_path('app.php');
+            $content = file_get_contents($appPath);
+            // edit locale
+            $content = str_replace('\'UTC\'','\'Asia/Shanghai\'',$content);
+            $content = str_replace('\'en\'','\'zh_CN\'',$content);
+            $content = str_replace('\'en_US\'','\'zh_CN\'',$content);
 
-        file_put_contents($appPath, $content);
+            file_put_contents($appPath, $content);
+        }
+
     }
 }
