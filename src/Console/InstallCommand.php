@@ -302,6 +302,9 @@ class InstallCommand extends Command {
         \Illuminate\Support\Facades\Artisan::call('vendor:publish', [
             '--provider' => 'Tymon\JWTAuth\Providers\LaravelServiceProvider'
         ]);
+        if (!defined('STDIN')) {
+            define('STDIN', fopen('php://stdin', 'r'));
+        }
         \Illuminate\Support\Facades\Artisan::call('jwt:secret');
     }
 
