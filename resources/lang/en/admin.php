@@ -12,6 +12,7 @@ return [
         'route_path'        => 'Route Path',
         'api_route_path'    => 'Api Route Path',
         'is_add_menu'       => 'Is Add Menu',
+        'is_add_admin_api' => 'Is Add Admin Api',
         'add_field'         => 'Add field',
         'pk'                => 'Primary key',
         'soft_delete'       => 'Soft delete',

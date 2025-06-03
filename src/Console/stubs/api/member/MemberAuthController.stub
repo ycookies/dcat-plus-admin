@@ -1,0 +1,76 @@
+<?php
+namespace App\Api\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+// 授权
+class AuthController
+{
+    public function login(Request $request){
+        $request->validate(
+            [
+                'username' => 'required',
+                'password' => 'required',
+            ], [
+                'username.required' => '请填写用户名',
+                'password.required' => '请填写密码',
+            ]
+        );
+
+        $username = $request->get('username');
+        $password = $request->get('password');
+
+        $adminModel = '\App\Models\AdminUser';
+
+        $center = $adminModel::where(['username'=>$username])->first(); // 'is_active'=>1
+
+        if(empty($center)){
+            return response()->json([
+                'code'  => 500,
+                'msg'   => '账户信息不存在'
+            ]);
+        }
+        if($center->is_active != 1){
+            return response()->json([
+                'code'  => 500,
+                'msg'   => '该账户未激活'
+            ]);
+        }
+        if(!Hash::check($password, $center->password)){
+            return [
+                'code'  => 500,
+                'msg'   => '账户密码不正确'
+            ];
+        }
+
+        if (!$token = auth('adminapi')->fromUser($center)) {
+            return response()->json([
+                'code'  => 500,
+                'msg'   => '登录失败',
+            ]);
+        }
+        $data = [
+            'access_token'  => $token,
+            'token_type'    => 'bearer',
+            'expires_in'    => auth('adminapi')->factory()->getTTL() * 60 * 24 * 7,
+            'username'      => $center->username,
+        ];
+        return response()->json(['code'=>0,'msg'=>'ok','data'=>$data]);
+    }
+
+    /**
+     * @desc 退出登陆
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request){
+        auth('adminapi')->logout();
+        return response()->json([
+            'code'  => 0,
+            'msg'   => '退出成功'
+        ]);
+    }
+
+
+}

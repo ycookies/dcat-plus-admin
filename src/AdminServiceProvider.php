@@ -77,6 +77,7 @@ class AdminServiceProvider extends ServiceProvider {
         'admin.upload'     => Http\Middleware\WebUploader::class,
         'admin.app'        => Http\Middleware\Application::class,
         'admin.apiAuth'     => \App\Http\Middleware\AdminApiAuth::class,
+        'member.apiAuth'     => \App\Http\Middleware\MemberApiAuth::class,
     ];
 
     /**
@@ -124,6 +125,7 @@ class AdminServiceProvider extends ServiceProvider {
         \Dcat\Admin\Widgets\Tooltip::make('.tips')->purple();
 
         $this->mapAdminApiRoutes();
+        $this->mapMemberApiRoutes();
     }
 
     protected function aliasAdmin() {
@@ -288,6 +290,16 @@ PHP;
                 ->middleware('api')
                 ->namespace('App\Admin\Api\Controllers')
                 ->group(base_path('app/Admin/Api/routes.php'));
+        }
+    }
+
+    // Admin api routes
+    protected function mapMemberApiRoutes() {
+        if(file_exists(base_path('app/Api/routes.php'))){
+            \Illuminate\Support\Facades\Route::prefix('memeber-api')
+                ->middleware('api')
+                ->namespace('App\Api\Controllers')
+                ->group(base_path('app/Api/routes.php'));
         }
     }
 }

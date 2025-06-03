@@ -112,7 +112,17 @@
                     <div class="col-sm-4 input-group">
                         <span class="input-group-prepend"><span class="input-group-text bg-white">admin-api/</span></span>
                         <input required="1" type="text" name="api_route_path" value="" id="inputApiRoutePath" class="form-control field_api_route_path _normal_" placeholder="{{(trans('admin.scaffold.api_route_path'))}}">
+                        <div class="vs-checkbox-con vs-checkbox-primary" style="margin-left: 16px">
+                            <input value="" name="is_add_admin_api" type="checkbox" checked>
+                            <span class="vs-checkbox vs-checkbox-">
+                              <span class="vs-checkbox--check">
+                                <i class="vs-icon feather icon-check"></i>
+                              </span>
+                            </span>
+                            <span>{{(trans('admin.scaffold.is_add_admin_api'))}}</span>
+                        </div>
                     </div>
+
                 </div>
                 <div class="form-group row">
                     <span for="inputMenuPath" class="col-sm-1 control-label ">{{(trans('admin.scaffold.menu_name'))}}</span>
@@ -365,6 +375,7 @@
             $repository = $('#inputRepositoryName'),
             $route_path = $('#inputRoutePath'),
             $api_route_path = $('#inputApiRoutePath'),
+            $menu_name = $('#inputMenuName'),
             $menu_name = $('#inputMenuName'),
             $table = $('#inputTableName'),
             $fieldsBody = $('#table-fields tbody'),

@@ -84,8 +84,10 @@ class InstallCommand extends Command {
         $this->makeDir('Controllers');
         $this->makeDir('Metrics/Examples');
 
-        // start  admin Api
+        // start   Api
         $this->makeDir('Api/Controllers');
+        // member api
+        $this->laravel['files']->makeDirectory(app_path('Api/Controllers'), 0755, true, true);
         $this->addAdminApiGuards();
         $this->createApiModelFile();
         $this->createApiControllerFile();
@@ -93,9 +95,10 @@ class InstallCommand extends Command {
         $this->createApiMiddlewareFile();
         $this->jwtVendorPublish();
         $this->editLocaleTozh_CN();
-        // end Admin api
+        // end  api
 
         $this->createHomeController();
+        $this->createMemberUserController();
         $this->createAuthController();
         $this->createMetricCards();
 
@@ -121,6 +124,26 @@ class InstallCommand extends Command {
             )
         );
         $this->line('<info>HomeController file was created:</info> ' . str_replace(base_path(), '', $homeController));
+    }
+
+    /**
+     * Create HomeController.
+     *
+     * @return void
+     */
+    public function createMemberUserController() {
+        $homeController = $this->directory . '/Controllers/MemberUserController.php';
+        $contents       = $this->getStub('MemberUserController');
+
+        $this->laravel['files']->put(
+            $homeController,
+            str_replace(
+                ['DummyNamespace', 'MetricsNamespace'],
+                [$this->namespace('Controllers'), $this->namespace('Metrics\\Examples')],
+                $contents
+            )
+        );
+        $this->line('<info>MemberUserController file was created:</info> ' . str_replace(base_path(), '', $homeController));
     }
 
     /**
@@ -237,15 +260,32 @@ class InstallCommand extends Command {
         $traits_file = app_path('Models/Traits/HasPermissions.php');
         $traits_contents = $this->getStub('api/TraitsHasPermissions');
         $this->laravel['files']->put($traits_file, str_replace('DummyNamespace', $this->namespace('Controllers'), $traits_contents));
-        
+
+        $MemberUserModel_contents = $this->getStub('api/MemberUserModel');
+        $this->laravel['files']->put(app_path('Models/MemberUser.php'), str_replace('DummyNamespace', $this->namespace('Controllers'), $MemberUserModel_contents));
+
+        $MemberOauthModel_contents = $this->getStub('api/MemberOauthModel');
+        $this->laravel['files']->put(app_path('Models/MemberOauth.php'), str_replace('DummyNamespace', $this->namespace('Controllers'), $MemberOauthModel_contents));
+
+
     }
-    //
+    // admin api route
     public function createApiRoutesFile() {
         $file = $this->directory . '/Api/routes.php';
 
         $contents = $this->getStub('api/routes');
         $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
         $this->line('<info>Routes file was created:</info> ' . str_replace(base_path(), '', $file));
+    }
+
+    // member api route
+    public function createMembmerApiRoutesFile() {
+        $file = app_path() . '/Api/routes.php';
+
+        $contents = $this->getStub('api/member/routes');
+        $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
+        $this->line('<info>Routes file was created:</info> ' . str_replace(base_path(), '', $file));
+
 
     }
 
@@ -271,6 +311,15 @@ class InstallCommand extends Command {
         $this->line('<info>Routes middleware file was created:</info> ' . str_replace(base_path(), '', $file));
 
     }
+
+    public function createMemberApiMiddlewareFile(){
+        $file = app_path('/Http/Middleware/MemberApiAuth.php');
+        $this->ensureMiddlewareDirectoryExists();
+        $contents = $this->getStub('api/member/MemberApiAuth_Middleware');
+        $this->laravel['files']->put($file, str_replace('DummyNamespace', $this->namespace('Controllers'), $contents));
+        $this->line('<info>Routes middleware file was created:</info> ' . str_replace(base_path(), '', $file));
+
+    }
     //
     public function createApiControllerFile() {
         $map = [
@@ -283,11 +332,29 @@ class InstallCommand extends Command {
             '/Api/Controllers/SettingsController.php'   => 'api/SettingsController',
         ];
 
+        // member api
+        $member_map = [
+            '/Api/Controllers/BaseApiController.php'    => 'api/Member/BaseApiController',
+            '/Api/Controllers/AuthController.php'       => 'api/Member/AuthController',
+            '/Api/Controllers/MemberUserController.php'       => 'api/Member/MemberUserController',
+        ];
+
         $namespace = $this->namespace('Api\\Controllers');
 
         foreach ($map as $path => $stub) {
             $this->laravel['files']->put(
                 $this->directory . $path,
+                str_replace(
+                    'DummyNamespace',
+                    $namespace,
+                    $this->getStub($stub)
+                )
+            );
+        }
+
+        foreach ($member_map as $path => $stub) {
+            $this->laravel['files']->put(
+                app_path() . $path,
                 str_replace(
                     'DummyNamespace',
                     $namespace,
@@ -319,28 +386,35 @@ class InstallCommand extends Command {
         $providersPos = strpos($content, "'providers' => [");
         $passwordsPos = strpos($content, "'passwords' => [");
         if ($guardsPos !== false) {
+            $inserts = "\n        'memberapi' => [\n            'driver' => 'jwt',\n            'provider' => 'member_users',\n        ],";
+            $inserts += "\n        'adminapi' => [\n            'driver' => 'jwt',\n            'provider' => 'admin_users',\n        ],";
             $content = $this->insertAfter(
                 $content,
                 "'guards' => [",
-                "\n        'adminapi' => [\n            'driver' => 'jwt',\n            'provider' => 'admin_users',\n        ],",
+                $inserts,
                 $guardsPos
             );
         }
 
         if ($providersPos !== false) {
+            $provider_insert = "\n        'membmer_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\MemberUser::class,\n        ],";
+            $provider_insert += "\n        'admin_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\AdminUser::class,\n        ],";
+            
             $content = $this->insertAfter(
                 $content,
                 "'providers' => [",
-                "\n        'admin_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\AdminUser::class,\n        ],",
+                $provider_insert,
                 $providersPos
             );
         }
 
         if ($passwordsPos !== false) {
+            $password_insert = "\n        'member_users' => [\n            'provider' => 'member_users',\n            'table' => 'password_resets',\n            'expire' => 60,\n            'throttle' => 60,\n        ],";
+            $password_insert += "\n        'admin_users' => [\n            'provider' => 'admin_users',\n            'table' => 'password_resets',\n            'expire' => 60,\n            'throttle' => 60,\n        ],";
             $content = $this->insertAfter(
                 $content,
                 "'passwords' => [",
-                "\n        'admin_users' => [\n            'provider' => 'admin_users',\n            'table' => 'password_resets',\n            'expire' => 60,\n            'throttle' => 60,\n        ],",
+                $password_insert,
                 $passwordsPos
             );
         }
@@ -368,7 +442,6 @@ class InstallCommand extends Command {
                 'APP_LOCALE' => 'zh_CN',
                 'APP_FALLBACK_LOCALE' => 'zh_CN',
                 'APP_FAKER_LOCALE' => 'zh_CN',
-                'DB_CONNECTION' => 'mysql',
             ];
             updateEnv($updates);
         }else{

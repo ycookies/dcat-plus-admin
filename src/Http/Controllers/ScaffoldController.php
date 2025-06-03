@@ -108,7 +108,6 @@ class ScaffoldController extends Controller {
         if (!config('app.debug')) {
             Permission::error();
         }
-
         $paths   = [];
         $message = '';
 
@@ -118,7 +117,7 @@ class ScaffoldController extends Controller {
         $model      = $request->get('model_name');
         $repository = $request->get('repository_name');
         $route_path = $request->get('route_path');
-        
+        $is_add_admin_api = $request->has('is_add_admin_api');
         try {
             // 1. Create model.
             if (in_array('model', $creates)) {
@@ -183,8 +182,10 @@ class ScaffoldController extends Controller {
                 $this->addResourceRouteToAdminRoutes($newRoutes);
             }
             // 添加 api
-            $this->ApiControllerCreator($controller,$model);
-            
+            if($is_add_admin_api){
+                $this->ApiControllerCreator($controller,$model);
+            }
+
             // 添加权限
             $this->appendPermissions();
             // 添加菜单

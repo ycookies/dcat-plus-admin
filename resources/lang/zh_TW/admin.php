@@ -12,6 +12,7 @@ return [
         'api_route_path'    => 'Api路由',
         'route_path'        => '路由地址',
         'is_add_menu'       => '添加菜单',
+        'is_add_admin_api'  => '增加api接口',
         'add_field'         => '添加欄位',
         'pk'                => '主鍵',
         'soft_delete'       => '軟刪除',

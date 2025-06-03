@@ -859,7 +859,7 @@ if(!function_exists('updateEnv')){
         foreach ($values as $key => $value) {
             // 转义值中的特殊字符
             $escapedValue = '"' . addcslashes($value, '"') . '"';
-
+            $escapedValue = str_replace('"','',$escapedValue);
             // 替换或添加新的键值对
             if (preg_match("/^{$key}=.*/m", $contents)) {
                 $contents = preg_replace(
