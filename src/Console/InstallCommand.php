@@ -263,10 +263,10 @@ class InstallCommand extends Command {
         $traits_contents = $this->getStub('api/TraitsHasPermissions');
         $this->laravel['files']->put($traits_file, str_replace('DummyNamespace', $this->namespace('Controllers'), $traits_contents));
 
-        $MemberUserModel_contents = $this->getStub('api/MemberUserModel');
+        $MemberUserModel_contents = $this->getStub('api/member/MemberUserModel');
         $this->laravel['files']->put(app_path('Models/MemberUser.php'), str_replace('DummyNamespace', $this->namespace('Controllers'), $MemberUserModel_contents));
 
-        $MemberOauthModel_contents = $this->getStub('api/MemberOauthModel');
+        $MemberOauthModel_contents = $this->getStub('api/member/MemberOauthModel');
         $this->laravel['files']->put(app_path('Models/MemberOauth.php'), str_replace('DummyNamespace', $this->namespace('Controllers'), $MemberOauthModel_contents));
 
 
@@ -336,8 +336,8 @@ class InstallCommand extends Command {
 
         // member api
         $member_map = [
-            '/Api/Controllers/BaseApiController.php'    => 'api/Member/BaseApiController',
-            '/Api/Controllers/AuthController.php'       => 'api/Member/AuthController',
+            '/Api/Controllers/BaseApiController.php'    => 'api/Member/MemberBaseApiController',
+            '/Api/Controllers/AuthController.php'       => 'api/Member/MemberAuthController',
             '/Api/Controllers/MemberUserController.php'       => 'api/Member/MemberUserController',
         ];
 
@@ -389,7 +389,7 @@ class InstallCommand extends Command {
         $passwordsPos = strpos($content, "'passwords' => [");
         if ($guardsPos !== false) {
             $inserts = "\n        'memberapi' => [\n            'driver' => 'jwt',\n            'provider' => 'member_users',\n        ],";
-            $inserts += "\n        'adminapi' => [\n            'driver' => 'jwt',\n            'provider' => 'admin_users',\n        ],";
+            $inserts .= "\n        'adminapi' => [\n            'driver' => 'jwt',\n            'provider' => 'admin_users',\n        ],";
             $content = $this->insertAfter(
                 $content,
                 "'guards' => [",
@@ -399,8 +399,8 @@ class InstallCommand extends Command {
         }
 
         if ($providersPos !== false) {
-            $provider_insert = "\n        'membmer_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\MemberUser::class,\n        ],";
-            $provider_insert += "\n        'admin_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\AdminUser::class,\n        ],";
+            $provider_insert = "\n        'member_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\MemberUser::class,\n        ],";
+            $provider_insert .= "\n        'admin_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\AdminUser::class,\n        ],";
             
             $content = $this->insertAfter(
                 $content,

@@ -296,7 +296,7 @@ PHP;
     // Admin api routes
     protected function mapMemberApiRoutes() {
         if(file_exists(base_path('app/Api/routes.php'))){
-            \Illuminate\Support\Facades\Route::prefix('memeber-api')
+            \Illuminate\Support\Facades\Route::prefix('member-api')
                 ->middleware('api')
                 ->namespace('App\Api\Controllers')
                 ->group(base_path('app/Api/routes.php'));

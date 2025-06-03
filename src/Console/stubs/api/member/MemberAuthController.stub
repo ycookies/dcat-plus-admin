@@ -21,20 +21,14 @@ class AuthController
         $username = $request->get('username');
         $password = $request->get('password');
 
-        $adminModel = '\App\Models\AdminUser';
+        $MemberUserModel = '\App\Models\MemberUser';
 
-        $center = $adminModel::where(['username'=>$username])->first(); // 'is_active'=>1
+        $center = $MemberUserModel::where(['username'=>$username])->first(); // 'is_active'=>1
 
         if(empty($center)){
             return response()->json([
                 'code'  => 500,
                 'msg'   => '账户信息不存在'
-            ]);
-        }
-        if($center->is_active != 1){
-            return response()->json([
-                'code'  => 500,
-                'msg'   => '该账户未激活'
             ]);
         }
         if(!Hash::check($password, $center->password)){
@@ -53,7 +47,7 @@ class AuthController
         $data = [
             'access_token'  => $token,
             'token_type'    => 'bearer',
-            'expires_in'    => auth('adminapi')->factory()->getTTL() * 60 * 24 * 7,
+            'expires_in'    => auth('memberapi')->factory()->getTTL() * 60 * 24 * 7,
             'username'      => $center->username,
         ];
         return response()->json(['code'=>0,'msg'=>'ok','data'=>$data]);
@@ -65,7 +59,7 @@ class AuthController
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout(Request $request){
-        auth('adminapi')->logout();
+        auth('memberapi')->logout();
         return response()->json([
             'code'  => 0,
             'msg'   => '退出成功'
