@@ -92,7 +92,9 @@ class InstallCommand extends Command {
         $this->createApiModelFile();
         $this->createApiControllerFile();
         $this->createApiRoutesFile();
+        $this->createMembmerApiRoutesFile();
         $this->createApiMiddlewareFile();
+        $this->createMemberApiMiddlewareFile();
         $this->jwtVendorPublish();
         $this->editLocaleTozh_CN();
         // end  api
