@@ -412,7 +412,7 @@ class InstallCommand extends Command {
 
         if ($passwordsPos !== false) {
             $password_insert = "\n        'member_users' => [\n            'provider' => 'member_users',\n            'table' => 'password_resets',\n            'expire' => 60,\n            'throttle' => 60,\n        ],";
-            $password_insert += "\n        'admin_users' => [\n            'provider' => 'admin_users',\n            'table' => 'password_resets',\n            'expire' => 60,\n            'throttle' => 60,\n        ],";
+            $password_insert .= "\n        'admin_users' => [\n            'provider' => 'admin_users',\n            'table' => 'password_resets',\n            'expire' => 60,\n            'throttle' => 60,\n        ],";
             $content = $this->insertAfter(
                 $content,
                 "'passwords' => [",
