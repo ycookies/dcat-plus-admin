@@ -3,15 +3,15 @@ namespace App\Api\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\AdminUser;
+use App\Models\MemberUser;
 
 // 用户
-class MemberController extends BaseApiController
+class MemberUserController extends BaseApiController
 {
 
     public function __construct()
         {
-            parent::__construct(new AdminUser());
+            parent::__construct(new MemberUser());
         }
 
         /**
@@ -29,8 +29,8 @@ class MemberController extends BaseApiController
                                'avatar' => 'required',
                            ],
                            [
-                               'factory_code.required' => '加工厂编码不能为空',
-                               'factory_name.required' => '加工厂名称不能为空',
+                               'username.required' => '用户名不能为空',
+                               'password.required' => '密码不能为空',
                            ]
                        ],
                        'update' => [],
