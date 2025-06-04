@@ -24,3 +24,21 @@ use Dcat\Admin\Show;
  * Admin::js('/packages/prettydocs/js/main.js');
  *
  */
+Admin::menu(function (\Dcat\Admin\Layout\Menu $menu) {
+    $menu->add([
+        [
+            'id'        => 1,
+            'title'     => '用户中心',
+            'icon'      => 'feather icon-users',
+            'uri'       => '',
+            'parent_id' => 0,
+        ],
+        [
+            'id'        => 2,
+            'title'     => '用户管理',
+            'icon'      => 'feather icon-user',
+            'uri'       => 'member-user',
+            'parent_id' => 1,
+        ],
+]);
+});
