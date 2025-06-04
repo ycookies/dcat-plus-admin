@@ -20,6 +20,10 @@ class MemberUser extends Authenticatable implements JWTSubject,AuthenticatableCo
 
     protected $table = 'member_users';
 
+    public static $status_arr = [
+            0 => '禁止',
+            1 => '正常',
+        ];
     /**
      * The attributes that are mass assignable.
      *
@@ -78,6 +82,26 @@ class MemberUser extends Authenticatable implements JWTSubject,AuthenticatableCo
     {
 
         parent::__construct($attributes);
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 
 }
