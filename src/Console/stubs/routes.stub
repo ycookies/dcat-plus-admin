@@ -15,4 +15,7 @@ Route::group([
     $router->get('/', 'HomeController@index');
     $router->resource('/member-user',MemberUserController::class);
 
+    # 全局配置
+    $router->get('web-config', 'WebConfigController@index');
+    $router->post('web-config/save', 'WebConfigController@saveData');
 });

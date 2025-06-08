@@ -125,6 +125,24 @@
 
                 </div>
                 <div class="form-group row">
+                    <span for="inputApiRoutePath" class="col-sm-1 control-label">Api路由</span>
+
+                    <div class="col-sm-5 input-group">
+                        <span class="input-group-prepend"><span class="input-group-text bg-white">member-api/</span></span>
+                        <input required="1" type="text" name="member_api_route_path" value="" id="inputMemberApiRoutePath" class="form-control field_api_route_path _normal_" placeholder="C端api路由">
+                        <div class="vs-checkbox-con vs-checkbox-primary" style="margin-left: 16px">
+                            <input value="" name="is_add_member_api" type="checkbox" checked>
+                            <span class="vs-checkbox vs-checkbox-">
+                              <span class="vs-checkbox--check">
+                                <i class="vs-icon feather icon-check"></i>
+                              </span>
+                            </span>
+                            <span>增加member-api接口</span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group row">
                     <span for="inputMenuPath" class="col-sm-1 control-label ">{{(trans('admin.scaffold.menu_name'))}}</span>
 
                     <div class="col-sm-11">
@@ -375,7 +393,7 @@
             $repository = $('#inputRepositoryName'),
             $route_path = $('#inputRoutePath'),
             $api_route_path = $('#inputApiRoutePath'),
-            $menu_name = $('#inputMenuName'),
+            $member_api_route_path = $('#inputMemberApiRoutePath'),
             $menu_name = $('#inputMenuName'),
             $table = $('#inputTableName'),
             $fieldsBody = $('#table-fields tbody'),
@@ -599,6 +617,7 @@
         }
         function witeApiRoutePath(val) {
             $api_route_path.val(toGang(val));
+            $member_api_route_path.val(toGang(val));
         }
         function witeMenuName(val) {
             $menu_name.val(toGang(val));

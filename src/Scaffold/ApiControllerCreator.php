@@ -23,6 +23,8 @@ class ApiControllerCreator
      */
     protected $files;
 
+    protected $stub;
+
     /**
      * ControllerCreator constructor.
      *
@@ -132,6 +134,11 @@ class ApiControllerCreator
         return Helper::guessClassFileName($name);
     }
 
+    public function setStub($path){
+        $this->stub = $path;
+        return $this;
+    }
+
     /**
      * Get stub file path.
      *
@@ -139,6 +146,11 @@ class ApiControllerCreator
      */
     public function getStub()
     {
-        return __DIR__.'/stubs/apicontroller.stub';
+        if(!empty($this->stub)){
+            return $this->stub;
+        }else{
+            return __DIR__.'/stubs/apicontroller.stub';
+        }
+
     }
 }

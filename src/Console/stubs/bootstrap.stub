@@ -40,5 +40,12 @@ Admin::menu(function (\Dcat\Admin\Layout\Menu $menu) {
             'uri'       => 'member-user',
             'parent_id' => 1,
         ],
+        [
+            'id'        => 3,
+            'title'     => '网站配置',
+            'icon'      => 'feather icon-settings',
+            'uri'       => 'web-config',
+            'parent_id' => 0,
+        ]
 ]);
 });
