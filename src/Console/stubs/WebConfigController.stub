@@ -52,7 +52,7 @@ class WebConfigController extends Controller {
         $form1->confirm('确认已经填写完整了吗？');
         $form1->action('base-config/save');
         $form1->hidden('group_name')->value('sys_setting');
-        $form1->radio('site_lang', trans('base-config.site_lang'))
+        $form1->radio('site_lang', '网站语言')
             ->options([
                 'zh_CN' => '中文（简体）',
                 'zh_TW' => '中文（繁体）',
@@ -60,7 +60,7 @@ class WebConfigController extends Controller {
             ])
             ->default(admin_setting('site_lang'));
 
-        $form1->url('site_url', trans('base-config.site_url'))
+        $form1->url('site_url', '网站网址')
             ->help('站点域名决定了静态资源（头像、图片等）的显示路径，可以包含端口号，例如 https://www.dcat-admin.com:8000')
             ->default(admin_setting('site_url'));
        /* $form1->text('site_title', Support::trans('main.site_title'))

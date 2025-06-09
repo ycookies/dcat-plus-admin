@@ -101,6 +101,7 @@ class InstallCommand extends Command {
 
         $this->createHomeController();
         $this->createMemberUserController();
+        $this->createWebConfigController();
         $this->createAuthController();
         $this->createMetricCards();
 
@@ -146,6 +147,26 @@ class InstallCommand extends Command {
             )
         );
         $this->line('<info>MemberUserController file was created:</info> ' . str_replace(base_path(), '', $homeController));
+    }
+
+    /**
+     * Create HomeController.
+     *
+     * @return void
+     */
+    public function createWebConfigController() {
+        $homeController = $this->directory . '/Controllers/WebConfigController.php';
+        $contents       = $this->getStub('WebConfigController');
+
+        $this->laravel['files']->put(
+            $homeController,
+            str_replace(
+                ['DummyNamespace', 'MetricsNamespace'],
+                [$this->namespace('Controllers'), $this->namespace('Metrics\\Examples')],
+                $contents
+            )
+        );
+        $this->line('<info>WebConfigController file was created:</info> ' . str_replace(base_path(), '', $homeController));
     }
 
     /**
