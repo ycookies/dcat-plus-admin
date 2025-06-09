@@ -504,7 +504,7 @@ class ScaffoldController extends Controller {
         $controller_name = array_slice($controller_con, -1)[0];
 
         // Create Controller
-        $res = (new ApiControllerCreator($controller))->setStub(__DIR__.'/stubs/MemberApiController.stub')->create($model);
+        $res = (new ApiControllerCreator($controller))->setMemberApiStub()->create($model);
 
         // append api route
         $newRoutes       = "\$router->apiResource('/" . $member_api_route_path . "'," . $controller_name . "::class)";

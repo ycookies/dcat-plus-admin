@@ -134,8 +134,8 @@ class ApiControllerCreator
         return Helper::guessClassFileName($name);
     }
 
-    public function setStub($path){
-        $this->stub = $path;
+    public function setMemberApiStub(){
+        $this->stub = __DIR__.'/stubs/MemberApiController.stub';
         return $this;
     }
 
