@@ -97,6 +97,7 @@ class InstallCommand extends Command {
         $this->createMemberApiMiddlewareFile();
         $this->jwtVendorPublish();
         $this->editLocaleTozh_CN();
+        $this->updateScrambleConfig();
         // end  api
 
         $this->createHomeController();
@@ -390,12 +391,36 @@ class InstallCommand extends Command {
     // 发布jwt配置文件 生成secret
     public function jwtVendorPublish(){
         \Illuminate\Support\Facades\Artisan::call('vendor:publish', [
-            '--provider' => 'Tymon\JWTAuth\Providers\LaravelServiceProvider'
+            '--provider' => 'Tymon\JWTAuth\Providers\LaravelServiceProvider',
         ]);
         if (!defined('STDIN')) {
             define('STDIN', fopen('php://stdin', 'r'));
         }
         \Illuminate\Support\Facades\Artisan::call('jwt:secret');
+
+        \Illuminate\Support\Facades\Artisan::call('vendor:publish', [
+            '--provider' => 'Dedoc\Scramble\ScrambleServiceProvider',
+            '--tag' => 'scramble-config'
+        ]);
+
+    }
+
+    protected function updateScrambleConfig(){
+        $configPath = config_path('scramble.php');
+        $content = file_get_contents($configPath);
+        // 更精确的匹配模式
+        $newContent = preg_replace(
+            "/'api_path' =>\s*'api'(?=,)/",
+            "'api_path' => 'member-api'",
+            $content
+        );
+        $newContent = preg_replace(
+            "/'description' =>\s*''(?=,)/",
+            "'description' => '用户端Api文档'",
+            $newContent
+        );
+
+        file_put_contents($configPath, $newContent);
     }
 
     // 添加api guards
