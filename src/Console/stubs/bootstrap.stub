@@ -46,7 +46,7 @@ Admin::menu(function (\Dcat\Admin\Layout\Menu $menu) {
             'icon'      => 'feather icon-settings',
             'uri'       => 'web-config',
             'parent_id' => 0,
-        ]
+        ],
         [
                     'id'        => 4,
                     'title'     => '开放接口',
