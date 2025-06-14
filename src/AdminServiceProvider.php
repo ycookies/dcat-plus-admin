@@ -126,6 +126,23 @@ class AdminServiceProvider extends ServiceProvider {
 
         $this->mapAdminApiRoutes();
         $this->mapMemberApiRoutes();
+
+        // 注册 admin-api 文档
+        $api_path = config('admin.openapi.admin-api.api_path','admin-api');
+
+        \Dedoc\Scramble\Scramble::registerApi($api_path, [
+            'api_path' => $api_path,
+            'info' => [
+                'version' => config('admin.openapi.admin-api.info.version','1.0.0'),
+                'description' => config('admin.openapi.admin-api.info.description','管理端api文档'),
+            ],
+            'ui' => [
+                'title' => config('admin.openapi.admin-api.ui.title','B端Api文档'),
+            ]
+        ]);
+
+        \Dedoc\Scramble\Scramble::registerUiRoute('docs/'.$api_path,$api_path);
+        \Dedoc\Scramble\Scramble::registerJsonSpecificationRoute('docs/'.$api_path.'json', $api_path);
     }
 
     protected function aliasAdmin() {

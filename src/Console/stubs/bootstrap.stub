@@ -48,39 +48,11 @@ Admin::menu(function (\Dcat\Admin\Layout\Menu $menu) {
             'parent_id' => 0,
         ],
         [
-                    'id'        => 4,
-                    'title'     => '开放接口',
-                    'icon'      => 'feather icon-layers',
-                    'uri'       => '',
-                    'parent_id' => 0,
-        ],
-        [
-                    'id'        => 5,
-                    'title'     => 'B端接口文档',
-                    'icon'      => 'feather icon-bold',
-                    'uri'       => 'docs/admin-api',
-                    'parent_id' => 4,
-        ],
-        [
-                    'id'        => 6,
-                    'title'     => 'C端接口文档',
-                    'icon'      => 'feather icon-book',
-                    'uri'       => 'docs/member-api',
-                    'parent_id' => 4,
+            'id'        => 4,
+            'title'     => '开放接口文档',
+            'icon'      => 'feather icon-layers',
+            'uri'       => '/openapi-docs',
+            'parent_id' => 0,
         ]
 ]);
 });
-// 注册 admin-api 文档
-\Dedoc\Scramble\Scramble::registerApi('admin-api', [
-            'api_path' => 'admin-api',
-            'info' => [
-                'version' => '1.0',
-                'description' => '管理端api文档',
-            ],
-            'ui' => [
-                'title' => 'B端Api文档',
-        ]
-        ]);
-
-\Dedoc\Scramble\Scramble::registerUiRoute(path: 'docs/admin-api', api: 'admin-api');
-\Dedoc\Scramble\Scramble::registerJsonSpecificationRoute(path: 'docs/admin-api.json', api: 'admin-api');
