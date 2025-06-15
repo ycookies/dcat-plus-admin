@@ -442,7 +442,7 @@ class InstallCommand extends Command {
         );
 
         $newContent = preg_replace(
-            "/'title' =>\s*''(?=,)/",
+            "/'title'\\s*=>\\s*null/",
             "'title' => '用户端Api文档'",
             $newContent
         );
