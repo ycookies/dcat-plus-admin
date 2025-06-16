@@ -20,7 +20,7 @@ abstract class BaseApiController extends Controller
     /**
      * 获取列表（分页）
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $pageSize = $request->get('pageSize', 10);
         $query = $this->model->query();
@@ -55,7 +55,7 @@ abstract class BaseApiController extends Controller
     /**
      * 获取单条记录
      */
-    public function show(int $id): JsonResponse
+    public function show(int $id)
     {
         $info = $this->model->query()->findOrFail($id);
         return $this->returnData(0,1,['info'=> $info],'ok');
@@ -64,7 +64,7 @@ abstract class BaseApiController extends Controller
     /**
      * 创建记录
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $validationRules = $this->getValidationRules('store');
         $required = !empty($validationRules[0]) ? $validationRules[0]:[];
@@ -80,7 +80,7 @@ abstract class BaseApiController extends Controller
     /**
      * 更新记录
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, int $id)
     {
         $validationRules = $this->getValidationRules('update');
         $required = !empty($validationRules[0]) ? $validationRules[0]:[];
@@ -98,7 +98,7 @@ abstract class BaseApiController extends Controller
     /**
      * 删除记录
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id)
     {
         $info = $this->model->query()->findOrFail($id);
         $info->delete();

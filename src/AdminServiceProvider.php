@@ -25,6 +25,9 @@ use Dcat\Admin\Support\WebUploader;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 class AdminServiceProvider extends ServiceProvider {
     /**
@@ -139,10 +142,20 @@ class AdminServiceProvider extends ServiceProvider {
             'ui' => [
                 'title' => config('admin.openapi.admin-api.ui.title','B端Api文档'),
             ]
-        ]);
+        ])->withDocumentTransformers(function (OpenApi $openApi) {
+            $openApi->secure(
+                SecurityScheme::http('Bearer','JWT')
+            );
+        });
 
         \Dedoc\Scramble\Scramble::registerUiRoute('docs/'.$api_path,$api_path);
         \Dedoc\Scramble\Scramble::registerJsonSpecificationRoute('docs/'.$api_path.'json', $api_path);
+        Scramble::configure()
+            ->withDocumentTransformers(function (OpenApi $openApi) {
+                $openApi->secure(
+                    SecurityScheme::http('Bearer','JWT')
+                );
+            });
     }
 
     protected function aliasAdmin() {

@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Hash;
 // 授权
 class AuthController
 {
+    /**
+     * 管理员登陆
+     * @unauthenticated
+     */
     public function login(Request $request){
         $request->validate(
             [
@@ -60,9 +64,8 @@ class AuthController
     }
 
     /**
-     * @desc 退出登陆
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * 管理员退出登陆
+     * @unauthenticated
      */
     public function logout(Request $request){
         auth('adminapi')->logout();
