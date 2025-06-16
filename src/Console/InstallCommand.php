@@ -379,9 +379,9 @@ class InstallCommand extends Command {
 
         // member api
         $member_map = [
-            '/Api/Controllers/BaseApiController.php'    => 'api/Member/MemberBaseApiController',
-            '/Api/Controllers/AuthController.php'       => 'api/Member/MemberAuthController',
-            '/Api/Controllers/MemberUserController.php'       => 'api/Member/MemberUserController',
+            '/Api/Controllers/BaseApiController.php'    => 'api/member/MemberBaseApiController',
+            '/Api/Controllers/AuthController.php'       => 'api/member/MemberAuthController',
+            '/Api/Controllers/MemberUserController.php'       => 'api/member/MemberUserController',
         ];
 
         $namespace = $this->namespace('Api\\Controllers');
