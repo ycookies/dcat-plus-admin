@@ -46,10 +46,13 @@ class Asset
         ],
         '@vendors' => [
             'js'  => '@admin/dcat/plugins/vendors.min.js',
-            'css' => '@admin/dcat/plugins/vendors.min.css',
-            'css' => '@admin/dcat/css/dcatplus.css',
-            'css' => '@admin/dcat/css/zico.min.css',
-            'css' => '@admin/fonts/flag/flag-icons.min.css',
+            'css' => [
+                '@admin/dcat/plugins/vendors.min.css',
+                '@admin/dcat/css/dcatplus.css',
+                '@admin/dcat/css/zico.min.css',
+                '@admin/fonts/flag/flag-icons.min.css',
+            ],
+            
         ],
         '@jquery.initialize' => [
             'js' => '@admin/dcat/plugins/jquery.initialize/jquery.initialize.min.js',

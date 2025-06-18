@@ -50,7 +50,7 @@ class WebConfigController extends Controller {
         $formdata = admin_setting_group('sys_setting');
         $form1    = new WidgetsForm($formdata);
         $form1->confirm('确认已经填写完整了吗？');
-        $form1->action('base-config/save');
+        $form1->action('web-config/save');
         $form1->hidden('group_name')->value('sys_setting');
         $form1->radio('site_lang', '网站语言')
             ->options([
@@ -90,7 +90,7 @@ class WebConfigController extends Controller {
         $formdata = admin_setting_group('web_setting');
         $form1    = new WidgetsForm($formdata);
         $form1->confirm('确认已经填写完整了吗？');
-        $form1->action('base-config/save');
+        $form1->action('web-config/save');
         //$form1->html('<h3>短信</h3>');
         $form1->hidden('group_name')->value('web_setting');
         $form1->text('web_name','网站名称');
@@ -112,7 +112,7 @@ class WebConfigController extends Controller {
         $formdata = admin_setting_group('sms_mail');
         $form1    = new WidgetsForm($formdata);
         $form1->confirm('确认已经填写完整了吗？');
-        $form1->action('base-config/save');
+        $form1->action('web-config/save');
         $form1->html('<h3>短信</h3>');
         $form1->hidden('group_name')->value('sms_mail');
         $form1->hidden('is_refresh')->value(1);
@@ -164,7 +164,7 @@ class WebConfigController extends Controller {
 
         $formdata = admin_setting_group('oss');
         $form     = new WidgetsForm($formdata);
-        $form->action('base-config/save');
+        $form->action('web-config/save');
         $form->confirm('确认已经填写完整了吗？');
         $form->hidden('group_name')->value('oss');
         //$form->html($alert = Alert::make('内容', '提示')->success());
@@ -174,7 +174,6 @@ class WebConfigController extends Controller {
             ->help('')->placeholder('')
             ->required();
         $form->text('oss_secretId', 'SecretId')
-            ->help('<a href="https://img.mini.chongyeapp.com/images/appsecret.png" target="_blank">查看说明</a>')
             ->width(140)->placeholder('')
             ->required();
         $form->text('oss_secretKey', 'SecretKey')
@@ -195,7 +194,7 @@ class WebConfigController extends Controller {
     public function tab22() {
         $formdata = admin_setting_group('wx_pay_config');
         $form     = new WidgetsForm($formdata);
-        $form->action('base-config/save');
+        $form->action('web-config/save');
         $form->confirm('确认已经填写完整了吗？');
         $form->hidden('group_name')->value('wx_pay_config');
         $form->html('<h3>微信支付</h3>');
@@ -221,7 +220,7 @@ class WebConfigController extends Controller {
     public function tab2() {
         $formdata = admin_setting_group('wx_pay_isv');
         $form     = new WidgetsForm($formdata);
-        $form->action('base-config/save');
+        $form->action('web-config/save');
         $form->confirm('确认已经填写完整了吗？');
         $form->hidden('group_name')->value('wx_pay_isv');
         $form->html('<h3>微信支付服务商</h3>');
@@ -243,7 +242,7 @@ class WebConfigController extends Controller {
     public function tab3() {
         $formdata = admin_setting_group('wx_gzh');
         $form     = new WidgetsForm($formdata);
-        $form->action('base-config/save');
+        $form->action('web-config/save');
         $form->confirm('确认已经填写完整了吗？');
         $form->hidden('group_name')->value('wx_gzh');
         $form->html('<h3>微信公众号</h3>');
@@ -269,7 +268,7 @@ class WebConfigController extends Controller {
     public function tab4() {
         $formdata = admin_setting_group('wxmin');
         $form     = new WidgetsForm($formdata);
-        $form->action('base-config/save');
+        $form->action('web-config/save');
         $form->confirm('确认已经填写完整了吗？');
         $form->hidden('group_name')->value('wxmin');
         $form->html('<h3>微信小程序</h3>');
@@ -294,7 +293,7 @@ class WebConfigController extends Controller {
     public function tab5() {
         $formdata = admin_setting_group('wxopen');
         $form     = new WidgetsForm($formdata);
-        $form->action('base-config/save');
+        $form->action('web-config/save');
         $form->confirm('确认已经填写完整了吗？');
         $form->hidden('group_name')->value('wxopen');
         $form->html('<h3>微信开放平台</h3>');
@@ -314,7 +313,7 @@ class WebConfigController extends Controller {
     public function tab6() {
         $formdata6 = admin_setting_group('qywx');
         $form6     = new WidgetsForm($formdata6);
-        $form6->action('base-config/save');
+        $form6->action('web-config/save');
         $form6->confirm('确认已经填写完整了吗？');
         $form6->hidden('group_name')->value('qywx');
         $form6->html('<h3>企业微信</h3>');
@@ -330,7 +329,7 @@ class WebConfigController extends Controller {
     public function tab7() {
         $formdata7 = admin_setting_group('platform_fuwu_info');
         $form7     = new WidgetsForm($formdata7);
-        $form7->action('base-config/save');
+        $form7->action('web-config/save');
         $form7->confirm('确认已经填写完整了吗？');
         $form7->hidden('group_name')->value('platform_fuwu_info');
 
@@ -355,7 +354,7 @@ class WebConfigController extends Controller {
     public function tab8() {
         $formdata8 = admin_setting_group('invoice_configs');
         $form8     = new WidgetsForm($formdata8);
-        $form8->action('base-config/save');
+        $form8->action('web-config/save');
         $form8->confirm('确认已经填写完整了吗？');
         $form8->hidden('group_name')->value('invoice_configs');
 
