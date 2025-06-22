@@ -21,7 +21,11 @@
                 {{ $subTitle }}
             </span>
         @endif
-
+        @if($isDateRange)
+            <div style="width:180px;">
+                <input class="form-control" type="text" id="datePickerInput_{{$id}}" value="">
+            </div>
+        @endif
         @if(! empty($dropdown))
         <div class="dropdown chart-dropdown">
             <button class="btn btn-sm btn-light shadow-0 dropdown-toggle p-0 waves-effect" data-toggle="dropdown">
@@ -38,3 +42,8 @@
 
     <div class="metric-content">{!! $content !!}</div>
 </div>
+
+<script src="/vendor/dcat-admin/dcat/plugins/moment/moment.min.js"></script>
+<script src="/vendor/dcat-admin/dcat/plugins/bootstrap-datepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" href="/vendor/dcat-admin/dcat/plugins/bootstrap-datepicker/daterangepicker.css"/>
+

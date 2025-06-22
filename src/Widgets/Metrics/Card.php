@@ -10,6 +10,7 @@ use Dcat\Admin\Widgets\Widget;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class Card extends Widget
 {
@@ -61,6 +62,21 @@ class Card extends Widget
      * @var array
      */
     protected $dropdown = [];
+
+
+    /**
+     * 日期区间.
+     *
+     * @var array
+     */
+    protected $daterange = [];
+
+    /**
+     * 开启日期区间.
+     *
+     * @var array
+     */
+    protected $isDateRange = false;
 
     /**
      * 图标主题色.
@@ -251,6 +267,22 @@ class Card extends Widget
     public function dropdown(array $items)
     {
         $this->dropdown = $items;
+
+        return $this;
+    }
+
+    /**
+     * 设置卡片的日期区间
+     *
+     * @param  string  $startDate
+     * @param  string  $endDate
+     * @return $this
+     */
+    public function dateRange($startDate = '',$endDate = '')
+    {
+        $this->isDateRange = true;
+        $this->daterange['startDate'] = !empty($startDate) ? $startDate : Carbon::now()->startOfWeek()->format('Y-m-d') ;
+        $this->daterange['endDate'] = !empty($endDate) ? $endDate : Carbon::now()->endOfWeek()->format('Y-m-d') ;
 
         return $this;
     }
@@ -466,6 +498,81 @@ JS
             // 没有图表，需要构建卡片数据请求js代码.
             $cardRequestScript = $this->click($clickable)->buildRequestScript($id);
         }
+        // 日期区间
+        $daterangeScript = '';
+        $fetching = implode(';', $this->requestScripts['fetching']);
+        $fetched = implode(';', $this->requestScripts['fetched']);
+        if($this->isDateRange) {
+            
+            $startDate        = $this->daterange['startDate'];
+            $endDate          = $this->daterange['endDate'];
+            $daterangeScript = <<<JS
+        // 先销毁旧的（防止重复初始化）
+        $('#datePickerInput_{$id}').daterangepicker('destroy');
+        $('#datePickerInput_{$id}').daterangepicker({
+            startDate: "$startDate",
+            endDate: "$endDate",
+            locale: {
+                format: 'YYYY-MM-DD',
+                separator: ' - ',
+                applyLabel: '确定',
+                cancelLabel: '取消',
+                fromLabel: '从',
+                toLabel: '至',
+                customRangeLabel: '自定义',
+                daysOfWeek: ['日', '一', '二', '三', '四', '五', '六'],
+                monthNames: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+                firstDay: 1
+            },
+            opens: 'left',
+            autoUpdateInput: true,
+            showDropdowns: true
+        });
+
+        $('#datePickerInput_$id').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            var selectedRange = {
+                startDate: picker.startDate.format('YYYY-MM-DD'),
+                endDate: picker.endDate.format('YYYY-MM-DD')
+            };
+            
+            var data = $.extend({$this->formatRequestData()}, selectedRange || {});
+            
+    {$fetching};
+
+    $.ajax({
+              url: '{$this->getRequestUrl()}',
+              dataType: 'json',
+              method: '{$this->method}',
+              data: data,
+              success: function (response) {
+                loading = 0;
+                {$fetched};
+              
+              var chartBox = $(response.selector || '#apex-chart-bq4NqEpF');
+
+                        if (chartBox.length) {
+                            chartBox.html('');
+
+                            if (typeof response.options === 'string') {
+                                eval(response.options);
+                            }
+
+                            setTimeout(function () {
+                                new ApexCharts(chartBox[0], response.options).render();
+                            }, 50);
+                        };
+              },
+              error: function (a, b, c) {
+                  loading = 0;
+                  Dcat.handleAjaxError(a, b, c)
+              },
+            });
+            
+        });
+JS;
+        }
+
 
         // 按钮显示选中文本
         return $this->script = <<<JS
@@ -474,7 +581,9 @@ $('{$clickable}').on('click', function () {
 });
 
 {$cardRequestScript}
+{$daterangeScript}
 JS;
+        
     }
 
     /**
@@ -540,6 +649,8 @@ JS;
         $this->variables['header'] = $this->renderHeader();
         $this->variables['content'] = $this->renderContent();
         $this->variables['dropdown'] = $this->dropdown;
+        $this->variables['id'] = $this->id();
+        $this->variables['isDateRange'] = $this->isDateRange;
 
         return parent::render();
     }

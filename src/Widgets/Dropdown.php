@@ -16,6 +16,7 @@ class Dropdown extends Widget
 
     protected $view = 'admin::widgets.dropdown';
 
+    protected $menuRight = '';
     /**
      * @var array
      */
@@ -230,6 +231,11 @@ class Dropdown extends Widget
         return $v;
     }
 
+    public function menuRight(){
+        $this->menuRight = 'dropdown-menu-right';
+        return $this;
+    }
+
     /**
      * @return string
      */
@@ -241,6 +247,7 @@ class Dropdown extends Widget
             'buttonId'  => $this->buttonId,
             'click'     => $this->click,
             'direction' => $this->direction,
+            'menuRight' => $this->menuRight,
         ]);
 
         return parent::render();

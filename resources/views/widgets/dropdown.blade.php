@@ -4,10 +4,10 @@
             <stub>{!! $button['text'] !!}</stub>
             <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu">{!! $options !!}</ul>
+        <ul class="dropdown-menu {{$menuRight}}">{!! $options !!}</ul>
     </span>
 @else
-    <ul class="dropdown-menu">{!! $options !!}</ul>
+    <ul class="dropdown-menu {{$menuRight}}">{!! $options !!}</ul>
 @endif
 
 @if($click)
