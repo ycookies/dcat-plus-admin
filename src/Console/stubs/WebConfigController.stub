@@ -404,6 +404,42 @@ class WebConfigController extends Controller {
         }
 
         return (new WidgetForm())->response()->success('保存成功')->refresh();
-
     }
+
+        /**
+         *切换语言
+         */
+        public function localeSwitching(Request $request) {
+            $locale = $request->get('locale');
+            $validator   = \Validator::make($request->all(), [
+                'locale' => 'required',
+            ], [
+                'locale.required' => '请选择语言',
+            ]);
+            $support_locale_map = config('admin.support_locale_map');
+            // 查找对应的 key
+            $new_locale = array_search($locale, $support_locale_map);
+
+            if (isLaravel11OrNewer()) {
+                // Laravel 11+ 的处理逻辑
+                // 要更新的环境变量
+                $updates = [
+                    'APP_LOCALE' => $new_locale,
+                    'APP_FALLBACK_LOCALE' =>$new_locale,
+                    'APP_FAKER_LOCALE' => $new_locale,
+                ];
+                updateEnv($updates);
+            }else{
+                // Laravel 10 及更早版本的处理逻辑
+                $appPath = config_path('app.php');
+                $content = file_get_contents($appPath);
+                $old_locale = config('app.locale');
+                // edit locale
+                $content = str_replace("'$old_locale'", "'$new_locale'", $content);
+                $content = str_replace("'$old_locale'","'.$new_locale.'",$content);
+
+                file_put_contents($appPath, $content);
+            }
+            return (new WidgetForm())->response()->success('设置成功')->refresh();
+        }
 }

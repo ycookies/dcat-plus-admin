@@ -24,6 +24,7 @@ use Dcat\Admin\Support\Translator;
 use Dcat\Admin\Support\WebUploader;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -109,6 +110,15 @@ class AdminServiceProvider extends ServiceProvider {
         if (config('app.debug')) {
             $this->commands($this->devCommands);
         }
+        // 更早执行，避免 boot() 的延迟
+        $this->app->afterResolving('view', function ($view) {
+            if (file_exists(base_path('config/scramble.php'))) {
+                View::composer('scramble::docs', function ($view) {
+                    // 重新指定视图路径
+                    $view->setPath(base_path('vendor/dcat-plus/laravel-admin/resources/views/apidoc/docs.blade.php'));
+                });
+            }
+        });
     }
 
     public function boot() {

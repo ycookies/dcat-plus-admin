@@ -3,9 +3,13 @@ namespace App\Admin\Api\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Routing\Controller;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
 
-// 授权
-class AuthController
+#[Group('授权','授权',1)]
+class AuthController extends Controller
 {
     /**
      * 管理员登陆
@@ -14,7 +18,15 @@ class AuthController
     public function login(Request $request){
         $request->validate(
             [
-                'username' => 'required',
+                /**
+                 * 用户名
+                 * @default admin
+                 */
+                'username' => ['required','string','min:1'],
+                /**
+                 * 登陆密码
+                 * @default admin
+                 */
                 'password' => 'required',
             ], [
                 'username.required' => '请填写用户名',

@@ -4,7 +4,11 @@ namespace App\Admin\Api\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Dcat\Admin\Models\Role;
-// 角色
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
+
+#[Group('角色','角色',2)]
 class RoleController extends BaseApiController
 {
     public function __construct()

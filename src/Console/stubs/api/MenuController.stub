@@ -4,7 +4,11 @@ namespace App\Admin\Api\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Dcat\Admin\Models\Menu;
-// 菜单
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
+
+#[Group('菜单','菜单',2)]
 class MenuController extends BaseApiController
 {
     public function __construct()
