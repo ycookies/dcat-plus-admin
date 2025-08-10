@@ -84,7 +84,7 @@ class ScaffoldController extends Controller {
         $tables        = collect($this->getDatabaseColumns())->map(function ($v) {
             return array_keys($v);
         })->toArray();
-        
+
         $menu_parent_selectOptions = \Dcat\Admin\Models\Menu::selectOptions();
         return $content
             ->title(trans('admin.scaffold.header'))
@@ -96,7 +96,7 @@ class ScaffoldController extends Controller {
     }
 
 
-    
+
     protected function singular($tableName) {
         return [
             'status' => 1,
@@ -119,7 +119,7 @@ class ScaffoldController extends Controller {
         $route_path = $request->get('route_path');
         $is_add_admin_api = $request->has('is_add_admin_api');
         $is_add_member_api = $request->has('is_add_member_api');
-        
+
         try {
             // 1. Create model.
             if (in_array('model', $creates)) {
@@ -183,6 +183,8 @@ class ScaffoldController extends Controller {
                 $newRoutes       = "\$router->resource('/" . $route_path . "'," . $controller_name . "::class)";
                 $this->addResourceRouteToAdminRoutes($newRoutes);
             }
+            //
+            $this->makeResourceCreator($model);
             // 添加 api
             if($is_add_admin_api){
                 $this->ApiControllerCreator($controller,$model);

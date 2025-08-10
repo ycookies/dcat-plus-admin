@@ -20,7 +20,7 @@ abstract class BaseApiController extends Controller
     /**
      * 获取列表（分页）
      */
-    public function index(Request $request)
+    public function lists(Request $request)
     {
         $pageSize = $request->get('pageSize', 10);
         $query = $this->model->query();

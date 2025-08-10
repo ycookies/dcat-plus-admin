@@ -40,7 +40,7 @@
 
                 <div class="form-group row">
 
-{{--                    <label for="inputTableName" class="col-sm-1 control-label text-capitalize">{{(trans('admin.scaffold.table'))}}</label>--}}
+                    {{--                    <label for="inputTableName" class="col-sm-1 control-label text-capitalize">{{(trans('admin.scaffold.table'))}}</label>--}}
 
                     <div for="inputTableName"  class="col-sm-1 control-label text-capitalize">
                         <span>{{(trans('admin.scaffold.table'))}}</span>
@@ -190,6 +190,23 @@
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <div class="offset-sm-1 col-sm-11 mt-1">
+                        <div class="vs-checkbox-con vs-checkbox-primary">
+                            <input value="1" name="force_overwrite" type="checkbox">
+                            <span class="vs-checkbox vs-checkbox-">
+                              <span class="vs-checkbox--check">
+                                <i class="vs-icon feather icon-check"></i>
+                              </span>
+                            </span>
+                            <span class="text-danger"><strong>强制覆盖 (删除已存在的文件和路由后重新生成)</strong></span>
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="fa fa-warning text-warning"></i> 警告：勾选此选项将删除所有原数据表已生成的相关文件和路由，请谨慎使用！
+                        </small>
+                    </div>
+                </div>
+
             </div>
 
             <table class="table table-hover responsive table-header-gray " id="table-fields" style="margin-top:25px;">
@@ -315,13 +332,13 @@
                     <div class="form-group text-capitalize" style="margin-right: 20px;">
                         <span for="inputPrimaryKey">{{(trans('admin.scaffold.pk'))}}&nbsp;&nbsp;</span>
                         <input
-                                type="text"
-                                name="primary_key"
-                                class="form-control"
-                                id="inputPrimaryKey"
-                                placeholder="{{(trans('admin.scaffold.pk'))}}"
-                                value="{{ request('primary_key') ?: 'id' }}"
-                                style="width: 100px;">
+                            type="text"
+                            name="primary_key"
+                            class="form-control"
+                            id="inputPrimaryKey"
+                            placeholder="{{(trans('admin.scaffold.pk'))}}"
+                            value="{{ request('primary_key') ?: 'id' }}"
+                            style="width: 100px;">
                     </div>
 
                     <div class='form-group text-capitalize'>
@@ -338,7 +355,7 @@
                 <button type="submit" class="btn btn-primary text-capitalize"><i class="feather icon-save"></i> {{(trans('admin.submit'))}}</button>
             </div>
 
-        {{ csrf_field() }}
+            {{ csrf_field() }}
 
         </form>
 
@@ -465,6 +482,21 @@
                 $('#table-name-help').show();
 
                 return false;
+            }
+
+            // 检查强制覆盖选项
+            if ($('input[name="force_overwrite"]:checked').length > 0) {
+                var confirmed = confirm('⚠️ 警告：您已选择强制覆盖模式！\n\n这将删除以下内容：\n' +
+                    '• 所有相关的控制器、模型、Repository文件\n' +
+                    '• API控制器文件\n' +
+                    '• Resource文件和迁移文件\n' +
+                    '• 相关的路由、菜单和权限\n\n' +
+                    '此操作不可逆，请确保您已备份重要文件！\n\n' +
+                    '是否继续？');
+
+                if (!confirmed) {
+                    return false;
+                }
             }
 
             return true;

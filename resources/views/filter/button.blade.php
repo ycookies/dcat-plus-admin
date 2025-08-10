@@ -9,7 +9,7 @@
         <span class="filter-count">@if($valueCount) &nbsp;({!! $valueCount !!}) @endif</span>
     </button>
     @if($scopes->isNotEmpty())
-        <ul class="dropdown-menu" role="menu">
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
             @foreach($scopes as $scope)
                 {!! $scope->render() !!}
             @endforeach

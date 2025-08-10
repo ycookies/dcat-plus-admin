@@ -1,82 +1,103 @@
 <style>
+     .has-many-table-box fieldset {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+}
+.has-many-table-box legend {
+  font-weight: bold;
+  padding: 0 5px;
+}
+.has-many-table-box .fields-group{
+    background-color: #eff1f780;
+    margin-bottom: 5px;
+    border-bottom: 3px solid #ffffff;
+}
     .table-has-many .input-group{flex-wrap: nowrap!important}
 </style>
-
-<div class="row form-group">
-    <div class="{{$viewClass['label']}} "><label class="control-label pull-right">{!! $label !!}</label></div>
-    <div class="{{$viewClass['field']}}">
-        @include('admin::form.error')
-
-        <span name="{{$column}}"></span> {{-- 用于显示错误信息 --}}
-
-        <div class="has-many-table-{{$columnClass}}" >
-            <table class="table table-has-many has-many-table-{{$columnClass}}">
-                <thead>
-                <tr>
-                    @foreach($headers as $header)
-                        <th>{{ $header }}</th>
-                    @endforeach
-
-                    <th class="hidden"></th>
-
-                    @if($options['allowDelete'])
-                        <th></th>
-                    @endif
-                </tr>
-                </thead>
-                <tbody class="has-many-table-{{$columnClass}}-forms">
-                @foreach($forms as $pk => $form)
-                    <tr class="has-many-table-{{$columnClass}}-form fields-group">
-
-                        <?php $hidden = ''; ?>
-
-                        @foreach($form->fields() as $field)
-
-                            @if (is_a($field, Dcat\Admin\Form\Field\Hidden::class))
-                                <?php $hidden .= $field->render(); ?>
-                                @continue
-                            @endif
-
-                            <td>{!! $field->setLabelClass(['hidden'])->width(12, 0)->render() !!}</td>
-                        @endforeach
-
-                        <td class="hidden">{!! $hidden !!}</td>
-
-                        @if($options['allowDelete'])
-                            <td class="form-group">
-                                <div>
-                                    <div class="remove btn btn-white btn-sm pull-right"><i class="feather icon-trash"></i></div>
+<div class="has-many-table-box">
+    <fieldset>
+        <legend class="w-auto">{!! $label !!}</legend>
+        <div class="has-many-table-content">
+            <div class="row form-group">
+                <div class="col-md-12">
+                    @include('admin::form.error')
+            
+                    <span name="{{$column}}"></span> {{-- 用于显示错误信息 --}}
+            
+                    <div class="has-many-table-{{$columnClass}}" >
+                        <table class="table table-has-many has-many-table-{{$columnClass}}">
+                            <thead>
+                            <tr>
+                                @foreach($headers as $header)
+                                    <th>{{ $header }}</th>
+                                @endforeach
+            
+                                <th class="hidden"></th>
+            
+                                @if($options['allowDelete'])
+                                    <th></th>
+                                @endif
+                            </tr>
+                            </thead>
+                            <tbody class="has-many-table-{{$columnClass}}-forms">
+                            @foreach($forms as $pk => $form)
+                                <tr class="has-many-table-{{$columnClass}}-form fields-group">
+            
+                                    <?php $hidden = ''; ?>
+            
+                                    @foreach($form->fields() as $field)
+            
+                                        @if (is_a($field, Dcat\Admin\Form\Field\Hidden::class))
+                                            <?php $hidden .= $field->render(); ?>
+                                            @continue
+                                        @endif
+            
+                                        <td>{!! $field->setLabelClass(['hidden'])->width(12, 0)->render() !!}</td>
+                                    @endforeach
+            
+                                    <td class="hidden">{!! $hidden !!}</td>
+            
+                                    @if($options['allowDelete'])
+                                        <td class="form-group">
+                                            <div>
+                                                <div class="remove btn btn-white btn-sm pull-right"><i class="feather icon-trash"></i></div>
+                                            </div>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+            
+                        <template class="{{$columnClass}}-tpl">
+                            <tr class="has-many-table-{{$columnClass}}-form fields-group">
+            
+                                {!! $template !!}
+            
+                                <td class="form-group">
+                                    <div>
+                                        <div class="remove btn btn-white btn-sm pull-right"><i class="feather icon-trash"></i></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+            
+                        @if($options['allowCreate'])
+                            <div class="form-group row m-t-10">
+                                <div class="{{$viewClass['field']}}" style="margin-top: 8px">
+                                    <div class="add btn btn-primary btn-outline btn-sm"><i class="feather icon-plus"></i>&nbsp;{{ trans('admin.new') }}</div>
                                 </div>
-                            </td>
+                            </div>
                         @endif
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-
-            <template class="{{$columnClass}}-tpl">
-                <tr class="has-many-table-{{$columnClass}}-form fields-group">
-
-                    {!! $template !!}
-
-                    <td class="form-group">
-                        <div>
-                            <div class="remove btn btn-white btn-sm pull-right"><i class="feather icon-trash"></i></div>
-                        </div>
-                    </td>
-                </tr>
-            </template>
-
-            @if($options['allowCreate'])
-                <div class="form-group row m-t-10">
-                    <div class="{{$viewClass['field']}}" style="margin-top: 8px">
-                        <div class="add btn btn-primary btn-outline btn-sm"><i class="feather icon-plus"></i>&nbsp;{{ trans('admin.new') }}</div>
                     </div>
                 </div>
-            @endif
+            </div>
         </div>
-    </div>
+    </fieldset>
 </div>
+
 
 {{--<hr style="margin-top: 0px;">--}}
 

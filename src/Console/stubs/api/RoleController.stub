@@ -8,12 +8,20 @@ use Dedoc\Scramble\Attributes\QueryParameter;
 use Dedoc\Scramble\Attributes\BodyParameter;
 use Dedoc\Scramble\Attributes\Group;
 
-#[Group('角色','角色',2)]
+#[Group('角色','角色',3)]
 class RoleController extends BaseApiController
 {
     public function __construct()
     {
         parent::__construct(new Role());
+    }
+
+
+    /**
+     * 获取列表
+     */
+    public function index(Request $request){
+        return parent::lists($request);
     }
 
     /**

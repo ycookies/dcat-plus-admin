@@ -98,8 +98,13 @@ class WebConfigController extends Controller {
         $form1->text('web_Domain','网站域名');
         $form1->text('web_url','网址地址');
         $form1->text('web_keywords','网站关键字');
-        $form1->image('web_logo','网站logo');
-        $form1->image('web_ico','网站ICO');
+        $form1->photo('web_logo','网站logo')
+                    ->nametype('datetime')
+                    ->remove(true)
+                    ->help('单图，可删除,文件重命名方式:datetime');
+        $form1->photo('web_ico','网站ICO')
+                ->nametype('datetime')
+                ->remove(true);
         $form1->textarea('web_description','网站描述');
 
         $form1->disableResetButton();

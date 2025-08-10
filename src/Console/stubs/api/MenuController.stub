@@ -16,6 +16,14 @@ class MenuController extends BaseApiController
         parent::__construct(new Menu());
     }
 
+
+    /**
+     * 获取列表
+     */
+    public function index(Request $request){
+        return parent::lists($request);
+    }
+
     /**
      * @desc 数据校验证规则
      * @param string $action 操作类型（store 创建数据，update 更新数据）

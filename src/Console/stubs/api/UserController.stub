@@ -4,37 +4,48 @@ namespace App\Admin\Api\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\AdminUser;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
 
-// 用户
+#[Group('用户','用户',5)]
 class UserController extends BaseApiController
 {
 
     public function __construct()
-        {
-            parent::__construct(new AdminUser());
-        }
+    {
+        parent::__construct(new AdminUser());
+    }
 
-        /**
-         * @desc 数据校验证规则
-         * @param string $action 操作类型（store 创建数据，update 更新数据）
-         * @return array
-         */
-        protected function getValidationRules(string $action): array
-        {
-            return [
-                       'store' => [
-                           [
-                               'username' => 'required',
-                               'password' => 'required',
-                               'avatar' => 'required',
-                           ],
-                           [
-                               'factory_code.required' => '加工厂编码不能为空',
-                               'factory_name.required' => '加工厂名称不能为空',
-                           ]
+
+    /**
+     * 获取列表
+     */
+    public function index(Request $request){
+        return parent::lists($request);
+    }
+
+    /**
+     * @desc 数据校验证规则
+     * @param string $action 操作类型（store 创建数据，update 更新数据）
+     * @return array
+     */
+    protected function getValidationRules(string $action): array
+    {
+        return [
+                   'store' => [
+                       [
+                           'username' => 'required',
+                           'password' => 'required',
+                           'avatar' => 'required',
                        ],
-                       'update' => [],
-                   ][$action] ?? [];
-        }
+                       [
+                           'factory_code.required' => '加工厂编码不能为空',
+                           'factory_name.required' => '加工厂名称不能为空',
+                       ]
+                   ],
+                   'update' => [],
+               ][$action] ?? [];
+    }
 
 }
