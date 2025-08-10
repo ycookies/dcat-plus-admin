@@ -11,6 +11,7 @@ use Dcat\Admin\Scaffold\LangCreator;
 use Dcat\Admin\Scaffold\MigrationCreator;
 use Dcat\Admin\Scaffold\ModelCreator;
 use Dcat\Admin\Scaffold\RepositoryCreator;
+use Dcat\Admin\Scaffold\ResourceCreator;
 use Dcat\Admin\Support\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
 use Dcat\Admin\Layout\Menu;
+use ParseError;
 
 class ScaffoldController extends Controller {
     public static $dbTypes = [
@@ -108,8 +110,10 @@ class ScaffoldController extends Controller {
         if (!config('app.debug')) {
             Permission::error();
         }
+
         $paths   = [];
         $message = '';
+        $forceOverwrite = $request->has('force_overwrite');
 
         $creates    = (array)$request->get('create');
         $table      = Helper::slug($request->get('table_name'), '_');
@@ -121,6 +125,11 @@ class ScaffoldController extends Controller {
         $is_add_member_api = $request->has('is_add_member_api');
 
         try {
+            // 强制覆盖：删除已存在的文件和路由
+            if ($forceOverwrite) {
+                $this->forceCleanupExistingFiles($controller, $model, $repository, $route_path, $is_add_admin_api, $is_add_member_api, $table);
+            }
+
             // 1. Create model.
             if (in_array('model', $creates)) {
                 $modelCreator = new ModelCreator($table, $model);
@@ -150,6 +159,11 @@ class ScaffoldController extends Controller {
                 )->create($migrationName, database_path('migrations'), $table);
             }
 
+            // 判断是否有生成测试数据的选项，在数据表没有数据时生成20条测试数据
+            if ($request->has('generate_fake_data') && in_array('model', $creates)) {
+                // $this->generate_fake_data($model);
+            }
+
             if (in_array('lang', $creates)) {
                 $paths['lang'] = (new LangCreator($request->get('fields')))
                     ->create($controller, $request->get('translate_title'));
@@ -159,6 +173,11 @@ class ScaffoldController extends Controller {
                 $paths['repository'] = (new RepositoryCreator())
                     ->create($model, $repository);
             }
+
+            // 4. Create JsonResource.
+            //if (in_array('resource', $creates)) {
+            $paths['resource'] = $this->makeResourceCreator($model)->create($model);
+            //}
 
             // Run migrate.
             if (in_array('migrate', $creates)) {
@@ -183,16 +202,14 @@ class ScaffoldController extends Controller {
                 $newRoutes       = "\$router->resource('/" . $route_path . "'," . $controller_name . "::class)";
                 $this->addResourceRouteToAdminRoutes($newRoutes);
             }
-            //
-            $this->makeResourceCreator($model);
             // 添加 api
             if($is_add_admin_api){
-                $this->ApiControllerCreator($controller,$model);
+                $this->ApiControllerCreator($controller,$model,$table);
             }
 
             // 添加 member api
             if($is_add_member_api){
-                $this->MemberApiControllerCreator($controller,$model);
+                $this->MemberApiControllerCreator($controller,$model,$table);
             }
 
             // 添加权限
@@ -207,7 +224,230 @@ class ScaffoldController extends Controller {
             return $this->backWithException($exception);
         }
 
-        return $this->backWithSuccess($paths, $message);
+        $successMessage = $message;
+        if ($forceOverwrite) {
+            $successMessage = "强制覆盖模式：已清理旧文件并重新生成。\n" . $message;
+        }
+
+        return $this->backWithSuccess($paths, $successMessage);
+    }
+
+    /**
+     * 强制清理已存在的文件和路由
+     *
+     * @param string $controller
+     * @param string $model
+     * @param string $repository
+     * @param string $route_path
+     * @param bool $is_add_admin_api
+     * @param bool $is_add_member_api
+     * @param string $table
+     * @throws \Exception
+     */
+    protected function forceCleanupExistingFiles($controller, $model, $repository, $route_path, $is_add_admin_api, $is_add_member_api, $table)
+    {
+        $filesToDelete = [];
+        $errors = [];
+
+        try {
+            // 1. 删除控制器文件
+            if (!empty($controller)) {
+                $controllerPath = Helper::guessClassFileName($controller);
+                if (file_exists($controllerPath)) {
+                    $filesToDelete[] = $controllerPath;
+                }
+            }
+
+            // 2. 删除模型文件
+            if (!empty($model)) {
+                $modelPath = Helper::guessClassFileName($model);
+                if (file_exists($modelPath)) {
+                    $filesToDelete[] = $modelPath;
+                }
+            }
+
+            // 3. 删除Repository文件
+            if (!empty($repository)) {
+                $repositoryPath = Helper::guessClassFileName($repository);
+                if (file_exists($repositoryPath)) {
+                    $filesToDelete[] = $repositoryPath;
+                }
+            }
+
+            // 4. 删除Resource文件
+            if (!empty($model)) {
+                $resourceName = 'App\\Http\\Resources\\' . class_basename($model) . 'Resource';
+                $resourcePath = Helper::guessClassFileName($resourceName);
+                if (file_exists($resourcePath)) {
+                    $filesToDelete[] = $resourcePath;
+                }
+            }
+
+            // 5. 删除Admin API控制器文件
+            if ($is_add_admin_api && !empty($controller)) {
+                $adminApiController = str_replace('Admin\\C', 'Admin\\Api\\C', $controller);
+                $adminApiControllerPath = Helper::guessClassFileName($adminApiController);
+                if (file_exists($adminApiControllerPath)) {
+                    $filesToDelete[] = $adminApiControllerPath;
+                }
+            }
+
+            // 6. 删除Member API控制器文件
+            if ($is_add_member_api && !empty($controller)) {
+                $memberApiController = str_replace('Admin\\C', 'Api\\C', $controller);
+                $memberApiControllerPath = Helper::guessClassFileName($memberApiController);
+                if (file_exists($memberApiControllerPath)) {
+                    $filesToDelete[] = $memberApiControllerPath;
+                }
+            }
+
+            // 7. 删除迁移文件（查找所有相关的迁移文件）
+            if (!empty($table)) {
+                $migrationFiles = glob(database_path('migrations/*_create_' . $table . '_table.php'));
+                foreach ($migrationFiles as $migrationFile) {
+                    if (file_exists($migrationFile)) {
+                        $filesToDelete[] = $migrationFile;
+                    }
+                }
+            }
+
+            // 8. 删除语言文件
+            if (!empty($controller)) {
+                $langPath = $this->getLangPath($controller);
+                if (file_exists($langPath)) {
+                    $filesToDelete[] = $langPath;
+                }
+            }
+
+            // 实际删除文件
+            foreach ($filesToDelete as $file) {
+                try {
+                    if (unlink($file)) {
+                        $errors[] = "删除文件: " . $file;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "删除文件失败: " . $file . " - " . $e->getMessage();
+                }
+            }
+
+            // 9. 删除相关路由
+            $this->removeRoutesFromFiles($route_path, $is_add_admin_api, $is_add_member_api);
+
+            // 10. 删除菜单和权限
+            $this->removeMenuAndPermissions($route_path);
+
+        } catch (\Exception $e) {
+            throw new \Exception('清理已存在文件时出错: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 获取语言文件路径
+     */
+    protected function getLangPath($controller)
+    {
+        $segments = explode('\\', $controller);
+        $name = array_pop($segments);
+        $name = str_replace('Controller', '', $name);
+        $name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+
+        return resource_path("lang/zh_CN/{$name}.php");
+    }
+
+    /**
+     * 从路由文件中删除相关路由
+     */
+    protected function removeRoutesFromFiles($route_path, $is_add_admin_api, $is_add_member_api)
+    {
+        if (!empty($route_path)) {
+            // 删除Admin路由
+            $this->removeRouteFromFile(app_path('Admin/routes.php'), $route_path);
+        }
+
+        if ($is_add_admin_api) {
+            $request = request();
+            $api_route_path = $request->get('api_route_path');
+            if (!empty($api_route_path)) {
+                // 删除Admin API路由
+                $this->removeRouteFromFile(app_path('Admin/Api/routes.php'), $api_route_path);
+            }
+        }
+
+        if ($is_add_member_api) {
+            $request = request();
+            $member_api_route_path = $request->get('member_api_route_path');
+            if (!empty($member_api_route_path)) {
+                // 删除Member API路由
+                $this->removeRouteFromFile(app_path('Api/routes.php'), $member_api_route_path);
+            }
+        }
+    }
+
+    /**
+     * 从指定路由文件中删除路由
+     */
+    protected function removeRouteFromFile($routesPath, $routePath)
+    {
+        if (!file_exists($routesPath) || !is_writable($routesPath)) {
+            return false;
+        }
+
+        try {
+            // 创建备份
+            $backupDir = storage_path('backups/routes_cleanup');
+            if (!is_dir($backupDir)) {
+                mkdir($backupDir, 0755, true);
+            }
+            $backupPath = $backupDir . '/' . basename($routesPath) . '_cleanup_' . date('Ymd_His') . '.php';
+            copy($routesPath, $backupPath);
+
+            // 读取内容
+            $content = file_get_contents($routesPath);
+
+            // 删除包含该路由的行
+            $lines = explode("\n", $content);
+            $newLines = [];
+
+            foreach ($lines as $line) {
+                // 检查是否包含要删除的路由路径
+                if (!preg_match('/[\'"]\/?' . preg_quote($routePath, '/') . '[\'"]/', $line)) {
+                    $newLines[] = $line;
+                }
+            }
+
+            $newContent = implode("\n", $newLines);
+
+            // 写入文件
+            file_put_contents($routesPath, $newContent, LOCK_EX);
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * 删除菜单和权限
+     */
+    protected function removeMenuAndPermissions($route_path)
+    {
+        if (empty($route_path)) {
+            return;
+        }
+
+        try {
+            // 删除菜单
+            $menuModel = config('admin.database.menu_model');
+            $menuModel::where('uri', $route_path)->delete();
+
+            // 删除权限
+            $permissionsModel = config('admin.database.permissions_model');
+            $permissionsModel::where('slug', str_replace('_', '-', $route_path))->delete();
+            $permissionsModel::where('http_path', '/' . $route_path . '/*')->delete();
+
+        } catch (\Exception $e) {
+            // 忽略删除菜单和权限时的错误
+        }
     }
 
     // 添加菜单
@@ -227,11 +467,11 @@ class ScaffoldController extends Controller {
             $menuModel = config('admin.database.menu_model');
             $lastOrder = $menuModel::max('order');
             $menu_data = [
-              'parent_id' => $parent_menu_id,
-              'order'     => $lastOrder + 1,
-              'title' =>   $menu_name,
-              'icon' =>   $menu_icon,
-              'uri' =>   $route_path,
+                'parent_id' => $parent_menu_id,
+                'order'     => $lastOrder + 1,
+                'title' =>   $menu_name,
+                'icon' =>   $menu_icon,
+                'uri' =>   $route_path,
             ];
             $menu = $menuModel::create($menu_data);
 
@@ -274,6 +514,24 @@ class ScaffoldController extends Controller {
             // 将权限附加到角色（通过中间表关联）
             $role->permissions()->attach($permissionsinfo->id);
         }
+    }
+
+    /**
+     * Create a JsonResource creator based on model name.
+     *
+     * @param string $model
+     * @return ResourceCreator
+     */
+    protected function makeResourceCreator($model)
+    {
+        $request = request();
+        $table = Helper::slug($request->get('table_name'), '_');
+        $translateTitle = $request->get('translate_title', '');
+
+        // Generate resource name based on model
+        $resourceName = 'App\\Http\\Resources\\' . class_basename($model) . 'Resource';
+
+        return new ResourceCreator($resourceName, $table, $translateTitle);
     }
 
     public function addResourceRouteToAdminRoutes($newRoute) {
@@ -475,7 +733,7 @@ class ScaffoldController extends Controller {
     }
 
     // 添加api Controller
-    public function ApiControllerCreator($controller,$model) {
+    public function ApiControllerCreator($controller,$model,$table) {
         $request = request();
         $api_route_path   = $request->get('api_route_path');
         if(empty($api_route_path)){
@@ -486,16 +744,29 @@ class ScaffoldController extends Controller {
         $controller_name = array_slice($controller_con, -1)[0];
 
         // Create Controller
-        $res = (new ApiControllerCreator($controller))->create($model);
+        $res = (new ApiControllerCreator($controller))->create($model,$table);
 
         // append api route
         $newRoutes       = "\$router->apiResource('/" . $api_route_path . "'," . $controller_name . "::class)";
+        $newRoutes1       = "\$router->patch('/" . $api_route_path . "-batchUpdate','" . $controller_name . "@batchUpdate');";
+        $newRoutes2       = "\$router->post('/" . $api_route_path . "-batchDestroy','" . $controller_name . "@batchDelete');";
+        $newRoutes3       = "\$router->get('/" . $api_route_path . "-downImportTplFile','" . $controller_name . "@downImportTplFile');";
+        $newRoutes4       = "\$router->post('/" . $api_route_path . "-import','" . $controller_name . "@import');";
+        $newRoutes5       = "\$router->get('/" . $api_route_path . "-export','" . $controller_name . "@export');";
+        $newRoutes6       = "\$router->get('/" . $api_route_path . "-field','" . $controller_name . "@field');";
+
         $this->addApiResourceRouteToAdminRoutes($newRoutes);
+        $this->addApiResourceRouteToAdminRoutes($newRoutes1);
+        $this->addApiResourceRouteToAdminRoutes($newRoutes2);
+        $this->addApiResourceRouteToAdminRoutes($newRoutes3);
+        $this->addApiResourceRouteToAdminRoutes($newRoutes4);
+        $this->addApiResourceRouteToAdminRoutes($newRoutes5);
+        $this->addApiResourceRouteToAdminRoutes($newRoutes6);
         return true;
     }
 
     // 添加 member api Controller
-    public function MemberApiControllerCreator($controller,$model) {
+    public function MemberApiControllerCreator($controller,$model,$table) {
         $request = request();
         $member_api_route_path   = $request->get('member_api_route_path');
         if(empty($member_api_route_path)){
@@ -506,11 +777,24 @@ class ScaffoldController extends Controller {
         $controller_name = array_slice($controller_con, -1)[0];
 
         // Create Controller
-        $res = (new ApiControllerCreator($controller))->setMemberApiStub()->create($model);
+        $res = (new ApiControllerCreator($controller))->setMemberApiStub()->create($model,$table);
 
         // append api route
         $newRoutes       = "\$router->apiResource('/" . $member_api_route_path . "'," . $controller_name . "::class)";
+        $newRoutes1       = "\$router->patch('/" . $member_api_route_path . "-batchUpdate','" . $controller_name . "@batchUpdate');";
+        $newRoutes2       = "\$router->post('/" . $member_api_route_path . "-batchDestroy','" . $controller_name . "@batchDelete');";
+        $newRoutes3       = "\$router->get('/" . $member_api_route_path . "-downImportTplFile','" . $controller_name . "@downImportTplFile');";
+        $newRoutes4       = "\$router->post('/" . $member_api_route_path . "-import','" . $controller_name . "@import');";
+        $newRoutes5       = "\$router->get('/" . $member_api_route_path . "-export','" . $controller_name . "@export');";
+        $newRoutes6       = "\$router->get('/" . $member_api_route_path . "-field','" . $controller_name . "@field');";
+
         $this->addMemberApiResourceRouteToAdminRoutes($newRoutes);
+        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes1);
+        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes2);
+        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes3);
+        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes4);
+        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes5);
+        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes6);
         return true;
     }
 
@@ -628,5 +912,58 @@ class ScaffoldController extends Controller {
         ]);
 
         return redirect()->refresh()->with(compact('success'));
+    }
+
+    /**
+     * 生成假数据
+     * @param string $model
+     * @return void
+     */
+    protected function generate_fake_data($model) {
+        // 获取模型完整类名
+        $modelClass = $model;
+        if (!class_exists($modelClass)) {
+            // 兼容命名空间
+            $modelClass = "\\App\\Models\\$model";
+        }
+        if (class_exists($modelClass)) {
+            // 检查表是否为空
+            if ($modelClass::count() == 0) {
+                // 尝试使用 factory，如果有定义
+                if (method_exists($modelClass, 'factory')) {
+                    $modelClass::factory()->count(20)->create();
+                } else {
+                    // 使用Faker简单填充
+                    $faker = \Faker\Factory::create();
+                    $fillable = (new $modelClass)->getFillable();
+                    for ($i = 0; $i < 20; $i++) {
+                        $data = [];
+                        foreach ($fillable as $field) {
+                            // 简单类型推断
+                            if (stripos($field, 'name') !== false) {
+                                $data[$field] = $faker->name;
+                            } elseif (stripos($field, 'email') !== false) {
+                                $data[$field] = $faker->unique()->safeEmail;
+                            } elseif (stripos($field, 'title') !== false) {
+                                $data[$field] = $faker->sentence;
+                            } elseif (stripos($field, 'desc') !== false || stripos($field, 'content') !== false) {
+                                $data[$field] = $faker->paragraph;
+                            } elseif (stripos($field, 'phone') !== false) {
+                                $data[$field] = $faker->phoneNumber;
+                            } elseif (stripos($field, 'date') !== false) {
+                                $data[$field] = $faker->date();
+                            } elseif (stripos($field, 'time') !== false) {
+                                $data[$field] = $faker->time();
+                            } elseif (stripos($field, 'status') !== false) {
+                                $data[$field] = $faker->randomElement([0, 1]);
+                            } else {
+                                $data[$field] = $faker->word;
+                            }
+                        }
+                        $modelClass::create($data);
+                    }
+                }
+            }
+        }
     }
 }

@@ -43,12 +43,12 @@ class DummyClass extends BaseApiController
             'page'     => ['integer', 'min:1'],
             /**
              * 排序字段
-             * @default 'id'
+             * @default id
              */
             'sort' => ['string', 'max:50'],
             /**
              * 排序方式
-             * @default 'asc'
+             * @default asc
              */
             'order' => ['string', 'in:asc,desc'],
 
