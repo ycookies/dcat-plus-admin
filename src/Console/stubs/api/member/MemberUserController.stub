@@ -21,6 +21,95 @@ class MemberUserController extends BaseApiController
         return parent::lists($request);
     }
 
+    /**
+     * 创建记录
+     */
+    public function store(Request $request)
+    {
+        return parent::store($request);
+    }
+
+     /**
+     * 更新单个记录
+     */
+    public function update(Request $request, int $id)
+    {
+        return parent::update($request,$id);
+    }
+
+    /**
+     * 删除单个记录
+     */
+    public function destroy($id){
+        return parent::destroy($id);
+    }
+
+    /**
+     * 批量更新
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function batchUpdate(Request $request)
+    {
+
+        $request->validate([
+            /**
+             * 要更新的id列表
+             * @default [1,2]
+             */
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:' . $this->model->getTable() . ',id'],
+            /**
+             * 更新数据
+             * @default ['name':'杨光','email':'3664839@qq.com']','status':1]
+             */
+            'updateData' => ['required', 'array'],
+            'updateData.*' => ['string', 'max:50'],
+        ],[
+            'ids.required' => 'ids不能为空',
+            'ids.array' => 'ids必须是数组',
+            'ids.min' => 'ids不能为空',
+            'ids.*.integer' => 'ids必须是整数',
+            'ids.*.exists' => 'ids不存在',
+            'updateData.required' => 'updateData不能为空',
+            'updateData.array' => 'updateData必须是数组',
+            'updateData.*.string' => 'updateData必须是字符串',
+            'updateData.*.max' => 'updateData不能超过50个',
+        ]);
+
+        $ids = $request->input('ids');
+        $data = $request->input('updateData');
+        $updated = $this->model->query()->whereIn('id', $ids)->update($data);
+
+
+        return $this->returnData(0, 1, ['updated_count' => $updated], 'Batch update completed successfully');
+
+    }
+
+    /**
+     * 批量删除
+     *
+     */
+    public function batchDelete(Request $request)
+    {
+        $request->validate([
+            /**
+             * 要删除的id列表
+             * @default [1,2]
+             */
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:' . $this->model->getTable() . ',id'],
+        ],[
+            'ids.required' => 'ids不能为空',
+            'ids.array' => 'ids必须是数组',
+            'ids.min' => 'ids不能为空',
+            'ids.*.integer' => 'ids必须是整数',
+            'ids.*.exists' => 'ids不存在',
+        ]);
+        return parent::batchDestroy($request);
+    }
+
 
     /**
      * @desc 数据校验证规则

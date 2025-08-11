@@ -14,6 +14,272 @@ class DummyClass extends BaseApiController
     }
 
     /**
+     * 获取列表
+     *
+     */
+    public function index(Request $request)
+    {
+        $request->validate([
+            /**
+             * 每页记录数
+             * @default 10
+             */
+            'pageSize' => ['integer', 'min:1'],
+            /**
+             * 当前页
+             * @default 1
+             */
+            'page'     => ['integer', 'min:1'],
+            /**
+             * 排序字段
+             * @default id
+             */
+            'sort' => ['string', 'max:50'],
+            /**
+             * 排序方式
+             * @default asc
+             */
+            'order' => ['string', 'in:asc,desc'],
+
+        ],[
+            'pageSize.integer'    => '每页记录数必须是整数',
+            'pageSize.min'        => '每页记录数不能小于1',
+            'page.integer'        => '当前页必须是整数',
+            'page.min'            => '当前页不能小于1',
+            'order.string'        => '排序方式必须是字符串',
+            'order.in'            => '排序方式必须是asc或desc',
+            'sort.string'         => '排序字段必须是字符串',
+            'sort.max'            => '排序字段不能超过50个字符',
+        ]);
+        $query            = $this->model->query();
+
+        $pageSize         = $request->get('pageSize', 10);
+        $page             = $request->get('page', 1);
+        $sortField            = $request->get('sort');
+        $sortOrder            = $request->get('order', 'asc');
+        $fullField = $this->getFullFieldName([]);
+
+
+        // 动态过滤
+        foreach ($request->all() as $field => $value) {
+             if(!in_array($field, $fullField)){
+                 continue;
+            }
+            if (is_array($value)) {
+                // 处理带操作符的条件（如 gt, lt, like, in 等）
+                foreach ($value as $operator => $val) {
+                    $this->applyWhereCondition($query, $field, $operator, $val);
+                }
+            } else {
+                // 默认精确匹配（如 ?category=1）
+                $query->where($field, $value);
+            }
+        }
+
+        // 动态排序
+        if (!empty($sortField)) {
+            $sortableFields = $this->getSortableFields();
+            if (empty($sortableFields) || in_array($sortField, $sortableFields)) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+        }
+
+        $items = $query->paginate($pageSize);
+
+        return DummyModelResource::collection($items)->additional($this->returnCode());
+
+    }
+
+    /**
+     * 获取详情
+     *
+     */
+    public function show($id)
+    {
+        $msg            = \Validator::make(['id'=> $id], [
+            /**
+             * ID
+             * @default 1
+             */
+            'id' => ['required', 'integer', 'min:1','exists:' . $this->model->getTable() . ',id'],
+        ],[
+            'id.required' => 'ID不能为空',
+            'id.integer'  => 'ID必须为整数',
+            'id.exists'   => '此ID不存在',
+        ]);
+
+        // 处理异常验证
+        if ($msg->fails()) {
+            $errors = $msg->errors()->first();
+            throw new \Dcat\Admin\Exception\ApiException($errors);
+        }
+        $info = $this->model->query()->findOrFail($id);
+        return (new DummyModelResource($info))->additional($this->returnCode());
+
+    }
+
+    /**
+     * 创建单条记录
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate(
+            DummyRules,
+            DummyRuleMsg);
+
+        $item = $this->model->query()->create($data);
+
+        return $this->returnData(0, 1, [], 'Created successfully');
+
+    }
+
+    /**
+     * 更新单个记录
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        $msg            = \Validator::make(
+            DummyUpdateRequest
+            ,
+            DummyUpdateRules
+            ,
+            DummyUpdateMsg
+            );
+
+        // 处理异常验证
+        if ($msg->fails()) {
+            $errors = $msg->errors()->first();
+            throw new \Dcat\Admin\Exception\ApiException($errors);
+        }
+
+        $info = $this->model->query()->findOrFail($id);
+        $fullField = $this->getFullFieldName();
+        $data = [];
+        foreach ($fullField as $key => $value) {
+            if(!empty($request->get($value))){
+                $data[$value] = $request->get($value);
+            }
+        }
+        try{
+            if(!empty($data)){
+                $info->update($data);
+            }
+        }catch(\Exception $e){
+            throw new \Dcat\Admin\Exception\ApiException($e->getMessage());
+        }
+
+        return $this->returnData(0, 1, [], 'Updated successfully');
+
+    }
+
+    /**
+     * 删除单个记录
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy($id)
+    {
+
+            $msg            = \Validator::make(['id'=> $id], [
+                /**
+                 * ID
+                 * @default 1
+                 */
+                'id' => ['required', 'integer', 'min:1','exists:' . $this->model->getTable() . ',id'],
+            ],[
+                'id.required' => 'ID不能为空',
+                'id.integer'  => 'ID必须为整数',
+                'id.exists'   => '此ID不存在',
+            ]);
+
+            // 处理异常验证
+            if ($msg->fails()) {
+                $errors = $msg->errors()->first();
+                throw new \Dcat\Admin\Exception\ApiException($errors);
+            }
+
+            $info = $this->model->query()->findOrFail($id);
+            $info->delete();
+
+            return $this->returnData(0, 1, [], '删除成功');
+
+    }
+
+    /**
+     * 批量更新
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function batchUpdate(Request $request)
+    {
+
+        $request->validate([
+            /**
+             * 要更新的id列表
+             * @default [1,2]
+             */
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:' . $this->model->getTable() . ',id'],
+            /**
+             * 更新数据
+             * @default ['name':'杨光','email':'3664839@qq.com']','status':1]
+             */
+            'updateData' => ['required', 'array'],
+            'updateData.*' => ['string', 'max:50'],
+        ],[
+            'ids.required' => 'ids不能为空',
+            'ids.array' => 'ids必须是数组',
+            'ids.min' => 'ids不能为空',
+            'ids.*.integer' => 'ids必须是整数',
+            'ids.*.exists' => 'ids不存在',
+            'updateData.required' => 'updateData不能为空',
+            'updateData.array' => 'updateData必须是数组',
+            'updateData.*.string' => 'updateData必须是字符串',
+            'updateData.*.max' => 'updateData不能超过50个',
+        ]);
+
+        $ids = $request->input('ids');
+        $data = $request->input('updateData');
+        $updated = $this->model->query()->whereIn('id', $ids)->update($data);
+
+
+        return $this->returnData(0, 1, ['updated_count' => $updated], 'Batch update completed successfully');
+
+    }
+
+    /**
+     * 批量删除
+     *
+     */
+    public function batchDelete(Request $request)
+    {
+        $request->validate([
+            /**
+             * 要删除的id列表
+             * @default [1,2]
+             */
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:' . $this->model->getTable() . ',id'],
+        ],[
+            'ids.required' => 'ids不能为空',
+            'ids.array' => 'ids必须是数组',
+            'ids.min' => 'ids不能为空',
+            'ids.*.integer' => 'ids必须是整数',
+            'ids.*.exists' => 'ids不存在',
+        ]);
+        return parent::batchDestroy($request);
+    }
+
+    /**
      * @desc 数据校验证规则
      * @param string $action 操作类型（store 创建数据，update 更新数据）
      * @return array

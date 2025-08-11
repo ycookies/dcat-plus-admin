@@ -96,6 +96,28 @@ abstract class BaseApiController extends Controller
     }
 
     /**
+     * 批量删除
+     *
+     */
+    protected function batchDestroy(Request $request)
+    {
+        try {
+            \DB::beginTransaction();
+            $ids = $request->input('ids');
+            $deleted = $this->model->query()->whereIn('id', $ids)->delete();
+
+            \DB::commit();
+            return $this->returnData(0, 1, ['deleted_count' => $deleted], '批量删除成功');
+        } catch (ValidationException $e) {
+            \DB::rollBack();
+            return $this->returnData(422, 0, ['errors' => $e->errors()], '批量删除失败: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return $this->returnData(500, 0, [], '批量删除失败: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * 删除记录
      */
     public function destroy(int $id)
@@ -118,6 +140,68 @@ abstract class BaseApiController extends Controller
      */
     abstract protected function getValidationRules(string $action): array;
 
+   /**
+     * 获取所有字段名称
+     * @param array $exclude 排除的字段
+     */
+    public function getFullFieldName($exclude = ['id','created_at','updated_at','deleted_at'])
+    {
+        $table = $this->model->getTable();
+        $columns = [];
+        // 获取所有字段及注释
+        $fields = \DB::select("SHOW FULL COLUMNS FROM `{$table}`");
+        foreach ($fields as $field) {
+            if(!in_array($field->Field, $exclude)){
+                $columns[] = $field->Field;
+            }
+        }
+        $columns = array_unique($columns);
+        return $columns;
+    }
+
+    /**
+     * 应用过滤条件
+     */
+    protected function applyWhereCondition($query, $field, $operator, $value){
+        switch ($operator) {
+            case 'gt':
+                $query->where($field, '>', $value);
+                break;
+            case 'gte':
+                $query->where($field, '>=', $value);
+                break;
+            case 'lt':
+                $query->where($field, '<', $value);
+                break;
+            case 'lte':
+                $query->where($field, '<=', $value);
+                break;
+            case 'like':
+                $query->where($field, 'LIKE', $value);
+                break;
+            case 'in':
+                $query->whereIn($field, explode(',', $value));
+                break;
+            case 'between':
+                $dates = explode(',', $value);
+                if (count($dates) === 2) {
+                    $query->whereBetween($field, $dates);
+                }
+                break;
+            default:
+                $query->where($field, $operator, $value);
+        }
+    }
+    /**
+     * 返回统一响应格式
+     */
+    public function returnCode($code = 0, $status = 'success', $msg = 'ok') {
+        return [
+            'code'   => $code,
+            'status' => $status,
+            'msg'    => $msg,
+        ];
+    }
     public function returnData($code = '', $status = '', $data = [], $msg = '') {
         if ($status == 1) {
             $status = 'success';

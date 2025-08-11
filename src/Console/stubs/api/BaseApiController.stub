@@ -328,6 +328,20 @@ abstract class BaseApiController extends Controller
             'fields' => $columns,
         ]);
     }
+
+    /**
+     * 定义可排序字段（子类可覆盖）
+     */
+    protected function getSortableFields(): array
+    {
+        return []; // 默认所有可填充字段可排序
+    }
+
+    /**
+     * 定义验证规则（子类必须实现）
+     */
+    abstract protected function getValidationRules(string $action): array;
+
     /**
      * 获取所有字段名称
      * @param array $exclude 排除的字段
@@ -346,21 +360,6 @@ abstract class BaseApiController extends Controller
         $columns = array_unique($columns);
         return $columns;
     }
-
-
-    /**
-     * 定义可排序字段（子类可覆盖）
-     */
-    protected function getSortableFields(): array
-    {
-        return []; // 默认所有可填充字段可排序
-    }
-
-    /**
-     * 定义验证规则（子类必须实现）
-     */
-    abstract protected function getValidationRules(string $action): array;
-
 
     /**
      * 应用过滤条件

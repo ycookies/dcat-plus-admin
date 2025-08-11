@@ -783,18 +783,11 @@ class ScaffoldController extends Controller {
         $newRoutes       = "\$router->apiResource('/" . $member_api_route_path . "'," . $controller_name . "::class)";
         $newRoutes1       = "\$router->patch('/" . $member_api_route_path . "-batchUpdate','" . $controller_name . "@batchUpdate');";
         $newRoutes2       = "\$router->post('/" . $member_api_route_path . "-batchDestroy','" . $controller_name . "@batchDelete');";
-        $newRoutes3       = "\$router->get('/" . $member_api_route_path . "-downImportTplFile','" . $controller_name . "@downImportTplFile');";
-        $newRoutes4       = "\$router->post('/" . $member_api_route_path . "-import','" . $controller_name . "@import');";
-        $newRoutes5       = "\$router->get('/" . $member_api_route_path . "-export','" . $controller_name . "@export');";
-        $newRoutes6       = "\$router->get('/" . $member_api_route_path . "-field','" . $controller_name . "@field');";
 
         $this->addMemberApiResourceRouteToAdminRoutes($newRoutes);
         $this->addMemberApiResourceRouteToAdminRoutes($newRoutes1);
         $this->addMemberApiResourceRouteToAdminRoutes($newRoutes2);
-        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes3);
-        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes4);
-        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes5);
-        $this->addMemberApiResourceRouteToAdminRoutes($newRoutes6);
+
         return true;
     }
 
