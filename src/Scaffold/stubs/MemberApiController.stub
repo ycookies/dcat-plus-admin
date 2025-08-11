@@ -15,7 +15,7 @@ class DummyClass extends BaseApiController
 
     /**
      * 获取列表
-     *
+     * 过滤条件，示例: name=shop&title[like]=%Laravel%&views[gt]=100&category[in]=1,2,3&created_at[between]=2023-01-01,2023-12-31 进行过滤
      */
     public function index(Request $request)
     {
