@@ -292,13 +292,13 @@ class InstallCommand extends Command {
     protected function makeDir($path = '') {
         $this->laravel['files']->makeDirectory("{$this->directory}/$path", 0755, true, true);
     }
-    
-    
+
+
     public function createApiModelFile() {
-        
+
         $model_file = app_path('Models/AdminUser.php');
         $this->laravel['files']->makeDirectory(app_path('Models/Traits'), 0755, true, true);
-        
+
         $model_contents = $this->getStub('api/AdminUserModel');
         $this->laravel['files']->put($model_file, str_replace('DummyNamespace', $this->namespace('Controllers'), $model_contents));
 
@@ -408,9 +408,12 @@ class InstallCommand extends Command {
             );
         }
     }
-    
+
     // 发布jwt配置文件 生成secret
     public function jwtVendorPublish(){
+        // 创建软链接
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+
         \Illuminate\Support\Facades\Artisan::call('vendor:publish', [
             '--provider' => 'Tymon\JWTAuth\Providers\LaravelServiceProvider',
         ]);
@@ -473,7 +476,7 @@ class InstallCommand extends Command {
         if ($providersPos !== false) {
             $provider_insert = "\n        'member_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\MemberUser::class,\n        ],";
             $provider_insert .= "\n        'admin_users' => [\n            'driver' => 'eloquent',\n            'model' => App\Models\AdminUser::class,\n        ],";
-            
+
             $content = $this->insertAfter(
                 $content,
                 "'providers' => [",
