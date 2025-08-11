@@ -2,9 +2,21 @@
 namespace App\Api\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use App\Models\DummyModel;
-// 设置
+use App\Http\Resources\DummyModelResource;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
+use Maatwebsite\Excel\Facades\Excel;
+use Exception;
+use App\Http\Requests\DummyModelRequest;
+
+#[Group('DummyModel', 'DummyModel Management', 1)]
 class DummyClass extends BaseApiController
 {
 
@@ -15,6 +27,7 @@ class DummyClass extends BaseApiController
 
     /**
      * 获取列表
+     *
      * 过滤条件，示例: name=shop&title[like]=%Laravel%&views[gt]=100&category[in]=1,2,3&created_at[between]=2023-01-01,2023-12-31 进行过滤
      */
     public function index(Request $request)

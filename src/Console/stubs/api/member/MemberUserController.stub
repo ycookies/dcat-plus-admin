@@ -4,8 +4,11 @@ namespace App\Api\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\MemberUser;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
 
-// 用户
+#[Group('用户','用户',2)]
 class MemberUserController extends BaseApiController
 {
 
@@ -16,10 +19,37 @@ class MemberUserController extends BaseApiController
 
     /**
      * 获取列表
+     *
+     * 过滤条件，示例: name=shop&title[like]=%Laravel%&views[gt]=100&category[in]=1,2,3&created_at[between]=2023-01-01,2023-12-31 进行过滤
      */
     public function index(Request $request){
         return parent::lists($request);
     }
+
+        /**
+         * 获取单条记录
+         */
+        public function show($id){
+            $msg            = \Validator::make(['id'=> $id], [
+                /**
+                 * ID
+                 * @default 1
+                 */
+                'id' => ['required', 'integer', 'min:1','exists:' . $this->model->getTable() . ',id'],
+            ],[
+                'id.required' => 'ID不能为空',
+                'id.integer'  => 'ID必须为整数',
+                'id.exists'   => '此ID不存在',
+            ]);
+
+            // 处理异常验证
+            if ($msg->fails()) {
+                $errors = $msg->errors()->first();
+                throw new \Dcat\Admin\Exception\ApiException($errors);
+            }
+
+            return parent::show($id);
+        }
 
     /**
      * 创建记录

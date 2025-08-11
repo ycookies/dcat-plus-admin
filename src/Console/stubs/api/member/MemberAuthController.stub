@@ -3,8 +3,11 @@ namespace App\Api\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
 
-// 授权
+#[Group('授权','授权',1)]
 class AuthController
 {
     /**
@@ -14,7 +17,15 @@ class AuthController
     public function login(Request $request){
         $request->validate(
             [
+                /**
+                 * 用户名
+                 * @default 杨光
+                 */
                 'username' => 'required',
+                /**
+                 * 登陆密码
+                 * @default 12345678
+                 */
                 'password' => 'required',
             ], [
                 'username.required' => '请填写用户名',
