@@ -252,19 +252,22 @@ class ModelCreator
     /**
      * 获取表的所有字段及其注释
      */
-    protected  function getTableColumnsWithComments()
+    protected function getTableColumnsWithComments()
     {
         $fields = \DB::getSchemaBuilder()->getColumnListing($this->tableName);
 
-        // 获取字段注释（MySQL 示例）
+        // 获取字段注释（兼容 MySQL 5.7 和 8）
         $comments = \Illuminate\Support\Facades\DB::table('information_schema.columns')
-            ->where('table_schema', config('database.connections.mysql.database'))
-            ->where('table_name', $this->tableName)
+            ->select('COLUMN_NAME as column_name', 'COLUMN_COMMENT as column_comment')
+            ->where('TABLE_SCHEMA', config('database.connections.mysql.database'))
+            ->where('TABLE_NAME', $this->tableName)
+            ->get()
             ->pluck('column_comment', 'column_name')
             ->toArray();
 
         // 排除的字段
-        $excludedFields = ['id', 'created_at', 'updated_at','deleted_at', 'password'];
+        $excludedFields = ['id', 'created_at', 'updated_at', 'deleted_at', 'password'];
+
         // 组合字段和注释
         $result = [];
         foreach ($fields as $column) {
@@ -274,8 +277,10 @@ class ModelCreator
             }
             $result[$column] = $comments[$column] ?? null; // 如果字段没有注释，返回 null
         }
+
         return $result;
     }
+    
 
     /**
      * 将字段和注释转换为 protected $fillable 的形式
