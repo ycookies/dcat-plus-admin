@@ -256,15 +256,8 @@ class ModelCreator
     {
         $fields = \DB::getSchemaBuilder()->getColumnListing($this->tableName);
 
-        // 获取字段注释（兼容 MySQL 5.7 和 8）
-        $comments = \Illuminate\Support\Facades\DB::table('information_schema.columns')
-            ->select('COLUMN_NAME as column_name', 'COLUMN_COMMENT as column_comment')
-            ->where('TABLE_SCHEMA', config('database.connections.mysql.database'))
-            ->where('TABLE_NAME', $this->tableName)
-            ->get()
-            ->pluck('column_comment', 'column_name')
-            ->toArray();
-
+        // 获取字段和字段注释 兼容mysql,pgsql,sqlsrv,sqlite
+        $comments = $this->getColumnAndComment();
         // 排除的字段
         $excludedFields = ['id', 'created_at', 'updated_at', 'deleted_at', 'password'];
 
@@ -279,6 +272,94 @@ class ModelCreator
         }
 
         return $result;
+    }
+
+    public function getColumnAndComment(){
+        $tableName = $this->tableName;
+        $driver = \Illuminate\Support\Facades\DB::getDriverName();
+        $databaseName = config('database.connections.'.$driver.'.database');
+        try {
+            switch ($driver) {
+                case 'mysql':
+                case 'mariadb':
+                    // MySQL/MariaDB
+                    $comments = \Illuminate\Support\Facades\DB::table('information_schema.columns')
+                        ->select('COLUMN_NAME as column_name', 'COLUMN_COMMENT as column_comment')
+                        ->where('TABLE_SCHEMA', $databaseName)
+                        ->where('TABLE_NAME', $tableName)
+                        ->get()
+                        ->pluck('column_comment', 'column_name')
+                        ->toArray();
+                    break;
+        
+                case 'sqlite':
+                    // SQLite - 没有内置的注释系统
+                    $columns = \Illuminate\Support\Facades\DB::select("PRAGMA table_info('{$tableName}')");
+                    foreach ($columns as $column) {
+                        $comments[$column->name] = ''; // SQLite 不支持列注释
+                    }
+                    break;
+        
+                case 'pgsql':
+                    // PostgreSQL
+                    $schema = $connectionConfig['schema'] ?? 'public';
+                    $comments = \Illuminate\Support\Facades\DB::select("
+                        SELECT 
+                            a.attname as column_name,
+                            pg_catalog.col_description(a.attrelid, a.attnum) as column_comment
+                        FROM 
+                            pg_catalog.pg_attribute a
+                        WHERE 
+                            a.attrelid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = '{$tableName}' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = '{$schema}'))
+                            AND a.attnum > 0 
+                            AND NOT a.attisdropped
+                        ORDER BY a.attnum
+                    ");
+                    
+                    $commentArray = [];
+                    foreach ($comments as $comment) {
+                        $commentArray[$comment->column_name] = $comment->column_comment;
+                    }
+                    $comments = $commentArray;
+                    break;
+        
+                case 'sqlsrv':
+                    // SQL Server
+                    $comments = \Illuminate\Support\Facades\DB::select("
+                        SELECT 
+                            c.name as column_name,
+                            CAST(ep.value AS NVARCHAR(MAX)) as column_comment
+                        FROM 
+                            sys.columns c
+                        LEFT JOIN 
+                            sys.extended_properties ep ON ep.major_id = c.object_id AND ep.minor_id = c.column_id AND ep.name = 'MS_Description'
+                        WHERE 
+                            c.object_id = OBJECT_ID('{$tableName}')
+                        ORDER BY 
+                            c.column_id
+                    ");
+                    
+                    $commentArray = [];
+                    foreach ($comments as $comment) {
+                        $commentArray[$comment->column_name] = $comment->column_comment;
+                    }
+                    $comments = $commentArray;
+                    break;
+            }
+        } catch (\Exception $e) {
+            // 异常处理，记录日志或返回空数组
+            //\Log::error('获取字段注释失败: ' . $e->getMessage());
+            $comments = [];
+        }
+        
+        // 确保所有字段都有注释条目（即使为空）
+        $allColumns = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
+        foreach ($allColumns as $column) {
+            if (!array_key_exists($column, $comments)) {
+                $comments[$column] = '';
+            }
+        }
+        return $comments;
     }
     
 

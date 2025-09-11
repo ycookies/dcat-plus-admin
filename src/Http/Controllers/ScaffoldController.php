@@ -817,10 +817,9 @@ class ScaffoldController extends Controller {
     /**
      * @return array
      */
-    protected function getDatabaseColumns($db = null, $tb = null) {
+    protected function getDatabaseColumnsOld($db = null, $tb = null) {
         $databases = Arr::where(config('database.connections', []), function ($value) {
             $supports = ['mysql'];
-
             return in_array(strtolower(Arr::get($value, 'driver')), $supports);
         });
 
@@ -879,6 +878,341 @@ class ScaffoldController extends Controller {
         }
 
         return $data;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getDatabaseColumns($db = null, $tb = null)
+    {
+        $databases = Arr::where(config('database.connections', []), function ($value) {
+            $driver = \Illuminate\Support\Facades\DB::getDriverName();
+            $supports[] = $driver;
+            return in_array(strtolower(Arr::get($value, 'driver')), $supports);
+        });
+
+        $data = [];
+
+        try {
+            foreach ($databases as $connectName => $value) {
+                $driver = strtolower($value['driver']);
+                if ($db && $db != addslashes($value['database'])) {
+                    continue;
+                }
+
+                if ($driver === 'mysql' || $driver === 'mariadb') {
+                    // MySQL/MariaDB 逻辑
+                    $sql = sprintf('SELECT * FROM information_schema.columns WHERE table_schema = "%s"', $value['database']);
+                    if ($tb) {
+                        $p = Arr::get($value, 'prefix');
+                        $sql .= " AND TABLE_NAME = '{$p}{$tb}'";
+                    }
+                    $sql .= ' ORDER BY `ORDINAL_POSITION` ASC';
+
+                    $tmp = DB::connection($connectName)->select($sql);
+
+                    $collection = collect($tmp)->map(function ($v) use ($value) {
+                        if (! $p = Arr::get($value, 'prefix')) {
+                            return (array) $v;
+                        }
+                        $v = (array) $v;
+                        $v['TABLE_NAME'] = Str::replaceFirst($p, '', $v['TABLE_NAME']);
+                        return $v;
+                    });
+
+                    $data[$value['database']] = $collection->groupBy('TABLE_NAME')->map(function ($v) {
+                        return collect($v)->keyBy('COLUMN_NAME')->map(function ($v) {
+                            $v['COLUMN_TYPE'] = strtolower($v['COLUMN_TYPE']);
+                            $v['DATA_TYPE'] = strtolower($v['DATA_TYPE']);
+                            if (Str::contains($v['COLUMN_TYPE'], 'unsigned')) {
+                                $v['DATA_TYPE'] .= '@unsigned';
+                            }
+                            return [
+                                'type'     => $v['DATA_TYPE'],
+                                'default'  => $v['COLUMN_DEFAULT'],
+                                'nullable' => $v['IS_NULLABLE'],
+                                'key'      => $v['COLUMN_KEY'],
+                                'id'       => $v['COLUMN_KEY'] === 'PRI',
+                                'comment'  => $v['COLUMN_COMMENT'],
+                            ];
+                        })->toArray();
+                    })->toArray();
+
+                } elseif ($driver === 'sqlite') {
+                    $prefix = Arr::get($value, 'prefix', '');
+                    $tablesSql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
+                    if ($tb) {
+                        $tablesSql .= " AND name = '{$prefix}{$tb}'";
+                    }
+                    $tables = DB::connection($connectName)->select($tablesSql);
+                    $databaseName = $value['database'] ?? 'sqlite';
+                    $data[$databaseName] = [];
+                    foreach ($tables as $tableObj) {
+                        $tableName = $tableObj->name;
+                        $tableNameWithoutPrefix = Str::replaceFirst($prefix, '', $tableName);
+                        // 获取表字段信息
+                        $columns = DB::connection($connectName)->select("PRAGMA table_info('{$tableName}')");
+                        $columnsArr = [];
+                        foreach ($columns as $col) {
+                            $type = strtolower($col->type);
+                            $isPrimary = $col->pk == 1;
+                            $columnsArr[$col->name] = [
+                                'type'     => $type,
+                                'default'  => $col->dflt_value,
+                                'nullable' => $col->notnull == 0 ? 'YES' : 'NO',
+                                'key'      => $isPrimary ? 'PRI' : '',
+                                'id'       => $isPrimary,
+                                'comment'  => '', // SQLite 没有 comment
+                            ];
+                        }
+                        $data[$databaseName][$tableNameWithoutPrefix] = $columnsArr;
+                    }
+
+                } elseif ($driver === 'pgsql') {
+                    // PostgreSQL 逻辑
+                    $prefix = Arr::get($value, 'prefix', '');
+                    $schema = Arr::get($value, 'schema', 'public');
+                    
+                    $sql = "
+                        SELECT 
+                            c.column_name,
+                            c.table_name,
+                            c.data_type,
+                            c.column_default,
+                            c.is_nullable,
+                            CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN 'PRI' ELSE '' END as column_key,
+                            col_description(c.oid, c.ordinal_position) as column_comment,
+                            c.udt_name,
+                            c.character_maximum_length,
+                            c.numeric_precision,
+                            c.numeric_scale
+                        FROM information_schema.columns c
+                        LEFT JOIN information_schema.key_column_usage kcu 
+                            ON c.table_name = kcu.table_name 
+                            AND c.column_name = kcu.column_name
+                            AND c.table_schema = kcu.table_schema
+                        LEFT JOIN information_schema.table_constraints tc 
+                            ON kcu.constraint_name = tc.constraint_name 
+                            AND kcu.table_schema = tc.table_schema
+                            AND tc.constraint_type = 'PRIMARY KEY'
+                        WHERE c.table_schema = '{$schema}'
+                    ";
+
+                    if ($tb) {
+                        $sql .= " AND c.table_name = '{$prefix}{$tb}'";
+                    }
+
+                    $sql .= " ORDER BY c.table_name, c.ordinal_position";
+
+                    $tmp = DB::connection($connectName)->select($sql);
+
+                    $collection = collect($tmp)->map(function ($v) use ($prefix) {
+                        $v = (array) $v;
+                        if ($prefix && Str::startsWith($v['table_name'], $prefix)) {
+                            $v['table_name'] = Str::replaceFirst($prefix, '', $v['table_name']);
+                        }
+                        return $v;
+                    });
+
+                    $data[$value['database']] = $collection->groupBy('table_name')->map(function ($v) {
+                        return collect($v)->keyBy('column_name')->map(function ($v) {
+                            $type = $this->normalizePgSqlType($v);
+                            
+                            return [
+                                'type'     => $type,
+                                'default'  => $v['column_default'],
+                                'nullable' => $v['is_nullable'],
+                                'key'      => $v['column_key'],
+                                'id'       => $v['column_key'] === 'PRI',
+                                'comment'  => $v['column_comment'],
+                            ];
+                        })->toArray();
+                    })->toArray();
+
+                } elseif ($driver === 'sqlsrv') {
+                    // SQL Server 逻辑
+                    $prefix = Arr::get($value, 'prefix', '');
+                    $databaseName = $value['database'];
+                    
+                    // 获取所有表或指定表
+                    $tablesSql = "
+                        SELECT TABLE_NAME 
+                        FROM INFORMATION_SCHEMA.TABLES 
+                        WHERE TABLE_TYPE = 'BASE TABLE' 
+                        AND TABLE_CATALOG = '{$databaseName}'
+                    ";
+                    
+                    if ($tb) {
+                        $tablesSql .= " AND TABLE_NAME = '{$prefix}{$tb}'";
+                    }
+
+                    $tables = DB::connection($connectName)->select($tablesSql);
+                    
+                    $data[$databaseName] = [];
+                    
+                    foreach ($tables as $tableObj) {
+                        $tableName = $tableObj->TABLE_NAME;
+                        $tableNameWithoutPrefix = Str::replaceFirst($prefix, '', $tableName);
+                        
+                        // 获取表字段信息
+                        $columnsSql = "
+                            SELECT 
+                                c.COLUMN_NAME,
+                                c.DATA_TYPE,
+                                c.CHARACTER_MAXIMUM_LENGTH,
+                                c.NUMERIC_PRECISION,
+                                c.NUMERIC_SCALE,
+                                c.COLUMN_DEFAULT,
+                                c.IS_NULLABLE,
+                                CASE WHEN pk.COLUMN_NAME IS NOT NULL THEN 'PRI' ELSE '' END as COLUMN_KEY,
+                                CAST(ep.value AS NVARCHAR(MAX)) as COLUMN_COMMENT
+                            FROM INFORMATION_SCHEMA.COLUMNS c
+                            LEFT JOIN (
+                                SELECT ku.TABLE_CATALOG, ku.TABLE_SCHEMA, ku.TABLE_NAME, ku.COLUMN_NAME
+                                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ku
+                                INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc 
+                                    ON ku.CONSTRAINT_NAME = tc.CONSTRAINT_NAME 
+                                    AND ku.TABLE_SCHEMA = tc.TABLE_SCHEMA
+                                    AND ku.TABLE_CATALOG = tc.TABLE_CATALOG
+                                WHERE tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+                            ) pk ON c.TABLE_CATALOG = pk.TABLE_CATALOG 
+                                AND c.TABLE_SCHEMA = pk.TABLE_SCHEMA 
+                                AND c.TABLE_NAME = pk.TABLE_NAME 
+                                AND c.COLUMN_NAME = pk.COLUMN_NAME
+                            LEFT JOIN sys.extended_properties ep 
+                                ON ep.major_id = OBJECT_ID(c.TABLE_SCHEMA + '.' + c.TABLE_NAME)
+                                AND ep.minor_id = c.ORDINAL_POSITION
+                                AND ep.name = 'MS_Description'
+                            WHERE c.TABLE_CATALOG = '{$databaseName}'
+                            AND c.TABLE_NAME = '{$tableName}'
+                            ORDER BY c.ORDINAL_POSITION
+                        ";
+                        
+                        $columns = DB::connection($connectName)->select($columnsSql);
+                        
+                        $columnsArr = [];
+                        foreach ($columns as $col) {
+                            $col = (array) $col;
+                            $type = $this->normalizeSqlSrvType($col);
+                            
+                            $columnsArr[$col['COLUMN_NAME']] = [
+                                'type'     => $type,
+                                'default'  => $col['COLUMN_DEFAULT'],
+                                'nullable' => $col['IS_NULLABLE'],
+                                'key'      => $col['COLUMN_KEY'],
+                                'id'       => $col['COLUMN_KEY'] === 'PRI',
+                                'comment'  => $col['COLUMN_COMMENT'] ?? '',
+                            ];
+                        }
+                        
+                        $data[$databaseName][$tableNameWithoutPrefix] = $columnsArr;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // 记录异常信息
+            // logger()->error('获取数据库列信息失败: ' . $e->getMessage());
+        }
+        return $data;
+    }
+
+    /**
+     * 标准化 PostgreSQL 数据类型
+     */
+    protected function normalizePgSqlType($columnInfo)
+    {
+    $dataType = strtolower($columnInfo['data_type']);
+    $udtName = strtolower($columnInfo['udt_name']);
+    
+    $typeMap = [
+        'int4' => 'integer',
+        'int8' => 'bigint',
+        'int2' => 'smallint',
+        'serial' => 'serial',
+        'serial4' => 'serial',
+        'serial8' => 'bigserial',
+        'bool' => 'boolean',
+        'timestamptz' => 'timestamp',
+        'timetz' => 'time',
+        'varchar' => 'varchar',
+        'bpchar' => 'char',
+        'float4' => 'float',
+        'float8' => 'double',
+        'numeric' => 'decimal',
+        'text' => 'text',
+    ];
+
+    if (isset($typeMap[$udtName])) {
+        $type = $typeMap[$udtName];
+    } else {
+        $type = $dataType;
+    }
+
+    // 处理长度和精度
+    if ($dataType === 'character varying' || $dataType === 'varchar') {
+        $type = 'varchar(' . ($columnInfo['character_maximum_length'] ?? 255) . ')';
+    } elseif ($dataType === 'character' || $dataType === 'char') {
+        $type = 'char(' . ($columnInfo['character_maximum_length'] ?? 1) . ')';
+    } elseif ($dataType === 'numeric' || $dataType === 'decimal') {
+        $precision = $columnInfo['numeric_precision'] ?? null;
+        $scale = $columnInfo['numeric_scale'] ?? null;
+        if ($precision !== null) {
+            $type = "decimal({$precision}" . ($scale ? ",{$scale}" : "") . ")";
+        }
+    }
+
+    return $type;
+}
+
+    /**
+     * 标准化 SQL Server 数据类型
+     */
+    protected function normalizeSqlSrvType($columnInfo)
+    {
+        $dataType = strtolower($columnInfo['DATA_TYPE']);
+        
+        $typeMap = [
+            'int' => 'integer',
+            'tinyint' => 'tinyint',
+            'smallint' => 'smallint',
+            'bigint' => 'bigint',
+            'bit' => 'boolean',
+            'datetime' => 'datetime',
+            'datetime2' => 'datetime',
+            'smalldatetime' => 'datetime',
+            'datetimeoffset' => 'datetime',
+            'money' => 'decimal(19,4)',
+            'smallmoney' => 'decimal(10,4)',
+            'float' => 'float',
+            'real' => 'float',
+            'binary' => 'binary',
+            'varbinary' => 'varbinary',
+            'image' => 'blob',
+            'xml' => 'text',
+            'uniqueidentifier' => 'uuid',
+        ];
+
+        if (isset($typeMap[$dataType])) {
+            $type = $typeMap[$dataType];
+        } else {
+            $type = $dataType;
+        }
+
+        // 处理长度和精度
+        if (in_array($dataType, ['varchar', 'nvarchar', 'char', 'nchar'])) {
+            $length = $columnInfo['CHARACTER_MAXIMUM_LENGTH'];
+            if ($length == -1) {
+                $type = $dataType . '(max)';
+            } else {
+                $type = $dataType . '(' . $length . ')';
+            }
+        } elseif (in_array($dataType, ['decimal', 'numeric'])) {
+            $precision = $columnInfo['NUMERIC_PRECISION'] ?? 18;
+            $scale = $columnInfo['NUMERIC_SCALE'] ?? 0;
+            $type = "decimal({$precision},{$scale})";
+        }
+
+        return $type;
     }
 
     protected function backWithException(\Exception $exception) {
