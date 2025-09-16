@@ -18,9 +18,9 @@ class DummyClass extends AdminController
     public function index(Content $content)
     {
         return $content
-            ->header('列表')
+            ->header(admin_trans_label())
             ->description('全部')
-            ->breadcrumb(['text'=>'列表','url'=>''])
+            ->breadcrumb(['text'=> admin_trans_label().'列表','url'=>''])
             ->body($this->grid());
     }
 
