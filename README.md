@@ -1,6 +1,6 @@
 
 <div align="center">
-    <img src="https://www.dcat-admin.com/img/dcat-plus-logo.png" height="80"> 
+    <img src="resources/dist/images/logo-text.png" height="100"> 
 </div>
 <br>
 
