@@ -99,7 +99,7 @@ cd {项目名称}
 composer require dcat-plus/laravel-admin
 
 # 或指定版本号
-composer require dcat-plus/laravel-admin:1.3.7
+composer require dcat-plus/laravel-admin:1.4.3
 
 ```
 

@@ -19,7 +19,9 @@
         "dcat/easy-excel":"*",
         "tymon/jwt-auth":"^2.1",
         "maatwebsite/excel": "^3.1",
-        "dedoc/scramble": "^0.12.22"
+        "dedoc/scramble": "^0.12.22",
+        "ycookies/dcatplus-demo": "^1.1",
+        "ycookies/plugin-store": "^1.0"
     },
     "require-dev": {
         "laravel/dusk": "~5.9|~6|~7.0|~8.0",

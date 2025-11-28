@@ -202,7 +202,7 @@
                             <span class="text-danger"><strong>强制覆盖 (删除已存在的文件和路由后重新生成)</strong></span>
                         </div>
                         <small class="form-text text-muted">
-                            <i class="fa fa-warning text-warning"></i> 警告：勾选此选项将删除所有原数据表已生成的相关文件和路由，请谨慎使用！
+                            <i class="fa fa-warning text-warning"></i> 警告：勾选此选项将删除原数据表已生成的相关文件和路由，请谨慎使用！
                         </small>
                     </div>
                 </div>

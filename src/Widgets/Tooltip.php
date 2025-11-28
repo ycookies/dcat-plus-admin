@@ -121,6 +121,7 @@ class Tooltip extends Widget
 
         Admin::script(
             <<<JS
+// 为所有 tooltip 元素添加 mouseover 和 mouseleave 事件
 $('{$this->selector}').on('mouseover', function () {
     var title = '{$title}' || $(this).data('title');
     var tipsConfig = ['{$this->placement}', '{$background}']; // 定义 tips 配置
@@ -142,6 +143,30 @@ $('{$this->selector}').on('mouseover', function () {
     layer.close($(this).attr('layer-idx'));
     
     $(this).attr('layer-idx', '');
+});
+// 页面跳转前关闭所有 tooltip
+$(document).on('click', 'a[href]:not([target="_blank"])', function() {
+    try {
+        layer.closeAll('tips');
+    } catch (e) {
+        console.log('Error closing tooltips:', e);
+    }
+});
+
+$(document).on('submit', 'form', function() {
+    try {
+        layer.closeAll('tips');
+    } catch (e) {
+        console.log('Error closing tooltips:', e);
+    }
+});
+
+$(window).on('beforeunload', function() {
+    try {
+        layer.closeAll('tips');
+    } catch (e) {
+        console.log('Error closing tooltips:', e);
+    }
 });
 JS
         );
