@@ -99,17 +99,7 @@ class AdminServiceProvider extends ServiceProvider {
     ];
 
     public function register() {
-        $this->aliasAdmin();
-        $this->loadAdminAuthConfig();
         $this->registerRouteMiddleware();
-        $this->registerServices();
-        $this->registerExtensions();
-
-        $this->commands($this->commands);
-
-        if (config('app.debug')) {
-            $this->commands($this->devCommands);
-        }
         // 更早执行，避免 boot() 的延迟
         $this->app->afterResolving('view', function ($view) {
             if (file_exists(base_path('config/scramble.php'))) {
@@ -119,9 +109,31 @@ class AdminServiceProvider extends ServiceProvider {
                 });
             }
         });
+        // 如果是 API 请求，跳过 Admin 初始化
+        if ($this->isApiRequest()) {
+            return;
+        }
+        $this->aliasAdmin();
+        $this->loadAdminAuthConfig();
+        
+        $this->registerServices();
+        $this->registerExtensions();
+
+        $this->commands($this->commands);
+
+        if (config('app.debug')) {
+            $this->commands($this->devCommands);
+        }
+        
     }
 
     public function boot() {
+        $this->mapAdminApiRoutes();
+        $this->mapMemberApiRoutes();
+        // 如果是 API 请求，跳过 Admin 启动
+        if ($this->isApiRequest()) {
+            return;
+        }
         $this->registerDefaultSections();
         $this->registerViews();
         $this->ensureHttps();
@@ -136,9 +148,6 @@ class AdminServiceProvider extends ServiceProvider {
         $this->app->register(DcatDiyFormServiceProvider::class);
         $this->app->register(FormMediaServiceProvider::class);
         \Dcat\Admin\Widgets\Tooltip::make('.tips')->purple();
-
-        $this->mapAdminApiRoutes();
-        $this->mapMemberApiRoutes();
 
         // 注册 admin-api 文档
         $api_path = config('admin.openapi.admin-api.api_path','admin-api');
@@ -341,5 +350,20 @@ PHP;
                 ->namespace('App\Api\Controllers')
                 ->group(base_path('app/Api/routes.php'));
         }
+    }
+
+    protected function isApiRequest(){
+        $request = request();
+        // 方法 1：通过路由前缀判断
+        if ($request->is('api/*') || $request->is('member-api/*') || $request->is('admin-api/*') || $request->is('seller-api/*') || $request->is('docs/*')) {
+            return true;
+        }
+
+        // 方法 2：通过自定义头判断
+        // if ($request->header('X-Requested-With') === 'XMLHttpRequest') {
+        //     return true;
+        // }
+        
+        return false;
     }
 }
