@@ -56,8 +56,3 @@ Admin::menu(function (\Dcat\Admin\Layout\Menu $menu) {
         ]
 ]);
 });
-
-// 平台客服
-admin_inject_section(Admin::SECTION['BODY_INNER_AFTER'], function () {
-    return view('admin::layouts.kefu');
-});
