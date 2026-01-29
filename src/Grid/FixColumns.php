@@ -278,6 +278,7 @@ JS;
 
 .table-fixed-right {
 	right:0;
+    overflow: visible !important;
 }
 
 .table-fixed-left {

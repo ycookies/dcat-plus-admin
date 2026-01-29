@@ -23,7 +23,7 @@ trait CanFixColumns
     {
         $this->fixColumns = new FixColumns($this, $head, $tail);
 
-        $this->resetActions();
+        // $this->resetActions(); // dcatplus 1.4.5后被注释 注释后支持折叠
 
         return $this->fixColumns;
     }
