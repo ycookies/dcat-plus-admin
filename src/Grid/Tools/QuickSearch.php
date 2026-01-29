@@ -163,10 +163,12 @@ class QuickSearch extends AbstractTool
 
     val !== '' && $ipt.val('').focus().val(val);
 
-    $('.quick-search-clear').on('click', function () {
-        $(this).parent().find('.quick-search-input').val('');
-
-        $(this).closest('form').submit();
+    // 监听浏览器原生 search 输入框的清除按钮点击事件
+    $ipt.on('search', function () {
+        // 当值被清空时（点击了原生清除按钮），提交表单
+        if ($(this).val() === '') {
+            $(this).closest('form').submit();
+        }
     });
 })()
 JS;
