@@ -193,14 +193,14 @@ class FixColumns
             var tableHight = $(v).find('.custom-data-table.table').eq(0).height();
             var maxHeight = $(v).data('height') || (height >= tableHight ? tableHight : height);
 
-            $(v).css({'max-height': maxHeight + 'px'});
+            // $(v).css({'max-height': maxHeight + 'px'}); // dcatplus 1.4.5后被注释 
 
             if (maxHeight < tableHight) {
-                $(v).parents('.tables-container').find('.table-fixed-right').css({right: '12px'})
+                // $(v).parents('.tables-container').find('.table-fixed-right').css({right: '12px'}) // dcatplus 1.4.5后被注释
             }
         });
         $('.table-fixed-right,.table-fixed-left').each(function (k, v) {
-            $(v).css({'max-height': (($(v).data('height') || height) - 15) + 'px'});
+            // $(v).css({'max-height': (($(v).data('height') || height) - 15) + 'px'}); // dcatplus 1.4.5后被注释
         });
 
         $tableMain.scroll(function () {
@@ -282,11 +282,11 @@ JS;
 }
 
 .table-fixed-left {
-    box-shadow: 5px 0 5px -5px rgba(0,0,0,.1);
+    box-shadow: 5px 0 5px -5px rgba(0,0,0,.2);
 }
 
 .table-fixed-right {
-    box-shadow: -5px 0 5px -5px rgba(0,0,0,.1);
+    box-shadow: -5px 0 5px -5px rgba(0,0,0,.2);
 }
 
 .tables-container .table.table-bordered.dataTable.complex-headers {
