@@ -60,6 +60,7 @@ class Column
     use Grid\Column\HasHeader;
     use Grid\Column\HasDisplayers;
     use CanFormatState;
+    use Grid\Concerns\CanBeHidden;
     use Macroable {
         __call as __macroCall;
     }

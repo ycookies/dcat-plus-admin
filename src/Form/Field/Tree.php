@@ -238,6 +238,54 @@ class Tree extends Field
         return Helper::array($value, true);
     }
 
+    /**
+     * Normalize value for implode operation.
+     * Extract IDs from nested arrays or objects.
+     *
+     * @param mixed $value
+     * @return array
+     */
+    protected function normalizeValueForImplode($value)
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $result = [];
+        $idColumn = $this->columnNames['id'];
+
+        foreach ($value as $item) {
+            if (is_scalar($item)) {
+                // 如果是标量值（字符串、数字），直接使用
+                $result[] = (string) $item;
+            } elseif (is_array($item)) {
+                // 如果是数组，尝试提取 ID
+                if (isset($item[$idColumn])) {
+                    $result[] = (string) $item[$idColumn];
+                } elseif (isset($item['id'])) {
+                    $result[] = (string) $item['id'];
+                } else {
+                    // 如果数组中没有 ID 字段，尝试使用第一个值
+                    $firstValue = reset($item);
+                    if (is_scalar($firstValue)) {
+                        $result[] = (string) $firstValue;
+                    }
+                }
+            } elseif (is_object($item)) {
+                // 如果是对象，尝试获取 ID 属性
+                if (isset($item->{$idColumn})) {
+                    $result[] = (string) $item->{$idColumn};
+                } elseif (isset($item->id)) {
+                    $result[] = (string) $item->id;
+                }
+            }
+        }
+
+        return array_filter($result, function ($v) {
+            return $v !== '' && $v !== null;
+        });
+    }
+
     public function render()
     {
         $checkboxes = new WidgetCheckbox();
@@ -256,7 +304,12 @@ class Tree extends Field
         $this->formatNodes();
 
         if ($v = $this->value()) {
-            $this->attribute('value', implode(',', $v));
+            
+            // 处理嵌套数组，确保所有值都是标量类型
+            $v = $this->normalizeValueForImplode($v);
+            if (!empty($v)) {
+                $this->attribute('value', implode(',', $v));
+            }
         }
 
         $this->addVariables([

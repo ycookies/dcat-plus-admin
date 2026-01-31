@@ -18,6 +18,13 @@ trait CanHidesColumns
     public $hiddenColumns = [];
 
     /**
+     * Conditional hidden columns.
+     *
+     * @var array|Closure
+     */
+    public $conditionalHiddenColumns = [];
+
+    /**
      * @var ColumnSelectorStore
      */
     private $columnSelectorStorage;
@@ -81,6 +88,58 @@ trait CanHidesColumns
     }
 
     /**
+     * Hide columns conditionally using Closure.
+     *
+     * @param  Closure|array  $columns
+     * @return $this
+     */
+    public function hideColumnsWhen($columns)
+    {
+        $this->conditionalHiddenColumns[] = $columns;
+
+        return $this;
+    }
+
+    /**
+     * Get all hidden columns (including conditional ones).
+     *
+     * @return array
+     */
+    protected function getHiddenColumns(): array
+    {
+        $hidden = $this->hiddenColumns;
+
+        // 处理条件隐藏列
+        foreach ($this->conditionalHiddenColumns as $column) {
+            if ($column instanceof \Closure) {
+                $result = call_user_func($column, $this);
+                if (is_array($result)) {
+                    $hidden = array_merge($hidden, $result);
+                } else {
+                    $hidden[] = $result;
+                }
+            } else {
+                if (is_array($column)) {
+                    $hidden = array_merge($hidden, $column);
+                } else {
+                    $hidden[] = $column;
+                }
+            }
+        }
+
+        // 检查列对象的 isHidden() 状态，将隐藏的列加入到隐藏列列表
+        if (isset($this->columns)) {
+            foreach ($this->columns as $column) {
+                if ($column->isHidden()) {
+                    $hidden[] = $column->getName();
+                }
+            }
+        }
+
+        return array_values(array_filter(array_unique($hidden)));
+    }
+
+    /**
      * @return string
      */
     public function getColumnSelectorQueryName()
@@ -95,8 +154,13 @@ trait CanHidesColumns
      */
     public function getVisibleColumnsFromQuery()
     {
+        $hiddenColumns = $this->getHiddenColumns();
+
         if (! $this->allowColumnSelector()) {
-            return [];
+            // 列选择器禁用时，仍然需要应用 hideColumns() 的设置
+            return array_values(array_diff(
+                $this->getComplexHeaderNames() ?: $this->columnNames, $hiddenColumns
+            ));
         }
 
         if (isset($this->visibleColumnsFromQuery)) {
@@ -107,11 +171,14 @@ trait CanHidesColumns
 
         if (! $input && ! $this->hasColumnSelectorRequestInput()) {
             $columns = $this->getVisibleColumnsFromStorage() ?: array_values(array_diff(
-                $this->getComplexHeaderNames() ?: $this->columnNames, $this->hiddenColumns
+                $this->getComplexHeaderNames() ?: $this->columnNames, $hiddenColumns
             ));
         }
 
         $this->storeVisibleColumns($input);
+
+        // 无论如何都要排除 hideColumns() 和 hideColumnsWhen() 设置的隐藏列
+        $columns = array_values(array_diff($columns, $hiddenColumns));
 
         return $this->visibleColumnsFromQuery = $columns;
     }
@@ -164,16 +231,30 @@ trait CanHidesColumns
      */
     public function getVisibleColumns()
     {
-        if (! $this->allowColumnSelector()) {
-            return $this->columns;
+        $hiddenColumns = $this->getHiddenColumns();
+
+        // 获取可见列（已排除隐藏列）
+        $visible = $this->getVisibleColumnsFromQuery();
+        
+        if (empty($visible)) {
+            $visible = array_values(array_diff(
+                $this->getComplexHeaderNames() ?: $this->columnNames, $hiddenColumns
+            ));
         }
 
-        $visible = $this->formatWithComplexHeaders(
-            $this->getVisibleColumnsFromQuery()
-        );
+        if (! $this->allowColumnSelector()) {
+            // 列选择器禁用时，直接根据可见列过滤
+            return $this->columns->filter(function (Grid\Column $column) use ($visible) {
+                return in_array($column->getName(), $visible);
+            });
+        }
+
+        $visible = $this->formatWithComplexHeaders($visible);
 
         if (empty($visible)) {
-            return $this->columns;
+            return $this->columns->filter(function (Grid\Column $column) use ($hiddenColumns) {
+                return ! in_array($column->getName(), $hiddenColumns);
+            });
         }
 
         array_push($visible, Grid\Column::SELECT_COLUMN_NAME, Grid\Column::ACTION_COLUMN_NAME);
@@ -190,16 +271,28 @@ trait CanHidesColumns
      */
     public function getVisibleColumnNames()
     {
-        if (! $this->allowColumnSelector()) {
-            return $this->columnNames;
+        $hiddenColumns = $this->getHiddenColumns();
+
+        // 获取可见列名（已排除隐藏列）
+        $visible = $this->getVisibleColumnsFromQuery();
+        
+        if (empty($visible)) {
+            $visible = array_values(array_diff(
+                $this->getComplexHeaderNames() ?: $this->columnNames, $hiddenColumns
+            ));
         }
 
-        $visible = $this->formatWithComplexHeaders(
-            $this->getVisibleColumnsFromQuery()
-        );
+        if (! $this->allowColumnSelector()) {
+            // 列选择器禁用时，直接返回可见列名
+            return collect($visible)->toArray();
+        }
+
+        $visible = $this->formatWithComplexHeaders($visible);
 
         if (empty($visible)) {
-            return $this->columnNames;
+            return collect($this->columnNames)->filter(function ($column) use ($hiddenColumns) {
+                return ! in_array($column, $hiddenColumns);
+            })->toArray();
         }
 
         array_push($visible, Grid\Column::SELECT_COLUMN_NAME, Grid\Column::ACTION_COLUMN_NAME);

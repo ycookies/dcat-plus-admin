@@ -47,7 +47,9 @@
         </div>
     </div>
 @endif
-
+<style>
+    .tree-node-active > .dd-handle {background-color: #e3f2fd }
+</style>
 <div class="card-body table-responsive">
     <div class="dd" id="{{ $id }}">
         <ol class="dd-list">
@@ -67,6 +69,17 @@
     var tree = $('#' + id);
 
     tree.nestable({!! admin_javascript_json($nestableOptions) !!});
+
+    // 如果禁用了拖拽，给所有项目添加 noDragClass 并隐藏拖拽手柄
+    @if($disableDraggable)
+    tree.find('.dd-item').addClass('dd-nodrag');
+    tree.find('.dd-handle').css({
+        'cursor': 'default',
+        'pointer-events': 'none'
+    });
+    // 阻止拖拽事件
+    tree.off('mousedown touchstart');
+    @endif
 
     // 添加 change 事件监听
     @if($draggable_autosave)

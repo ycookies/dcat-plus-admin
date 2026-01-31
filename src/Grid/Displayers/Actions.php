@@ -28,6 +28,13 @@ class Actions extends AbstractDisplayer
     protected $prepends = [];
 
     /**
+     * Grouped actions.
+     *
+     * @var array
+     */
+    protected $groups = [];
+
+    /**
      * Default actions.
      *
      * @var array
@@ -70,6 +77,28 @@ class Actions extends AbstractDisplayer
         $this->prepareAction($action);
 
         array_unshift($this->prepends, $action);
+
+        return $this;
+    }
+
+    /**
+     * Add grouped actions.
+     *
+     * @param  Closure  $callback
+     * @param  string  $icon
+     * @param  string  $title
+     * @return $this
+     */
+    public function group(\Closure $callback, $icon = 'feather icon-more-vertical', $title = '更多操作')
+    {
+        $actions = [];
+        $callback(new GroupActionBuilder($actions));
+
+        $this->groups[] = [
+            'actions' => $actions,
+            'icon'    => $icon,
+            'title'   => $title,
+        ];
 
         return $this;
     }
@@ -233,7 +262,46 @@ class Actions extends AbstractDisplayer
             }
         }
 
+        // 处理分组操作
+        foreach ($this->groups as $group) {
+            array_push($appends, $this->renderGroup($group));
+        }
+
         return implode('', array_merge($prepends, $appends));
+    }
+
+    /**
+     * Render action group.
+     *
+     * @param  array  $group
+     * @return string
+     */
+    protected function renderGroup(array $group)
+    {
+        $icon = $group['icon'] ?? 'feather icon-more-vertical';
+        $title = $group['title'] ?? '';
+        $actions = $group['actions'] ?? [];
+
+        $actionHtml = '';
+        foreach ($actions as $action) {
+            // 准备动作
+            $this->prepareAction($action);
+            $actionHtml .= '<li class="dropdown-item">' . Helper::render($action) . '</li>';
+        }
+
+        $html = <<<HTML
+<div class="grid-dropdown-actions dropdown" style="display: inline-block;">
+    <a href="#" style="padding:0 10px;" class="tips" data-title="{$title}" data-toggle="dropdown">
+        <i class="{$icon}"></i>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-right" style="left: -65px;">
+        {$actionHtml}
+    </ul>
+    
+</div>
+HTML;
+
+        return $html;
     }
 
     /**
@@ -324,5 +392,50 @@ class Actions extends AbstractDisplayer
         $label = trans('admin.delete');
 
         return "<i data-title='{$label}' title='{$label}' class=\"feather icon-trash grid-action-icon tips\" ></i> &nbsp;";
+    }
+}
+
+/**
+ * Helper class for building grouped actions.
+ */
+class GroupActionBuilder
+{
+    /**
+     * @var array
+     */
+    protected $actions = [];
+
+    /**
+     * @param  array  $actions
+     */
+    public function __construct(&$actions)
+    {
+        $this->actions = &$actions;
+    }
+
+    /**
+     * Append action to group.
+     *
+     * @param  string|Renderable|Action|Htmlable  $action
+     * @return $this
+     */
+    public function append($action)
+    {
+        array_push($this->actions, $action);
+
+        return $this;
+    }
+
+    /**
+     * Prepend action to group.
+     *
+     * @param  string|Renderable|Action|Htmlable  $action
+     * @return $this
+     */
+    public function prepend($action)
+    {
+        array_unshift($this->actions, $action);
+
+        return $this;
     }
 }

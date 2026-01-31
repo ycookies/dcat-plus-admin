@@ -36,6 +36,7 @@ class Grid
     use Concerns\HasSummarizer;
     use Concerns\CanFixColumns;
     use Concerns\CanHidesColumns;
+    use Concerns\CanBeHidden;
     use Macroable {
         __call as macroCall;
     }
@@ -51,7 +52,7 @@ class Grid
     public static string $defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
 
     public static string $defaultTimeDisplayFormat = 'H:i:s';
-    
+
     /**
      * The grid data model instance.
      *
@@ -156,6 +157,13 @@ class Grid
      * @var Grid\Tools\RowSelector
      */
     protected $rowSelector;
+
+    protected $treePanelStatus = false;
+
+    /**
+     * @var Tree|null
+     */
+    protected $treePanel = null;
 
     /**
      * Options for grid.
@@ -309,6 +317,26 @@ class Grid
     public function getAsync()
     {
         return $this->async;
+    }
+    // 定时刷新
+    public function polling($second = 5)
+    {
+        $js_tableid = $this->getTableId();
+        $is_async = $this->async ? 'true' : 'false';
+        if ($is_async) {
+            Admin::script(<<<JS
+                // 确保只能有一个定时器
+                if (window.__dcat_grid_polling_timer) {
+                    clearInterval(window.__dcat_grid_polling_timer);
+                }
+                window.__dcat_grid_polling_timer = setInterval(function() {
+                    
+                        $('.async-{$js_tableid} .grid-refresh').trigger('click');
+                    
+                }, {$second} * 1000);
+            JS);
+        }
+        return $this;
     }
 
     /**
@@ -568,7 +596,7 @@ class Grid
      */
     public function getCreateUrl()
     {
-        return $this->urlWithConstraints($this->resource().'/create');
+        return $this->urlWithConstraints($this->resource() . '/create');
     }
 
     /**
@@ -592,7 +620,7 @@ class Grid
             $queryString = http_build_query($constraints);
         }
 
-        return $url.($queryString ? ('?'.$queryString) : '');
+        return $url . ($queryString ? ('?' . $queryString) : '');
     }
 
     /**
@@ -707,7 +735,7 @@ class Grid
 
     public function headerCenterStyle($width = '400px')
     {
-        $this->options['headerStyle'] = 'border-bottom: 0;background: #ffffff;padding: 0;margin: auto;margin-top:5px;border-radius: 50px;max-width:'.$width.';';
+        $this->options['headerStyle'] = 'border-bottom: 0;background: #ffffff;padding: 0;margin: auto;margin-top:5px;border-radius: 50px;max-width:' . $width . ';';
 
         return $this;
     }
@@ -723,7 +751,7 @@ class Grid
             return '';
         }
         $type = 'border-bottom: 0;background: transparent;padding: 0;margin-top:5px';
-        if(!empty($this->options['headerStyle'])){
+        if (!empty($this->options['headerStyle'])) {
             $type = $this->options['headerStyle'];
         }
 
@@ -862,7 +890,8 @@ HTML;
      *  set column Link
      * @return $this
      */
-    public function columnLink(bool $bool = true) {
+    public function columnLink(bool $bool = true)
+    {
         return $this->option('column_link', $bool);
     }
 
@@ -871,7 +900,8 @@ HTML;
      *
      * @return bool
      */
-    public function allowColumnLink() {
+    public function allowColumnLink()
+    {
         return $this->options['column_link'];
     }
 
@@ -1040,8 +1070,9 @@ HTML;
      * author eRic
      * dateTime 2025-05-12 14:23
      */
-    public function tableHeaderFixed(bool $value = true){
-        if($value){
+    public function tableHeaderFixed(bool $value = true)
+    {
+        if ($value) {
             $this->addTableClass('fixed-header-table');
         }
         return $this;
@@ -1053,8 +1084,9 @@ HTML;
      * author eRic
      * dateTime 2025-05-12 14:23
      */
-    public function gridHeaderFixed(bool $value = true){
-        if($value){
+    public function gridHeaderFixed(bool $value = true)
+    {
+        if ($value) {
             $this->setTableWrapperStyle('max-height: 680px; overflow-y: auto;');
             $this->addTableClass('fixed-header-grid');
         }
@@ -1067,7 +1099,8 @@ HTML;
      * author eRic
      * dateTime 2025-05-12 14:57
      */
-    public function setTableWrapperStyle(string $style){
+    public function setTableWrapperStyle(string $style)
+    {
 
         $this->options['table_wrapper_style'] = $style;
         return $this;
@@ -1079,7 +1112,8 @@ HTML;
      * author eRic
      * dateTime 2025-05-12 14:57
      */
-    public function getTableWrapperStyle(){
+    public function getTableWrapperStyle()
+    {
 
         return $this->options['table_wrapper_style'];
     }
@@ -1163,6 +1197,72 @@ JS
         }
 
         return Helper::render($wrapper($view));
+    }
+
+    /**
+     * Set tree panel for left tree right table layout
+     *
+     * @param \Closure|null $callback
+     * @return $this|Tree|null
+     */
+    public function treePanel(?\Closure $callback = null, ?bool $disable = true)
+    {
+        $this->treePanelStatus = true;
+
+        if ($callback instanceof \Closure) {
+            $result = call_user_func($callback);
+            // 如果闭包返回了 Tree 实例，使用它；否则创建一个新的
+            if ($result instanceof Tree) {
+                $this->treePanel = $result;
+            } else {
+                // 兼容旧用法：如果闭包接收 Tree 参数
+                $tree = new Tree();
+                call_user_func($callback, $tree);
+                $this->treePanel = $tree;
+            }
+            if ($disable) {
+                $this->treePanel->disableCreateButton();
+                $this->treePanel->disableQuickCreateButton();
+                $this->treePanel->disableEditButton();
+                    // $tree->disableToolbar();
+                $this->treePanel->disableDraggable();
+                $this->treePanel->disableSaveButton();
+                $this->treePanel->disableRefreshButton();
+                $this->treePanel->expand();
+                $this->treePanel->actions(function (Tree\Actions $actions) {
+                    $actions->disableDelete(); // 禁用删除按钮
+                    $actions->disableEdit(); // 禁用编辑按钮
+                    $actions->disableQuickEdit(); // 禁用快速编辑按钮
+                });
+            }
+
+            return $this;
+        }
+        
+    
+
+
+        return $this->treePanel;
+    }
+
+    /**
+     * Get tree panel status
+     *
+     * @return bool
+     */
+    public function treePanelStatus()
+    {
+        return $this->treePanelStatus;
+    }
+
+    /**
+     * Get tree panel instance
+     *
+     * @return Tree|null
+     */
+    public function getTreePanel()
+    {
+        return $this->treePanel;
     }
 
     /**
