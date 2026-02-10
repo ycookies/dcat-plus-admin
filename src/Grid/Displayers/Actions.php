@@ -291,8 +291,8 @@ class Actions extends AbstractDisplayer
 
         $html = <<<HTML
 <div class="grid-dropdown-actions dropdown" style="display: inline-block;">
-    <a href="#" style="padding:0 10px;" class="tips" data-title="{$title}" data-toggle="dropdown">
-        <i class="{$icon}"></i>
+    <a href="#" style="padding:0 10px;" data-toggle="dropdown">
+        <i class="tips {$icon}" title="{$title}" data-title="{$title}"></i>
     </a>
     <ul class="dropdown-menu dropdown-menu-right" style="left: -65px;">
         {$actionHtml}
