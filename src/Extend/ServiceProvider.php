@@ -83,6 +83,9 @@ abstract class ServiceProvider extends LaravelServiceProvider
      */
     final public function boot()
     {
+        if ($this->isApiRequest()) {
+            return;
+        }
         $this->autoRegister();
 
         if ($this->disabled()) {
@@ -615,5 +618,20 @@ abstract class ServiceProvider extends LaravelServiceProvider
     protected function unserializeConfig($config)
     {
         return json_decode($config, true);
+    }
+
+    protected function isApiRequest(){
+        $request = request();
+        // 方法 1：通过路由前缀判断
+        if ($request->is('api/*') || $request->is('member-api/*') || $request->is('admin-api/*') || $request->is('seller-api/*') || $request->is('docs/*')) {
+            return true;
+        }
+
+        // 方法 2：通过自定义头判断
+        // if ($request->header('X-Requested-With') === 'XMLHttpRequest') {
+        //     return true;
+        // }
+        
+        return false;
     }
 }

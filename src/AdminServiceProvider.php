@@ -99,7 +99,6 @@ class AdminServiceProvider extends ServiceProvider {
     ];
 
     public function register() {
-        $this->registerRouteMiddleware();
         // 更早执行，避免 boot() 的延迟
         $this->app->afterResolving('view', function ($view) {
             if (file_exists(base_path('config/scramble.php'))) {
@@ -109,10 +108,12 @@ class AdminServiceProvider extends ServiceProvider {
                 });
             }
         });
+        
         // 如果是 API 请求，跳过 Admin 初始化
         if ($this->isApiRequest()) {
             return;
         }
+        $this->registerRouteMiddleware();
         $this->aliasAdmin();
         $this->loadAdminAuthConfig();
         
@@ -130,7 +131,9 @@ class AdminServiceProvider extends ServiceProvider {
     public function boot() {
         $this->mapAdminApiRoutes();
         $this->mapMemberApiRoutes();
+
         // 如果是 API 请求，跳过 Admin 启动
+        $this->registerAdminDocs();
         if ($this->isApiRequest()) {
             return;
         }
@@ -148,33 +151,7 @@ class AdminServiceProvider extends ServiceProvider {
         $this->app->register(DcatDiyFormServiceProvider::class);
         $this->app->register(FormMediaServiceProvider::class);
         \Dcat\Admin\Widgets\Tooltip::make('.tips')->purple();
-
-        // 注册 admin-api 文档
-        $api_path = config('admin.openapi.admin-api.api_path','admin-api');
-
-        \Dedoc\Scramble\Scramble::registerApi($api_path, [
-            'api_path' => $api_path,
-            'info' => [
-                'version' => config('admin.openapi.admin-api.info.version','1.0.0'),
-                'description' => config('admin.openapi.admin-api.info.description','管理端api文档'),
-            ],
-            'ui' => [
-                'title' => config('admin.openapi.admin-api.ui.title','B端Api文档'),
-            ]
-        ])->withDocumentTransformers(function (OpenApi $openApi) {
-            $openApi->secure(
-                SecurityScheme::http('Bearer','JWT')
-            );
-        });
-
-        \Dedoc\Scramble\Scramble::registerUiRoute('docs/'.$api_path,$api_path);
-        \Dedoc\Scramble\Scramble::registerJsonSpecificationRoute('docs/'.$api_path.'json', $api_path);
-        Scramble::configure()
-            ->withDocumentTransformers(function (OpenApi $openApi) {
-                $openApi->secure(
-                    SecurityScheme::http('Bearer','JWT')
-                );
-            });
+        
     }
 
     protected function aliasAdmin() {
@@ -351,6 +328,37 @@ PHP;
                 ->group(base_path('app/Api/routes.php'));
         }
     }
+
+    protected function registerAdminDocs() {
+        // 注册 admin-api 文档
+        $api_path = config('admin.openapi.admin-api.api_path','admin-api');
+
+        \Dedoc\Scramble\Scramble::registerApi($api_path, [
+            'api_path' => $api_path,
+            'info' => [
+                'version' => config('admin.openapi.admin-api.info.version','1.0.0'),
+                'description' => config('admin.openapi.admin-api.info.description','管理端api文档'),
+            ],
+            'ui' => [
+                'title' => config('admin.openapi.admin-api.ui.title','B端Api文档'),
+            ]
+        ])->withDocumentTransformers(function (OpenApi $openApi) {
+            $openApi->secure(
+                SecurityScheme::http('Bearer','JWT')
+            );
+        });
+
+        \Dedoc\Scramble\Scramble::registerUiRoute('docs/'.$api_path,$api_path);
+        \Dedoc\Scramble\Scramble::registerJsonSpecificationRoute('docs/'.$api_path.'json', $api_path);
+        Scramble::configure()
+            ->withDocumentTransformers(function (OpenApi $openApi) {
+                $openApi->secure(
+                    SecurityScheme::http('Bearer','JWT')
+                );
+            });
+    }
+
+    
 
     protected function isApiRequest(){
         $request = request();
