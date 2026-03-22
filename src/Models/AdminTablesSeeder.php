@@ -164,5 +164,47 @@ class AdminTablesSeeder extends Seeder
         ]);
 
         (new Menu())->flushCache();
+        $this->seedMemberUsers();
+    }
+
+    protected function seedMemberUsers(): void
+    {
+        \Illuminate\Support\Facades\DB::table('member_users')->updateOrInsert(
+            ['id' => 1],
+            [
+                'id' => 1,
+                'username' => '杨光',
+                'phone' => '18966172031',
+                'email' => '3664839@qq.com',
+                'password' => '$2y$12$sAa5XY7SRkOBTuqlEJ9Yn.sAM0MRrODvYp222DlU7YB17Zf36wQsa',
+                'last_login_time' => null,
+                'last_login_ip' => null,
+                'phone_verified' => null,
+                'email_verified' => null,
+                'avatar' => 'https://www.dcat-admin.com/img/author-avatar.png',
+                'avatar_medium' => 'https://www.dcat-admin.com/img/author-avatar.png',
+                'avatar_big' => 'https://www.dcat-admin.com/img/author-avatar.png',
+                'gender' => null,
+                'realname' => null,
+                'signature' => null,
+                'vip_id' => 1,
+                'vip_expire' => null,
+                'nickname' => null,
+                'status' => null,
+                'balance' => 0,
+                'freeze_price' => 0,
+                'group_id' => null,
+                'delete_at_time' => null,
+                'is_deleted' => null,
+                'message_count' => null,
+                'register_ip' => null,
+                'is_certified' => 0,
+                'parent_id' => null,
+                'temp_parent_id' => null,
+                'junior_at' => null,
+                'created_at' => '2026-03-20 19:19:44',
+                'updated_at' => '2026-03-20 19:19:44',
+            ]
+        );
     }
 }
