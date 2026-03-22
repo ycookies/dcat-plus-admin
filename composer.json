@@ -1,0 +1,54 @@
+{
+    "name": "dcat-plus/laravel-admin",
+    "description": "dcat-plus admin",
+    "type": "library",
+    "keywords": ["dcat","saas", "laravel", "admin", "grid", "form", "laravel saas admin"],
+    "homepage": "https://github.com/ycookies/dcat-plus-admin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "杨光",
+            "email": "3664839@qq.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "~12.0|~13.0",
+        "spatie/eloquent-sortable": "^5.0",
+        "doctrine/dbal": "^4.0",
+        "dcat/easy-excel":"*",
+        "tymon/jwt-auth":"^2.3",
+        "maatwebsite/excel": "^3.1",
+        "dedoc/scramble": "^0.13.13"
+    },
+    "require-dev": {
+        "laravel/dusk": "~8.0",
+        "phpstan/phpstan": "^0.12.0|~1.0",
+        "fakerphp/faker": "^1.23",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dcat\\Admin\\": "src/"
+        },
+        "files": [
+            "src/Support/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dcat\\Admin\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dcat\\Admin\\AdminServiceProvider"
+            ]
+        }
+    }
+}

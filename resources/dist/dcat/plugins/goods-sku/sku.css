@@ -1,0 +1,111 @@
+.sku_wrap .sku_attr_key_val {
+    margin-top: 10px;
+}
+
+.sku_wrap .sku_attr_val_wrap {
+    clear: both;
+}
+
+.sku_wrap .sku_attr_val_wrap:after {
+    content: ' ';
+    display: block;
+    clear: both;
+}
+
+.sku_wrap .sku_attr_val_item {
+    display: inline-block;
+    float: left;
+}
+
+.sku_wrap .sku_attr_val_item .sku_attr_val_input {
+    margin-left: 10px;
+    margin-bottom: 5px;
+    width: 100px;
+    float: left;
+}
+
+.sku_wrap .sku_attr_val_item .btn {
+    float: left;
+    border-radius: 0 !important;
+}
+
+.sku_wrap .sku_edit_wrap .Js_sku_upload {
+    display: inline-block;
+    height: 40px;
+    width: 40px;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    padding-top: 13px;
+    margin-top: 1px;
+}
+
+.sku_wrap .sku_edit_wrap .Js_sku_del_pic {
+    display: inline-block;
+    margin-left: 5px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.sku_wrap .sku_edit_wrap tr th, .sku_wrap .sku_edit_wrap .attr-name {
+    line-height: 40px;
+}
+
+.sku_wrap .sku_edit_wrap tr th, .sku_wrap .sku_edit_wrap tr td {
+    text-align: center;
+    padding-left: .65rem;
+}
+
+.sku_wrap .sku_edit_wrap tr td input {
+    text-align: center;
+    margin-top: 5px;
+}
+
+.sku_wrap .sku_edit_wrap tr td .icon-upload-cloud, .sku_wrap .sku_edit_wrap tr td .icon-x {
+    font-size: 18px;
+    line-height: 18px;
+}
+
+.sku_wrap .sku_edit_wrap tr th input {
+    text-align: center;
+}
+
+.sku_wrap .input_attr_name {
+    margin-top: 5px;
+}
+
+.sku_wrap .sku_img {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: flex-start;
+    align-items: flex-start;
+}
+
+.sku_wrap .sku_img div {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin: 1px;
+    border: 1px solid #d9d9d9;
+}
+
+.sku_wrap .sku_img div i {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -25%;
+    margin-top: -25%;
+    cursor: pointer;
+}
+
+.sku_wrap .sku_img img {
+    width: 100%;
+}

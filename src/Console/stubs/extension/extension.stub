@@ -1,0 +1,54 @@
+<?php
+
+namespace {namespace};
+
+use Dcat\Admin\Extend\ServiceProvider;
+use Dcat\Admin\Admin;
+
+class {className}ServiceProvider extends ServiceProvider
+{
+	{property}
+	protected $css = [
+		'css/index.css',
+	];
+
+	// 使用中间件
+    protected $middleware = [
+        /*'middle' => [ // 注册中间件
+           //LogOperation::class,
+        ],*/
+    ];
+
+    // 路由白名单
+    protected $exceptRoutes = [
+        'auth' => [
+            // 'cashier/paycenter/page',
+        ]
+    ];
+    // 定义菜单
+    protected $menu = [
+        [
+            'title' => '菜单名称',
+            'uri'   => '{path}',
+            'icon'  => 'feather icon-book',
+        ]
+    ];
+
+	public function register()
+	{
+		//
+	}
+
+	public function init()
+	{
+		parent::init();
+
+		//
+		{registerTheme}
+	}
+
+	public function settingForm()
+	{
+		return new Setting($this);
+	}
+}
