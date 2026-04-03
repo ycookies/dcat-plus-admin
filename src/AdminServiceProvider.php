@@ -112,9 +112,9 @@ class AdminServiceProvider extends ServiceProvider {
         $this->registerRouteMiddleware();
 
         // 如果是 API 请求，跳过 Admin 初始化
-        if ($this->isApiRequest()) {
-            return;
-        }
+        // if ($this->isApiRequest()) {
+        //     return;
+        // }
         
         $this->aliasAdmin();
         $this->loadAdminAuthConfig();
@@ -136,9 +136,9 @@ class AdminServiceProvider extends ServiceProvider {
 
         // 如果是 API 请求，跳过 Admin 启动
         $this->registerAdminDocs();
-        if ($this->isApiRequest()) {
-            return;
-        }
+        // if ($this->isApiRequest()) {
+        //     return;
+        // }
         $this->registerDefaultSections();
         $this->registerViews();
         $this->ensureHttps();

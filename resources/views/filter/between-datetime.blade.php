@@ -1,6 +1,6 @@
 <div class="filter-input col-sm-{{ $width }}"  style="{!! $style !!}">
     <div class="form-group">
-        <div class="input-group input-group-sm">
+        <div class="input-group ">
 
             <div class="input-group-prepend">
                 <span class="input-group-text bg-white text-capitalize"><b>{!! $label !!}</b>&nbsp;<i class="feather icon-calendar"></i></span>

@@ -1,4 +1,4 @@
-<div class="input-group input-group-sm">
+<div class="input-group ">
     <div class="input-group-prepend">
         <span class="input-group-text bg-white"><b>{!! $label !!}</b></span>
     </div>

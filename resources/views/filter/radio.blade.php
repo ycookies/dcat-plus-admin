@@ -1,4 +1,4 @@
-<div class="input-group input-group-sm">
+<div class="input-group ">
     @php
         $radio = new \Dcat\Admin\Widgets\Radio($name, $options);
         if ($inline) $radio->inline();

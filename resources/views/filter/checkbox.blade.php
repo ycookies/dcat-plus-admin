@@ -1,4 +1,4 @@
-<div class="input-group input-group-sm">
+<div class="input-group ">
     @php
         $checkbox = new \Dcat\Admin\Widgets\Checkbox($name.'[]', $options);
         if ($inline) $checkbox->inline();

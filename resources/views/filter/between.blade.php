@@ -1,6 +1,6 @@
 <div class="filter-input col-sm-{{ $width }} "  style="{!! $style !!}">
     <div class="form-group" >
-        <div class="input-group input-group-sm">
+        <div class="input-group ">
             <div class="input-group-prepend">
                 <span class="input-group-text text-capitalize bg-white"><b>{!! $label !!}</b></span>
             </div>
