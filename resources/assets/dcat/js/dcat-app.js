@@ -5,7 +5,7 @@
   ----------------------------------------------------------------------------------------
   Item Name: Dcat Admin
   Author: Jqh
-  Author URL: https://github.com/jqhph
+  Author URL: https://github.com/ycookies/dcat-plus-admin
 ==========================================================================================*/
 
 import Dcat from './Dcat'

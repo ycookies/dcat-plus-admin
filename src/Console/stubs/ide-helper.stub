@@ -5,7 +5,7 @@
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
- * @author jqh <841324345@qq.com>
+ * @author 杨光 <841324345@qq.com>
  */
 namespace Dcat\Admin {
     use Illuminate\Support\Collection;

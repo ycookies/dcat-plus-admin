@@ -8,7 +8,7 @@ use Dcat\Admin\Show;
 
 /**
  * Dcat-admin - admin builder based on Laravel.
- * @author jqh <https://github.com/jqhph>
+ * @author 杨光 <https://github.com/ycookies/dcat-plus-admin>
  *
  * Bootstraper for Admin.
  *
@@ -24,6 +24,12 @@ use Dcat\Admin\Show;
  * Admin::js('/packages/prettydocs/js/main.js');
  *
  */
+// 可以统一设置 Grid 的一些默认
+// Grid::resolving(function (Grid $grid) {
+//     $grid->filter(function (Grid\Filter $filter) {
+//             $filter->panel();
+//     });
+// });
 Admin::menu(function (\Dcat\Admin\Layout\Menu $menu) {
     $menu->add([
         [

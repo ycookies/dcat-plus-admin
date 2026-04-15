@@ -598,7 +598,7 @@ if (! function_exists('admin_redirect')) {
      * @param  Request  $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector
      */
-    function admin_redirect($to, int $statusCode = 302, Request $request = null)
+    function admin_redirect($to, int $statusCode = 302, ?Request $request = null)
     {
         return Helper::redirect($to, $statusCode, $request);
     }

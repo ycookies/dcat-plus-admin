@@ -1,4 +1,4 @@
-<div class="input-group input-group-sm">
+<div class="input-group ">
     @if($group)
         <div class="input-group-prepend dropdown">
             <a class="filter-group input-group-text bg-white dropdown-toggle" data-toggle="dropdown">

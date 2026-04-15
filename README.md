@@ -156,8 +156,8 @@ chown -R apache:apache .  # 如果使用Apache
 | ------------------------------------------------ | ---------------------------------------- |---------------------------------------- |
 | [mosiboom/dcat-iframe-tab](https://github.com/mosiboom/dcat-iframe-tab)    | IFRAME TAB标签切换 | 2.x |
 | [super-eggs/dcat-distpicker](https://github.com/super-eggs/dcat-distpicker)    | 省市区联动 | 2.x |
-| [ueditor](https://github.com/jqhph/dcat-admin-ueditor) | 百度在线编辑器     | 1.x |
-| [grid-sortable](https://github.com/jqhph/dcat-admin-grid-sortable) | 表格拖曳排序工具      | 1.x |
+| [ueditor](https://github.com/ycookies/dcat-plus-admin/dcat-admin-ueditor) | 百度在线编辑器     | 1.x |
+| [grid-sortable](https://github.com/ycookies/dcat-plus-admin/dcat-admin-grid-sortable) | 表格拖曳排序工具      | 1.x |
 
 
 ### 鸣谢
@@ -190,7 +190,7 @@ chown -R apache:apache .  # 如果使用Apache
 #### Code Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/jqhph/dcat-admin/graphs/contributors"><img src="https://opencollective.com/dcat-admin/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/ycookies/dcat-plus-admin/dcat-admin/graphs/contributors"><img src="https://opencollective.com/dcat-admin/contributors.svg?width=890&button=false" /></a>
 
 ### Financial Contributors
 
