@@ -16,6 +16,8 @@ class Line extends Card
      */
     protected $chartHeight = 57;
 
+    protected $chartMarginRight = 0;
+
     /**
      * 图表默认配置.
      *
