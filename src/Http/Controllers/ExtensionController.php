@@ -127,6 +127,7 @@ class ExtensionController extends AdminController
             $form->text('description','功能描述')->help('');
             $form->text('authors_name','作者')->default('杨光');
             $form->text('authors_email','联系邮箱')->default('3664839@qq.com');
+            $form->switch('enable_api', '生成API目录')->help('开启后将自动创建 Api 和 AdminApi 目录及示例文件（前台会员端 + 后台管理端）')->default(0);
             $form->divider();
             $form->table('extra','菜单', function (NestedForm $table) {
                 $table->text('title' ,'菜单名')->required();
@@ -149,10 +150,11 @@ class ExtensionController extends AdminController
                 $plugin_desc = $form->description;
                 $authors_name = $form->authors_name;
                 $authors_email = $form->authors_email;
+                $enable_api = $form->enable_api;
                 if ($package) {
                     $menu = $form->extra;
                     Cache::put($package,$menu);
-                    $results = $self->createExtension($package, $namespace, $type,$plugin_name,$plugin_desc,$authors_name,$authors_email);
+                    $results = $self->createExtension($package, $namespace, $type, $plugin_name, $plugin_desc, $authors_name, $authors_email, $enable_api);
                     return $form
                         ->response()
                         ->refresh()
@@ -205,7 +207,7 @@ class ExtensionController extends AdminController
         return $form;
     }
 
-    public function createExtension($package, $namespace, $type,$plugin_name,$plugin_desc,$authors_name,$authors_email)
+    public function createExtension($package, $namespace, $type, $plugin_name, $plugin_desc, $authors_name, $authors_email, $enable_api = false)
     {
         $namespace = trim($namespace, '\\');
 
@@ -214,6 +216,7 @@ class ExtensionController extends AdminController
             'name'        => $package,
             '--namespace' => $namespace ?: 'default',
             '--theme'     => $type == 2,
+            '--api'       => (bool) $enable_api,
             '--plugin_name' => $plugin_name,
             '--plugin_desc' => $plugin_desc,
             '--authors_name' => $authors_name,

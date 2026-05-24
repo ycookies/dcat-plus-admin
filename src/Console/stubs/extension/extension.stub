@@ -36,7 +36,7 @@ class {className}ServiceProvider extends ServiceProvider
 
 	public function register()
 	{
-		//
+{apiRegisterCalls}
 	}
 
 	public function init()
@@ -51,4 +51,6 @@ class {className}ServiceProvider extends ServiceProvider
 	{
 		return new Setting($this);
 	}
+
+{apiMethods}
 }

@@ -1,0 +1,16 @@
+<?php
+
+use {namespace}\Http\Api\Controllers;
+use Illuminate\Support\Facades\Route;
+
+// === {className} API ===
+Route::prefix('{path}')->group(function () {
+
+    // 示例接口
+    Route::get('index', Controllers\IndexController::class.'@index');
+
+    // 需要登录 (JWT memberapi)
+    // Route::middleware('member.apiAuth')->group(function () {
+    //     Route::post('example', [Controllers\IndexController::class, 'example']);
+    // });
+});

@@ -95,7 +95,7 @@
  >  ``
 
   `2.x 环境`
- >  - PHP >= 8.4
+ >  - PHP >= 8.3
  >  - Laravel 12 ~ 13.*
  >  - Fileinfo PHP Extension
 
@@ -133,7 +133,7 @@ cd {项目名称}
 composer require dcat-plus/laravel-admin
 
 # 或指定版本号
-composer require dcat-plus/laravel-admin:1.4.5
+composer require dcat-plus/laravel-admin:1.*
 
 # 安装 2.x版本
 composer require dcat-plus/laravel-admin:^2.0

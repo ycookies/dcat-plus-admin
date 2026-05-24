@@ -18,6 +18,7 @@ class ExtensionMakeProCommand extends Command
     {name : The name of the extension. Eg: author-name/extension-name} 
     {--namespace= : The namespace of the extension.}
     {--theme}
+    {--api : Create API and AdminApi directories with routes and controllers}
     {--plugin_name}
     {--plugin_desc}
     {--authors_name}
@@ -66,6 +67,9 @@ class ExtensionMakeProCommand extends Command
      */
     protected $extensionDir;
 
+
+
+
     /**
      * @var array
      */
@@ -78,6 +82,14 @@ class ExtensionMakeProCommand extends Command
         'src/Models',
         'src/Http/Controllers',
         'src/Http/Middleware',
+    ];
+
+    /**
+     * @var array
+     */
+    protected $apiDirs = [
+        'src/Http/Api/Controllers',
+        'src/Http/AdminApi/Controllers',
     ];
 
     protected $themeDirs = [
@@ -141,12 +153,27 @@ class ExtensionMakeProCommand extends Command
     │   ├── assets
     │   │   └── css
     │   │       └── index.css
-    │   └── views
+    │   └── views
     └── src
         ├── {$this->className}ServiceProvider.php
         └── Setting.php
 TREE;
         } else {
+            $apiTree = '';
+            if ($this->option('api')) {
+                $apiTree = <<<TREE
+
+        ├── Api
+        │   ├── Controllers
+        │   │   └── IndexController.php
+        │   └── routes.php
+        ├── AdminApi
+            ├── Controllers
+            │   └── IndexController.php
+            └── routes.php
+TREE;
+            }
+
             $tree = <<<TREE
 {$this->extensionPath()}
     ├── README.md
@@ -161,8 +188,8 @@ TREE;
     │   │   │   └── index.css
     │   │   └── js
     │   │       └── index.js
-    │   └── views
-    │       └── index.blade.php
+    │   └── views
+    │       └── index.blade.php
     └── src
         ├── {$this->className}ServiceProvider.php
         ├── Setting.php
@@ -170,8 +197,8 @@ TREE;
         └── Http
             ├── routes.php
             ├── Middleware
-            └── Controllers
-                └── {$this->className}Controller.php
+            ├── Controllers
+            │   └── {$this->className}Controller.php{$apiTree}
 TREE;
         }
 
@@ -196,13 +223,13 @@ TREE;
         $authors_email = $this->option('authors_email');
         // make composer.json
         $composerContents = str_replace(
-            ['{package}', '{pluginName}', '{namespace}', '{className}','{pluginDesc}','{authorsName}','{authorsEmail}'],
-            [$this->package, $plugin_name, str_replace('\\', '\\\\', $this->namespace).'\\\\', $this->className,$plugin_desc,$authors_name,$authors_email],
+            ['{package}', '{pluginName}', '{namespace}', '{className}', '{pluginDesc}', '{authorsName}', '{authorsEmail}'],
+            [$this->package, $plugin_name, str_replace('\\', '\\\\', $this->namespace).'\\\\', $this->className, $plugin_desc, $authors_name, $authors_email],
             file_get_contents(__DIR__.'/stubs/extension/composer.json.stub')
         );
         $this->putFile('composer.json', $composerContents);
 
-        // make composer.json
+        // make setting
         $settingContents = str_replace(
             ['{namespace}'],
             [$this->namespace],
@@ -212,9 +239,9 @@ TREE;
 
         $basePackage = Helper::slug(basename($this->package));
 
-        // make class
+        // make service provider class
         $classContents = str_replace(
-            ['{namespace}', '{className}', '{title}', '{path}', '{basePackage}', '{property}', '{registerTheme}'],
+            ['{namespace}', '{className}', '{title}', '{path}', '{basePackage}', '{property}', '{registerTheme}', '{apiRegisterCalls}', '{apiMethods}'],
             [
                 $this->namespace,
                 $this->className,
@@ -223,6 +250,8 @@ TREE;
                 $basePackage,
                 $this->makeProviderContent(),
                 $this->makeRegisterThemeContent(),
+                $this->makeApiRegisterCalls(),
+                $this->makeApiMethods(),
             ],
             file_get_contents(__DIR__.'/stubs/extension/extension.stub')
         );
@@ -251,7 +280,109 @@ TREE;
                 file_get_contents(__DIR__.'/stubs/extension/routes.stub')
             );
             $this->putFile('src/Http/routes.php', $routesContent);
+
+            // make API files if --api option is set
+            if ($this->option('api')) {
+                $this->makeApiFiles($basePackage);
+            }
         }
+    }
+
+    /**
+     * Make API related files (routes + controllers).
+     */
+    protected function makeApiFiles(string $basePackage)
+    {
+        // Api routes
+        $apiRoutesContent = str_replace(
+            ['{namespace}', '{className}', '{path}'],
+            [$this->namespace, $this->className, $basePackage],
+            file_get_contents(__DIR__.'/stubs/extension/api_routes.stub')
+        );
+        $this->putFile('src/Http/Api/routes.php', $apiRoutesContent);
+
+        // Api controller
+        $apiControllerContent = str_replace(
+            ['{namespace}', '{className}', '{name}'],
+            [$this->namespace, $this->className, $this->extensionName],
+            file_get_contents(__DIR__.'/stubs/extension/api_controller.stub')
+        );
+        $this->putFile('src/Http/Api/Controllers/IndexController.php', $apiControllerContent);
+
+        // AdminApi routes
+        $adminApiRoutesContent = str_replace(
+            ['{namespace}', '{className}', '{path}'],
+            [$this->namespace, $this->className, $basePackage],
+            file_get_contents(__DIR__.'/stubs/extension/admin_api_routes.stub')
+        );
+        $this->putFile('src/Http/AdminApi/routes.php', $adminApiRoutesContent);
+
+        // AdminApi controller
+        $adminApiControllerContent = str_replace(
+            ['{namespace}', '{className}', '{name}'],
+            [$this->namespace, $this->className, $this->extensionName],
+            file_get_contents(__DIR__.'/stubs/extension/admin_api_controller.stub')
+        );
+        $this->putFile('src/Http/AdminApi/Controllers/IndexController.php', $adminApiControllerContent);
+    }
+
+    /**
+     * Generate API register calls for ServiceProvider.
+     */
+    protected function makeApiRegisterCalls()
+    {
+        if (! $this->option('api') || $this->option('theme')) {
+            return '';
+        }
+
+        return <<<'TEXT'
+		// API 路由需在 register() 中加载，因为 boot()/init() 会跳过 API 请求
+		$this->loadApiRoutes();
+		$this->loadAdminApiRoutes();
+TEXT;
+    }
+
+    /**
+     * Generate API methods for ServiceProvider.
+     */
+    protected function makeApiMethods()
+    {
+        if (! $this->option('api') || $this->option('theme')) {
+            return '';
+        }
+
+        $namespace = str_replace('\\', '\\\\', $this->namespace);
+
+        return <<<TEXT
+
+    /**
+     * 加载插件API路由（前台会员端）
+     */
+    protected function loadApiRoutes(): void
+    {
+        \$apiRouteFile = \$this->path('src/Http/Api/routes.php');
+        if (file_exists(\$apiRouteFile)) {
+            \\Illuminate\\Support\\Facades\\Route::prefix('member-api')
+                ->middleware('api')
+                ->namespace('{$namespace}\\Http\\Api\\Controllers')
+                ->group(\$apiRouteFile);
+        }
+    }
+
+    /**
+     * 加载插件AdminApi路由（后台管理端）
+     */
+    protected function loadAdminApiRoutes(): void
+    {
+        \$apiRouteFile = \$this->path('src/Http/AdminApi/routes.php');
+        if (file_exists(\$apiRouteFile)) {
+            \\Illuminate\\Support\\Facades\\Route::prefix('admin-api')
+                ->middleware('api')
+                ->namespace('{$namespace}\\Http\\AdminApi\\Controllers')
+                ->group(\$apiRouteFile);
+        }
+    }
+TEXT;
     }
 
     protected function makeProviderContent()
@@ -334,7 +465,14 @@ TEXT;
      */
     protected function makeDirs()
     {
-        $this->makeDir($this->option('theme') ? $this->themeDirs : $this->dirs);
+        $dirs = $this->option('theme') ? $this->themeDirs : $this->dirs;
+
+        // Add API dirs if --api option is set and not a theme
+        if (! $this->option('theme') && $this->option('api')) {
+            $dirs = array_merge($dirs, $this->apiDirs);
+        }
+
+        $this->makeDir($dirs);
     }
 
     /**
