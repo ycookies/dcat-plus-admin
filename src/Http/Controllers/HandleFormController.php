@@ -103,6 +103,11 @@ class HandleFormController
             throw new AdminException("Form [{$formClass}] does not exist.");
         }
 
+        // 安全检查：验证类必须是 Form 的子类，防止任意类实例化
+        if (! is_subclass_of($formClass, Form::class)) {
+            throw new AdminException("Form [{$formClass}] must be a subclass of " . Form::class);
+        }
+
         /** @var Form $form */
         $form = app($formClass);
 

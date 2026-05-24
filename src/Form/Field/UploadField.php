@@ -112,6 +112,46 @@ trait UploadField
     }
 
     /**
+     * 危险扩展名黑名单
+     */
+    protected function getDangerousExtensions(): array
+    {
+        return [
+            'php', 'php3', 'php4', 'php5', 'php7', 'php8',
+            'phtml', 'pht', 'phar', 'inc', 'cgi', 'pl',
+            'asp', 'aspx', 'jsp', 'py', 'sh', 'bash', 'bat',
+            'hta', 'htaccess',
+        ];
+    }
+
+    /**
+     * 获取安全的文件扩展名，过滤危险扩展名
+     */
+    protected function getSafeExtension(UploadedFile $file): string
+    {
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        if (in_array($ext, $this->getDangerousExtensions())) {
+            return '';
+        }
+
+        return $ext;
+    }
+
+    /**
+     * 清理文件名，移除路径穿越和特殊字符
+     */
+    protected function sanitizeFileName(string $name): string
+    {
+        // 移除路径穿越字符
+        $name = str_replace(['../', '..\\', '..', "\0", '/', '\\'], '', $name);
+        // 移除特殊字符，只保留字母、数字、连字符、下划线、点和中文
+        $name = preg_replace('/[^a-zA-Z0-9\-_\.\x{4e00}-\x{9fa5}]/u', '', $name);
+
+        return $name;
+    }
+
+    /**
      * Get store name of upload file.
      *
      * @param  UploadedFile  $file
@@ -135,7 +175,15 @@ trait UploadField
             return $this->name;
         }
 
-        return $file->getClientOriginalName();
+        // 安全回退：清理客户端文件名并过滤危险扩展名
+        $safeName = $this->sanitizeFileName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $safeExt = $this->getSafeExtension($file);
+
+        if (empty($safeName)) {
+            $safeName = bin2hex(random_bytes(8));
+        }
+
+        return $safeExt ? $safeName . '.' . $safeExt : $safeName;
     }
 
     /**
@@ -312,7 +360,9 @@ trait UploadField
      */
     protected function generateUniqueName(UploadedFile $file)
     {
-        return md5(uniqid()).'.'.$file->getClientOriginalExtension();
+        $ext = $this->getSafeExtension($file);
+
+        return bin2hex(random_bytes(16)).($ext ? '.'.$ext : '');
     }
 
     /**
@@ -324,13 +374,13 @@ trait UploadField
     protected function generateSequenceName(UploadedFile $file)
     {
         $index = 1;
-        $extension = $file->getClientOriginalExtension();
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $newName = $originalName.'_'.$index.'.'.$extension;
+        $extension = $this->getSafeExtension($file);
+        $originalName = $this->sanitizeFileName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $newName = $originalName.'_'.$index.($extension ? '.'.$extension : '');
 
         while ($this->getStorage()->exists("{$this->getDirectory()}/$newName")) {
             $index++;
-            $newName = $originalName.'_'.$index.'.'.$extension;
+            $newName = $originalName.'_'.$index.($extension ? '.'.$extension : '');
         }
 
         return $newName;

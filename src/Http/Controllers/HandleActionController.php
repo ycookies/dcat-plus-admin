@@ -46,6 +46,11 @@ class HandleActionController
             throw new AdminException("Action [{$actionClass}] does not exist.");
         }
 
+        // 安全检查：验证类必须是 Action 的子类，防止任意类实例化
+        if (! is_subclass_of($actionClass, Action::class)) {
+            throw new AdminException("Action [{$actionClass}] must be a subclass of " . Action::class);
+        }
+
         /** @var Action $action */
         $action = app($actionClass);
 

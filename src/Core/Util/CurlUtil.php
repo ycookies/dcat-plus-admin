@@ -197,8 +197,8 @@ class CurlUtil
                 break;
         }
         if (strpos($url, 'https://') === 0) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         }
         if (!empty($option['socks5'])) {
             curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
@@ -250,7 +250,7 @@ class CurlUtil
         $url = "$proxy?package=" . urlencode(base64_encode(SerializeUtil::jsonEncode($package)));
         $content = self::getRaw($url);
         $content = @base64_decode($content);
-        $content = @unserialize($content);
+        $content = @json_decode($content, true);
         return $content;
     }
 
@@ -259,7 +259,7 @@ class CurlUtil
         $url = "$proxy?package=" . urlencode(base64_encode(SerializeUtil::jsonEncode($package)));
         $content = self::getRaw($url);
         $content = @base64_decode($content);
-        $content = @unserialize($content);
+        $content = @json_decode($content, true);
         return $content;
     }
 
@@ -287,8 +287,8 @@ class CurlUtil
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
         if (StrUtil::startWith($url, 'https://')) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         }
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $param);
@@ -330,8 +330,8 @@ class CurlUtil
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
         if (StrUtil::startWith($url, 'https://')) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         }
         if (!isset($option['userAgent'])) {
             $option['userAgent'] = self::defaultUserAgent();
@@ -346,7 +346,7 @@ class CurlUtil
 
     public static function defaultUserAgent()
     {
-        $userAgent = 'dcat-plus/1.2.3 PHP/' . PHP_VERSION . ' OS/' . PHP_OS;
+        $userAgent = 'dcat-plus/1.2.3';
         /*$appInfo = [];
         if (class_exists(\App\Constant\AppConstant::class)) {
             if (defined('\\App\\Constant\\AppConstant::APP')) {

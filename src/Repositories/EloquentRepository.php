@@ -234,6 +234,20 @@ class EloquentRepository extends Repository implements TreeRepository
      */
     protected function setOrderBy(Grid\Model $model, $column, $type, $cast)
     {
+        // 安全验证：排序方向只允许 asc/desc
+        $type = in_array(strtolower($type), ['asc', 'desc']) ? strtoupper($type) : 'ASC';
+
+        // 安全验证：列名只允许合法字符（字母、数字、下划线、点、连字符、>）
+        if (!preg_match('/^[a-zA-Z0-9_\-\.\>]+$/', $column)) {
+            return;
+        }
+
+        // 安全验证：cast 类型只允许合法的 SQL 类型
+        $allowedCasts = ['SIGNED', 'UNSIGNED', 'DECIMAL', 'CHAR', 'DATE', 'DATETIME', 'TIME', 'BINARY'];
+        if (!empty($cast) && !in_array(strtoupper($cast), $allowedCasts)) {
+            $cast = null;
+        }
+
         $isJsonColumn = Str::contains($column, '->');
 
         if ($isJsonColumn) {
@@ -246,10 +260,11 @@ class EloquentRepository extends Repository implements TreeRepository
 
         if (! empty($cast)) {
             $column = $this->wrapMySqlColumn($column);
+            $safeCast = strtoupper($cast);
 
             $model->addQuery(
                 'orderByRaw',
-                ["CAST({$column} AS {$cast}) {$type}"]
+                ["CAST({$column} AS {$safeCast}) {$type}"]
             );
 
             return;

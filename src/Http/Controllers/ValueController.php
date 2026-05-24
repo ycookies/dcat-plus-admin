@@ -2,6 +2,8 @@
 
 namespace Dcat\Admin\Http\Controllers;
 
+use Dcat\Admin\Exception\AdminException;
+use Dcat\Admin\Traits\InteractsWithApi;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -44,6 +46,11 @@ class ValueController
 
         if (! class_exists($key)) {
             throw new Exception("Class [{$key}] does not exist.");
+        }
+
+        // 安全检查：验证类必须使用 InteractsWithApi trait，防止任意类实例化
+        if (! in_array(InteractsWithApi::class, class_uses_recursive($key))) {
+            throw new AdminException("Class [{$key}] must use trait " . InteractsWithApi::class);
         }
 
         $instance = app($key);

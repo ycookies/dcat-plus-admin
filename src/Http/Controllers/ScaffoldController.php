@@ -69,6 +69,10 @@ class ScaffoldController extends Controller {
         if (!config('app.debug')) {
             Permission::error();
         }
+        // 安全检查：即使在 debug 模式下也要求超级管理员角色
+        if (!Permission::isAdministrator()) {
+            Permission::error();
+        }
 
         if ($tableName = request('singular')) {
             return $this->singular($tableName);
@@ -110,6 +114,10 @@ class ScaffoldController extends Controller {
         if (!config('app.debug')) {
             Permission::error();
         }
+        // 安全检查：即使在 debug 模式下也要求超级管理员角色
+        if (!Permission::isAdministrator()) {
+            Permission::error();
+        }
 
         $paths   = [];
         $message = '';
@@ -121,6 +129,10 @@ class ScaffoldController extends Controller {
         $model      = $request->input('model_name');
         $repository = $request->input('repository_name');
         $route_path = $request->input('route_path');
+        // 安全验证：route_path 只允许字母、数字、斜杠、连字符、下划线
+        if (!empty($route_path) && !preg_match('/^[a-zA-Z0-9_\-\/]+$/', $route_path)) {
+            return back()->withInput()->withErrors(['route_path' => '路由路径只能包含字母、数字、斜杠、连字符和下划线']);
+        }
         $is_add_admin_api = $request->has('is_add_admin_api');
         $is_add_member_api = $request->has('is_add_member_api');
 
@@ -855,68 +867,6 @@ class ScaffoldController extends Controller {
     /**
      * @return array
      */
-    protected function getDatabaseColumnsOld($db = null, $tb = null) {
-        $databases = Arr::where(config('database.connections', []), function ($value) {
-            $supports = ['mysql'];
-            return in_array(strtolower(Arr::get($value, 'driver')), $supports);
-        });
-
-        $data = [];
-
-        try {
-            foreach ($databases as $connectName => $value) {
-                if ($db && $db != $value['database']) {
-                    continue;
-                }
-
-                $sql = sprintf('SELECT * FROM information_schema.columns WHERE table_schema = "%s"', $value['database']);
-
-                if ($tb) {
-                    $p = Arr::get($value, 'prefix');
-
-                    $sql .= " AND TABLE_NAME = '{$p}{$tb}'";
-                }
-
-                $sql .= ' ORDER BY `ORDINAL_POSITION` ASC';
-
-                $tmp = DB::connection($connectName)->select($sql);
-
-                $collection = collect($tmp)->map(function ($v) use ($value) {
-                    if (!$p = Arr::get($value, 'prefix')) {
-                        return (array)$v;
-                    }
-                    $v = (array)$v;
-
-                    $v['TABLE_NAME'] = Str::replaceFirst($p, '', $v['TABLE_NAME']);
-
-                    return $v;
-                });
-
-                $data[$value['database']] = $collection->groupBy('TABLE_NAME')->map(function ($v) {
-                    return collect($v)->keyBy('COLUMN_NAME')->map(function ($v) {
-                        $v['COLUMN_TYPE'] = strtolower($v['COLUMN_TYPE']);
-                        $v['DATA_TYPE']   = strtolower($v['DATA_TYPE']);
-
-                        if (Str::contains($v['COLUMN_TYPE'], 'unsigned')) {
-                            $v['DATA_TYPE'] .= '@unsigned';
-                        }
-
-                        return [
-                            'type'     => $v['DATA_TYPE'],
-                            'default'  => $v['COLUMN_DEFAULT'],
-                            'nullable' => $v['IS_NULLABLE'],
-                            'key'      => $v['COLUMN_KEY'],
-                            'id'       => $v['COLUMN_KEY'] === 'PRI',
-                            'comment'  => $v['COLUMN_COMMENT'],
-                        ];
-                    })->toArray();
-                })->toArray();
-            }
-        } catch (\Throwable $e) {
-        }
-
-        return $data;
-    }
 
     /**
      * 获取数据库表字段信息，支持 MySQL/MariaDB、SQLite 和 PostgreSQL
