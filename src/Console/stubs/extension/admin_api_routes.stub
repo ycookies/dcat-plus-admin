@@ -3,4 +3,14 @@
 use {namespace}\Http\AdminApi\Controllers;
 use Illuminate\Support\Facades\Route;
 
-Route::get('{path}', Controllers\IndexController::class.'@index');
+// === {className} AdminApi ===
+Route::prefix('{path}')->group(function () {
+
+    // 示例接口
+    Route::get('index', Controllers\IndexController::class.'@index');
+
+    // 需要管理员权限
+    // Route::middleware('admin.apiAuth')->group(function () {
+    //     Route::post('example', [Controllers\IndexController::class, 'example']);
+    // });
+});
