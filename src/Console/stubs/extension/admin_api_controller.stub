@@ -1,0 +1,22 @@
+<?php
+
+namespace {namespace}\Http\AdminApi\Controllers;
+
+use Illuminate\Routing\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class IndexController extends Controller
+{
+    /**
+     * AdminApi示例接口
+     */
+    public function index(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => '{className} AdminApi is working.',
+            'data' => [],
+        ]);
+    }
+}

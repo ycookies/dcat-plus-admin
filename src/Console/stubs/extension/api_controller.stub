@@ -1,0 +1,22 @@
+<?php
+
+namespace {namespace}\Http\Api\Controllers;
+
+use Illuminate\Routing\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class IndexController extends Controller
+{
+    /**
+     * API示例接口
+     */
+    public function index(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => '{className} API is working.',
+            'data' => [],
+        ]);
+    }
+}

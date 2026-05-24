@@ -1,0 +1,6 @@
+<?php
+
+use {namespace}\Http\Api\Controllers;
+use Illuminate\Support\Facades\Route;
+
+Route::get('{path}', Controllers\IndexController::class.'@index');
