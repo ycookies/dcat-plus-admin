@@ -5,7 +5,11 @@ namespace {namespace}\Http\Api\Controllers;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Group;
 
+#[Group('组织机构','组织机构',1)]
 class IndexController extends Controller
 {
     /**
@@ -13,9 +17,16 @@ class IndexController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        // 校验请求参数（示例）
+        $request->validate([
+            // 微信登录 code
+            'code' => ['required', 'string'],
+        ],[
+            'code.required' => '请提供登录 code',
+        ]);
         return response()->json([
             'success' => true,
-            'message' => '{className} API is working.',
+            'message' => '{name} API is working.',
             'data' => [],
         ]);
     }

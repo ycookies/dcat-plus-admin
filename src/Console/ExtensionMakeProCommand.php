@@ -67,6 +67,9 @@ class ExtensionMakeProCommand extends Command
      */
     protected $extensionDir;
 
+
+
+
     /**
      * @var array
      */
@@ -300,8 +303,8 @@ TREE;
 
         // Api controller
         $apiControllerContent = str_replace(
-            ['{namespace}', '{className}'],
-            [$this->namespace, $this->className],
+            ['{namespace}', '{className}', '{name}'],
+            [$this->namespace, $this->className, $this->extensionName],
             file_get_contents(__DIR__.'/stubs/extension/api_controller.stub')
         );
         $this->putFile('src/Http/Api/Controllers/IndexController.php', $apiControllerContent);
@@ -316,8 +319,8 @@ TREE;
 
         // AdminApi controller
         $adminApiControllerContent = str_replace(
-            ['{namespace}', '{className}'],
-            [$this->namespace, $this->className],
+            ['{namespace}', '{className}', '{name}'],
+            [$this->namespace, $this->className, $this->extensionName],
             file_get_contents(__DIR__.'/stubs/extension/admin_api_controller.stub')
         );
         $this->putFile('src/Http/AdminApi/Controllers/IndexController.php', $adminApiControllerContent);
