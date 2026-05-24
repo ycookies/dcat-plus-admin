@@ -132,10 +132,10 @@ trait UploadField
         }
 
         if ($this->name !== '' && is_string($this->name)) {
-            return $this->name;
+            return $this->sanitizeFileName($this->name);
         }
 
-        return $file->getClientOriginalName();
+        return $this->sanitizeFileName($file->getClientOriginalName());
     }
 
     /**
@@ -305,6 +305,47 @@ trait UploadField
     }
 
     /**
+     * 危险扩展名黑名单
+     *
+     * @return array
+     */
+    protected function getDangerousExtensions()
+    {
+        return [
+            'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'pht',
+            'phar', 'inc', 'cgi', 'pl', 'asp', 'aspx', 'jsp', 'py', 'sh',
+            'bash', 'bat', 'hta', 'htaccess',
+        ];
+    }
+
+    /**
+     * 获取安全的文件扩展名，过滤危险类型
+     *
+     * @param  UploadedFile  $file
+     * @return string
+     */
+    protected function getSafeExtension(UploadedFile $file)
+    {
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        return in_array($ext, $this->getDangerousExtensions()) ? 'bin' : $ext;
+    }
+
+    /**
+     * 清理文件名中的路径穿越和特殊字符
+     *
+     * @param  string  $name
+     * @return string
+     */
+    protected function sanitizeFileName($name)
+    {
+        $name = str_replace(['../', '..\\', '..', "\0", '/', '\\'], '', $name);
+        $name = preg_replace('/[^a-zA-Z0-9_\-\.\x{4e00}-\x{9fa5}]/u', '', $name);
+
+        return $name;
+    }
+
+    /**
      * Generate a unique name for uploaded file.
      *
      * @param  UploadedFile  $file
@@ -312,7 +353,7 @@ trait UploadField
      */
     protected function generateUniqueName(UploadedFile $file)
     {
-        return md5(uniqid()).'.'.$file->getClientOriginalExtension();
+        return bin2hex(random_bytes(16)).'.'.$this->getSafeExtension($file);
     }
 
     /**
@@ -324,8 +365,8 @@ trait UploadField
     protected function generateSequenceName(UploadedFile $file)
     {
         $index = 1;
-        $extension = $file->getClientOriginalExtension();
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $this->getSafeExtension($file);
+        $originalName = $this->sanitizeFileName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
         $newName = $originalName.'_'.$index.'.'.$extension;
 
         while ($this->getStorage()->exists("{$this->getDirectory()}/$newName")) {

@@ -29,9 +29,9 @@ class WebUploader
     {
         $request = $this->prepareRequest($request ?: request());
 
-        $this->_id = $request->get('_id');
-        $this->chunk = $request->get('chunk');
-        $this->chunks = $request->get('chunks');
+        $this->_id = $this->sanitizeId($request->get('_id'));
+        $this->chunk = (int) $request->get('chunk');
+        $this->chunks = (int) $request->get('chunks');
         $this->upload_column = $request->get('upload_column');
         $this->file = $request->file(static::FILE_NAME);
     }
@@ -222,7 +222,26 @@ class WebUploader
      */
     protected function generateChunkFileName(UploadedFile $file)
     {
-        return md5($file->getClientOriginalName());
+        return bin2hex(random_bytes(16));
+    }
+
+    /**
+     * 清理分块上传ID，防止路径穿越
+     *
+     * @param  string|null  $id
+     * @return string
+     */
+    protected function sanitizeId($id)
+    {
+        if (empty($id)) {
+            return bin2hex(random_bytes(8));
+        }
+        // 只允许字母数字和连字符
+        $id = preg_replace('/[^a-zA-Z0-9_\-]/', '', $id);
+        if (empty($id)) {
+            return bin2hex(random_bytes(8));
+        }
+        return $id;
     }
 
     /**

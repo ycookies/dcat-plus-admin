@@ -2,6 +2,7 @@
 
 namespace Dcat\Admin\Http\Controllers;
 
+use Dcat\Admin\Exception\AdminException;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -9,10 +10,55 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class EditorMDController
 {
+    /**
+     * 允许的文件扩展名白名单
+     */
+    protected function getAllowedExtensions()
+    {
+        return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    }
+
+    /**
+     * 允许的MIME类型白名单
+     */
+    protected function getAllowedMimes()
+    {
+        return ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml'];
+    }
+
+    /**
+     * 验证上传文件类型（扩展名 + MIME）
+     */
+    protected function validateFile(UploadedFile $file)
+    {
+        $ext = strtolower($file->getClientOriginalExtension());
+        $mime = $file->getMimeType();
+
+        if (!in_array($ext, $this->getAllowedExtensions())) {
+            throw new AdminException('不支持的文件类型: ' . $ext);
+        }
+        if (!in_array($mime, $this->getAllowedMimes())) {
+            throw new AdminException('不支持的文件MIME类型: ' . $mime);
+        }
+    }
+
+    /**
+     * 清理上传目录参数，防止路径穿越
+     */
+    protected function sanitizeDir($dir)
+    {
+        $dir = str_replace(['../', '..\\', '..', "\0"], '', $dir);
+        $dir = preg_replace('/[^a-zA-Z0-9\/\-_]/', '', $dir);
+        return $dir ?: 'images';
+    }
+
     public function upload(Request $request)
     {
         $file = $request->file('editormd-image-file');
-        $dir = trim($request->get('dir'), '/');
+
+        $this->validateFile($file);
+
+        $dir = $this->sanitizeDir(trim($request->get('dir'), '/'));
         $disk = $this->disk();
 
         $newName = $this->generateNewName($file);
@@ -32,8 +78,6 @@ class EditorMDController
      */
     protected function disk()
     {
-        $disk = request()->get('disk') ?: config('admin.upload.disk');
-
-        return Storage::disk($disk);
+        return Storage::disk(config('admin.upload.disk'));
     }
 }

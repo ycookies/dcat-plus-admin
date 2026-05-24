@@ -234,6 +234,14 @@ class EloquentRepository extends Repository implements TreeRepository
      */
     protected function setOrderBy(Grid\Model $model, $column, $type, $cast)
     {
+        // Security: validate sort direction
+        $type = in_array(strtolower($type), ['asc', 'desc']) ? strtoupper($type) : 'ASC';
+
+        // Security: validate column name (only allow safe characters)
+        if (!preg_match('/^[a-zA-Z0-9_\-\.\>]+$/', $column)) {
+            return;
+        }
+
         $isJsonColumn = Str::contains($column, '->');
 
         if ($isJsonColumn) {
@@ -245,6 +253,12 @@ class EloquentRepository extends Repository implements TreeRepository
         }
 
         if (! empty($cast)) {
+            // Security: validate cast type whitelist
+            $allowedCasts = ['SIGNED', 'UNSIGNED', 'DECIMAL', 'CHAR', 'DATE', 'DATETIME', 'TIME', 'BINARY'];
+            if (!in_array(strtoupper($cast), $allowedCasts)) {
+                $cast = null;
+                return;
+            }
             $column = $this->wrapMySqlColumn($column);
 
             $model->addQuery(

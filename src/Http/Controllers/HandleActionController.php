@@ -46,6 +46,10 @@ class HandleActionController
             throw new AdminException("Action [{$actionClass}] does not exist.");
         }
 
+        if (! is_subclass_of($actionClass, Action::class)) {
+            throw new AdminException("Action [{$actionClass}] is not a valid action class.");
+        }
+
         /** @var Action $action */
         $action = app($actionClass);
 

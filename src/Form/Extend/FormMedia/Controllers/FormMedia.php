@@ -9,11 +9,31 @@ use Dcat\Admin\Form\Extend\FormMedia\MediaManager;
 class FormMedia extends Controller
 {
     /**
+     * 清理路径参数，防止路径穿越
+     */
+    protected function sanitizePath($path)
+    {
+        $path = str_replace(['../', '..\\', '..', "\0"], '', $path);
+        $path = preg_replace('/[^a-zA-Z0-9\/\-_\.]/', '', $path);
+        return '/' . trim($path, '/');
+    }
+
+    /**
+     * 清理文件夹名，防止路径穿越和特殊字符
+     */
+    protected function sanitizeFolderName($name)
+    {
+        $name = str_replace(['../', '..\\', '..', "\0", '/', '\\'], '', $name);
+        $name = preg_replace('/[^a-zA-Z0-9_\-\.\x{4e00}-\x{9fa5}]/u', '', $name);
+        return $name;
+    }
+
+    /**
      * 获取文件列表
      */
     public function getFiles()
     {
-        $path = request()->input('path', '/');
+        $path = $this->sanitizePath(request()->input('path', '/'));
         
         $currentPage = (int) request()->input('page', 1);
         $perPage = (int) request()->input('pageSize', 120);
@@ -21,12 +41,6 @@ class FormMedia extends Controller
         $manager = MediaManager::create()
             ->defaultDisk()
             ->setPath($path);
-        
-        // 驱动磁盘
-        $disk = request()->input('disk', '');
-        if (! empty($disk)) {
-            $manager = $manager->withDisk($disk);
-        }
         
         $type = (string) request()->input('type', 'image');
         $order = (string) request()->input('order', 'time');
@@ -55,10 +69,16 @@ class FormMedia extends Controller
     public function upload()
     {
         $files = request()->file('files');
-        $path = request()->get('path', '/');
+        $path = $this->sanitizePath(request()->get('path', '/'));
         
         $type = request()->get('type');
+        
+        // Security: nametype whitelist
         $nametype = request()->get('nametype', 'uniqid');
+        $allowedNametypes = ['uniqid', 'datetime', 'sequence', 'original'];
+        if (!in_array($nametype, $allowedNametypes)) {
+            $nametype = 'uniqid';
+        }
         
         // 裁剪
         $resize = request()->get('resize', '');
@@ -67,12 +87,6 @@ class FormMedia extends Controller
             ->defaultDisk()
             ->setPath($path)
             ->setNametype($nametype);
-        
-        // 驱动磁盘
-        $disk = request()->input('disk', '');
-        if (! empty($disk)) {
-            $manager = $manager->withDisk($disk);
-        }
         
         if ($type != 'blend') {
             if (! $manager->checkType($files, $type)) {
@@ -115,22 +129,16 @@ class FormMedia extends Controller
      */
     public function createFolder()
     {
-        $dir = request()->input('dir');
-        $name = request()->input('name');
+        $dir = $this->sanitizePath(request()->input('dir', '/'));
+        $name = $this->sanitizeFolderName(request()->input('name'));
         
-        if (empty($dir)) {
+        if (empty($name)) {
             return $this->renderJson(admin_trans('form-media.create_dirname_empty'), -1);
         }
 
         $manager = MediaManager::create()
             ->defaultDisk()
             ->setPath($dir);
-        
-        // 驱动磁盘
-        $disk = request()->input('disk', '');
-        if (! empty($disk)) {
-            $manager = $manager->withDisk($disk);
-        }
 
         try {
             if ($manager->createFolder($name)) {
@@ -153,6 +161,3 @@ class FormMedia extends Controller
         ]);
     }
 }
-
-
-

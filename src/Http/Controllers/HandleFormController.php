@@ -103,6 +103,10 @@ class HandleFormController
             throw new AdminException("Form [{$formClass}] does not exist.");
         }
 
+        if (! is_subclass_of($formClass, Form::class)) {
+            throw new AdminException("Form [{$formClass}] is not a valid form class.");
+        }
+
         /** @var Form $form */
         $form = app($formClass);
 

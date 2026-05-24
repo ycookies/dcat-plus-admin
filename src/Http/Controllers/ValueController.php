@@ -46,6 +46,14 @@ class ValueController
             throw new Exception("Class [{$key}] does not exist.");
         }
 
+        // Security: block core framework classes to prevent arbitrary instantiation
+        $blockedNamespaces = ['Illuminate\\', 'Symfony\\', 'Psr\\', 'Composer\\', 'Monolog\\'];
+        foreach ($blockedNamespaces as $ns) {
+            if (strpos($key, $ns) === 0) {
+                throw new Exception("Class [{$key}] is not a valid API handler.");
+            }
+        }
+
         $instance = app($key);
 
         if (! method_exists($instance, 'handle')) {

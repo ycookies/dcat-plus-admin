@@ -272,12 +272,43 @@ class MediaManager
     }
 
     /**
+     * 危险扩展名黑名单
+     */
+    protected function getDangerousExtensions()
+    {
+        return [
+            'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'pht',
+            'phar', 'inc', 'cgi', 'pl', 'asp', 'aspx', 'jsp', 'py', 'sh',
+            'bash', 'bat', 'hta', 'htaccess',
+        ];
+    }
+
+    /**
+     * 获取安全的文件扩展名
+     */
+    protected function getSafeExtension($file)
+    {
+        $ext = strtolower($file->getClientOriginalExtension());
+        return in_array($ext, $this->getDangerousExtensions()) ? 'bin' : $ext;
+    }
+
+    /**
+     * 清理文件名
+     */
+    protected function sanitizeFileName($name)
+    {
+        $name = str_replace(['../', '..\\', '..', "\0", '/', '\\'], '', $name);
+        $name = preg_replace('/[^a-zA-Z0-9_\-\.\x{4e00}-\x{9fa5}]/u', '', $name);
+        return $name;
+    }
+
+    /**
      * 时间命名
      */
     public function generateDatetimeName($file)
     {
-        $name = date('YmdHis').mt_rand(10000, 99999);
-        $extension = $file->getClientOriginalExtension();
+        $name = date('YmdHis').bin2hex(random_bytes(3));
+        $extension = $this->getSafeExtension($file);
         
         if (empty($extension)) {
             return $name;
@@ -291,8 +322,8 @@ class MediaManager
      */
     public function generateUniqueName($file)
     {
-        $name = md5(uniqid().microtime());
-        $extension = $file->getClientOriginalExtension();
+        $name = bin2hex(random_bytes(16));
+        $extension = $this->getSafeExtension($file);
         
         if (empty($extension)) {
             return $name;
@@ -307,8 +338,8 @@ class MediaManager
     public function generateSequenceName($file)
     {
         $index = 1;
-        $original = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = $file->getClientOriginalExtension();
+        $original = $this->sanitizeFileName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $extension = $this->getSafeExtension($file);
         
         if (! empty($extension)) {
             $new = sprintf('%s_%s.%s', $original, $index, $extension);
@@ -334,8 +365,8 @@ class MediaManager
      */
     public function generateClientOriginalName($file)
     {
-        $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = $file->getClientOriginalExtension();
+        $name = $this->sanitizeFileName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $extension = $this->getSafeExtension($file);
         
         if (empty($extension)) {
             return $name;
