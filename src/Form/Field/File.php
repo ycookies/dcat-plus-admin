@@ -163,15 +163,17 @@ class File extends Field implements UploadFieldInterface
     {
         $previews = [];
         $titleArr = $this->getCustomFormatValue();
+        $preview_srcs = Helper::array($this->previewSrcs());
         foreach (Helper::array($this->value()) as $key => $value) {
             $title = $this->objectUrl($value);
             if(!empty($titleArr[$key])){
                 $title = $titleArr[$key];
             }
+            $preview_src = $preview_srcs[$key] ?? $value;
             $previews[] = [
                 'id'   => $value,
                 'path' => Helper::basename($value),
-                'url'  => $this->objectUrl($value),
+                'url'  => $this->objectUrl($preview_src),
                 'title' => $title, // 追加一个值
             ];
         }
