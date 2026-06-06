@@ -1028,12 +1028,14 @@
     display: block;
     width: 104px;
     margin-top: 8px;
+    margin-left: 18px;
     text-align: center;
 }
 
 .dcat-step-label-vertical .dcat-step-icons {
     display: inline-block;
-    margin-left: 36px;
+    margin-left: 53px;
+    margin-top: 10px;
 }
 
 .dcat-step-label-vertical .dcat-step-title {

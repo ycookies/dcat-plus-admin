@@ -74,6 +74,12 @@
                                     @if(isset($configData['full_screen']) && $configData['full_screen'])
                                         <a href="javascript:;"  data-check-screen="full" class="nav-link"><i class="feather icon-maximize f16"></i></a>
                                     @endif
+
+                                    {{-- 布局配置按钮（水平菜单模式） --}}
+                                    <a href="javascript:void(0);" class="nav-link lc-open-trigger" title="布局配置">
+                                        <i class="feather icon-settings f16"></i>
+                                    </a>
+
                                     <ul class="nav navbar-nav">
                                         {{--User Account Menu--}}
                                         {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_USER_PANEL']) !!}

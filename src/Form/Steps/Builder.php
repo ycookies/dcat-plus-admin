@@ -39,6 +39,7 @@ class Builder
         'remember' => false,
         'shown'    => [],
         'leaving'  => [],
+        'layout'   => 'horizontal',  // 'horizontal' or 'vertical'
     ];
 
     public function __construct(ParentForm $form)
@@ -49,6 +50,8 @@ class Builder
     }
 
     /**
+     * 添加步骤
+     *
      * @param string|Form|Form[] $title
      * @param \Closure|null      $callback
      *
@@ -58,38 +61,38 @@ class Builder
     {
         if (is_array($title)) {
             foreach ($title as $key => $form) {
-                $this->addForm($form, $callback);
+                $this->addStep($form, $callback);
             }
 
             return $this;
         }
 
-        $form = $title instanceof Form ? $title : new Form($this->form, $title);
+        $step = $title instanceof Form ? $title : new Form($this->form, $title, count($this->FormSteps));
 
-        $this->addForm($form, $callback);
+        $this->addStep($step, $callback);
 
         return $this;
     }
 
     /**
-     * @param Form          $form
+     * 添加步骤
+     *
+     * @param Form          $step
      * @param \Closure|null $callback
      *
      * @return void
      */
-    protected function addForm(Form $form, ?\Closure $callback = null)
+    protected function addStep(Form $step, ?\Closure $callback = null)
     {
-        $form->setIndex(count($this->FormSteps));
-
-        $this->FormSteps[] = $form;
+        $this->FormSteps[] = $step;
 
         if ($callback) {
-            $callback($form);
+            $callback($step);
         }
     }
 
     /**
-     * Get all step forms.
+     * 获取所有步骤
      *
      * @return Form[]
      */
@@ -99,21 +102,17 @@ class Builder
     }
 
     /**
+     * 获取所有字段
+     *
      * @return ParentForm\Field[]|Collection
      */
     public function fields()
     {
-        $fields = new Collection();
-
-        foreach ($this->all() as $form) {
-            $fields = $fields->merge($form->fields());
-        }
-
-        return $fields;
+        return $this->form->builder()->fields();
     }
 
     /**
-     * Counts all step forms.
+     * 步骤数量
      *
      * @return int
      */
@@ -123,7 +122,7 @@ class Builder
     }
 
     /**
-     * Set options.
+     * 设置选项
      *
      * @param string|array $key
      * @param mixed        $value
@@ -142,7 +141,7 @@ class Builder
     }
 
     /**
-     * Get options.
+     * 获取选项
      *
      * @param string|null $key
      * @param null        $default
@@ -159,6 +158,8 @@ class Builder
     }
 
     /**
+     * 选择步骤
+     *
      * @param int $index
      *
      * @return $this
@@ -169,7 +170,7 @@ class Builder
     }
 
     /**
-     * Set padding for container.
+     * 设置容器内边距
      *
      * @param string $padding
      *
@@ -181,7 +182,7 @@ class Builder
     }
 
     /**
-     * Set max width for container.
+     * 设置容器最大宽度
      *
      * @param string $width
      *
@@ -191,9 +192,19 @@ class Builder
     {
         return $this->option('width', $width);
     }
-
     /**
-     * Remember input data.
+     * 设置步骤导航布局
+     *
+     * @param string $layout 'horizontal'（左右布局，默认）或 'vertical'（上下布局）
+     *
+     * @return $this
+     */
+    public function layout(string $layout)
+    {
+        return $this->option('layout', $layout);
+    }
+    /**
+     * 记住输入数据
      *
      * @param bool $value
      *
@@ -205,6 +216,8 @@ class Builder
     }
 
     /**
+     * 设置完成页面
+     *
      * @param string|Closure $title
      * @param Closure|null   $callback
      *
@@ -231,6 +244,8 @@ class Builder
     }
 
     /**
+     * 创建默认完成页面
+     *
      * @return void
      */
     protected function makeDefaultCompletionPage()
@@ -250,7 +265,7 @@ class Builder
     }
 
     /**
-     * Stash input data.
+     * 暂存输入数据
      *
      * @param array $data
      * @param bool  $merge
@@ -271,7 +286,7 @@ class Builder
     }
 
     /**
-     * Fetch input data.
+     * 获取暂存数据
      *
      * @return array
      */
@@ -285,7 +300,7 @@ class Builder
     }
 
     /**
-     * Flush input data.
+     * 清空暂存数据
      *
      * @return void
      */
@@ -299,7 +314,7 @@ class Builder
     }
 
     /**
-     * Forget input data by keys.
+     * 删除暂存数据中的指定键
      *
      * @param string|array $keys
      *
@@ -315,26 +330,8 @@ class Builder
     }
 
     /**
-     * @param string|\Dcat\Admin\Form\Field $field
+     * 获取暂存键名
      *
-     * @return void
-     */
-    public function stashIndexByField($field)
-    {
-        if (! $this->options['remember']) {
-            return;
-        }
-
-        $data = $this->fetchStash();
-
-        $data[self::CURRENT_VALIDATION_STEP] = ($this->fieldIndex($field) ?: 0) - 1;
-
-        unset($data[self::ALL_STEPS]);
-
-        $this->stash($data);
-    }
-
-    /**
      * @return string
      */
     protected function getStashKey()
@@ -343,6 +340,8 @@ class Builder
     }
 
     /**
+     * 选择步骤（从暂存数据）
+     *
      * @return void
      */
     protected function selectStep()
@@ -366,6 +365,8 @@ class Builder
     }
 
     /**
+     * 构建表单
+     *
      * @return string
      */
     public function build()
@@ -378,20 +379,20 @@ class Builder
     }
 
     /**
+     * 准备表单
+     *
      * @return void
      */
     protected function prepareForm()
     {
         foreach ($this->FormSteps as $step) {
             $step->action($this->form->action());
-
-            foreach ($step->fields() as $field) {
-                $field->setForm($this->form);
-            }
         }
     }
 
     /**
+     * 渲染字段
+     *
      * @return string
      */
     public function renderFields()
@@ -406,7 +407,7 @@ class Builder
     }
 
     /**
-     * Register the "showStep" event listener.
+     * 注册步骤显示事件
      *
      * @param string $script
      *
@@ -426,7 +427,7 @@ JS;
     }
 
     /**
-     * Register the "leaveStep" event listener.
+     * 注册步骤离开事件
      *
      * @param string $script
      *
@@ -446,15 +447,21 @@ JS;
     }
 
     /**
+     * 获取字段所在步骤索引
+     *
      * @param string|\Dcat\Admin\Form\Field $column
      *
      * @return false|int
      */
     public function fieldIndex($column)
     {
-        foreach ($this->FormSteps as $index => $form) {
-            if ($form->field($column)) {
-                return $index;
+        $columnName = $column instanceof \Dcat\Admin\Form\Field ? $column->column() : $column;
+
+        foreach ($this->FormSteps as $index => $step) {
+            foreach ($step->fields() as $field) {
+                if ($field->column() == $columnName) {
+                    return $index;
+                }
             }
         }
 
@@ -474,7 +481,7 @@ JS;
         $this->form->submitted(function ($form) use ($self) {
             $self->prepareFormStepFields($form->input());
 
-            // Validate step form.
+            // 验证步骤表单
             if ($self->isFormStepValidationRequest()) {
                 return $self->validateFormStep($form->input());
             }
@@ -494,6 +501,8 @@ JS;
     }
 
     /**
+     * 准备步骤字段
+     *
      * @param array $input
      *
      * @return void
@@ -507,32 +516,32 @@ JS;
             return;
         }
 
-        $steps = $this->all();
+        // 获取父表单中声明忽略的字段列表
+        $ignoredFields = method_exists($this->form, 'getIgnoredColumns') ? $this->form->getIgnoredColumns() :
+                         (property_exists($this->form, 'ignore') ? $this->form->ignore : []);
 
-        if ($this->isFormStepValidationRequest()) {
-            $currentIndex = $input[static::CURRENT_VALIDATION_STEP];
-
-            if (empty($steps[$currentIndex])) {
-                return;
+        // 收集所有步骤的字段（排除已被忽略的字段）
+        $fields = [];
+        foreach ($this->FormSteps as $step) {
+            foreach ($step->fields() as $field) {
+                $column = $field->column();
+                // 如果字段在忽略列表中，跳过
+                if (in_array($column, $ignoredFields)) {
+                    continue;
+                }
+                $fields[] = $field;
             }
-
-            foreach ($steps[$currentIndex]->fields() as $field) {
-                $this->form->pushField($field);
-            }
-
-            return;
         }
 
-        if (! empty($input[static::ALL_STEPS])) {
-            foreach ($steps as $FormStep) {
-                foreach ($FormStep->fields() as $field) {
-                    $this->form->pushField($field);
-                }
-            }
+        // 将字段添加到父表单的隐藏字段中，确保验证和保存正常工作
+        foreach ($fields as $field) {
+            $this->form->pushField($field);
         }
     }
 
     /**
+     * 判断是否为步骤验证请求
+     *
      * @return bool
      */
     protected function isFormStepValidationRequest()
@@ -543,7 +552,7 @@ JS;
     }
 
     /**
-     * Validate step form.
+     * 验证步骤表单
      *
      * @param array $input
      *
@@ -551,12 +560,31 @@ JS;
      */
     protected function validateFormStep(array $input)
     {
-        // Handle validation errors.
-        if ($validationMessages = $this->form->validationMessages($input)) {
+        // 获取当前步骤索引
+        $currentStepIndex = (int) request(static::CURRENT_VALIDATION_STEP);
+
+        // 获取当前步骤的字段
+        $currentStepFields = [];
+        if (isset($this->FormSteps[$currentStepIndex])) {
+            foreach ($this->FormSteps[$currentStepIndex]->fields() as $field) {
+                $currentStepFields[] = $field->column();
+            }
+        }
+
+        // 只验证当前步骤的字段
+        $currentStepInput = [];
+        foreach ($input as $key => $value) {
+            if (in_array($key, $currentStepFields)) {
+                $currentStepInput[$key] = $value;
+            }
+        }
+
+        // 处理验证错误
+        if ($validationMessages = $this->form->validationMessages($currentStepInput)) {
             return $this->form->validationErrorsResponse($validationMessages);
         }
 
-        // Stash input data.
+        // 暂存输入数据
         $this->stash($input);
 
         return JsonResponse::make()
@@ -565,10 +593,34 @@ JS;
     }
 
     /**
+     * 响应完成页面
+     *
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response|void
      */
     protected function responseCompletionPage()
     {
         return response($this->done()->render());
+    }
+
+    /**
+     * 记录字段所在步骤到暂存
+     *
+     * @param string|\Dcat\Admin\Form\Field $field
+     *
+     * @return void
+     */
+    public function stashIndexByField($field)
+    {
+        if (! $this->options['remember']) {
+            return;
+        }
+
+        $data = $this->fetchStash();
+
+        $data[self::CURRENT_VALIDATION_STEP] = ($this->fieldIndex($field) ?: 0) - 1;
+
+        unset($data[self::ALL_STEPS]);
+
+        $this->stash($data);
     }
 }

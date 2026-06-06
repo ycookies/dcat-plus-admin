@@ -22,6 +22,12 @@
     .active .dcat-step-icons > .dcat-step-icon .dcat-step-icon-dot {
         background-color: @primary
     }
+    /*修改按钮样式到右边*/
+    .sw-toolbar-bottom .col-sm-10 {
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 5rem;
+    }
 </style>
 
 @if($showHeader)
@@ -35,18 +41,27 @@
     @if($steps->count())
         <div class="fields-group dcat-step-box" style="padding: {{ $steps->getOption('padding') }};max-width: {{ $steps->getOption('width') }}">
 
-            <ul class="dcat-step-horizontal dcat-step-label-horizontal dcat-step ">
-                @foreach($steps->all() as $step)
+            <ul class="dcat-step-{{ $steps->getOption('layout') }} dcat-step-label-{{ $steps->getOption('layout') }} dcat-step ">
+                @foreach($steps->all() as $index => $step)
                     <li class="dcat-step-item">
                         <a href="#{{ $step->getElementId() }}" class="dcat-step-item-container">
                             <div class="dcat-step-line"></div>
                             <div class="dcat-step-icons">
                                 <span class="dcat-step-icon" data-index="{{ $step->index() }}">{{ $step->index() + 1 }}</span>
                             </div>
+                            @if ($steps->getOption('layout') == 'vertical')
+                                <div class="dcat-step-content">
+                                <div class="dcat-step-title">{!! $step->title() !!}</div>
+                            </div>
+                            <div class="dcat-step-desc"> {{ $step->description() }} </div>
+                            @else
                             <div class="dcat-step-content">
                                 <div class="dcat-step-title">{!! $step->title() !!}</div>
                                 <div class="dcat-step-desc"> {{ $step->description() }} </div>
                             </div>
+                            
+                            @endif
+                            
                         </a>
                     </li>
                 @endforeach
@@ -59,8 +74,8 @@
                         </div>
                         <div class="dcat-step-content">
                             <div class="dcat-step-title">{{ $steps->done()->title() }}</div>
-                            <div class="dcat-step-desc"></div>
                         </div>
+                        <div class="dcat-step-desc"></div>
                     </a>
                 </li>
             </ul>
@@ -74,11 +89,12 @@
     @endif
 </div>
 
-<input type="hidden" class="current-step-input" name="{{ Dcat\Admin\Form\Steps\Builder::CURRENT_VALIDATION_STEP }}" />
-<input type="hidden" class="all-steps-input" name="{{ Dcat\Admin\Form\Steps\Builder::ALL_STEPS }}" />
+<input type="hidden" class="current-step-input" name="{{ Dcat\Admin\FormStep\Builder::CURRENT_VALIDATION_STEP }}" />
+<input type="hidden" class="all-steps-input" name="{{ Dcat\Admin\FormStep\Builder::ALL_STEPS }}" />
 
 @php
-    $lastStep = $step;
+    $stepsArray = $steps->all();
+    $lastStepIndex = count($stepsArray) - 1;
 @endphp
 
 <script>
@@ -114,7 +130,7 @@ Dcat.ready(function () {
             submit(function (state, data) {
                 $t.buttonLoading(false);
                 isSubmitting = 0;
-                
+
                 if (typeof data.status !== 'undefined' && ! data.status) {
                     return Dcat.handleJsonResponse(data)
                 }
@@ -279,7 +295,7 @@ Dcat.ready(function () {
 
     // 按钮显示隐藏切换
     function toggleBtn() {
-        var last = {{ $lastStep->index() }},
+        var last = {{ $lastStepIndex }},
             sbm = box.find('.step-submit-btn');
 
         if (smartWizard.current_index == last) {

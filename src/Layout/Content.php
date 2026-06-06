@@ -424,6 +424,20 @@ class Content implements Renderable
      */
     protected function applyClasses()
     {
+        // 从数据库读取保存的布局配置，合并到 config（优先级最高）
+        try {
+            $savedLayout = admin_setting_group('layout_config');
+            if (is_array($savedLayout) && !empty($savedLayout)) {
+                config(['admin.layout' => array_merge(
+                    config('admin.layout') ?: [],
+                    $savedLayout
+                )]);
+
+            }
+        } catch (\Throwable) {
+            // 忽略数据库异常
+        }
+
         // default data array
         $defaultData = [
             'theme'             => '',
