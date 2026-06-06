@@ -24,8 +24,15 @@ class LayoutConfigController extends Controller
         } catch (\Throwable) {}
         $data = array_merge($existing, $data);
 
+        // 菜单模式处理：menu_style → horizontal_menu 映射
+        $menuStyle = $data['menu_style'] ?? 'default_menu';
+        $allowedStyles = ['default_menu', 'horizontal_menu', 'two_col_menu'];
+        $data['menu_style'] = in_array($menuStyle, $allowedStyles) ? $menuStyle : 'default_menu';
+        // 同步 horizontal_menu 布尔值（兼容旧逻辑）
+        $data['horizontal_menu'] = ($data['menu_style'] === 'horizontal_menu');
+
         // 布尔字段处理
-        $booleans = ['horizontal_menu', 'sidebar_collapsed', 'dark_mode_switch', 'full_screen', 'show_locale_switch', 'show_help', 'show_notification'];
+        $booleans = ['sidebar_collapsed', 'dark_mode_switch', 'full_screen', 'show_locale_switch', 'show_help', 'show_notification'];
         foreach ($booleans as $key) {
             $data[$key] = !empty($data[$key]);
         }

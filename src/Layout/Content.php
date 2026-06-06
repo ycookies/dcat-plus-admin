@@ -513,8 +513,14 @@ class Content implements Renderable
             app()->setLocale($data['locale']);
         }
 
-        if ($data['horizontal_menu']) {
+        // 菜单模式：menu_style 映射到 horizontal_menu
+        $menuStyle = $data['menu_style'] ?? 'default_menu';
+        if ($menuStyle === 'horizontal_menu') {
+            $data['horizontal_menu'] = true;
             $data['body_class'][] = 'horizontal-menu';
+        } elseif ($menuStyle === 'two_col_menu') {
+            $data['horizontal_menu'] = false;
+            $data['body_class'][] = 'two-col-menu';
         }
 
         return [
@@ -526,10 +532,11 @@ class Content implements Renderable
             'body_class'        => implode(' ', $data['body_class']),
             'sidebar_style'     => $data['sidebar_style'],
             'horizontal_menu'   => $data['horizontal_menu'],
-            'full_screen'=> $data['full_screen'],
-            'home_url' => $data['home_url'],
+            'menu_style'        => $menuStyle,
+            'full_screen'       => $data['full_screen'],
+            'home_url'          => $data['home_url'],
             'show_locale_switch' => $data['show_locale_switch'] ?? true,
-            'show_help' => $data['show_help'] ?? true,
+            'show_help'         => $data['show_help'] ?? true,
             'show_notification' => $data['show_notification'] ?? true,
         ];
     }

@@ -1,0 +1,404 @@
+/* ========================================
+   双栏菜单样式 - 响应式、多主题支持
+   ======================================== */
+
+/* 重置默认菜单的 navbar-header */
+.two-col-menu-wrapper .navbar-header {
+    display: none;
+}
+
+/* 整体布局 */
+.two-col-menu-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* 主容器：左右分栏 */
+.two-col-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ========== 左栏：Logo + 图标导航 ========== */
+.two-col-icon-bar {
+    width: 80px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.two-col-icon-bar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.two-col-icon-bar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+/* Logo 区域（在左栏内顶部） */
+.two-col-icon-bar .two-col-logo {
+    height: 57px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0 10px;
+}
+
+.two-col-logo-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.two-col-logo-link .logo-mini img {
+    width: 35px;
+    height: auto;
+}
+
+.icon-nav {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.icon-nav-item {
+    margin: 2px 6px;
+}
+
+.icon-nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    gap: 4px;
+}
+
+.icon-nav-link i {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.icon-nav-text {
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 64px;
+    display: block;
+}
+
+/* ========== 右栏：详情菜单 ========== */
+.two-col-detail-bar {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+}
+
+.two-col-detail-bar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.two-col-detail-bar::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+}
+
+/* 详情面板 */
+.detail-panel {
+    display: none;
+    padding: 0;
+}
+
+.detail-panel.active {
+    display: block;
+}
+
+.detail-panel-header {
+    padding: 16px 18px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.detail-panel-header h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* 详情导航列表 */
+.detail-nav {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+}
+
+.detail-nav-item {
+    margin: 0;
+}
+
+.detail-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-radius: 0;
+}
+
+.detail-nav-link .link-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-nav-link .link-icon {
+    font-size: 14px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.detail-nav-link .link-text {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.detail-nav-link .link-arrow {
+    font-size: 12px;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* 展开/折叠子菜单 */
+.detail-nav-item.has-children.menu-open > .detail-nav-link .link-arrow {
+    transform: rotate(-90deg);
+}
+
+.detail-sub-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: none;
+}
+
+.detail-nav-item.has-children.menu-open > .detail-sub-nav {
+    display: block;
+}
+
+/* 子导航项缩进 */
+.detail-sub-nav .detail-nav-link {
+    padding-left: 46px;
+}
+
+.detail-sub-nav .detail-sub-nav .detail-nav-link {
+    padding-left: 60px;
+}
+
+/* Section 面板 */
+.detail-section-content {
+    padding: 12px 18px;
+}
+
+/* =============================================
+   主题：左栏始终使用深色（层次感）
+   右栏跟随 sidebar_style 主题
+   ============================================= */
+
+/* ========== dark 主题（右栏深色） ========== */
+.two-col-menu-wrapper.dark {
+    background: #1a1f2e;
+    color: #c2c7d0;
+}
+/* 左栏 - 更深 */
+.two-col-menu-wrapper.dark .two-col-icon-bar {
+    background: #0d1117;
+    border-right: 1px solid rgba(255,255,255,0.04);
+}
+.two-col-menu-wrapper.dark .two-col-icon-bar .two-col-logo {
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+.two-col-menu-wrapper.dark .icon-nav-link {
+    color: rgba(255,255,255,0.55);
+}
+.two-col-menu-wrapper.dark .icon-nav-link:hover {
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+}
+.two-col-menu-wrapper.dark .icon-nav-link.active {
+    background: rgba(92,107,192,0.3);
+    color: #fff;
+}
+/* 右栏 */
+.two-col-menu-wrapper.dark .two-col-detail-bar {
+    background: #1a1f2e;
+}
+.two-col-menu-wrapper.dark .two-col-detail-bar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+}
+.two-col-menu-wrapper.dark .detail-panel-header {
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+.two-col-menu-wrapper.dark .detail-panel-header h4 {
+    color: #fff;
+}
+.two-col-menu-wrapper.dark .detail-nav-link {
+    color: #b0b8c9;
+}
+.two-col-menu-wrapper.dark .detail-nav-link:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+}
+.two-col-menu-wrapper.dark .detail-nav-link.active {
+    color: #8c9eff;
+    background: rgba(92,107,192,0.15);
+}
+
+/* ========== light 主题（右栏浅色） ========== */
+.two-col-menu-wrapper.light {
+    background: #fff;
+    color: #333;
+}
+/* 左栏 - 深色（保持层次感） */
+.two-col-menu-wrapper.light .two-col-icon-bar {
+    background: #1e2a3a;
+    border-right: 1px solid rgba(255,255,255,0.04);
+}
+.two-col-menu-wrapper.light .two-col-icon-bar .two-col-logo {
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+.two-col-menu-wrapper.light .icon-nav-link {
+    color: rgba(255,255,255,0.6);
+}
+.two-col-menu-wrapper.light .icon-nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+.two-col-menu-wrapper.light .icon-nav-link.active {
+    background: rgba(92,107,192,0.4);
+    color: #fff;
+}
+/* 右栏 - 浅色 */
+.two-col-menu-wrapper.light .two-col-detail-bar {
+    background: #fff;
+}
+.two-col-menu-wrapper.light .two-col-detail-bar::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.12);
+}
+.two-col-menu-wrapper.light .detail-panel-header {
+    border-bottom-color: #eee;
+}
+.two-col-menu-wrapper.light .detail-panel-header h4 {
+    color: #333;
+}
+.two-col-menu-wrapper.light .detail-nav-link {
+    color: #555;
+}
+.two-col-menu-wrapper.light .detail-nav-link:hover {
+    background: #f0f2ff;
+    color: #333;
+}
+.two-col-menu-wrapper.light .detail-nav-link.active {
+    color: #5c6bc0;
+    background: #eef0ff;
+}
+
+/* ========== primary 主题（右栏主题色） ========== */
+.two-col-menu-wrapper.primary {
+    background: #3f51b5;
+    color: rgba(255,255,255,0.9);
+}
+/* 左栏 - 更深 */
+.two-col-menu-wrapper.primary .two-col-icon-bar {
+    background: #1a237e;
+    border-right: 1px solid rgba(255,255,255,0.06);
+}
+.two-col-menu-wrapper.primary .two-col-icon-bar .two-col-logo {
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+.two-col-menu-wrapper.primary .icon-nav-link {
+    color: rgba(255,255,255,0.6);
+}
+.two-col-menu-wrapper.primary .icon-nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+.two-col-menu-wrapper.primary .icon-nav-link.active {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+/* 右栏 */
+.two-col-menu-wrapper.primary .two-col-detail-bar {
+    background: #3f51b5;
+}
+.two-col-menu-wrapper.primary .two-col-detail-bar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+}
+.two-col-menu-wrapper.primary .detail-panel-header {
+    border-bottom-color: rgba(255,255,255,0.1);
+}
+.two-col-menu-wrapper.primary .detail-panel-header h4 {
+    color: #fff;
+}
+.two-col-menu-wrapper.primary .detail-nav-link {
+    color: rgba(255,255,255,0.8);
+}
+.two-col-menu-wrapper.primary .detail-nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+.two-col-menu-wrapper.primary .detail-nav-link.active {
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+}
+
+/* ========== 响应式调整 ========== */
+@media (max-width: 768px) {
+    .two-col-icon-bar {
+        width: 60px;
+    }
+
+    .icon-nav-text {
+        display: none;
+    }
+
+    .icon-nav-link {
+        padding: 12px 4px;
+    }
+
+    .icon-nav-link i {
+        font-size: 20px;
+    }
+}
+
+/* ========== 与 AdminLTE 兼容性 ========== */
+.sidebar-mini .two-col-menu-wrapper .nav-sidebar,
+.sidebar-mini .two-col-menu-wrapper .nav-sidebar .nav-link {
+    overflow: initial !important;
+    margin: 0 !important;
+}
+
+.btn {
+    border-width: 0;
+}

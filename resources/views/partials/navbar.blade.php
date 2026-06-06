@@ -7,7 +7,9 @@
     $lcColor = $savedLayout['color'] ?? config('admin.layout.color', 'default');
     $lcSidebarStyle = $savedLayout['sidebar_style'] ?? config('admin.layout.sidebar_style', 'light');
     $lcNavbarColor = $savedLayout['navbar_color'] ?? config('admin.layout.navbar_color', '');
-    $lcHorizontalMenu = isset($savedLayout['horizontal_menu']) ? (bool)$savedLayout['horizontal_menu'] : config('admin.layout.horizontal_menu', false);
+    // 菜单模式：默认菜单、水平菜单、双栏菜单（互斥）
+    $menu_style = $configData['menu_style'] ?? ($configData['horizontal_menu'] ?? false ? 'horizontal_menu' : 'default_menu');
+    
     $lcSidebarCollapsed = isset($savedLayout['sidebar_collapsed']) ? (bool)$savedLayout['sidebar_collapsed'] : config('admin.layout.sidebar_collapsed', false);
     $lcDarkModeSwitch = isset($savedLayout['dark_mode_switch']) ? (bool)$savedLayout['dark_mode_switch'] : config('admin.layout.dark_mode_switch', false);
     $lcFullScreen = isset($savedLayout['full_screen']) ? (bool)$savedLayout['full_screen'] : config('admin.layout.full_screen', true);
@@ -37,7 +39,7 @@
     } catch (\Throwable) {}
 @endphp
 
-@if(!$configData['horizontal_menu'])
+@if($menu_style !== 'horizontal_menu')
 <nav class="header-navbar navbar-expand-lg navbar
     navbar-with-menu {{ $configData['navbar_class'] }}
     {{ $configData['navbar_color'] }}
@@ -45,7 +47,7 @@
 
     <div class="navbar-wrapper">
         <div class="navbar-container content">
-            @if(! $configData['horizontal_menu'])
+            @if($menu_style !== 'horizontal_menu')
             <div class="mr-auto float-left bookmark-wrapper d-flex align-items-center">
                 <ul class="nav navbar-nav">
                     <li class="nav-item mr-auto">
@@ -62,7 +64,7 @@
                     {!! Dcat\Admin\Admin::navbar()->render('left') !!}
                 </div>
 
-                @if($configData['horizontal_menu'])
+                @if($menu_style === 'horizontal_menu')
                 <div class="d-md-block horizontal-navbar-brand justify-content-center text-center">
                     <ul class="nav navbar-nav flex-row">
                         <li class="nav-item mr-auto">
@@ -301,14 +303,28 @@
                     </label>
                 </div>
             </div>
+            <div class="lc-section">
+                <div class="lc-section-title">菜单</div>
+                <div class="lc-switch-group">
+                    <label class="lc-switch-label">
+                        <input type="radio" name="menu_style" value="default_menu" {{ $menu_style === 'default_menu' ? 'checked' : '' }}>
+                        <span>默认菜单</span>
+                    </label>
+                    <label class="lc-switch-label">
+                        <input type="radio" name="menu_style" value="horizontal_menu" {{ $menu_style === 'horizontal_menu' ? 'checked' : '' }}>
+                        <span>水平菜单</span>
+                    </label>
+                    <label class="lc-switch-label">
+                        <input type="radio" name="menu_style" value="two_col_menu" {{ $menu_style === 'two_col_menu' ? 'checked' : '' }}>
+                        <span>双栏菜单</span>
+                    </label>
+                </div>
+            </div>
 
             <div class="lc-section">
                 <div class="lc-section-title">功能开关</div>
                 <div class="lc-switch-group">
-                    <label class="lc-switch-label">
-                        <input type="checkbox" name="horizontal_menu" value="1" {{ $lcHorizontalMenu ? 'checked' : '' }}>
-                        <span>水平菜单</span>
-                    </label>
+                    
                     <label class="lc-switch-label">
                         <input type="checkbox" name="sidebar_collapsed" value="1" {{ $lcSidebarCollapsed ? 'checked' : '' }}>
                         <span>侧边栏折叠</span>
