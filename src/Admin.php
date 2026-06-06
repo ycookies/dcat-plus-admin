@@ -666,6 +666,20 @@ class Admin
             $router->post('helpers/scaffold', 'Dcat\Admin\Http\Controllers\ScaffoldController@store');
             $router->post('helpers/scaffold/table', 'Dcat\Admin\Http\Controllers\ScaffoldController@table');
             $router->get('helpers/icons', 'Dcat\Admin\Http\Controllers\IconController@index');
+
+            # 布局配置（导航栏可视化配置）
+            $router->post('layout-config/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@save');
+
+            # 通知管理
+            $router->resource('notifications', \Dcat\Admin\Http\Controllers\NotificationController::class);
+            $router->get('api/notifications', 'Dcat\Admin\Http\Controllers\NotificationApiController@index');
+            $router->post('api/notifications/{id}/read', 'Dcat\Admin\Http\Controllers\NotificationApiController@read');
+            $router->get('api/notifications/first-unread', 'Dcat\Admin\Http\Controllers\NotificationApiController@firstUnread');
+            $router->post('api/notifications/read-all', 'Dcat\Admin\Http\Controllers\NotificationApiController@readAll');
+
+            # 帮助管理
+            $router->resource('help-categories', \Dcat\Admin\Http\Controllers\HelpCategoryController::class);
+            $router->resource('helps', \Dcat\Admin\Http\Controllers\HelpController::class);
         });
     }
 }

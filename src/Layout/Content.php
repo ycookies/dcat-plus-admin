@@ -450,6 +450,9 @@ class Content implements Renderable
             'horizontal_menu'   => false,
             'full_screen'=> false,
             'home_url' => '',
+            'show_locale_switch' => true,
+            'show_help' => true,
+            'show_notification' => true,
         ];
 
         $data = array_merge(
@@ -505,6 +508,11 @@ class Content implements Renderable
             $data['sidebar_style'] = 'sidebar-dark-white';
         }
 
+        // 应用保存的语言配置
+        if (!empty($data['locale'])) {
+            app()->setLocale($data['locale']);
+        }
+
         if ($data['horizontal_menu']) {
             $data['body_class'][] = 'horizontal-menu';
         }
@@ -520,6 +528,9 @@ class Content implements Renderable
             'horizontal_menu'   => $data['horizontal_menu'],
             'full_screen'=> $data['full_screen'],
             'home_url' => $data['home_url'],
+            'show_locale_switch' => $data['show_locale_switch'] ?? true,
+            'show_help' => $data['show_help'] ?? true,
+            'show_notification' => $data['show_notification'] ?? true,
         ];
     }
 

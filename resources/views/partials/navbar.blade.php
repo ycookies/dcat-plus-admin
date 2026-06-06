@@ -12,6 +12,29 @@
     $lcDarkModeSwitch = isset($savedLayout['dark_mode_switch']) ? (bool)$savedLayout['dark_mode_switch'] : config('admin.layout.dark_mode_switch', false);
     $lcFullScreen = isset($savedLayout['full_screen']) ? (bool)$savedLayout['full_screen'] : config('admin.layout.full_screen', true);
     $lcHomeUrl = $savedLayout['home_url'] ?? config('admin.layout.home_url', '');
+    $lcLocale = $savedLayout['locale'] ?? config('app.locale', 'zh_CN');
+    $lcShowLocaleSwitch = isset($savedLayout['show_locale_switch']) ? (bool)$savedLayout['show_locale_switch'] : true;
+    $lcShowHelp = isset($savedLayout['show_help']) ? (bool)$savedLayout['show_help'] : true;
+    $lcShowNotification = isset($savedLayout['show_notification']) ? (bool)$savedLayout['show_notification'] : true;
+
+    // 获取帮助数据（分类+内容）
+    $helpCategories = [];
+    $helplist = [];
+    try {
+        $helplist = \Dcat\Admin\Models\Help::where('is_active', true)
+        ->with('category')->orderBy('id','desc')->paginate(5);
+    } catch (\Throwable) {}
+
+    // 获取当前用户通知
+    $notifications = collect();
+    $unreadCount = 0;
+    try {
+        $adminUser = \Dcat\Admin\Admin::user();
+        if ($adminUser) {
+            $notifications = \Dcat\Admin\Models\Notification::getAllForUser($adminUser->id);
+            $unreadCount = \Dcat\Admin\Models\Notification::getUnreadCountForUser($adminUser->id);
+        }
+    } catch (\Throwable) {}
 @endphp
 
 @if(!$configData['horizontal_menu'])
@@ -53,18 +76,148 @@
 
                 <div class="navbar-right d-flex align-items-center">
                     {!! Dcat\Admin\Admin::navbar()->render() !!}
-                    @if(!empty($configData['home_url']))
-                        <a href="{{$configData['home_url']}}" target="_blank" class="nav-link"><i class="fa fa-home f18"></i></a>
-                    @endif
+                    
+                    <ul class="nav navbar-nav">
+                        @if(!empty($configData['home_url']))
+                        <li class="nav-item">
+                                <a href="{{$configData['home_url']}}"  target="_blank" class="nav-link tips" data-title="首页"><i class="fa fa-home f18"></i></a> 
+                        </li>
+                        @endif
+                        {{--help 帮助信息--}}
+                        @if($lcShowHelp && $helplist->isNotEmpty())
+                        <li class="dropdown dropdown-notification nav-item">
+                            <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" aria-expanded="true">
+                                <i class="feather icon-help-circle f18"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right shadow-200" style="max-height:400px;overflow-y:auto;">
+                                
+                                    @foreach($helplist as $help)
+                                    <li class="scrollable-container media-list">
+                                        @if($help->link)
+                                        <a class="media d-flex justify-content-between" href="{{ $help->link }}" target="{{ $help->link_target }}">
+                                        @else
+                                        <a class="media d-flex justify-content-between" href="javascript:void(0)" onclick="openModal('h',{{ $help->id }})" data-id="{{ $help->id }}">
+                                        @endif
+                                            <div class="d-flex align-items-start">
+                                                <div class="media-body">
+                                                    <h6 class="primary media-heading h-title-{{ $help->id }}">{{ $help->title }}</h6>
+                                                    @if($help->content)
+                                                    <small class="notification-text">{{ Str::limit($help->content, 60) }}</small>
+                                                    <div style="display: none;" class="h-content-{{ $help->id }}"> {{ $help->content }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    @endforeach
+                                
+                            </ul>
+                        </li>
+                        @endif
 
-                    @if(isset($configData['full_screen']) && $configData['full_screen'])
-                    <a href="javascript:;"  data-check-screen="full" class="nav-link"><i class="feather icon-maximize f16"></i></a>
-                    @endif
+                        {{--notification 通知--}}
+                        @if($lcShowNotification)
+                        <li class="dropdown dropdown-notification nav-item" style="text-align: center">
+                            <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" aria-expanded="true">
+                                <i class="feather icon-bell f18"></i>
+                                @if($unreadCount > 0)
+                                    <span class="badge badge-pill badge-primary badge-up" style="top:12px;right:-6px;font-size:8px">
+                                    {{ $unreadCount }}
+                                    </span>
+                                @endif
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right shadow-200">
+                                <li class="dropdown-menu-header">
+                                    <div class="dropdown-header m-0 p-2">
+                                        <h3 class="white">{{ $unreadCount }}</h3>
+                                        <span class="grey darken-2">未读通知</span>
+                                    </div>
+                                </li>
+                                @if($notifications->isNotEmpty())
+                                    <li class="scrollable-container media-list ps ps--active-y" style="max-height:300px;">
+                                        @foreach($notifications as $notification)
+                                            <a class="media d-flex justify-content-between lc-notification-item {{ $notification->is_read ? '' : 'font-weight-bold' }}"
+                                               href="javascript:void(0)" data-id="{{ $notification->id }}" data-type="n">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="media-body">
+                                                        <h6 class="primary media-heading n-title-{{ $notification->id }}">{{ $notification->title }}</h6>
+                                                        @if($notification->content)
+                                                        <small class="notification-text">{{ Str::limit($notification->content, 60) }}</small>
+                                                        <div style="display: none;" class="n-content-{{ $notification->id }}"> {{ $notification->content }}</div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    </li>
+                                    @if($unreadCount > 0)
+                                    <li class="dropdown-menu-footer">
+                                        <a class="dropdown-item p-1 text-center lc-read-all" href="javascript:void(0)">全部已读</a>
+                                    </li>
+                                    @endif
+                                @else
+                                    <li class="text-center text-muted p-3">暂无通知</li>
+                                @endif
+                            </ul>
+                        </li>
+                        @endif
+                        <li class="nav-item">
+                            @if(isset($configData['full_screen']) && $configData['full_screen'])
+                            <a href="javascript:;"  data-check-screen="full" class="nav-link">
+                                <i class="feather icon-maximize f18"></i>
+                            </a>
+                            @endif
+                        </li>
+                        {{-- 暗黑模式切换 --}}
+                        <li class="nav-item">
+                            <a href="javascript:void(0);" class="dark-mode-switcher nav-link" style="padding:1.5rem 0rem 1.35rem .5rem !important;" title="切换暗黑模式">
+                                  <i class="feather {{ config('admin.layout.dark_mode_switch') ? 'icon-moon' : 'icon-sun' }} f18"></i>
+                            </a>
 
-                    {{-- 布局配置按钮（导航栏内） --}}
-                    <a href="javascript:void(0);" class="nav-link lc-open-trigger" title="布局配置">
-                        <i class="feather icon-settings f16"></i>
-                    </a>
+                            <script>
+                            Dcat.darkMode.initSwitcher('.dark-mode-switcher');
+                            </script>
+                        </li>
+                        @if(isset($configData['show_locale_switch']) && $configData['show_locale_switch'])
+                        <li class="dropdown nav-item">
+                            <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" style="padding:1.5rem 0rem 1.35rem .5rem !important;">
+                                <i class="flag-icon @if($lcLocale === 'zh_CN') flag-icon-cn @elseif($lcLocale === 'zh_TW') flag-icon-tw @else flag-icon-us @endif" style="margin-right:4px"></i>
+                                <span class="d-none d-sm-inline">
+                                    <i class="fa fa-language f18"></i>
+                                </span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a style="padding:10px 8px;" class="dropdown-item lc-locale-switch {{ $lcLocale === 'zh_CN' ? 'active' : '' }}" href="javascript:void(0)" data-locale="zh_CN">
+                                    <i class="flag-icon flag-icon-cn" style="margin-right:6px"></i> 简体中文
+                                </a>
+                                <a style="padding:10px 8px;" class="dropdown-item lc-locale-switch {{ $lcLocale === 'zh_TW' ? 'active' : '' }}" href="javascript:void(0)" data-locale="zh_TW">
+                                    <i class="flag-icon flag-icon-tw" style="margin-right:6px"></i> 繁體中文
+                                </a>
+                                <a style="padding:10px 8px;" class="dropdown-item lc-locale-switch {{ $lcLocale === 'en' ? 'active' : '' }}" href="javascript:void(0)" data-locale="en">
+                                    <i class="flag-icon flag-icon-us" style="margin-right:6px"></i> English
+                                </a>
+                            </div>
+                        </li>
+                        @endif
+                        
+
+                        <li class="nav-item">
+                            {{-- 布局配置按钮（导航栏内） --}}
+                            <a href="javascript:void(0);" class="nav-link lc-open-trigger" title="布局配置">
+                                <i class="feather icon-settings f18"></i>
+                            </a>
+                        </li>
+                        {{-- <li class="nav-item">
+                        </li>
+                        <li class="nav-item">
+                        </li> --}}
+                    </ul>
+                    
+
+
+
+
+                    
 
                     <ul class="nav navbar-nav">
                         {{--User Account Menu--}}
@@ -168,6 +321,33 @@
                         <input type="checkbox" name="full_screen" value="1" {{ $lcFullScreen ? 'checked' : '' }}>
                         <span>全屏按钮</span>
                     </label>
+                    <label class="lc-switch-label">
+                        <input type="checkbox" name="show_locale_switch" value="1" {{ $lcShowLocaleSwitch ? 'checked' : '' }}>
+                        <span>语言切换</span>
+                    </label>
+                    <label class="lc-switch-label">
+                        <input type="checkbox" name="show_help" value="1" {{ $lcShowHelp ? 'checked' : '' }}>
+                        <span>帮助按钮</span>
+                    </label>
+                    <label class="lc-switch-label">
+                        <input type="checkbox" name="show_notification" value="1" {{ $lcShowNotification ? 'checked' : '' }}>
+                        <span>通知按钮</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="lc-section">
+                <div class="lc-section-title">默认语言</div>
+                <div class="lc-radio-group">
+                    <label class="lc-radio-label {{ $lcLocale === 'zh_CN' ? 'active' : '' }}">
+                        <input type="radio" name="locale" value="zh_CN" {{ $lcLocale === 'zh_CN' ? 'checked' : '' }}> 简体中文
+                    </label>
+                    <label class="lc-radio-label {{ $lcLocale === 'zh_TW' ? 'active' : '' }}">
+                        <input type="radio" name="locale" value="zh_TW" {{ $lcLocale === 'zh_TW' ? 'checked' : '' }}> 繁體中文
+                    </label>
+                    <label class="lc-radio-label {{ $lcLocale === 'en' ? 'active' : '' }}">
+                        <input type="radio" name="locale" value="en" {{ $lcLocale === 'en' ? 'checked' : '' }}> English
+                    </label>
                 </div>
             </div>
 
@@ -239,10 +419,18 @@
 .lc-panel-close:hover {
     color: #333;
 }
+.lc-config-panel form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
 .lc-panel-body {
     flex: 1;
     overflow-y: auto;
     padding: 16px 20px;
+    min-height: 0;
 }
 .lc-section {
     margin-bottom: 20px;
@@ -281,8 +469,8 @@
     background: #eef0ff;
 }
 .lc-switch-group {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 .lc-switch-label {
@@ -310,6 +498,7 @@
     border-color: #5c6bc0;
 }
 .lc-panel-footer {
+    flex-shrink: 0;
     padding: 12px 20px;
     border-top: 1px solid #eee;
     background: #f8f9fa;
@@ -336,11 +525,174 @@
         overlay.style.display = 'none';
     }
 
+    window.openModal = function(type, id) {
+        var titleEl, contentEl, defaultTitle;
+        if (type === 'h') {
+            titleEl = document.querySelector('.h-title-' + id);
+            contentEl = document.querySelector('.h-content-' + id);
+            defaultTitle = '帮助信息';
+        } else if (type === 'n') {
+            titleEl = document.querySelector('.n-title-' + id);
+            contentEl = document.querySelector('.n-content-' + id);
+            defaultTitle = '通知详情';
+        }
+        var title = titleEl ? titleEl.textContent : defaultTitle;
+        var content = contentEl ? contentEl.textContent : '';
+        layer.open({
+            type: 1,
+            title: title || defaultTitle,
+            content: '<div style="padding:20px;max-height:400px;overflow-y:auto;">' + content + '</div>',
+            area: ['600px', '60%'],
+            btn: ['关闭'],
+            shadeClose: true
+        });
+    };
+
     openBtns.forEach(function(btn) {
         btn.addEventListener('click', openPanel);
     });
     if (closeBtn) closeBtn.addEventListener('click', closePanel);
     if (overlay) overlay.addEventListener('click', closePanel);
+
+    // 导航栏语言切换（点击即保存并刷新）
+    document.querySelectorAll('.lc-locale-switch').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            var locale = this.getAttribute('data-locale');
+            if (!locale) return;
+            var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
+            var fd = new FormData();
+            fd.append('locale', locale);
+            fd.append('_token', token);
+            fetch('{{ admin_url("layout-config/save") }}', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d.status) location.reload(); else alert(d.message || '切换失败'); })
+            .catch(function() { alert('请求失败'); });
+        });
+    });
+
+    // 通知项点击 → 弹窗详情 + 标记已读
+    document.querySelectorAll('.lc-notification-item').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            var id = this.getAttribute('data-id');
+            var type = this.getAttribute('data-type') || 'n';
+            if (!id) return;
+            // 弹窗显示详情
+            if (typeof window.openModal === 'function') {
+                window.openModal(type, id);
+            }
+            // 后台静默标记已读
+            var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
+            var fd = new FormData();
+            fd.append('_token', token);
+            fetch('{{ admin_url("api/notifications") }}/' + id + '/read', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (!d.status) return;
+                // 移除加粗样式
+                el.classList.remove('font-weight-bold');
+                // 更新未读数角标
+                var badge = document.querySelector('.badge-up');
+                if (badge) {
+                    var count = parseInt(badge.textContent) - 1;
+                    if (count > 0) {
+                        badge.textContent = count;
+                        var headerH3 = document.querySelector('.dropdown-header h3.white');
+                        if (headerH3) headerH3.textContent = count;
+                    } else {
+                        badge.style.display = 'none';
+                        var headerH3 = document.querySelector('.dropdown-header h3.white');
+                        if (headerH3) headerH3.textContent = '0';
+                    }
+                }
+            })
+            .catch(function() {});
+        });
+    });
+
+    // 全部已读
+    document.querySelectorAll('.lc-read-all').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
+            var fd = new FormData();
+            fd.append('_token', token);
+            fetch('{{ admin_url("api/notifications/read-all") }}', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d.status) location.reload(); })
+            .catch(function() {});
+        });
+    });
+
+    // 自动弹出未读通知 modal
+    @if($lcShowNotification && $unreadCount > 0)
+    (function autoPopupNotification() {
+        var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
+        fetch('{{ admin_url("api/notifications/first-unread") }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            //Dcat.swal.warning('标题');return;
+            if (!res.status || !res.data) return;
+            var n = res.data;
+            var typeColors = { info: '#17a2b8', warning: '#ffc107', success: '#28a745', danger: '#dc3545' };
+            var modal = document.createElement('div');
+            modal.innerHTML = '<div class="lc-noti-modal-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;">'
+                + '<div style="background:#fff;border-radius:8px;width:620px;max-width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.2);overflow:hidden;">'
+                + '<div style="padding:16px 20px;background:' + (typeColors[n.type] || '#17a2b8') + ';color:#fff;">'
+                + '<h5 style="margin:0;font-size:16px;"><i class="feather icon-bell" style="margin-right:6px"></i>' + n.title + '</h5>'
+                + '</div>'
+                + '<div style="padding:20px;max-height:300px;overflow-y:auto;">'
+                + '<p style="margin:0;color:#333;white-space:pre-wrap;">' + (n.content || '') + '</p>'
+                + '<small style="color:#999;margin-top:12px;display:block;">' + n.created_at + '</small>'
+                + '</div>'
+                + '<div style="padding:12px 20px;border-top:1px solid #eee;text-align:right;">'
+                + '<button type="button" class="btn btn-sm btn-primary lc-noti-read-btn" data-id="' + n.id + '"><i class="feather icon-check"></i> 已阅读</button>'
+                + '</div>'
+                + '</div></div>';
+            document.body.appendChild(modal);
+            modal.querySelector('.lc-noti-read-btn').addEventListener('click', function() {
+                var btnId = this.getAttribute('data-id');
+                var fd = new FormData();
+                fd.append('_token', token);
+                fetch('{{ admin_url("api/notifications") }}/' + btnId + '/read', {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    document.body.removeChild(modal);
+                    if (d.status && d.unread_count > 0) {
+                        // 还有未读，延迟1秒后再弹
+                        setTimeout(autoPopupNotification, 1000);
+                    } else if (d.status) {
+                        location.reload();
+                    }
+                })
+                .catch(function() { document.body.removeChild(modal); });
+            });
+            modal.querySelector('.lc-noti-modal-overlay').addEventListener('click', function(e) {
+                if (e.target === this) document.body.removeChild(modal);
+            });
+        })
+        .catch(function() {});
+    })();
+    @endif
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();

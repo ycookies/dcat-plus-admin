@@ -25,13 +25,13 @@ class Bootstrap
 
     protected function setUpDarkMode()
     {
-        if (
-            config('admin.layout.dark_mode_switch')
-            && ! Helper::isAjaxRequest()
-            && ! request()->routeIs(admin_api_route_name('*'))
-        ) {
-            Admin::navbar()->right((new DarkModeSwitcher())->render());
-        }
+        // if (
+        //     config('admin.layout.dark_mode_switch')
+        //     && ! Helper::isAjaxRequest()
+        //     && ! request()->routeIs(admin_api_route_name('*'))
+        // ) {
+        //     Admin::navbar()->right((new DarkModeSwitcher())->render());
+        // }
     }
 
     protected function includeBootstrapFile()
