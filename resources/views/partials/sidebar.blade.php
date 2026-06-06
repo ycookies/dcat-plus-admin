@@ -24,6 +24,9 @@
     .dropdown-menu-media{
         width: 26rem;
     }
+    .fs18{
+        font-size: 18px !important;
+    }
 </style>
 {{-- 布局配置变量（所有模式共用） --}}
 @php
@@ -107,14 +110,14 @@
 
                                     @if(!empty($configData['home_url']))
                                     <li class="nav-item">
-                                            <a href="{{$configData['home_url']}}"  target="_blank" class="nav-link" data-tips="tooltip" data-title="网站首页" data-placement="bottom"><i class="fa fa-home f18"></i></a> 
+                                            <a href="{{$configData['home_url']}}"  target="_blank" class="nav-link" data-tips="tooltip" data-title="网站首页" data-placement="bottom"><i class="fa fa-home fs18"></i></a> 
                                     </li>
                                     @endif
                                     {{--help 帮助信息--}}
                                     @if($lcShowHelp && $helplist->isNotEmpty())
                                     <li class="dropdown dropdown-notification nav-item">
                                         <a class="nav-link nav-link-label " href="#" data-tips="tooltip" data-title="帮助信息" data-placement="bottom" data-toggle="dropdown" aria-expanded="true">
-                                            <i class="feather icon-help-circle f18"></i>
+                                            <i class="feather icon-help-circle fs18"></i>
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right shadow-200">
                                             
@@ -146,7 +149,7 @@
                                     @if($lcShowNotification)
                                     <li class="dropdown dropdown-notification nav-item" style="text-align: center">
                                         <a class="nav-link nav-link-label" href="#" data-tips="tooltip" data-title="通知" data-placement="bottom" data-toggle="dropdown" aria-expanded="true">
-                                            <i class="feather icon-bell f18"></i>
+                                            <i class="feather icon-bell fs18"></i>
                                             @if($unreadCount > 0)
                                                 <span class="badge badge-pill badge-primary badge-up" style="top:12px;right:-6px;font-size:8px">
                                                 {{ $unreadCount }}
@@ -191,14 +194,14 @@
                                     <li class="nav-item">
                                         @if(isset($configData['full_screen']) && $configData['full_screen'])
                                         <a href="javascript:;"  data-check-screen="full" class="nav-link" data-tips="tooltip" data-title="全屏" data-placement="bottom">
-                                            <i class="feather icon-maximize f18"></i>
+                                            <i class="feather icon-maximize fs18"></i>
                                         </a>
                                         @endif
                                     </li>
                                     {{-- 暗黑模式切换 --}}
                                     <li class="nav-item">
                                         <a href="javascript:void(0);"  class="dark-mode-switcher nav-link" style="padding:1rem 0rem 1.35rem .5rem !important;">
-                                            <i data-tips="tooltip" data-title="切换暗黑模式" data-placement="bottom" class="feather {{ config('admin.layout.dark_mode_switch') ? 'icon-moon' : 'icon-sun' }} f18"></i>
+                                            <i data-tips="tooltip" data-title="切换暗黑模式" data-placement="bottom" class="feather {{ config('admin.layout.dark_mode_switch') ? 'icon-moon' : 'icon-sun' }} fs18"></i>
                                         </a>
 
                                         <script>
@@ -210,7 +213,7 @@
                                         <a class="nav-link nav-link-label"  href="#" data-toggle="dropdown" style="padding:1.5rem .5rem 1.35rem .5rem !important;">
                                             <i class="flag-icon @if($lcLocale === 'zh_CN') flag-icon-cn @elseif($lcLocale === 'zh_TW') flag-icon-tw @else flag-icon-us @endif" style="margin-right:4px"></i>
                                             <span class="d-none d-sm-inline">
-                                                <i data-tips="tooltip" data-title="切换语言" data-placement="bottom" class="fa fa-language f18"></i>
+                                                <i data-tips="tooltip" data-title="切换语言" data-placement="bottom" class="fa fa-language fs18"></i>
                                             </span>
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right">
@@ -231,7 +234,7 @@
                                     <li class="nav-item">
                                         {{-- 布局配置按钮（导航栏内） --}}
                                         <a href="javascript:void(0);" class="nav-link lc-open-trigger" >
-                                            <i data-tips="tooltip" data-title="布局配置" data-placement="bottom" class="feather icon-settings f18"></i>
+                                            <i data-tips="tooltip" data-title="布局配置" data-placement="bottom" class="feather icon-settings fs18"></i>
                                         </a>
                                     </li>
 

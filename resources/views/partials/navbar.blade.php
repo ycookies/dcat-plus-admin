@@ -80,14 +80,14 @@
                     <ul class="nav navbar-nav">
                         @if(!empty($configData['home_url']))
                         <li class="nav-item">
-                                <a href="{{$configData['home_url']}}"  target="_blank" class="nav-link tips" data-title="首页"><i class="fa fa-home f18"></i></a> 
+                                <a href="{{$configData['home_url']}}"  target="_blank" class="nav-link tips" data-title="首页"><i class="fa fa-home fs18"></i></a> 
                         </li>
                         @endif
                         {{--help 帮助信息--}}
                         @if($lcShowHelp && $helplist->isNotEmpty())
                         <li class="dropdown dropdown-notification nav-item">
                             <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" aria-expanded="true">
-                                <i class="feather icon-help-circle f18"></i>
+                                <i class="feather icon-help-circle fs18"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right shadow-200" style="max-height:400px;overflow-y:auto;">
                                 
@@ -119,7 +119,7 @@
                         @if($lcShowNotification)
                         <li class="dropdown dropdown-notification nav-item" style="text-align: center">
                             <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" aria-expanded="true">
-                                <i class="feather icon-bell f18"></i>
+                                <i class="feather icon-bell fs18"></i>
                                 @if($unreadCount > 0)
                                     <span class="badge badge-pill badge-primary badge-up" style="top:12px;right:-6px;font-size:8px">
                                     {{ $unreadCount }}
@@ -164,14 +164,14 @@
                         <li class="nav-item">
                             @if(isset($configData['full_screen']) && $configData['full_screen'])
                             <a href="javascript:;"  data-check-screen="full" class="nav-link">
-                                <i class="feather icon-maximize f18"></i>
+                                <i class="feather icon-maximize fs18"></i>
                             </a>
                             @endif
                         </li>
                         {{-- 暗黑模式切换 --}}
                         <li class="nav-item">
                             <a href="javascript:void(0);" class="dark-mode-switcher nav-link" style="padding:1.5rem 0rem 1.35rem .5rem !important;" title="切换暗黑模式">
-                                  <i class="feather {{ config('admin.layout.dark_mode_switch') ? 'icon-moon' : 'icon-sun' }} f18"></i>
+                                  <i class="feather {{ config('admin.layout.dark_mode_switch') ? 'icon-moon' : 'icon-sun' }} fs18"></i>
                             </a>
 
                             <script>
@@ -183,7 +183,7 @@
                             <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" style="padding:1.5rem 0rem 1.35rem .5rem !important;">
                                 <i class="flag-icon @if($lcLocale === 'zh_CN') flag-icon-cn @elseif($lcLocale === 'zh_TW') flag-icon-tw @else flag-icon-us @endif" style="margin-right:4px"></i>
                                 <span class="d-none d-sm-inline">
-                                    <i class="fa fa-language f18"></i>
+                                    <i class="fa fa-language fs18"></i>
                                 </span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right">
@@ -204,7 +204,7 @@
                         <li class="nav-item">
                             {{-- 布局配置按钮（导航栏内） --}}
                             <a href="javascript:void(0);" class="nav-link lc-open-trigger" title="布局配置">
-                                <i class="feather icon-settings f18"></i>
+                                <i class="feather icon-settings fs18"></i>
                             </a>
                         </li>
                         {{-- <li class="nav-item">
@@ -368,6 +368,9 @@
 
 {{-- 布局配置 CSS --}}
 <style>
+.fs18{
+    font-size: 18px !important;
+}
 .lc-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;

@@ -19,7 +19,11 @@
         "dcat/easy-excel":"*",
         "tymon/jwt-auth":"^2.3",
         "maatwebsite/excel": "^3.1",
-        "dedoc/scramble": "^0.13.13"
+        "dedoc/scramble": "^0.13.13",
+        "openspout/openspout": "^5.3",
+        "phpoffice/phpword": "^1.4",
+        "simplesoftwareio/simple-qrcode": "^4.2",
+        "tecnickcom/tc-lib-pdf": "^8.34"
     },
     "require-dev": {
         "laravel/dusk": "~8.0",
