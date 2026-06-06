@@ -41,6 +41,12 @@ class Menu
 
     protected $view = 'admin::partials.menu';
 
+    /**
+     * 存储所有通过 add() 动态添加的菜单节点.
+     * @var array
+     */
+    protected $addedNodes = []; // 每个 add() 调用存储为一个独立分组（二维数组）
+
     public function register()
     {
         if (! admin_has_default_section(Admin::SECTION['LEFT_SIDEBAR_MENU'])) {
@@ -65,9 +71,22 @@ class Menu
      */
     public function add(array $nodes = [], int $priority = 10)
     {
+        // 存储为独立分组，避免不同 add() 调用的 ID 冲突
+        $this->addedNodes[] = $nodes;
+
         admin_inject_section(Admin::SECTION['LEFT_SIDEBAR_MENU_BOTTOM'], function () use (&$nodes) {
             return $this->toHtml($nodes);
         }, true, $priority);
+    }
+
+    /**
+     * 获取所有通过 add() 动态添加的菜单节点.
+     *
+     * @return array
+     */
+    public function getAddedNodes(): array
+    {
+        return $this->addedNodes;
     }
 
     /**

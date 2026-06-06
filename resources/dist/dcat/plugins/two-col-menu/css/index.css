@@ -131,7 +131,7 @@
 }
 
 .detail-panel-header {
-    padding: 16px 18px 10px;
+    padding: 30px 18px 10px;
     border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
@@ -237,7 +237,6 @@
     border-right: 1px solid rgba(255,255,255,0.04);
 }
 .two-col-menu-wrapper.dark .two-col-icon-bar .two-col-logo {
-    border-bottom-color: rgba(255,255,255,0.06);
 }
 .two-col-menu-wrapper.dark .icon-nav-link {
     color: rgba(255,255,255,0.55);
@@ -286,7 +285,6 @@
     border-right: 1px solid rgba(255,255,255,0.04);
 }
 .two-col-menu-wrapper.light .two-col-icon-bar .two-col-logo {
-    border-bottom-color: rgba(255,255,255,0.06);
 }
 .two-col-menu-wrapper.light .icon-nav-link {
     color: rgba(255,255,255,0.6);
@@ -335,7 +333,7 @@
     border-right: 1px solid rgba(255,255,255,0.06);
 }
 .two-col-menu-wrapper.primary .two-col-icon-bar .two-col-logo {
-    border-bottom-color: rgba(255,255,255,0.08);
+
 }
 .two-col-menu-wrapper.primary .icon-nav-link {
     color: rgba(255,255,255,0.6);
@@ -393,6 +391,14 @@
 }
 
 /* ========== 与 AdminLTE 兼容性 ========== */
+
+/* 修复 layout-fixed 模式下 sidebar 高度导致底部空白 */
+.layout-fixed .wrapper .main-sidebar:has(.two-col-menu-wrapper),
+.layout-fixed .wrapper .main-sidebar:has(.two-col-menu-wrapper) .sidebar {
+    height: 100vh !important;
+    max-height: 100vh !important;
+}
+
 .sidebar-mini .two-col-menu-wrapper .nav-sidebar,
 .sidebar-mini .two-col-menu-wrapper .nav-sidebar .nav-link {
     overflow: initial !important;

@@ -5,12 +5,12 @@
                 <a href="javascript:void(0);"
                    class="detail-nav-link {{ $builder->isActive($item) ? 'active' : '' }}">
                     <span class="link-content">
-                        <i class="link-icon {{ $item['icon'] ?: ($defaultIcon ?? 'feather icon-circle') }}"></i>
+                        <i class="link-icon fa fa-fw {{ $item['icon'] ?: ($defaultIcon ?? 'feather icon-circle') }}"></i>
                         <span class="link-text">{!! $builder->translate($item['title']) !!}</span>
                     </span>
                     <i class="link-arrow fa fa-angle-left"></i>
                 </a>
-                <ul class="detail-sub-nav" style="{{ $builder->isActive($item) ? 'display:block' : 'display:none' }}">
+                <ul class="detail-sub-nav">
                     @foreach($item['children'] as $child)
                         @if($builder->visible($child))
                             @if(!empty($child['children']))

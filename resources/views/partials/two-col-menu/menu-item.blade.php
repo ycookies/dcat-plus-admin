@@ -5,7 +5,7 @@
            class="detail-nav-link {!! $builder->isActive($item) ? 'active' : '' !!}"
            data-id="{{ $item['id'] ?? '' }}">
             <span class="link-content">
-                <i class="link-icon {{ $item['icon'] ?: ($defaultIcon ?? 'feather icon-circle') }}"></i>
+                <i class="link-icon fa fa-fw {{ $item['icon'] ?: ($defaultIcon ?? 'feather icon-circle') }}"></i>
                 <span class="link-text">{!! $builder->translate($item['title']) !!}</span>
             </span>
         </a>

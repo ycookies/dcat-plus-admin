@@ -68,25 +68,6 @@
                 @endif
             @endforeach
 
-            {{-- LEFT_SIDEBAR_MENU_TOP section --}}
-            @if(trim(admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_TOP'])))
-                <div class="detail-panel detail-section" data-panel-id="__section_top__">
-                    <div class="detail-panel-header"><h4>快捷操作</h4></div>
-                    <div class="detail-section-content">
-                        {!! admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_TOP']) !!}
-                    </div>
-                </div>
-            @endif
-
-            {{-- LEFT_SIDEBAR_MENU_BOTTOM section --}}
-            @if(trim(admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_BOTTOM'])))
-                <div class="detail-panel detail-section" data-panel-id="__section_bottom__">
-                    <div class="detail-panel-header"><h4>更多</h4></div>
-                    <div class="detail-section-content">
-                        {!! admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_BOTTOM']) !!}
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
 </div>

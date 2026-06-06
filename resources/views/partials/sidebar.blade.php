@@ -71,10 +71,57 @@
 {{-- ==================== 双栏菜单模式 ==================== --}}
 @if($menuStyle === 'two_col_menu')
 @php
+    // 获取 Menu 单例（bootstrap.php 中的 Admin::menu()->add() 已在同一个实例上调用）
+    $menuBuilder = \Dcat\Admin\Admin::menu();
+    // 确保 register() 已执行（注册默认 section + helpers）
+    $menuBuilder->register();
+
+    // 获取数据库菜单
     $menuModel = config('admin.database.menu_model');
-    $menus = (new $menuModel())->allNodes()->toArray();
-    $menus = \Dcat\Admin\Support\Helper::buildNestedArray($menus);
-    $builder = app(\Dcat\Admin\Layout\Menu::class);
+    $allNodes = (new $menuModel())->allNodes()->toArray();
+
+    // 合并所有通过 add() 动态添加的菜单（含 bootstrap.php 中的自定义菜单 + Helpers）
+    // 【关键】分别重新编号每个来源的 ID，避免不同来源 ID 冲突
+    // getAddedNodes() 返回二维数组，每个 add() 调用是一组独立的节点
+    $addedNodeGroups = $menuBuilder->getAddedNodes();
+
+    // 数据库节点：重新编号，ID 从 1 开始
+    $globalId = 0;
+    $dbIdMap = []; // old_id => new_id
+    foreach ($allNodes as &$dbNode) {
+        $globalId++;
+        $dbIdMap[(int)$dbNode['id']] = $globalId;
+        $dbNode['_old_parent_id'] = (int)$dbNode['parent_id'];
+        $dbNode['id'] = $globalId;
+    }
+    unset($dbNode);
+    // 更新数据库节点的 parent_id
+    foreach ($allNodes as &$dbNode) {
+        $oldPid = $dbNode['_old_parent_id'];
+        $dbNode['parent_id'] = ($oldPid === 0) ? 0 : ($dbIdMap[$oldPid] ?? 0);
+        unset($dbNode['_old_parent_id']);
+    }
+    unset($dbNode);
+
+    // 动态节点：按组重新编号，每组独立的 ID 映射
+    foreach ($addedNodeGroups as $group) {
+        $groupOldToNew = []; // 组内的 old_id => new_id
+        // 第一步：分配新 ID
+        foreach ($group as $gNode) {
+            $globalId++;
+            $groupOldToNew[(int)$gNode['id']] = $globalId;
+        }
+        // 第二步：更新 id 和 parent_id
+        foreach ($group as $gNode) {
+            $oldPid = (int)$gNode['parent_id'];
+            $gNode['id'] = $groupOldToNew[(int)$gNode['id']];
+            $gNode['parent_id'] = ($oldPid === 0) ? 0 : ($groupOldToNew[$oldPid] ?? 0);
+            $allNodes[] = $gNode;
+        }
+    }
+
+    $menus = \Dcat\Admin\Support\Helper::buildNestedArray($allNodes);
+    $builder = $menuBuilder;
     $defaultIcon = config('admin.menu.default_icon', 'feather icon-circle');
 @endphp
 <link rel="stylesheet" href="{{ admin_asset('vendor/dcat-admin/dcat/plugins/two-col-menu/css/index.css') }}">
