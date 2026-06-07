@@ -348,7 +348,45 @@ return [
 
         'full_screen' => true, // 是否展示全屏按钮
 
-        'home_url'=> env('APP_URL') // 是否展示官网url
+        'home_url'=> env('APP_URL'), // 是否展示官网url
+
+        'layout_config_tool_in_navbar' => true, // 是否将布局配置工具放置在导航栏（默认放置在侧边栏）
+    ],
+    
+    'iframe_tab' => [
+        /*
+        |--------------------------------------------------------------------------
+        | 后台 iframe 标签页入口
+        |--------------------------------------------------------------------------
+        |
+        | 适配版默认不替换 /admin 首页，只新增 /admin/iframe-tabs 作为标签页入口。
+        | 这样即使标签页模式出现兼容问题，也可以直接回到原后台入口排查。
+        |
+        */
+        'enabled' => env('ADMIN_IFRAME_TAB_ENABLED', true),
+
+        'shell_path' => env('ADMIN_IFRAME_TAB_SHELL_PATH', 'iframe-tabs'),
+
+        'query_key' => env('ADMIN_IFRAME_TAB_QUERY_KEY', 'iframe_tab'),
+
+        'home_path' => env('ADMIN_IFRAME_TAB_HOME_PATH', '/'),
+
+        'home_title' => env('ADMIN_IFRAME_TAB_HOME_TITLE', '首页'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | 标签页行为
+        |--------------------------------------------------------------------------
+        */
+        'cache' => env('ADMIN_IFRAME_TAB_CACHE', false),
+
+        'lazy_load' => env('ADMIN_IFRAME_TAB_LAZY_LOAD', true),
+
+        'dialog_area_width' => env('ADMIN_IFRAME_TAB_DIALOG_AREA_WIDTH', '70%'),
+
+        'dialog_area_height' => env('ADMIN_IFRAME_TAB_DIALOG_AREA_HEIGHT', '90vh'),
+        
+        'asset_version' => env('ADMIN_IFRAME_TAB_ASSET_VERSION', '1.0.0'),
     ],
 
     /*

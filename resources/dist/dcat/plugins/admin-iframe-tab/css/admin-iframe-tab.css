@@ -180,6 +180,83 @@
     position: relative;
 }
 
+.admin-iframe-tab-loading {
+    position: absolute;
+    inset: 0;
+    background: rgba(243, 245, 248, .96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: opacity .3s ease;
+}
+
+.admin-iframe-tab-loading.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-iframe-tab-loader {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.admin-iframe-tab-loader-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    border-radius: 10px;
+    z-index: 2;
+    filter: drop-shadow(0 0 6px rgba(73, 102, 214, .3));
+    animation: admin-iframe-tab-pulse 2s ease-in-out infinite;
+}
+
+.admin-iframe-tab-loader svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 80px;
+    animation: admin-iframe-tab-rotate 1.4s linear infinite;
+}
+
+.admin-iframe-tab-loader svg circle {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+.admin-iframe-tab-loader .track {
+    stroke: #e2e8f0;
+}
+
+.admin-iframe-tab-loader .arc {
+    stroke: url(#admin-iframe-tab-grad);
+    stroke-dasharray: 180;
+    stroke-dashoffset: 60;
+    animation: admin-iframe-tab-dash 1.4s ease-in-out infinite;
+}
+
+@keyframes admin-iframe-tab-rotate {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes admin-iframe-tab-dash {
+    0%   { stroke-dashoffset: 180; }
+    50%  { stroke-dashoffset: 45; }
+    100% { stroke-dashoffset: 180; }
+}
+
+@keyframes admin-iframe-tab-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.06); }
+}
+
 .admin-iframe-tab-panel {
     background: #f3f5f8;
     display: none;

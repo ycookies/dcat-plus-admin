@@ -229,6 +229,65 @@
             }
         }
 
+        var loadingHtml = [
+            '<div class="admin-iframe-tab-loading">',
+            '  <div class="admin-iframe-tab-loader">',
+            '    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">',
+            '      <defs>',
+            '        <linearGradient id="admin-iframe-tab-grad" x1="0%" y1="0%" x2="100%" y2="100%">',
+            '          <stop offset="0%" style="stop-color:#4966d6"/>',
+            '          <stop offset="100%" style="stop-color:#b478ff"/>',
+            '        </linearGradient>',
+            '      </defs>',
+            '      <circle class="track" cx="40" cy="40" r="36"/>',
+            '      <circle class="arc" cx="40" cy="40" r="36"/>',
+            '    </svg>',
+            '    <img class="admin-iframe-tab-loader-logo" src="/vendor/dcat-admin/images/logo.png" alt="">',
+            '  </div>',
+            '</div>'
+        ].join('');
+
+        function showLoading($panel) {
+            $panel.find('.admin-iframe-tab-loading').remove();
+            $panel.append(loadingHtml);
+        }
+
+        function hideLoading($panel) {
+            var $loading = $panel.find('.admin-iframe-tab-loading');
+            if ($loading.length) {
+                $loading.addClass('is-hidden');
+                setTimeout(function () { $loading.remove(); }, 300);
+            }
+        }
+
+        function bindFrameLoad(iframe, $panel) {
+            $(iframe).on('load.iframeTab', function () {
+                hideLoading($panel);
+
+                var frame = this;
+                var id = $panel.data('tab-id');
+
+                try {
+                    var frameUrl = frame.contentWindow.location.href;
+
+                    if (shouldOpenTop(toUrl(frameUrl))) {
+                        window.location.href = withoutIframeParam(frameUrl);
+                        return;
+                    }
+
+                    var tab = findTab(id);
+                    if (tab && tab.closeable) {
+                        var frameTitle = frame.contentDocument.querySelector('.content-header h1 span');
+                        if (frameTitle && $.trim(frameTitle.textContent)) {
+                            updateTabTitle(id, frameTitle.textContent);
+                        }
+                    }
+                } catch (error) {
+                    // 跨源页面无法读取标题
+                }
+            });
+        }
+
         function ensureFrame(tab) {
             var $panel = $('#' + tab.id + '-panel');
             var $frame = $panel.find('iframe');
@@ -237,15 +296,19 @@
                 return $frame;
             }
 
-            $frame = $('<iframe>', {
-                class: 'admin-iframe-tab-frame',
-                src: tab.url,
-                title: tab.title
-            });
+            showLoading($panel);
 
-            $panel.empty().append($frame);
+            var iframe = document.createElement('iframe');
+            iframe.className = 'admin-iframe-tab-frame';
+            iframe.title = tab.title || '';
 
-            return $frame;
+            bindFrameLoad(iframe, $panel);
+
+            $panel.empty().append(iframe);
+
+            iframe.src = tab.url;
+
+            return $(iframe);
         }
 
         function createTab(title, href, params) {
@@ -302,11 +365,17 @@
             });
 
             if (! options.lazyLoad || params.activate) {
-                $panel.append($('<iframe>', {
-                    class: 'admin-iframe-tab-frame',
-                    src: tab.url,
-                    title: tab.title
-                }));
+                showLoading($panel);
+
+                var iframe = document.createElement('iframe');
+                iframe.className = 'admin-iframe-tab-frame';
+                iframe.title = tab.title || '';
+
+                bindFrameLoad(iframe, $panel);
+
+                $panel.append(iframe);
+
+                iframe.src = tab.url;
             } else {
                 $panel.append($('<div>', {
                     class: 'admin-iframe-tab-empty',
@@ -386,13 +455,22 @@
 
         function reloadActiveTab() {
             var tab = findTab(activeId);
-            var $frame;
 
             if (! tab) {
                 return;
             }
 
-            $frame = ensureFrame(tab);
+            var $panel = $('#' + tab.id + '-panel');
+            var $frame = $panel.find('iframe');
+
+            if (! $frame.length) {
+                ensureFrame(tab);
+                return;
+            }
+
+            showLoading($panel);
+            $frame.off('load.iframeTab');
+            bindFrameLoad($frame[0], $panel);
             $frame.attr('src', $frame.attr('src'));
         }
 
@@ -520,25 +598,6 @@
                 }
             });
 
-            $panels.on('load', 'iframe', function () {
-                var frame = this;
-                var id = $(frame).closest('.admin-iframe-tab-panel').data('tab-id');
-
-                try {
-                    var frameUrl = frame.contentWindow.location.href;
-                    var frameTitle = frame.contentDocument.querySelector('.content-header h1 span');
-
-                    if (shouldOpenTop(toUrl(frameUrl))) {
-                        window.location.href = withoutIframeParam(frameUrl);
-
-                        return;
-                    }
-
-                    updateTabTitle(id, frameTitle ? frameTitle.textContent : frame.contentDocument.title);
-                } catch (error) {
-                    // 仅支持同源后台页面读取标题；跨源页面保留打开时的标题。
-                }
-            });
         }
 
         function boot() {
