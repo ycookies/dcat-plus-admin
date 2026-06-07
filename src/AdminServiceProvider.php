@@ -11,6 +11,7 @@ use Dcat\Admin\Form\Extend;
 use Dcat\Admin\Form\Extend\Distpicker\DcatDistpickerServiceProvider;
 use Dcat\Admin\Form\Extend\Diyforms\DcatDiyFormServiceProvider;
 use Dcat\Admin\Form\Extend\FormMedia\FormMediaServiceProvider;
+use Dcat\Admin\Extend\IframeTabServiceProvider;
 use Dcat\Admin\Form\Steps\FormStepServiceProvider;
 use Dcat\Admin\Layout\Asset;
 use Dcat\Admin\Layout\Content;
@@ -152,6 +153,7 @@ class AdminServiceProvider extends ServiceProvider {
         $this->app->register(DcatDistpickerServiceProvider::class);
         $this->app->register(DcatDiyFormServiceProvider::class);
         $this->app->register(FormMediaServiceProvider::class);
+        $this->app->register(IframeTabServiceProvider::class);
         \Dcat\Admin\Widgets\Tooltip::make('.tips')->purple();
         
     }

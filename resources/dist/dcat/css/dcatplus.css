@@ -1144,3 +1144,91 @@
     z-index: 2;
     box-shadow:0 2px 4px rgba(e,0,0,0.1);
 }
+.main-menu .navbar-header .navbar-brand{font-size:initial !important; }
+
+body.sidebar-collapse .main-sidebar:not(:hover,.sidebar-focused) .navbar-header{padding:0rem 15px !important;}
+/* ========== 侧边栏菜单选中样式优化 ========== */
+
+/* 默认侧边栏菜单 - 选中项突出显示（覆盖 AdminLTE 默认样式） */
+.main-sidebar .sidebar .nav-sidebar > .nav-item > .nav-link.active,
+.main-sidebar .sidebar .nav-sidebar > .nav-item > .nav-link.active:hover,
+.main-sidebar .sidebar .nav-treeview > .nav-item > .nav-link.active,
+.main-sidebar .sidebar .nav-treeview > .nav-item > .nav-link.active:hover,
+.main-sidebar .sidebar .nav-treeview > li > .nav-link.active,
+.main-sidebar .sidebar .nav-treeview > li > .nav-link.active:hover {
+    background-color: rgba(92, 107, 192, 0.15) !important;
+    color: #5c6bc0 !important;
+    font-weight: 600;
+    box-shadow: none !important;
+    border-left: 3px solid #5c6bc0;
+    padding-left: calc(1rem - 3px);
+    transition: all 0.2s ease;
+}
+
+/* 选中项前面的图标 */
+.main-sidebar .sidebar .nav-link.active > i:first-child {
+    color: #5c6bc0 !important;
+}
+
+/* 浅色侧边栏（覆盖 [class*=sidebar-light-] 的 background:none） */
+[class*="sidebar-light"] .nav-sidebar > .nav-item > .nav-link.active,
+[class*="sidebar-light"] .nav-sidebar > .nav-item > .nav-link.active:hover,
+[class*="sidebar-light"] .nav-treeview > .nav-item > .nav-link.active,
+[class*="sidebar-light"] .nav-treeview > .nav-item > .nav-link.active:hover,
+[class*="sidebar-light"] .nav-treeview > li > .nav-link.active,
+[class*="sidebar-light"] .nav-treeview > li > .nav-link.active:hover {
+    background-color: rgba(92, 107, 192, 0.15) !important;
+    color: #3f51b5 !important;
+    font-weight: 600;
+    box-shadow: none !important;
+    border-left: 3px solid #3f51b5;
+    padding-left: calc(1rem - 3px);
+}
+
+[class*="sidebar-light"] .nav-link.active > i:first-child {
+    color: #3f51b5 !important;
+}
+
+/* 深色侧边栏 */
+[class*="sidebar-dark"] .nav-sidebar > .nav-item > .nav-link.active,
+[class*="sidebar-dark"] .nav-sidebar > .nav-item > .nav-link.active:hover,
+[class*="sidebar-dark"] .nav-treeview > .nav-item > .nav-link.active,
+[class*="sidebar-dark"] .nav-treeview > .nav-item > .nav-link.active:hover,
+[class*="sidebar-dark"] .nav-treeview > li > .nav-link.active,
+[class*="sidebar-dark"] .nav-treeview > li > .nav-link.active:hover {
+    background-color: rgba(140, 158, 255, 0.2) !important;
+    color: #8c9eff !important;
+    font-weight: 600;
+    box-shadow: none !important;
+    border-left: 3px solid #8c9eff;
+    padding-left: calc(1rem - 3px);
+}
+
+[class*="sidebar-dark"] .nav-link.active > i:first-child {
+    color: #8c9eff !important;
+}
+
+/* hover 效果增强 */
+.main-sidebar .sidebar .nav-sidebar > .nav-item > .nav-link:hover,
+.main-sidebar .sidebar .nav-treeview > .nav-item > .nav-link:hover,
+.main-sidebar .sidebar .nav-treeview > li > .nav-link:hover {
+    background-color: rgba(92, 107, 192, 0.18) !important;
+    transition: background-color 0.15s ease;
+}
+
+/* 浅色侧边栏 hover */
+[class*="sidebar-light"] .nav-sidebar > .nav-item > .nav-link:hover,
+[class*="sidebar-light"] .nav-treeview > .nav-item > .nav-link:hover,
+[class*="sidebar-light"] .nav-treeview > li > .nav-link:hover {
+    background-color: rgba(63, 81, 181, 0.18) !important;
+}
+
+/* 深色侧边栏 hover */
+[class*="sidebar-dark"] .nav-sidebar > .nav-item > .nav-link:hover,
+[class*="sidebar-dark"] .nav-treeview > .nav-item > .nav-link:hover,
+[class*="sidebar-dark"] .nav-treeview > li > .nav-link:hover {
+    background-color: rgba(140, 158, 255, 0.25) !important;
+}
+body.dark-mode:not(.sidebar-separate) .main-sidebar .sidebar{
+    margin-top: 0px !important;
+}

@@ -18,7 +18,14 @@
     $lcShowLocaleSwitch = isset($savedLayout['show_locale_switch']) ? (bool)$savedLayout['show_locale_switch'] : true;
     $lcShowHelp = isset($savedLayout['show_help']) ? (bool)$savedLayout['show_help'] : true;
     $lcShowNotification = isset($savedLayout['show_notification']) ? (bool)$savedLayout['show_notification'] : true;
-
+    $lciframeabs = isset($savedLayout['iframe_tabs']) ? (bool)$savedLayout['iframe_tabs'] : config('admin.layout.iframe_tabs', false);
+    $iframe_tabs_url = '/admin/iframe-tabs';
+    $url_path = request()->path();
+    $iframe_tabs_tips = '切换 iframe-tabs';
+    if($url_path === 'admin/iframe-tabs'){
+        $iframe_tabs_url = '/admin';
+        $iframe_tabs_tips = '切回默认';
+    }
     // 获取帮助数据（分类+内容）
     $helpCategories = [];
     $helplist = [];
@@ -201,14 +208,22 @@
                             </div>
                         </li>
                         @endif
-                        
-
+                        {{-- iframe-tabs 切换 --}}
+                        @if($lciframeabs)
+                        <li class="nav-item">
+                            <a href="{{ $iframe_tabs_url }}" target="_blank" class="nav-link" style="padding:1.5rem 0rem 1.35rem 1rem !important;">
+                                  <img data-tips="tooltip" data-title="{{ $iframe_tabs_tips }}" data-placement="bottom"  src="/vendor/dcat-admin/images/tabs.png" style="width:20px;height:20px;"/>
+                            </a>
+                        </li>
+                        @endif
+                        @if(config('admin.layout.layout_config_tool_in_navbar'))
                         <li class="nav-item">
                             {{-- 布局配置按钮（导航栏内） --}}
                             <a href="javascript:void(0);" class="nav-link lc-open-trigger" title="布局配置">
                                 <i class="feather icon-settings fs18"></i>
                             </a>
                         </li>
+                        @endif
                         {{-- <li class="nav-item">
                         </li>
                         <li class="nav-item">
@@ -324,7 +339,10 @@
             <div class="lc-section">
                 <div class="lc-section-title">功能开关</div>
                 <div class="lc-switch-group">
-                    
+                    <label class="lc-switch-label">
+                        <input type="checkbox" name="iframe_tabs" value="1" {{ $lciframeabs ? 'checked' : '' }}>
+                        <span>iframe-tabs</span>
+                    </label>
                     <label class="lc-switch-label">
                         <input type="checkbox" name="sidebar_collapsed" value="1" {{ $lcSidebarCollapsed ? 'checked' : '' }}>
                         <span>侧边栏折叠</span>
@@ -543,7 +561,7 @@
         panel.classList.remove('open');
         overlay.style.display = 'none';
     }
-
+    $('[data-tips="tooltip"]').tooltip();
     window.openModal = function(type, id) {
         var titleEl, contentEl, defaultTitle;
         if (type === 'h') {
