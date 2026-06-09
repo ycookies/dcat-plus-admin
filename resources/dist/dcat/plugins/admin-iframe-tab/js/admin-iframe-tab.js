@@ -154,9 +154,15 @@
         }
 
         function isMenuBranchLink(anchor) {
-            var $item = $(anchor).closest('li');
+            var $anchor = $(anchor);
+            var $item = $anchor.closest('li');
 
             if (! $item.length) {
+                return false;
+            }
+
+            // 下拉菜单内的链接（如用户面板中的"设置"）是可导航链接，不是分支触发器。
+            if ($anchor.closest('.dropdown-menu').length) {
                 return false;
             }
 
@@ -165,13 +171,18 @@
                 || $item.hasClass('has-treeview')
                 || $item.hasClass('dropdown')
                 || $item.hasClass('dropdown-submenu')
-                || $(anchor).attr('data-toggle') === 'dropdown'
-                || $(anchor).attr('aria-expanded') !== undefined;
+                || $anchor.attr('data-toggle') === 'dropdown'
+                || $anchor.attr('aria-expanded') !== undefined;
         }
 
         function titleFromAnchor(anchor) {
             var $anchor = $(anchor);
-            var title = $anchor.attr('title') || $anchor.find('p').first().text() || $anchor.text();
+
+            // 按优先级依次尝试：title 属性 → <p> 标签（标准菜单）→ .link-text（双栏菜单）→ 整体文本兜底
+            var title = $anchor.attr('title')
+                || $anchor.find('p').first().text()
+                || $anchor.find('.link-text').first().text()
+                || $anchor.text();
 
             return $.trim(title).replace(/\s+/g, ' ') || options.homeTitle;
         }
@@ -275,13 +286,15 @@
                         return;
                     }
 
-                    var tab = findTab(id);
-                    if (tab && tab.closeable) {
-                        var frameTitle = frame.contentDocument.querySelector('.content-header h1 span');
-                        if (frameTitle && $.trim(frameTitle.textContent)) {
-                            updateTabTitle(id, frameTitle.textContent);
-                        }
-                    }
+                    // 注释掉自动用 iframe 页面标题覆盖标签页名称的逻辑。
+                    // 菜单名称应是标签页标题的权威来源，避免页面 H1 与菜单名不一致。
+                    // var tab = findTab(id);
+                    // if (tab && tab.closeable) {
+                    //     var frameTitle = frame.contentDocument.querySelector('.content-header h1 span');
+                    //     if (frameTitle && $.trim(frameTitle.textContent)) {
+                    //         updateTabTitle(id, frameTitle.textContent);
+                    //     }
+                    // }
                 } catch (error) {
                     // 跨源页面无法读取标题
                 }

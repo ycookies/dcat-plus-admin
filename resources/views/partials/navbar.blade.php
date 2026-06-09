@@ -28,7 +28,7 @@
     }
     // 获取帮助数据（分类+内容）
     $helpCategories = [];
-    $helplist = [];
+    $helplist = collect();
     try {
         $helplist = \Dcat\Admin\Models\Help::where('is_active', true)
         ->with('category')->orderBy('id','desc')->paginate(5);
@@ -98,7 +98,7 @@
                             <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" aria-expanded="true">
                                 <i class="feather icon-help-circle fs18"></i>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right shadow-200" style="max-height:400px;overflow-y:auto;">
+                            <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right shadow-200">
                                 
                                     @foreach($helplist as $help)
                                     <li class="scrollable-container media-list">
@@ -541,6 +541,120 @@
     background: #f8f9fa;
 }
 </style>
+
+{{-- 主题色覆盖 --}}
+@if($lcColor !== 'default')
+@php
+    $themeColors = [
+        'blue' => [
+            'main' => '#6d8be6', 'dark' => '#5570cc', 'darker' => '#4560b8', 'darkest' => '#3a50a5',
+            'light' => '#8da4ec', 'lighter' => '#adbef2',
+            'rgba8' => 'rgba(109,139,230,.8)', 'rgba7' => 'rgba(109,139,230,.7)',
+            'rgba5' => 'rgba(109,139,230,.5)', 'rgba2' => 'rgba(109,139,230,.2)',
+            'rgba05' => 'rgba(109,139,230,.05)',
+            'bg-tint' => '#e8edf8', 'bg-light' => '#eef2fb',
+        ],
+        'blue-light' => [
+            'main' => '#62a8ea', 'dark' => '#4e92d4', 'darker' => '#3e80c0', 'darkest' => '#2e70ac',
+            'light' => '#82bef0', 'lighter' => '#a2d4f6',
+            'rgba8' => 'rgba(98,168,234,.8)', 'rgba7' => 'rgba(98,168,234,.7)',
+            'rgba5' => 'rgba(98,168,234,.5)', 'rgba2' => 'rgba(98,168,234,.2)',
+            'rgba05' => 'rgba(98,168,234,.05)',
+            'bg-tint' => '#e4f0fa', 'bg-light' => '#edf5fd',
+        ],
+        'green' => [
+            'main' => '#4e9876', 'dark' => '#3e8462', 'darker' => '#2e704e', 'darkest' => '#1e5c3a',
+            'light' => '#6eb896', 'lighter' => '#8ed8b6',
+            'rgba8' => 'rgba(78,152,118,.8)', 'rgba7' => 'rgba(78,152,118,.7)',
+            'rgba5' => 'rgba(78,152,118,.5)', 'rgba2' => 'rgba(78,152,118,.2)',
+            'rgba05' => 'rgba(78,152,118,.05)',
+            'bg-tint' => '#e2f0ea', 'bg-light' => '#edf7f2',
+        ],
+    ];
+    $tc = $themeColors[$lcColor] ?? null;
+@endphp
+@if($tc)
+<style>
+/* 主题色覆盖: {{ $lcColor }} */
+:root { --primary: {{ $tc['main'] }} !important; }
+/* 按钮 */
+.btn-primary { background-color: {{ $tc['main'] }} !important; border-color: {{ $tc['main'] }} !important; }
+.btn-primary:hover,.btn-primary:focus { background-color: {{ $tc['dark'] }} !important; border-color: {{ $tc['dark'] }} !important; }
+.btn-trans.btn-primary { background-color: {{ $tc['bg-tint'] }} !important; border-color: {{ $tc['bg-tint'] }} !important; color: {{ $tc['main'] }} !important; }
+.btn-primary.btn-outline { color: {{ $tc['main'] }} !important; border-color: {{ $tc['main'] }} !important; background: transparent !important; }
+.btn-primary.btn-outline:hover { background: {{ $tc['rgba05'] }} !important; color: {{ $tc['main'] }} !important; }
+/* 徽章 */
+.badge-primary { background-color: {{ $tc['main'] }} !important; }
+/* 进度条 */
+#nprogress .bar { background: {{ $tc['rgba8'] }} !important; }
+#nprogress .peg { box-shadow: 0 0 10px {{ $tc['main'] }}, 0 0 5px {{ $tc['main'] }} !important; }
+#nprogress .spinner-icon { border-color: {{ $tc['main'] }} transparent transparent {{ $tc['main'] }} !important; }
+/* 背景 */
+.bg-primary { background-color: {{ $tc['main'] }} !important; }
+.bg-primary-gradient { background-image: linear-gradient(60deg, {{ $tc['main'] }}, 0, {{ $tc['light'] }} 37%, {{ $tc['lighter'] }} 65%, {{ $tc['bg-tint'] }}) !important; }
+/* 文字 */
+.text-primary { color: {{ $tc['main'] }} !important; }
+.text-primary-darker { color: {{ $tc['darker'] }} !important; }
+/* 侧边栏 */
+.main-sidebar.sidebar-primary { background-color: {{ $tc['main'] }} !important; }
+.main-menu.menu-light .navigation>li.active>a { box-shadow: 0 0 4px 1px {{ $tc['rgba7'] }} !important; }
+/* 导航标签 */
+.nav.nav-tabs .nav-item .nav-link.active:after { box-shadow: 0 0 2px 0 {{ $tc['rgba5'] }} !important; }
+.nav-theme-primary .nav.nav-tabs { background: {{ $tc['main'] }} !important; }
+/* Select2 */
+.select2-container--default .select2-search--dropdown .select2-search__field:focus { border-color: {{ $tc['main'] }} !important; }
+.select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: {{ $tc['main'] }} !important; }
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { background-color: {{ $tc['main'] }} !important; }
+/* 弹窗 */
+.layui-layer-btn .layui-layer-btn0 { border-color: {{ $tc['main'] }} !important; background-color: {{ $tc['main'] }} !important; }
+/* 滑动面板 */
+.slider-panel .slider-toggle { background: {{ $tc['main'] }} !important; }
+/* 提示框 */
+.alert-primary { background: {{ $tc['rgba2'] }} !important; color: {{ $tc['darker'] }} !important; box-shadow: 0 2px 4px 0 rgba(0,0,0,.17) !important; }
+.callout.callout-primary { border-left-color: {{ $tc['light'] }} !important; }
+/* 暗黑模式适配 */
+body.dark-mode a { color: {{ $tc['light'] }} !important; }
+body.dark-mode a:hover { color: {{ $tc['main'] }} !important; }
+body.dark-mode .grid-selector .select-options a.active { color: {{ $tc['main'] }} !important; }
+body.dark-mode .nav-theme-primary .nav.nav-tabs .nav-item .nav-link.active,
+body.dark-mode .nav-theme-white .nav.nav-tabs .nav-item .nav-link.active { color: {{ $tc['main'] }} !important; }
+body.dark-mode .nav-theme-primary .nav.nav-tabs .nav-item .nav-link.active:after,
+body.dark-mode .nav-theme-white .nav.nav-tabs .nav-item .nav-link.active:after { background: linear-gradient(30deg, {{ $tc['main'] }}, {{ $tc['rgba5'] }}) !important; }
+body.dark-mode .dcat-step .done .dcat-step-icons { border-color: {{ $tc['main'] }} !important; }
+body.dark-mode .dcat-step .done .dcat-step-icons>.dcat-step-icon { color: {{ $tc['main'] }} !important; }
+body.dark-mode .grid-column-header a.active,
+body.dark-mode .grid-column-header a:hover { color: {{ $tc['light'] }} !important; }
+body.dark-mode.horizontal-menu a.nav-link.active p { color: {{ $tc['main'] }} !important; }
+/* Logo颜色 */
+.main-menu .navbar-header .logo-lg { color: {{ $tc['darker'] }} !important; }
+.main-menu .navbar-header .logo-mini { color: {{ $tc['darker'] }} !important; }
+/* 水平菜单 */
+.horizontal-menu .nav-sidebar>.nav-item .nav-link.active,
+.horizontal-menu .nav-sidebar>.nav-item .nav-link.active i { color: {{ $tc['main'] }} !important; }
+/* 白色导航主题 */
+.nav-theme-white .nav.nav-tabs .nav-item .nav-link.active { color: {{ $tc['main'] }} !important; }
+.nav-theme-white .nav.nav-tabs .nav-item .nav-link.active:after { background: {{ $tc['main'] }} !important; }
+/* 侧边栏激活项 */
+.sidebar-light-primary .nav-item>.nav-link.active { color: {{ $tc['darker'] }} !important; }
+[class*=sidebar-light-] .nav-treeview>.nav-item>.nav-link.active,
+[class*=sidebar-light-] .nav-treeview>.nav-item>.nav-link.active:hover { color: {{ $tc['darker'] }} !important; }
+/* Grid选择器 */
+.grid-selector .select-options a.active { color: {{ $tc['darker'] }} !important; }
+/* Column header */
+.grid-column-header a.active,.grid-column-header a:hover { color: {{ $tc['darker'] }} !important; }
+/* DateTime picker */
+.bootstrap-datetimepicker-widget table td.active,
+.bootstrap-datetimepicker-widget table td.active:hover { color: {{ $tc['darker'] }} !important; }
+/* Code */
+code { color: {{ $tc['darker'] }} !important; }
+/* 布局配置面板跟随主题 */
+.lc-radio-label:hover { border-color: {{ $tc['main'] }}; background: {{ $tc['bg-light'] }}; }
+.lc-radio-label.active,.lc-radio-label:has(input:checked) { border-color: {{ $tc['main'] }}; background: {{ $tc['bg-light'] }}; }
+.lc-input:focus { border-color: {{ $tc['main'] }}; }
+.lc-panel-footer .btn-primary { background-color: {{ $tc['main'] }} !important; border-color: {{ $tc['main'] }} !important; }
+</style>
+@endif
+@endif
 
 {{-- 布局配置 JS --}}
 <script>

@@ -289,17 +289,19 @@
 
 .admin-iframe-tab-child {
     background: #f5f7fb;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .admin-iframe-tab-child .app-content.content {
     margin-left: 0 !important;
     padding-top: 0 !important;
+    height: 100vh;
+    overflow: auto;
 }
 
 .admin-iframe-tab-child .wrapper {
     box-sizing: border-box;
-    min-height: 100vh;
+    min-height: 100%;
     padding: 14px 18px 24px;
 }
 
@@ -315,6 +317,12 @@
 
 .admin-iframe-tab-child .content-body {
     min-width: 0;
+}
+
+/* 超宽表格：由 table-responsive 内部提供水平滚动，body 仅在真正溢出时滚动 */
+.admin-iframe-tab-child .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 767px) {
