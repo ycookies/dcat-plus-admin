@@ -225,7 +225,22 @@ class AuthController extends Controller
      */
     protected function getRedirectPath()
     {
-        return $this->redirectTo ?: admin_url('/');
+        if ($this->redirectTo) {
+            return $this->redirectTo;
+        }
+
+        // 根据 layout_config 中的 active_mode 决定登录后跳转目标
+        try {
+            $layoutConfig = admin_setting_group('layout_config');
+            if (is_array($layoutConfig) && ($layoutConfig['active_mode'] ?? '') === 'iframe-tabs') {
+                $shellPath = trim(config('admin.iframe_tab.shell_path', 'iframe-tabs'), '/');
+                return admin_url($shellPath);
+            }
+        } catch (\Throwable $e) {
+            // 忽略异常，回退默认路径
+        }
+
+        return admin_url('/');
     }
 
     /**

@@ -59,6 +59,11 @@ class LayoutConfigController extends Controller
             $data['locale'] = in_array($data['locale'], $allowedLocales) ? $data['locale'] : config('app.locale', 'zh_CN');
         }
 
+        // iframe-tabs 活跃模式验证
+        if (isset($data['active_mode'])) {
+            $data['active_mode'] = in_array($data['active_mode'], ['default', 'iframe-tabs']) ? $data['active_mode'] : 'default';
+        }
+
         // 保存到数据库（admin_settings 表，使用 layout_config 分组）
         admin_setting_group('layout_config', $data);
 

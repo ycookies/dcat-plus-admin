@@ -211,7 +211,7 @@
                         {{-- iframe-tabs 切换 --}}
                         @if($lciframeabs)
                         <li class="nav-item">
-                            <a href="{{ $iframe_tabs_url }}" target="_blank" class="nav-link" style="padding:1.5rem 0rem 1.35rem 1rem !important;">
+                            <a href="{{ $iframe_tabs_url }}" target="_blank" class="nav-link lc-iframe-tabs-switch" data-target-mode="{{ $url_path === 'admin/iframe-tabs' ? 'default' : 'iframe-tabs' }}" style="padding:1.5rem 0rem 1.35rem 1rem !important;">
                                   <img data-tips="tooltip" data-title="{{ $iframe_tabs_tips }}" data-placement="bottom"  src="/vendor/dcat-admin/images/tabs.png" style="width:20px;height:20px;"/>
                             </a>
                         </li>
@@ -844,6 +844,28 @@ code { color: {{ $tc['darker'] }} !important; }
         .catch(function() {});
     })();
     @endif
+
+    // iframe-tabs 模式切换：点击时先保存 active_mode 再跳转
+    document.querySelectorAll('.lc-iframe-tabs-switch').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            var targetMode = this.getAttribute('data-target-mode') || 'iframe-tabs';
+            var href = this.getAttribute('href');
+            var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
+            var fd = new FormData();
+            fd.append('active_mode', targetMode);
+            fd.append('_token', token);
+            fetch('{{ admin_url("layout-config/save") }}', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function() {
+                window.open(href, '_blank');
+            }).catch(function() {
+                window.open(href, '_blank');
+            });
+        });
+    });
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
