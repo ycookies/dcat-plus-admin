@@ -321,7 +321,7 @@
 
 /* 超宽表格：由 table-responsive 内部提供水平滚动，body 仅在真正溢出时滚动 */
 .admin-iframe-tab-child .table-responsive {
-    overflow-x: auto;
+    /* overflow-x: auto; */
     -webkit-overflow-scrolling: touch;
 }
 

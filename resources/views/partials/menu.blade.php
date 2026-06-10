@@ -20,7 +20,7 @@
         </li>
     @else
 
-        <li class="{{ $horizontal ? 'dropdown' : 'has-treeview' }} {{ $depth > 0 ? 'dropdown-submenu' : '' }} nav-item {{ $builder->isActive($item) ? 'menu-open' : '' }}">
+        <li class="{{ $horizontal ? 'dropdown' : 'has-treeview' }} {{ $horizontal && $depth > 0 ? 'dropright ':'' }} {{ $depth > 0 ? 'dropdown-submenu' : '' }} nav-item {{ $builder->isActive($item) ? 'menu-open' : '' }}">
             <a href="#"  data-id="{{ $item['id'] ?? '' }}"
                class="nav-link {{ $builder->isActive($item) ? ($horizontal ? 'active' : '') : '' }}
                     {{ $horizontal ? 'dropdown-toggle' : '' }}">
@@ -33,7 +33,7 @@
                     @endif
                 </p>
             </a>
-            <ul class="nav {{ $horizontal ? 'dropdown-menu' : 'nav-treeview' }}">
+            <ul class="nav {{ $horizontal ? 'dropdown-menu' : 'nav-treeview' }} {{ $horizontal && $depth > 0 ? 'horizontal-ul ':'' }}">
                 @foreach($item['children'] as $item)
                     @php
                         $item['depth'] = $depth + 1;

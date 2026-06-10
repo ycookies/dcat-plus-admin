@@ -1232,3 +1232,12 @@ body.sidebar-collapse .main-sidebar:not(:hover,.sidebar-focused) .navbar-header{
 body.dark-mode:not(.sidebar-separate) .main-sidebar .sidebar{
     margin-top: 0px !important;
 }
+.horizontal-ul{
+    margin-top:-50px !important;
+    margin-left: 8px !important;
+}
+.horizontal-ul:before{
+    border-top:0px !important;
+    border-left:0px !important;
+    left:-.8rem !important;
+}
