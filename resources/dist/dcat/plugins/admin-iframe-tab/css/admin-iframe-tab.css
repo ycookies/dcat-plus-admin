@@ -22,13 +22,13 @@
     display: flex;
 }
 
-.admin-iframe-tab-host .header-navbar .nav-link {
+/* .admin-iframe-tab-host .header-navbar .nav-link {
     align-items: center;
     display: inline-flex;
     height: 60px !important;
     padding-bottom: 0 !important;
     padding-top: 0 !important;
-}
+} */
 
 .admin-iframe-tab-shell {
     background: #f3f5f8;
@@ -179,7 +179,9 @@
     min-height: 0;
     position: relative;
 }
-
+.horizontal-menu .admin-iframe-tab-host-wrapper{
+    padding-top:0px !important;
+}
 .admin-iframe-tab-loading {
     position: absolute;
     inset: 0;
@@ -321,7 +323,7 @@
 
 /* 超宽表格：由 table-responsive 内部提供水平滚动，body 仅在真正溢出时滚动 */
 .admin-iframe-tab-child .table-responsive {
-    /* overflow-x: auto; */
+    /* overflow-y: auto; */
     -webkit-overflow-scrolling: touch;
 }
 
