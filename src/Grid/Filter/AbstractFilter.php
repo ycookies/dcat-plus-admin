@@ -91,6 +91,13 @@ abstract class AbstractFilter
     protected $width = 10;
 
     /**
+     * 是否已显式设置宽度（用于区分默认值与自定义值）.
+     *
+     * @var bool
+     */
+    protected $widthSet = false;
+
+    /**
      * @var string
      */
     protected $style;
@@ -157,6 +164,8 @@ abstract class AbstractFilter
      */
     public function width($width)
     {
+        $this->widthSet = true;
+
         if (is_numeric($width)) {
             $this->width = $width;
         } else {
@@ -165,6 +174,27 @@ abstract class AbstractFilter
         }
 
         return $this;
+    }
+
+    /**
+     * 检查宽度是否已显式设置.
+     *
+     * @return bool
+     */
+    public function isWidthSet()
+    {
+        return $this->widthSet;
+    }
+
+    /**
+     * 检查类级别是否自定义了宽度（子类重写了 $width 属性）。
+     * 如果当前类的 $width 默认值不等于 AbstractFilter 的默认值 10，则视为自定义。
+     *
+     * @return bool
+     */
+    public function hasCustomWidth()
+    {
+        return (new \ReflectionClass(static::class))->getDefaultProperties()['width'] !== 10;
     }
 
     /**

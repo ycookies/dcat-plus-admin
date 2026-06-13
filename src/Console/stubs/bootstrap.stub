@@ -7,8 +7,8 @@ use Dcat\Admin\Grid\Filter;
 use Dcat\Admin\Show;
 
 /**
- * Dcat-admin - admin builder based on Laravel.
- * @author jqh <https://github.com/jqhph>
+ * Dcatplsu-admin - admin builder based on Laravel.
+ * @author 杨光 <https://github.com/ycookies/dcat-plus-admin>
  *
  * Bootstraper for Admin.
  *
@@ -24,35 +24,29 @@ use Dcat\Admin\Show;
  * Admin::js('/packages/prettydocs/js/main.js');
  *
  */
-Admin::menu(function (\Dcat\Admin\Layout\Menu $menu) {
-    $menu->add([
-        [
-            'id'        => 1,
-            'title'     => '用户中心',
-            'icon'      => 'feather icon-users',
-            'uri'       => '',
-            'parent_id' => 0,
-        ],
-        [
-            'id'        => 2,
-            'title'     => '用户管理',
-            'icon'      => 'feather icon-user',
-            'uri'       => 'member-user',
-            'parent_id' => 1,
-        ],
-        [
-            'id'        => 3,
-            'title'     => '网站配置',
-            'icon'      => 'feather icon-settings',
-            'uri'       => 'web-config',
-            'parent_id' => 0,
-        ],
-        [
-            'id'        => 4,
-            'title'     => '开放接口文档',
-            'icon'      => 'feather icon-layers',
-            'uri'       => '/openapi-docs',
-            'parent_id' => 0,
-        ]
-]);
-});
+
+// 可以把注释去掉,自定义全局的 Grid、Show 和 Form 逻辑
+// // 统一全局定义数据表格
+// Grid::resolving(function (Grid $grid) {
+//     $grid->tableCollapse(false); //表格布局样式
+//     $grid->withBorder(); // 表格显示边框
+//     $grid->filter(function (Grid\Filter $filter) {
+//         $filter->panel();  // 更改为 panel 布局
+//         $filter->expand(false); // 展开过滤器
+//     }); 
+// });
+// // 统一全局定义表单
+// Form::resolving(function (Form $form) {
+//      $form->disableEditingCheck();
+//      $form->disableCreatingCheck();
+//      $form->disableViewCheck();
+//      $form->tools(function (Form\Tools $tools) {
+//           $tools->disableDelete();
+//           $tools->disableView();
+//           $tools->disableList();
+//      });
+// });
+// // 统一全局定义详情页
+// Show::resolving(function (Show $show) {
+//      $show->disableListButton();
+// });

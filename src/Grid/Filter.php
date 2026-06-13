@@ -204,6 +204,13 @@ class Filter implements Renderable
     protected $conditions;
 
     /**
+     * panel 模式下默认每个过滤器占据的栅格宽度（12栅格制）.
+     *
+     * @var int
+     */
+    protected $defaultPanelWidth = 3;
+
+    /**
      * Create a new filter instance.
      *
      * @param  Model  $model
@@ -707,6 +714,9 @@ class Filter implements Renderable
             return '';
         }
 
+        // panel 模式下，为未显式设置宽度的过滤器应用默认宽度
+        $this->applyDefaultPanelWidth();
+
         $this->callComposing();
 
         if (! $this->view) {
@@ -714,6 +724,42 @@ class Filter implements Renderable
         }
 
         return view($this->view)->with($this->variables())->render();
+    }
+
+    /**
+     * 设置 panel 模式下过滤器的默认栅格宽度.
+     *
+     * @param  int  $width
+     * @return $this
+     */
+    public function setDefaultPanelWidth(int $width)
+    {
+        $this->defaultPanelWidth = $width;
+
+        return $this;
+    }
+
+    /**
+     * panel 模式下，为未显式设置宽度的过滤器应用默认宽度.
+     * 用户自定义的 width 优先级高于默认值.
+     */
+    protected function applyDefaultPanelWidth()
+    {
+        if ($this->mode !== static::MODE_PANEL) {
+            return;
+        }
+
+        foreach ($this->filters as $filter) {
+            // 跳过已显式设置宽度（调用 width() 方法）、类级别自定义宽度（非父类默认值10）、隐藏字段、换行符
+            if ($filter->isWidthSet()
+                || $filter->hasCustomWidth()
+                || $filter instanceof Hidden
+                || $filter instanceof Newline) {
+                continue;
+            }
+
+            $filter->width($this->defaultPanelWidth);
+        }
     }
 
     protected function defaultVariables()
