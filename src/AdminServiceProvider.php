@@ -81,8 +81,9 @@ class AdminServiceProvider extends ServiceProvider {
         'admin.session'    => Http\Middleware\Session::class,
         'admin.upload'     => Http\Middleware\WebUploader::class,
         'admin.app'        => Http\Middleware\Application::class,
-        'admin.apiAuth'     => \App\Http\Middleware\AdminApiAuth::class,
-        'member.apiAuth'     => \App\Http\Middleware\MemberApiAuth::class,
+        'admin.apiAuth'    => \App\Http\Middleware\AdminApiAuth::class,
+        'member.apiAuth'   => \App\Http\Middleware\MemberApiAuth::class,
+        'operation.log'    => Http\Middleware\LogOperation::class,
     ];
 
     /**
@@ -96,6 +97,7 @@ class AdminServiceProvider extends ServiceProvider {
             'admin.permission',
             'admin.session',
             'admin.upload',
+            'operation.log'
         ],
     ];
 

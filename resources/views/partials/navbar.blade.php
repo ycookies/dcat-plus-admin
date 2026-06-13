@@ -128,7 +128,7 @@
                         @if($lcShowNotification)
                         <li class="dropdown dropdown-notification nav-item" style="text-align: center">
                             <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" aria-expanded="true">
-                                <i class="feather icon-bell fs18"></i>
+                                <i class="feather icon-bell fs18" data-tips="tooltip" data-title="切换暗黑模式" data-placement="bottom"></i>
                                 @if($unreadCount > 0)
                                     <span class="badge badge-pill badge-primary badge-up" style="top:12px;right:-6px;font-size:8px">
                                     {{ $unreadCount }}
@@ -179,13 +179,19 @@
                         </li>
                         {{-- 暗黑模式切换 --}}
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="dark-mode-switcher nav-link" style="padding:1.5rem 0rem 1.35rem .5rem !important;" title="切换暗黑模式">
-                                  <i class="feather {{ config('admin.layout.dark_mode_switch') ? 'icon-moon' : 'icon-sun' }} fs18"></i>
+                            <a href="javascript:void(0);" class="dark-mode-switcher nav-link" style="padding:1.5rem 0rem 1.35rem .5rem !important;" >
+                                  <i class="feather {{ config('admin.layout.dark_mode_switch') ? 'icon-moon' : 'icon-sun' }} fs18" data-tips="tooltip" data-title="切换暗黑模式" data-placement="bottom"></i>
                             </a>
 
                             <script>
                             Dcat.darkMode.initSwitcher('.dark-mode-switcher');
                             </script>
+                        </li>
+                        {{-- 清除缓存 --}}
+                        <li class="nav-item">
+                            <a href="javascript:void(0);" class="nav-link lc-clear-cache-btn" style="padding:1.5rem 0rem 1.35rem .5rem !important;">
+                                  <img data-tips="tooltip" data-title="清除缓存" data-placement="bottom"  src="/vendor/dcat-admin/images/clear-cache.png" style="width:20px;height:20px;"/>
+                            </a>
                         </li>
                         @if(isset($configData['show_locale_switch']) && $configData['show_locale_switch'])
                         <li class="dropdown nav-item">
@@ -207,6 +213,7 @@
                                 </a>
                             </div>
                         </li>
+                        
                         @endif
                         {{-- iframe-tabs 切换 --}}
                         @if($lciframeabs)
@@ -844,6 +851,36 @@ code { color: {{ $tc['darker'] }} !important; }
         .catch(function() {});
     })();
     @endif
+
+    // 清除缓存：点击时弹出加载提示，完成后右上角提示成功
+    document.querySelectorAll('.lc-clear-cache-btn').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
+            // 弹出加载提示
+            var loadingIndex = layer.load(1, { shade: [0.3, '#000'] });
+            var fd = new FormData();
+            fd.append('_token', token);
+            fetch('{{ admin_url("clear-cache") }}', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                layer.close(loadingIndex);
+                if (d.status) {
+                    Dcat.success('清理完成');
+                } else {
+                    Dcat.error(d.message || '清理失败');
+                }
+            })
+            .catch(function() {
+                layer.close(loadingIndex);
+                Dcat.error('请求失败，请重试');
+            });
+        });
+    });
 
     // iframe-tabs 模式切换：点击时先保存 active_mode 再跳转
     document.querySelectorAll('.lc-iframe-tabs-switch').forEach(function(el) {

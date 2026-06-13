@@ -4,7 +4,7 @@ namespace Dcat\Admin\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-
+use Illuminate\Support\Facades\Artisan;
 /**
  * 布局配置控制器 - 处理导航栏可视化配置的保存
  */
@@ -71,5 +71,31 @@ class LayoutConfigController extends Controller
             'status'  => true,
             'message' => '布局配置已保存，页面即将刷新',
         ]);
+    }
+    /**
+     * 清除所有缓存（路由、视图、应用缓存、配置）
+     */
+    public function clear(Request $request)
+    {
+        try {
+            // 清除路由缓存
+            Artisan::call('route:clear');
+            // 清除视图缓存
+            Artisan::call('view:clear');
+            // 清除应用缓存
+            Artisan::call('cache:clear');
+            // 清除配置缓存
+            Artisan::call('config:clear');
+
+            return response()->json([
+                'status'  => true,
+                'message' => '缓存清理完成',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => '缓存清理失败：' . $e->getMessage(),
+            ]);
+        }
     }
 }

@@ -604,6 +604,7 @@ class Admin
 
                 # 布局配置（导航栏可视化配置）
                 $router->post('layout-config/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@save');
+                $router->post('clear-cache', 'Dcat\Admin\Http\Controllers\LayoutConfigController@clear');
 
                 # 通知管理
                 $router->resource('notifications', \Dcat\Admin\Http\Controllers\NotificationController::class);
@@ -615,6 +616,14 @@ class Admin
                 # 帮助管理
                 $router->resource('help-categories', \Dcat\Admin\Http\Controllers\HelpCategoryController::class);
                 $router->resource('helps', \Dcat\Admin\Http\Controllers\HelpController::class);
+
+                # 操作日志
+                $router->get('auth/operation-logs', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@index')->name('dcat-admin.operation-log.index');
+                $router->delete('auth/operation-logs/{id}', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@destroy')->name('dcat-admin.operation-log.destroy');
+                # 系统日志查看
+                $router->get('auth/system-log-viewer', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('ycookies.log-viewer');
+                $router->get('auth/system-log-viewer/{file}', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('ycookies.log-viewer.log-viewer-file');
+                $router->get('auth/system-log-viewer/download', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@download')->name('ycookies.log-viewer.download');
                 
                 // form-media
                 $router->any('lake-form-media/get-files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')->name('admin.lake-form-media.get-files');

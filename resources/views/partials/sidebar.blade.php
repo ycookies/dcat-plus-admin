@@ -292,14 +292,14 @@
                                 </li>
                                 @endif
                                 
-
+                                @if(config('admin.layout.layout_config_tool_in_navbar'))
                                 <li class="nav-item">
                                     {{-- 布局配置按钮（导航栏内） --}}
                                     <a href="javascript:void(0);" class="nav-link lc-open-trigger" >
                                         <i data-tips="tooltip" data-title="布局配置" data-placement="bottom" class="feather icon-settings fs18"></i>
                                     </a>
                                 </li>
-
+                                @endif
                                 <ul class="nav navbar-nav">
                                     {{--User Account Menu--}}
                                     {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_USER_PANEL']) !!}
