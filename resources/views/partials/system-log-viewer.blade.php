@@ -102,7 +102,7 @@
                             @foreach($logs as $index => $log)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td><span class="label bg-{{\Dcat\Admin\LogViewer\Http\Controllers\LogViewer::$levelColors[$log['level']]}}">{{ $log['level'] }}</span></td>
+                                    <td><span class="label bg-{{\Dcat\Admin\Http\Controllers\LogViewer::$levelColors[$log['level']]}}">{{ $log['level'] }}</span></td>
                                     <td><strong>{{ $log['env'] }}</strong></td>
                                     <td><pre>{{ $log['info'] }}</pre></td>
                                     <td style="width:150px;">{{ $log['time'] }}</td>

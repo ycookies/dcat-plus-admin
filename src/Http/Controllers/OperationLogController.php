@@ -6,7 +6,6 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Http\JsonResponse;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Models\OperationLog;
-use Dcat\Admin\OperationLog\OperationLogServiceProvider;
 use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Arr;
 

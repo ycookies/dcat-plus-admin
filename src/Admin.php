@@ -621,9 +621,9 @@ class Admin
                 $router->get('auth/operation-logs', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@index')->name('dcat-admin.operation-log.index');
                 $router->delete('auth/operation-logs/{id}', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@destroy')->name('dcat-admin.operation-log.destroy');
                 # 系统日志查看
-                $router->get('auth/system-log-viewer', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('ycookies.log-viewer');
-                $router->get('auth/system-log-viewer/{file}', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('ycookies.log-viewer.log-viewer-file');
-                $router->get('auth/system-log-viewer/download', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@download')->name('ycookies.log-viewer.download');
+                $router->get('auth/system-log-viewer', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('log-viewer');
+                $router->get('auth/system-log-viewer/{file}', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('log-viewer.log-viewer-file');
+                $router->get('auth/system-log-viewer/download', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@download')->name('log-viewer.download');
                 
                 // form-media
                 $router->any('lake-form-media/get-files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')->name('admin.lake-form-media.get-files');
