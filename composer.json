@@ -22,7 +22,6 @@
         "dedoc/scramble": "^0.13.13",
         "openspout/openspout": "^5.3",
         "phpoffice/phpword": "^1.4",
-        "simplesoftwareio/simple-qrcode": "^4.2",
         "tecnickcom/tc-lib-pdf": "^8.34"
     },
     "require-dev": {

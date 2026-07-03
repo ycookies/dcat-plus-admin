@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 /**
  * Class LogViewer.
  *
- * @see https://github.com/laravel-admin-extensions/log-viewer/blob/master/src/LogViewer.php
  */
 class LogViewer
 {
@@ -53,20 +52,37 @@ class LogViewer
      * @var array
      */
     public static $levelColors = [
-        'EMERGENCY' => 'black',
-        'ALERT' => 'navy',
-        'CRITICAL' => 'maroon',
-        'ERROR' => 'danger',
-        'WARNING' => 'orange',
-        'NOTICE' => 'light-blue',
-        'INFO' => 'primary',
-        'DEBUG' => 'light',
-        '' => '',
+        'EMERGENCY' => 'dark',
+        'ALERT'     => 'dark',
+        'CRITICAL'  => 'danger',
+        'ERROR'     => 'danger',
+        'WARNING'   => 'warning',
+        'NOTICE'    => 'info',
+        'INFO'      => 'success',
+        'DEBUG'     => 'secondary',
+        ''          => 'secondary',
+    ];
+
+    /**
+     * @var array Bootstrap/Material icon classes per level
+     */
+    public static $levelIcons = [
+        'EMERGENCY' => 'fa-bug',
+        'ALERT'     => 'fa-bell',
+        'CRITICAL'  => 'fa-fire',
+        'ERROR'     => 'fa-times-circle',
+        'WARNING'   => 'fa-exclamation-triangle',
+        'NOTICE'    => 'fa-info-circle',
+        'INFO'      => 'fa-info-circle',
+        'DEBUG'     => 'fa-cog',
+        ''          => 'fa-file',
     ];
 
     protected $keyword;
 
     protected $filename;
+
+    protected $level;
 
     /**
      * LogViewer constructor.
@@ -132,6 +148,16 @@ class LogViewer
     public function setFilename($value)
     {
         $this->filename = $this->formatPath($value);
+    }
+
+    public function setLevel($value)
+    {
+        $this->level = $value ? strtoupper(trim($value)) : '';
+    }
+
+    public function getLevel()
+    {
+        return $this->level;
     }
 
     /**
@@ -234,15 +260,17 @@ class LogViewer
             !$this->getFilePath()
             || $this->pageOffset['end'] >= $this->getFilesize() - 1
             || $this->keyword
+            || $this->level
         ) {
             return false;
         }
 
 
-        return admin_route('ycookies.log-viewer.log-viewer-file', [
+        return admin_route('log-viewer.log-viewer-file', [
             'file' => $this->getFile(),
             'offset' => $this->pageOffset['end'],
             'keyword' => $this->keyword,
+            'level' => $this->level,
             'dir' => $this->currentDirectory,
             'filename' => $this->filename,
         ]);
@@ -259,17 +287,82 @@ class LogViewer
             !$this->getFilePath()
             || $this->pageOffset['start'] == 0
             || $this->keyword
+            || $this->level
         ) {
             return false;
         }
 
-        return admin_route('ycookies.log-viewer.log-viewer-file', [
+        return admin_route('log-viewer.log-viewer-file', [
             'file' => $this->getFile(),
             'offset' => -$this->pageOffset['start'],
             'keyword' => $this->keyword,
+            'level' => $this->level,
             'dir' => $this->currentDirectory,
             'filename' => $this->filename,
         ]);
+    }
+
+    /**
+     * Get current file modified time.
+     *
+     * @return int|null
+     */
+    public function getFileModifiedTime()
+    {
+        if (!$this->getFilePath()) {
+            return null;
+        }
+
+        return filemtime($this->getFilePath());
+    }
+
+    /**
+     * Get current file total lines.
+     *
+     * @return int
+     */
+    public function getTotalLines()
+    {
+        if (!$this->getFilePath()) {
+            return 0;
+        }
+
+        try {
+            return intval(exec('wc -l '.escapeshellarg($this->getFilePath())));
+        } catch (\Throwable $e) {
+            try {
+                return count(file($this->getFilePath()));
+            } catch (\Throwable $e2) {
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Get log level statistics for current page.
+     *
+     * @param array $logs
+     *
+     * @return array
+     */
+    public function getLevelStats(array $logs)
+    {
+        $stats = [];
+
+        foreach ($logs as $log) {
+            $level = strtoupper($log['level'] ?? '');
+            if (!$level) {
+                $level = 'NONE';
+            }
+            if (!isset($stats[$level])) {
+                $stats[$level] = 0;
+            }
+            $stats[$level]++;
+        }
+
+        arsort($stats);
+
+        return $stats;
     }
 
     /**
@@ -281,20 +374,29 @@ class LogViewer
      *
      * @return array
      *
-     * @see http://www.geekality.net/2011/05/28/php-tail-tackling-large-files/
      */
     public function fetch($seek = 0, $lines = 20, $buffer = 4096)
     {
         $logs = $this->read($seek, $lines, $buffer);
 
-        if (!$this->keyword || !$logs) {
+        if ((!$this->keyword && !$this->level) || !$logs) {
             return $logs;
         }
 
         $result = [];
 
         foreach ($logs as $log) {
-            if (Str::contains(strtolower(implode(' ', $log)), $this->keyword)) {
+            $matched = true;
+
+            if ($this->level && strtoupper($log['level'] ?? '') !== $this->level) {
+                $matched = false;
+            }
+
+            if ($matched && $this->keyword) {
+                $matched = Str::contains(strtolower(implode(' ', $log)), $this->keyword);
+            }
+
+            if ($matched) {
                 $result[] = $log;
             }
         }

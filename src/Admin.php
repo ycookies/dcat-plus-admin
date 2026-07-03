@@ -624,6 +624,8 @@ class Admin
                 $router->get('auth/system-log-viewer', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('log-viewer');
                 $router->get('auth/system-log-viewer/{file}', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('log-viewer.log-viewer-file');
                 $router->get('auth/system-log-viewer/download', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@download')->name('log-viewer.download');
+                $router->post('auth/system-log-viewer/delete', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@delete')->name('log-viewer.delete');
+                $router->post('auth/system-log-viewer/clear', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@clear')->name('log-viewer.clear');
                 
                 // form-media
                 $router->any('lake-form-media/get-files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')->name('admin.lake-form-media.get-files');

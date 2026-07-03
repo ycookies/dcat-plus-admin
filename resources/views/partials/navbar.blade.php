@@ -128,7 +128,7 @@
                         @if($lcShowNotification)
                         <li class="dropdown dropdown-notification nav-item" style="text-align: center">
                             <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" aria-expanded="true">
-                                <i class="feather icon-bell fs18" data-tips="tooltip" data-title="切换暗黑模式" data-placement="bottom"></i>
+                                <i class="feather icon-bell fs18" data-tips="tooltip" data-title="通知" data-placement="bottom"></i>
                                 @if($unreadCount > 0)
                                     <span class="badge badge-pill badge-primary badge-up" style="top:12px;right:-6px;font-size:8px">
                                     {{ $unreadCount }}
@@ -699,7 +699,7 @@ code { color: {{ $tc['darker'] }} !important; }
         layer.open({
             type: 1,
             title: title || defaultTitle,
-            content: '<div style="padding:20px;max-height:400px;overflow-y:auto;">' + content + '</div>',
+            content: '<div style="padding:20px;overflow-y:auto;background:#eff1f794;">' + content + '</div>',
             area: ['600px', '60%'],
             btn: ['关闭'],
             shadeClose: true

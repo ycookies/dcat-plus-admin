@@ -19,27 +19,41 @@ class SystemLogViewerController extends Controller {
         $filename = $request->get('filename') ? trim($request->get('filename')) : '';
         $offset   = $request->get('offset');
         $keyword  = $request->get('keyword') ? trim($request->get('keyword')) : '';
-        $lines = $keyword ? (config('dcat-log-viewer.search_page_items') ?: 500) : (config('dcat-log-viewer.page_items') ?: 30);
+        $level    = $request->get('level') ? trim($request->get('level')) : '';
+        $lines = ($keyword || $level) ? (config('dcat-log-viewer.search_page_items') ?: 500) : (config('dcat-log-viewer.page_items') ?: 30);
 
         $viewer = new LogViewer($this->getDirectory(), $dir, $file);
 
         $viewer->setKeyword($keyword);
         $viewer->setFilename($filename);
+        $viewer->setLevel($level);
         $content = new Content();
         $content->header('系统日志查看器');
         $content->breadcrumb(['text'=>'日志记录列表','uri'=>'']);
         $content->description('方便快速查看日志');
+
+        $logs = $viewer->fetch($offset, $lines);
+
         return $content->body(view('admin::partials.system-log-viewer', [
-            'dir'       => $dir,
-            'logs'      => $viewer->fetch($offset, $lines),
-            'logFiles'  => $this->formatLogFiles($viewer, $dir),
-            'logDirs'   => $viewer->getLogDirectories(),
-            'fileName'  => $viewer->file,
-            'end'       => $viewer->getFilesize(),
-            'prevUrl'   => $viewer->getPrevPageUrl(),
-            'nextUrl'   => $viewer->getNextPageUrl(),
-            'filePath'  => $viewer->getFilePath(),
-            'size'      => static::bytesToHuman($viewer->getFilesize()),
+            'dir'           => $dir,
+            'logs'          => $logs,
+            'logFiles'      => $this->formatLogFiles($viewer, $dir),
+            'logDirs'       => $viewer->getLogDirectories(),
+            'fileName'      => $viewer->file,
+            'end'           => $viewer->getFilesize(),
+            'prevUrl'       => $viewer->getPrevPageUrl(),
+            'nextUrl'       => $viewer->getNextPageUrl(),
+            'filePath'      => $viewer->getFilePath(),
+            'size'          => static::bytesToHuman($viewer->getFilesize()),
+            'modifiedTime'  => $viewer->getFileModifiedTime(),
+            'level'         => $level,
+            'levelStats'    => $viewer->getLevelStats($logs),
+            'levelColors'   => LogViewer::$levelColors,
+            'levelIcons'    => LogViewer::$levelIcons,
+            'downloadUrl'   => admin_route('log-viewer.download', [
+                'dir' => $dir, 'file' => $viewer->file,
+                'filename' => $filename, 'keyword' => $keyword,
+            ]),
         ]));
 
     }
@@ -58,7 +72,55 @@ class SystemLogViewerController extends Controller {
         $viewer->setKeyword($keyword);
         $viewer->setFilename($filename);
 
+        if (!$viewer->getFilePath()) {
+            return back()->with(['adminError' => '文件不存在']);
+        }
+
         return response()->download($viewer->getFilePath());
+    }
+
+    public function delete(Request $request)
+    {
+        $file = trim($request->get('file'));
+        $dir = trim($request->get('dir'));
+        $viewer = new LogViewer($this->getDirectory(), $dir, $file);
+
+        $filePath = $viewer->getFilePath();
+
+        if (!$filePath || !is_file($filePath)) {
+            return response()->json(['status' => false, 'message' => '文件不存在或无法访问']);
+        }
+
+        try {
+            if (@unlink($filePath)) {
+                return response()->json(['status' => true, 'message' => '删除成功']);
+            }
+            return response()->json(['status' => false, 'message' => '删除失败，请检查权限']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => false, 'message' => '删除失败：'.$e->getMessage()]);
+        }
+    }
+
+    public function clear(Request $request)
+    {
+        $file = trim($request->get('file'));
+        $dir = trim($request->get('dir'));
+        $viewer = new LogViewer($this->getDirectory(), $dir, $file);
+
+        $filePath = $viewer->getFilePath();
+
+        if (!$filePath || !is_file($filePath)) {
+            return response()->json(['status' => false, 'message' => '文件不存在或无法访问']);
+        }
+
+        try {
+            if (@file_put_contents($filePath, '') !== false) {
+                return response()->json(['status' => true, 'message' => '清空成功']);
+            }
+            return response()->json(['status' => false, 'message' => '清空失败，请检查权限']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => false, 'message' => '清空失败：'.$e->getMessage()]);
+        }
     }
 
     protected function getDirectory()
