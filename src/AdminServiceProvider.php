@@ -39,6 +39,7 @@ class AdminServiceProvider extends ServiceProvider {
         Console\AdminCommand::class,
         Console\InstallCommand::class,
         Console\PublishCommand::class,
+        Console\PublishSkillsCommand::class,
         Console\UninstallCommand::class,
         Console\CreateUserCommand::class,
         Console\ResetPasswordCommand::class,
