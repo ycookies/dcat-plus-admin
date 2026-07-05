@@ -11,7 +11,7 @@ class OperationLog extends Model
 
     protected $table = 'admin_operation_log';
 
-    protected $fillable = ['user_id', 'path', 'method', 'ip', 'input'];
+    protected $fillable = ['user_id','panel_code', 'path', 'method', 'ip', 'input'];
 
     public static $methodColors = [
         'GET'    => 'primary',

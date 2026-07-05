@@ -15,6 +15,7 @@ class CreateAdminOperationLogTable extends Migration
     {
         Schema::create('admin_operation_log', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('panel_code', 20)->default('');
             $table->bigInteger('user_id');
             $table->string('path')->default('');
             $table->string('method')->default('');

@@ -205,6 +205,7 @@ class Asset
             'js' => '@admin/dcat/plugins/input-mask/jquery.inputmask.bundle.min.js',
         ],
         '@apex-charts' => [
+            // 默认 ApexCharts 3.17.1。如需启用 5.16.0，在构造时由 registerApexChartsVersion() 覆写。
             'js' => '@admin/dcat/plugins/charts/apexcharts.min.js',
         ],
         '@fontawesome-iconpicker' => [
@@ -224,6 +225,13 @@ class Asset
         '@autocomplete' => [
             'js' => '@admin/dcat/plugins/autocomplete/jquery.autocomplete.min.js',
         ],
+        '@echarts' => [
+            'js' => '@admin/dcat/plugins/echarts-china-map/echarts.min.js',
+        ],
+        '@echarts-china-map' => [
+            // 全国地图数据（china.js），由 ChinaMap 组件依赖，省份 JS 在下钻时按需动态加载
+            'js' => '@admin/dcat/plugins/echarts-china-map/map/china.js',
+        ],
     ];
 
     /**
@@ -237,6 +245,31 @@ class Asset
      * @var array
      */
     public $directScript = [];
+
+    public function __construct()
+    {
+        $this->registerApexChartsVersion();
+    }
+
+    /**
+     * 依据 config('admin.apexcharts_version') 切换 ApexCharts 资产版本。
+     *
+     * - v3（默认）：3.17.1，仅加载 js
+     * - v5：5.16.0，额外加载 css（v5 重写了样式表）
+     *
+     * @return void
+     */
+    protected function registerApexChartsVersion()
+    {
+        if (config('admin.apexcharts_version') !== 'v5') {
+            return;
+        }
+
+        $this->alias['@apex-charts'] = [
+            'js'  => '@admin/dcat/plugins/charts/v5/apexcharts.min.js',
+            'css' => '@admin/dcat/plugins/charts/v5/apexcharts.css',
+        ];
+    }
 
     /**
      * css代码.

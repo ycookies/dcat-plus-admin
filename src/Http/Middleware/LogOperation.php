@@ -35,6 +35,7 @@ class LogOperation
             $user = Admin::user();
 
             $log = [
+                'panel_code' => $this->getPanelCode($request),
                 'user_id' => $user ? $user->id : 0,
                 'path'    => substr($request->path(), 0, 255),
                 'method'  => $request->method(),
@@ -50,6 +51,13 @@ class LogOperation
         }
 
         return $next($request);
+    }
+    
+    // 获取面板代码
+    public function getPanelCode(Request $request){
+        $path = $request->path();
+        $parts = explode('/',$path);
+        return $parts[0];
     }
 
     /**

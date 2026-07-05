@@ -21,22 +21,18 @@ class OperationLogController
 
     protected function grid()
     {
-        return new Grid(OperationLog::with('user'), function (Grid $grid) {
+        return new Grid(new OperationLog(), function (Grid $grid) {
             $grid->column('id', 'ID')->sortable();
-            $grid->column('user', trans('admin.user'))
-                ->display(function ($user) {
-                    if (! $user) {
-                        return;
-                    }
-
-                    $user = Helper::array($user);
-
-                    return $user['name'] ?? ($user['username'] ?? $user['id']);
-                })
-                ->link(function () {
-                    if ($this->user) {
-                        return admin_url('auth/users/'.$this->user['id']);
-                    }
+            $grid->column('user_id', trans('admin.user'))
+                ->display(function () {
+                    // 获取 panel_code
+                    $panelCode = $this->panel_code ?? 'admin';
+                    info($panelCode);
+                    
+                    // 根据 panel_code 获取对应的用户模型类
+                    $userModel = config(strtolower($panelCode) . '.database.users_model');
+                    $user = $userModel::find($this->user_id);
+                    return $user->name ?? '-';
                 });
 
             $grid->column('method', trans('admin.method'))
