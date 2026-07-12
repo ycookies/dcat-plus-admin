@@ -3,6 +3,7 @@
 namespace Dcat\Admin\Scaffold;
 
 use Dcat\Admin\Exception\AdminException;
+use Dcat\Admin\Scaffold\Support\TableColumnInspector;
 use Dcat\Admin\Support\Helper;
 use Illuminate\Support\Str;
 
@@ -30,19 +31,63 @@ class ModelCreator
     protected $files;
 
     /**
+     * Database connection name.
+     *
+     * @var string|null
+     */
+    protected $connectionName;
+
+    /**
+     * Normalized table columns.
+     *
+     * @var array
+     */
+    protected $columns = [];
+
+    /**
      * ModelCreator constructor.
      *
      * @param  string  $tableName
      * @param  string  $name
      * @param  null  $files
      */
-    public function __construct($tableName, $name, $files = null)
+    public function __construct($tableName, $name, $files = null, ?string $connectionName = null, array $columns = [])
     {
         $this->tableName = $tableName;
 
         $this->name = $name;
 
         $this->files = $files ?: app('files');
+
+        $this->connectionName = $connectionName;
+
+        $this->columns = $columns;
+    }
+
+    /**
+     * Set database connection name.
+     *
+     * @param string|null $connectionName
+     * @return $this
+     */
+    public function setConnectionName(?string $connectionName)
+    {
+        $this->connectionName = $connectionName;
+
+        return $this;
+    }
+
+    /**
+     * Set normalized table columns.
+     *
+     * @param array $columns
+     * @return $this
+     */
+    public function setColumns(array $columns)
+    {
+        $this->columns = $columns;
+
+        return $this;
     }
 
     /**
@@ -75,6 +120,7 @@ class ModelCreator
             ->replaceSoftDeletes($stub, $softDeletes)
             ->replaceDatetimeFormatter($stub)
             ->replaceTable($stub, $this->name)
+            ->replaceConnection($stub)
             ->replaceTimestamp($stub, $timestamps)
             ->replaceFillable($stub)
             ->replacePrimaryKey($stub, $keyName)
@@ -219,6 +265,23 @@ class ModelCreator
     }
 
     /**
+     * Replace connection dummy.
+     *
+     * @param  string  $stub
+     * @return $this
+     */
+    protected function replaceConnection(&$stub)
+    {
+        $connection = $this->connectionName
+            ? "protected \$connection = '".addslashes($this->connectionName)."';\n"
+            : '';
+
+        $stub = str_replace('DummyConnection', $connection, $stub);
+
+        return $this;
+    }
+
+    /**
      * Replace timestamps dummy.
      *
      * @param  string  $stub
@@ -254,7 +317,15 @@ class ModelCreator
      */
     protected function getTableColumnsWithComments()
     {
-        $fields = \DB::getSchemaBuilder()->getColumnListing($this->tableName);
+        if (! empty($this->columns)) {
+            return $this->formatColumnsFromNormalizedColumns($this->columns);
+        }
+
+        $schema = $this->connectionName
+            ? \Illuminate\Support\Facades\Schema::connection($this->connectionName)
+            : \Illuminate\Support\Facades\Schema::getFacadeRoot();
+
+        $fields = $schema->getColumnListing($this->tableName);
 
         // 获取字段和字段注释 兼容mysql,pgsql,sqlsrv,sqlite
         $comments = $this->getColumnAndComment();
@@ -276,75 +347,11 @@ class ModelCreator
 
     public function getColumnAndComment(){
         $tableName = $this->tableName;
-        $driver = \Illuminate\Support\Facades\DB::getDriverName();
-        $databaseName = config('database.connections.'.$driver.'.database');
+
         try {
-            switch ($driver) {
-                case 'mysql':
-                case 'mariadb':
-                    // MySQL/MariaDB
-                    $comments = \Illuminate\Support\Facades\DB::table('information_schema.columns')
-                        ->select('COLUMN_NAME as column_name', 'COLUMN_COMMENT as column_comment')
-                        ->where('TABLE_SCHEMA', $databaseName)
-                        ->where('TABLE_NAME', $tableName)
-                        ->get()
-                        ->pluck('column_comment', 'column_name')
-                        ->toArray();
-                    break;
-        
-                case 'sqlite':
-                    // SQLite - 没有内置的注释系统
-                    $columns = \Illuminate\Support\Facades\DB::select("PRAGMA table_info('{$tableName}')");
-                    foreach ($columns as $column) {
-                        $comments[$column->name] = ''; // SQLite 不支持列注释
-                    }
-                    break;
-        
-                case 'pgsql':
-                    // PostgreSQL
-                    $schema = $connectionConfig['schema'] ?? 'public';
-                    $comments = \Illuminate\Support\Facades\DB::select("
-                        SELECT 
-                            a.attname as column_name,
-                            pg_catalog.col_description(a.attrelid, a.attnum) as column_comment
-                        FROM 
-                            pg_catalog.pg_attribute a
-                        WHERE 
-                            a.attrelid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = '{$tableName}' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = '{$schema}'))
-                            AND a.attnum > 0 
-                            AND NOT a.attisdropped
-                        ORDER BY a.attnum
-                    ");
-                    
-                    $commentArray = [];
-                    foreach ($comments as $comment) {
-                        $commentArray[$comment->column_name] = $comment->column_comment;
-                    }
-                    $comments = $commentArray;
-                    break;
-        
-                case 'sqlsrv':
-                    // SQL Server
-                    $comments = \Illuminate\Support\Facades\DB::select("
-                        SELECT 
-                            c.name as column_name,
-                            CAST(ep.value AS NVARCHAR(MAX)) as column_comment
-                        FROM 
-                            sys.columns c
-                        LEFT JOIN 
-                            sys.extended_properties ep ON ep.major_id = c.object_id AND ep.minor_id = c.column_id AND ep.name = 'MS_Description'
-                        WHERE 
-                            c.object_id = OBJECT_ID('{$tableName}')
-                        ORDER BY 
-                            c.column_id
-                    ");
-                    
-                    $commentArray = [];
-                    foreach ($comments as $comment) {
-                        $commentArray[$comment->column_name] = $comment->column_comment;
-                    }
-                    $comments = $commentArray;
-                    break;
+            $comments = [];
+            foreach (TableColumnInspector::getNormalizedColumns($tableName, $this->connectionName) as $name => $column) {
+                $comments[$name] = $column['comment'] ?? '';
             }
         } catch (\Exception $e) {
             // 异常处理，记录日志或返回空数组
@@ -353,13 +360,39 @@ class ModelCreator
         }
         
         // 确保所有字段都有注释条目（即使为空）
-        $allColumns = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
+        $schema = $this->connectionName
+            ? \Illuminate\Support\Facades\Schema::connection($this->connectionName)
+            : \Illuminate\Support\Facades\Schema::getFacadeRoot();
+
+        $allColumns = $schema->getColumnListing($tableName);
         foreach ($allColumns as $column) {
             if (!array_key_exists($column, $comments)) {
                 $comments[$column] = '';
             }
         }
         return $comments;
+    }
+
+    /**
+     * Format normalized columns for fillable comments.
+     *
+     * @param array $columns
+     * @return array
+     */
+    protected function formatColumnsFromNormalizedColumns(array $columns)
+    {
+        $excludedFields = ['id', 'created_at', 'updated_at', 'deleted_at', 'password'];
+        $result = [];
+
+        foreach ($columns as $name => $column) {
+            if (in_array($name, $excludedFields)) {
+                continue;
+            }
+
+            $result[$name] = $column['comment'] ?? '';
+        }
+
+        return $result;
     }
     
 

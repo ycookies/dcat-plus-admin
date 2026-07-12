@@ -60,6 +60,41 @@
         var tabs = [];
         var activeId = null;
         var storageKey = 'admin-iframe-tab:' + options.userId + ':' + options.adminPrefix;
+        var darkModeMessage = 'dcat-admin.iframe-tab.dark-mode';
+
+        function isDarkMode() {
+            return document.body.classList.contains('dark-mode');
+        }
+
+        function syncFrameDarkMode(frame) {
+            if (! frame || ! frame.contentWindow) {
+                return;
+            }
+
+            frame.contentWindow.postMessage({
+                type: darkModeMessage,
+                dark: isDarkMode()
+            }, window.location.origin);
+        }
+
+        function syncAllFrameDarkModes() {
+            $panels.find('.admin-iframe-tab-frame').each(function () {
+                syncFrameDarkMode(this);
+            });
+        }
+
+        function observeDarkMode() {
+            new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'attributes' && mutation.target === document.body) {
+                        syncAllFrameDarkModes();
+                    }
+                });
+            }).observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
 
         function toUrl(href) {
             try {
@@ -277,6 +312,8 @@
 
                 var frame = this;
                 var id = $panel.data('tab-id');
+
+                syncFrameDarkMode(frame);
 
                 try {
                     var frameUrl = frame.contentWindow.location.href;
@@ -616,6 +653,7 @@
         function boot() {
             try {
                 bindEvents();
+                observeDarkMode();
 
                 if (! restoreTabs()) {
                     createTab(options.homeTitle, options.homeUrl, {

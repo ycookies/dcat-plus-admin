@@ -666,6 +666,10 @@ class Admin
             $router->get('render', 'RenderableController@handle')->name('render');
             $router->post('tinymce/upload', 'TinymceController@upload')->name('tinymce.upload');
             $router->post('editor-md/upload', 'EditorMDController@upload')->name('editor-md.upload');
+            $router->get('ueditor/server', 'UeditorController@handle')->middleware('admin.ueditor')->name('ueditor.server');
+            $router->post('ueditor/server', 'UeditorController@handle')
+                ->middleware(['admin.ueditor', 'throttle:'.config('admin.ueditor.rate_limit', 20).',1'])
+                ->name('ueditor.server.post');
         });
     }
 

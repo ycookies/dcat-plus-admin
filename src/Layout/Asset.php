@@ -79,6 +79,13 @@ class Asset
             'js' => '@admin/dcat/plugins/wangeditor/wangEditor.min.js',
             'css' => '@admin/dcat/plugins/wangeditor/wangeditor.css',
         ],
+        '@ueditor' => [
+            'js' => [
+                '@admin/dcat/plugins/ueditor/ueditor.config.js',
+                '@admin/dcat/plugins/ueditor/ueditor.all.js',
+            ],
+            'css' => '@admin/dcat/plugins/ueditor/themes/default/css/ueditor-dark.css',
+        ],
         '@fullcalendar' => [
             'js' => [
                 '@admin/dcat/plugins/fullcalendar/main.js',

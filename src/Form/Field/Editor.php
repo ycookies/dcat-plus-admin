@@ -4,46 +4,29 @@ namespace Dcat\Admin\Form\Field;
 
 use Dcat\Admin\Form\Field;
 use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Support\UeditorHtmlSanitizer;
+use Dcat\Admin\Support\UeditorUploadSignature;
 
 /**
- * TinyMCE editor.
+ * UEditor 富文本编辑器.
  *
- * @see https://www.tiny.cloud/docs
- * @see http://tinymce.ax-z.cn/
+ * @see https://ueditor.baidu.com
  */
 class Editor extends Field
 {
-    protected $options = [
-        'plugins' => [
-            'advlist',
-            'autolink',
-            'link',
-            'image',
-            'media',
-            'lists',
-            'preview',
-            'code',
-            'help',
-            'fullscreen',
-            'table',
-            'autoresize',
-            'codesample',
-        ],
-        'toolbar' => [
-            'undo redo | preview fullscreen | styleselect | fontsizeselect bold italic underline strikethrough forecolor backcolor | link image media blockquote removeformat codesample',
-            'alignleft aligncenter alignright  alignjustify| indent outdent bullist numlist table subscript superscript | code',
-        ],
-        'min_height' => 400,
-        'save_enablewhendirty' => true,
-        'convert_urls' => false,
-    ];
+    /**
+     * UEditor 前端配置。
+     *
+     * 工具栏默认值由 admin.ueditor.toolbars 提供；字段的 options 配置优先。
+     */
+    protected $options = [];
 
     protected $disk;
 
-    protected $imageUploadDirectory = 'tinymce/images';
+    protected $imageUploadDirectory;
 
     /**
-     * 设置文件上传存储配置.
+     * 设置文件上传存储磁盘.
      *
      * @param  string  $disk
      * @return $this
@@ -69,25 +52,25 @@ class Editor extends Field
     }
 
     /**
-     * 自定义图片上传接口.
+     * 自定义上传接口（覆盖默认 serverUrl）.
      *
      * @param  string  $url
      * @return $this
      */
     public function imageUrl(string $url)
     {
-        return $this->mergeOptions(['images_upload_url' => $this->formatUrl(admin_url($url))]);
+        return $this->mergeOptions(['serverUrl' => $this->formatUrl(admin_url($url))]);
     }
 
     /**
-     * 设置语言包url.
+     * 设置语言（zh-cn / en）.
      *
-     * @param  string  $url
+     * @param  string  $lang
      * @return $this
      */
-    public function languageUrl(string $url)
+    public function languageUrl(string $lang)
     {
-        return $this->mergeOptions(['language_url' => $url]);
+        return $this->mergeOptions(['lang' => $lang]);
     }
 
     /**
@@ -98,7 +81,18 @@ class Editor extends Field
      */
     public function height(int $height)
     {
-        return $this->mergeOptions(['min_height' => $height]);
+        return $this->mergeOptions(['initialFrameHeight' => $height]);
+    }
+
+    /**
+     * 是否跟随 Dcat 后台的深色模式。
+     *
+     * @param  bool  $enabled
+     * @return $this
+     */
+    public function darkMode(bool $enabled = true)
+    {
+        return $this->mergeOptions(['dcatDarkMode' => $enabled]);
     }
 
     /**
@@ -106,11 +100,28 @@ class Editor extends Field
      */
     protected function formatOptions()
     {
-        $this->options['language'] = config('app.locale');
+        $this->options = array_merge([
+            'initialFrameHeight'    => config('admin.ueditor.initial_frame_height', 400),
+            'loadConfigFromServer'  => config('admin.ueditor.load_config_from_server', true),
+            'elementPathEnabled'    => config('admin.ueditor.element_path_enabled', false),
+            'autoHeightEnabled'     => config('admin.ueditor.auto_height_enabled', true),
+            'toolbars'              => config('admin.ueditor.toolbars', []),
+            // AI is opt-in because requests can send editor content to external providers.
+            'toolbarShows'          => ['ai' => (bool) config('admin.ueditor.enable_ai', false)],
+            'shortcutMenuShows'     => ['ai' => (bool) config('admin.ueditor.enable_ai', false)],
+            // Use bundled emoticons instead of the default third-party HTTP endpoint.
+            'emotionLocalization'   => (bool) config('admin.ueditor.emotion_localization', true),
+            // Follow Dcat's body.dark-mode class, including the editor iframe and dialogs.
+            'dcatDarkMode'          => (bool) config('admin.ueditor.dark_mode', true),
+        ], $this->options);
+
+        $locale = config('app.locale');
+        $this->options['lang'] = $this->options['lang'] ?? ($locale === 'en' ? 'en' : 'zh-cn');
+
         $this->options['readonly'] = ! empty($this->attributes['readonly']) || ! empty($this->attributes['disabled']);
 
-        if (empty($this->options['images_upload_url'])) {
-            $this->options['images_upload_url'] = $this->defaultImageUploadUrl();
+        if (empty($this->options['serverUrl'])) {
+            $this->options['serverUrl'] = $this->defaultImageUploadUrl();
         }
 
         return $this->options;
@@ -121,7 +132,7 @@ class Editor extends Field
      */
     protected function defaultImageUploadUrl()
     {
-        return $this->formatUrl(route(admin_api_route_name('tinymce.upload')));
+        return $this->formatUrl(route(admin_api_route_name('ueditor.server.post')));
     }
 
     /**
@@ -130,14 +141,34 @@ class Editor extends Field
      */
     protected function formatUrl(string $url)
     {
-        return Helper::urlWithQuery(
-            $url,
-            [
-                '_token' => csrf_token(),
-                'disk'   => $this->disk,
-                'dir'    => $this->imageUploadDirectory,
-            ]
-        );
+        $parameters = [];
+
+        if ($this->disk || $this->imageUploadDirectory) {
+            $expires = time() + (int) config('admin.ueditor.upload_token_ttl', 3600);
+
+            $parameters['disk'] = $this->disk;
+            $parameters['dir'] = $this->imageUploadDirectory;
+            $parameters['expires'] = $expires;
+            $parameters['signature'] = UeditorUploadSignature::make(
+                $this->disk,
+                $this->imageUploadDirectory,
+                $expires
+            );
+        }
+
+        return Helper::urlWithQuery($url, $parameters);
+    }
+
+    /**
+     * Client-side editor filters can be bypassed with a direct form submission.
+     */
+    protected function prepareInputValue($value)
+    {
+        if (! config('admin.ueditor.sanitize_html', true)) {
+            return $value;
+        }
+
+        return UeditorHtmlSanitizer::sanitize($value);
     }
 
     /**
@@ -147,6 +178,7 @@ class Editor extends Field
     {
         $this->addVariables([
             'options' => $this->formatOptions(),
+            'homeUrl' => admin_asset('@admin/dcat/plugins/ueditor/'),
         ]);
 
         return parent::render();

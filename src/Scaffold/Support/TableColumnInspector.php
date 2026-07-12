@@ -15,21 +15,22 @@ class TableColumnInspector
      * @param string $table
      * @return array<int, object>
      */
-    public static function getShowLikeColumns(string $table): array
+    public static function getShowLikeColumns(string $table, ?string $connectionName = null): array
     {
         if (! preg_match('/^[A-Za-z0-9_\.]+$/', $table)) {
             return [];
         }
 
-        $connection = DB::connection();
-        $driver = $connection->getDriverName();
+        $connection = static::connection($connectionName);
+        $driver = strtolower($connection->getDriverName());
+        $prefixedTable = static::applyTablePrefix($connection, $table);
 
         if ($driver === 'mysql' || $driver === 'mariadb') {
-            return $connection->select('SHOW FULL COLUMNS FROM `' . str_replace('`', '``', $table) . '`');
+            return $connection->select('SHOW FULL COLUMNS FROM '.static::quoteMySqlTable($prefixedTable));
         }
 
         if ($driver === 'sqlite') {
-            $quotedTable = str_replace("'", "''", $table);
+            $quotedTable = str_replace("'", "''", $prefixedTable);
             $columns = $connection->select("PRAGMA table_info('{$quotedTable}')");
 
             $uniqueColumns = [];
@@ -61,6 +62,8 @@ class TableColumnInspector
         }
 
         if ($driver === 'pgsql') {
+            [$schema, $tableName] = static::parseSchemaTable($prefixedTable, Arr::get($connection->getConfig(), 'schema', 'public'));
+
             $sql = "
                 SELECT
                     c.column_name AS \"Field\",
@@ -83,15 +86,17 @@ class TableColumnInspector
                     AND kcu.table_schema = tc.table_schema
                     AND kcu.table_name = tc.table_name
                     AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
-                WHERE c.table_schema = current_schema()
+                WHERE c.table_schema = ?
                     AND c.table_name = ?
                 ORDER BY c.ordinal_position
             ";
 
-            return $connection->select($sql, [$table]);
+            return $connection->select($sql, [$schema, $tableName]);
         }
 
         if ($driver === 'sqlsrv') {
+            [$schema, $tableName] = static::parseSchemaTable($prefixedTable, Arr::get($connection->getConfig(), 'schema', 'dbo'));
+
             $sql = "
                 SELECT
                     c.COLUMN_NAME AS [Field],
@@ -117,14 +122,69 @@ class TableColumnInspector
                     ON ep.major_id = OBJECT_ID(c.TABLE_SCHEMA + '.' + c.TABLE_NAME)
                     AND ep.minor_id = c.ORDINAL_POSITION
                     AND ep.name = 'MS_Description'
-                WHERE c.TABLE_NAME = ?
+                WHERE c.TABLE_SCHEMA = ?
+                    AND c.TABLE_NAME = ?
                 ORDER BY c.ORDINAL_POSITION
             ";
 
-            return $connection->select($sql, [$table]);
+            return $connection->select($sql, [$schema, $tableName]);
         }
 
         return [];
+    }
+
+    /**
+     * Get table names for the given connection.
+     *
+     * @param string|null $connectionName
+     * @return array<int, string>
+     */
+    public static function getTableNames(?string $connectionName = null): array
+    {
+        $connection = static::connection($connectionName);
+        $driver = strtolower($connection->getDriverName());
+        $prefix = $connection->getTablePrefix();
+        $tables = [];
+
+        if ($driver === 'mysql' || $driver === 'mariadb') {
+            $database = $connection->getDatabaseName();
+            $rows = $connection->select(
+                'SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ? AND table_type = ? ORDER BY TABLE_NAME',
+                [$database, 'BASE TABLE']
+            );
+
+            foreach ($rows as $row) {
+                $tables[] = static::stripTablePrefix((string) $row->TABLE_NAME, $prefix);
+            }
+        } elseif ($driver === 'sqlite') {
+            $rows = $connection->select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
+
+            foreach ($rows as $row) {
+                $tables[] = static::stripTablePrefix((string) $row->name, $prefix);
+            }
+        } elseif ($driver === 'pgsql') {
+            $schema = Arr::get($connection->getConfig(), 'schema', 'public');
+            $rows = $connection->select(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = 'BASE TABLE' ORDER BY table_name",
+                [$schema]
+            );
+
+            foreach ($rows as $row) {
+                $tables[] = static::stripTablePrefix((string) $row->table_name, $prefix);
+            }
+        } elseif ($driver === 'sqlsrv') {
+            $schema = Arr::get($connection->getConfig(), 'schema', 'dbo');
+            $rows = $connection->select(
+                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME",
+                [$schema]
+            );
+
+            foreach ($rows as $row) {
+                $tables[] = static::stripTablePrefix((string) $row->TABLE_NAME, $prefix);
+            }
+        }
+
+        return array_values(array_unique($tables));
     }
 
     /**
@@ -133,9 +193,9 @@ class TableColumnInspector
      * @param string $table
      * @return array<string, array<string, mixed>>
      */
-    public static function getNormalizedColumns(string $table): array
+    public static function getNormalizedColumns(string $table, ?string $connectionName = null): array
     {
-        $columns = static::getShowLikeColumns($table);
+        $columns = static::getShowLikeColumns($table, $connectionName);
         $result = [];
 
         foreach ($columns as $column) {
@@ -163,5 +223,81 @@ class TableColumnInspector
         }
 
         return $result;
+    }
+
+    /**
+     * Get database connection.
+     *
+     * @param string|null $connectionName
+     * @return \Illuminate\Database\ConnectionInterface
+     */
+    protected static function connection(?string $connectionName = null)
+    {
+        return $connectionName ? DB::connection($connectionName) : DB::connection();
+    }
+
+    /**
+     * Apply Laravel table prefix for raw schema queries.
+     *
+     * @param mixed $connection
+     * @param string $table
+     * @return string
+     */
+    protected static function applyTablePrefix($connection, string $table): string
+    {
+        $prefix = $connection->getTablePrefix();
+
+        if (! $prefix || Str::contains($table, '.') || Str::startsWith($table, $prefix)) {
+            return $table;
+        }
+
+        return $prefix.$table;
+    }
+
+    /**
+     * Remove Laravel table prefix from discovered table names.
+     *
+     * @param string $table
+     * @param string $prefix
+     * @return string
+     */
+    protected static function stripTablePrefix(string $table, string $prefix): string
+    {
+        if ($prefix && Str::startsWith($table, $prefix)) {
+            return Str::replaceFirst($prefix, '', $table);
+        }
+
+        return $table;
+    }
+
+    /**
+     * Quote a MySQL table name, including optional database/table notation.
+     *
+     * @param string $table
+     * @return string
+     */
+    protected static function quoteMySqlTable(string $table): string
+    {
+        return implode('.', array_map(function ($part) {
+            return '`'.str_replace('`', '``', $part).'`';
+        }, explode('.', $table)));
+    }
+
+    /**
+     * Parse schema-qualified table names.
+     *
+     * @param string $table
+     * @param string $defaultSchema
+     * @return array{0: string, 1: string}
+     */
+    protected static function parseSchemaTable(string $table, string $defaultSchema): array
+    {
+        if (Str::contains($table, '.')) {
+            [$schema, $table] = explode('.', $table, 2);
+
+            return [$schema, $table];
+        }
+
+        return [$defaultSchema, $table];
     }
 }

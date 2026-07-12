@@ -9,10 +9,10 @@ trait ShowCreator
      * @param  array  $fields
      * @return string
      */
-    protected function generateShow(?string $primaryKey = null, array $fields = [], $timestamps = null)
+    protected function generateShow(?string $primaryKey = null, ?array $fields = null, $timestamps = null)
     {
         $primaryKey = $primaryKey ?: request('primary_key', 'id');
-        $fields = $fields ?: request('fields', []);
+        $fields = $fields === null ? request('fields', []) : $fields;
         $timestamps = $timestamps === null ? request('timestamps') : $timestamps;
 
         $rows = [];

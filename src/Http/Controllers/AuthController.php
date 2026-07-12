@@ -189,6 +189,9 @@ class AuthController extends Controller
 
             $form->ignore(['password_confirmation', 'old_password']);
 
+            // $form->submitted(function (Form $form) {
+            //     return $form->response()->error('兄弟你没有权限改密码！');
+            // });
             $form->saving(function (Form $form) {
                 if ($form->password && $form->model()->password != $form->password) {
                     $form->password = bcrypt($form->password);

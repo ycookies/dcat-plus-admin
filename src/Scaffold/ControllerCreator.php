@@ -44,7 +44,7 @@ class ControllerCreator
      *
      * @throws \Exception
      */
-    public function create($model)
+    public function create($model, ?string $primaryKey = null, ?array $fields = null, $timestamps = null)
     {
         $path = $this->getPath($this->name);
         $dir = dirname($path);
@@ -63,7 +63,7 @@ class ControllerCreator
 
         $model = $model ?: 'App\Admin\Repositories\\'.$slug;
 
-        $this->files->put($path, $this->replace($stub, $this->name, $model, $slug));
+        $this->files->put($path, $this->replace($stub, $this->name, $model, $slug, $primaryKey, $fields, $timestamps));
         $this->files->chmod($path, 0777);
 
         return $path;
@@ -75,7 +75,7 @@ class ControllerCreator
      * @param  string  $model
      * @return string
      */
-    protected function replace($stub, $name, $model, $slug)
+    protected function replace($stub, $name, $model, $slug, ?string $primaryKey = null, ?array $fields = null, $timestamps = null)
     {
         $stub = $this->replaceClass($stub, $name);
 
@@ -94,9 +94,9 @@ class ControllerCreator
                 class_basename($model),
                 class_basename($model),
                 $slug,
-                $this->generateGrid(),
-                $this->generateForm(),
-                $this->generateShow(),
+                $this->generateGrid($primaryKey, $fields, $timestamps),
+                $this->generateForm($primaryKey, $fields, $timestamps),
+                $this->generateShow($primaryKey, $fields, $timestamps),
             ],
             $stub
         );

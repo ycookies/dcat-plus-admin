@@ -21,12 +21,12 @@ class LangCreator
      * @param  string  $title
      * @return string
      */
-    public function create(string $controller, ?string $title)
+    public function create(string $controller, ?string $title, bool $force = false)
     {
         $controller = str_replace('Controller', '', class_basename($controller));
 
         $filename = $this->getLangPath($controller);
-        if (is_file($filename)) {
+        if (is_file($filename) && ! $force) {
             return;
         }
 
@@ -49,6 +49,10 @@ class LangCreator
         }
 
         $files = app('files');
+        if (! $files->isDirectory(dirname($filename))) {
+            $files->makeDirectory(dirname($filename), 0755, true);
+        }
+
         if ($files->put($filename, Helper::exportArrayPhp($content))) {
             $files->chmod($filename, 0777);
 

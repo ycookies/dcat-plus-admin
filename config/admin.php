@@ -283,6 +283,117 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | UEditor setting
+    |--------------------------------------------------------------------------
+    |
+    | UEditor upload and frontend defaults. Set `disk` to null to reuse the
+    | disk configured in `upload.disk`.
+    |
+    */
+    'ueditor' => [
+        // The filesystem disk used for uploads; null reuses upload.disk.
+        'disk' => null,
+
+        // Extra disks a field may select with a signed, short-lived upload target; empty denies overrides.
+        'allowed_disks' => [],
+
+        // Dcat permission required for UEditor uploads; administrators always pass this check.
+        'permission' => 'ueditor.upload',
+
+        // Maximum number of upload requests per account per minute.
+        'rate_limit' => 20,
+
+        // Lifetime in seconds for a signed field-specific upload disk or directory.
+        'upload_token_ttl' => 3600,
+
+        // Whether to sanitize rich text server-side when the form is saved.
+        'sanitize_html' => true,
+
+        // Upload directories under the configured disk.
+        'directory' => [
+            // Directory for image uploads.
+            'image' => 'ueditor/images',
+            // Directory for video uploads.
+            'video' => 'ueditor/videos',
+            // Directory for attachment uploads.
+            'file'  => 'ueditor/files',
+        ],
+
+        // Image URL prefix; keep empty when the upload controller returns absolute URLs.
+        'url_prefix' => '',
+
+        // Whether to load upload actions, field names, limits, and allow lists from the server.
+        'load_config_from_server' => true,
+        // Initial editor height in pixels.
+        'initial_frame_height'    => 400,
+        // Whether to display the element path at the bottom of the editor.
+        'element_path_enabled'    => false,
+        // Whether to grow the editor height as content is added.
+        'auto_height_enabled'     => true,
+        // Whether to enable AI tools; disabled by default to prevent third-party data disclosure.
+        'enable_ai'               => false,
+        // Whether to use bundled emoticons instead of the default third-party HTTP endpoint.
+        'emotion_localization'    => true,
+        // Whether to follow Dcat dark mode for the editor, editing iframe, and dialogs.
+        'dark_mode'               => true,
+
+        // Toolbar layout. Remove button names or add supported UEditor buttons; "|" is a separator.
+        'toolbars' => [
+            [
+                'fullscreen', 'source', '|', 'undo', 'redo', '|',
+                'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript',
+                'removeformat', 'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|',
+                'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|',
+                'rowspacingtop', 'rowspacingbottom', 'lineheight', '|',
+                'customstyle', 'paragraph', 'fontfamily', 'fontsize', '|',
+                'directionalityltr', 'directionalityrtl', 'indent', '|',
+                'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|',
+                'link', 'unlink', 'anchor', '|', 'imagenone', 'imageleft', 'imageright', 'imagecenter', '|',
+                'simpleupload', 'insertimage', 'emotion', 'scrawl', 'insertvideo', 'music', 'attachment', 'map', 'insertcode', 'template',
+                'background', '|', 'horizontal', 'date', 'time', 'spechars', '|',
+                'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow',
+                'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells',
+                'splittorows', 'splittocols', '|', 'print', 'preview', 'searchreplace',
+            ],
+        ],
+
+        // Image upload rules.
+        'image' => [
+            // Maximum allowed image size in bytes.
+            'max_size'   => 2048000,
+            // Allowed image file extensions.
+            'allow_files' => ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'],
+            // Allowed image MIME types; an empty array disables MIME validation.
+            'mime_types' => ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'],
+        ],
+
+        // Video upload rules.
+        'video' => [
+            // Maximum allowed video size in bytes.
+            'max_size'   => 102400000,
+            // Allowed video file extensions.
+            'allow_files' => ['.mp4', '.avi', '.wmv', '.mov', '.flv', '.mkv', '.webm', '.m4v'],
+            // Allowed video MIME types; an empty array disables MIME validation.
+            'mime_types' => ['video/mp4', 'video/x-msvideo', 'video/x-ms-wmv', 'video/quicktime', 'video/x-flv', 'video/x-matroska', 'video/webm'],
+        ],
+
+        // Attachment upload rules.
+        'file' => [
+            // Maximum allowed attachment size in bytes.
+            'max_size'   => 51200000,
+            // Allowed attachment file extensions.
+            'allow_files' => [
+                '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf',
+                '.zip', '.rar', '.7z', '.gz', '.tar', '.txt', '.csv', '.md',
+                '.mp3', '.wav', '.aac', '.flac', '.ogg',
+            ],
+            // Allowed attachment MIME types; an empty array disables MIME validation.
+            'mime_types' => [],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | dcat-admin database settings
     |--------------------------------------------------------------------------
     |

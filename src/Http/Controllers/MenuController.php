@@ -41,7 +41,10 @@ class MenuController extends AdminController
                     $form->text('uri', trans('admin.uri'));
 
                     if ($menuModel::withRole()) {
-                        $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
+                        $form->multipleSelect('roles', trans('admin.roles'))
+                        ->options($roleModel::all()
+                        ->pluck('name', 'id'))
+                        ->default([$roleModel::query()->value('id')]);
                     }
                     if ($menuModel::withPermission()) {
                         $form->tree('permissions', trans('admin.permission'))
@@ -155,10 +158,10 @@ class MenuController extends AdminController
             $form->display('created_at', trans('admin.created_at'));
             $form->display('updated_at', trans('admin.updated_at'));
         })->saved(function (Form $form, $result) {
-            $response = $form->response()->location('auth/menu');
+            $response = $form->response();//->location('auth/menu');
 
             if ($result) {
-                return $response->success(__('admin.save_succeeded'));
+                return $response->success(__('admin.save_succeeded'))->refresh();
             }
 
             return $response->info(__('admin.nothing_updated'));

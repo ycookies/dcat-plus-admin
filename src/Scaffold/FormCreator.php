@@ -10,10 +10,10 @@ trait FormCreator
      * @param  bool  $timestamps
      * @return string
      */
-    protected function generateForm(?string $primaryKey = null, array $fields = [], $timestamps = null)
+    protected function generateForm(?string $primaryKey = null, ?array $fields = null, $timestamps = null)
     {
         $primaryKey = $primaryKey ?: request('primary_key', 'id');
-        $fields = $fields ?: request('fields', []);
+        $fields = $fields === null ? request('fields', []) : $fields;
         $timestamps = $timestamps === null ? request('timestamps') : $timestamps;
 
         $rows = [

@@ -327,6 +327,83 @@
     -webkit-overflow-scrolling: touch;
 }
 
+/* Iframe-tab host dark mode. Child pages synchronize their own body class in JavaScript. */
+body.dark-mode .admin-iframe-tab-shell,
+body.dark-mode .admin-iframe-tab-panel,
+body.dark-mode .admin-iframe-tab-frame {
+    background: #1e1e2d;
+}
+
+body.dark-mode .admin-iframe-tab-chrome {
+    background: #242436;
+    border-color: #484864;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+}
+
+body.dark-mode .admin-iframe-tab-tabs::-webkit-scrollbar-thumb {
+    background: #565672;
+}
+
+body.dark-mode .admin-iframe-tab-item {
+    background: #28283a;
+    border-color: #484864;
+    color: #aeb0c4;
+}
+
+body.dark-mode .admin-iframe-tab-item:hover {
+    background: #303047;
+    border-color: #5a5a78;
+    color: #e1e1eb;
+}
+
+body.dark-mode .admin-iframe-tab-item.active {
+    background: #1e1e2d;
+    border-color: #5a5a78;
+    border-bottom-color: #1e1e2d;
+    box-shadow: inset 0 2px 0 #6d8be6, 0 -1px 0 rgba(109, 139, 230, .25);
+    color: #9eafff;
+}
+
+body.dark-mode .admin-iframe-tab-close {
+    color: #9295ad;
+}
+
+body.dark-mode .admin-iframe-tab-close:hover {
+    background: #484864;
+    color: #f2f2f7;
+}
+
+body.dark-mode .admin-iframe-tab-toolbar {
+    background: #242436;
+    border-left-color: #484864;
+}
+
+body.dark-mode .admin-iframe-tab-tool {
+    color: #b9bbcb;
+}
+
+body.dark-mode .admin-iframe-tab-tool:hover {
+    background: #3a3a55;
+    color: #f2f2f7;
+}
+
+body.dark-mode .admin-iframe-tab-loading {
+    background: rgba(30, 30, 45, .96);
+}
+
+body.dark-mode .admin-iframe-tab-loader .track {
+    stroke: #4b4b65;
+}
+
+body.dark-mode .admin-iframe-tab-empty {
+    color: #aeb0c4;
+}
+
+body.dark-mode.admin-iframe-tab-child,
+body.dark-mode .admin-iframe-tab-child {
+    background: #1e1e2d;
+}
+
 @media (max-width: 767px) {
     .admin-iframe-tab-host .admin-iframe-tab-host-wrapper {
         height: calc(100vh - 1px);

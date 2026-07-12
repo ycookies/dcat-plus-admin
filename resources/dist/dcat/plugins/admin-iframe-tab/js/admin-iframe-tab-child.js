@@ -26,9 +26,40 @@
             shellPath: '/admin/iframe-tabs',
             forceTopPathKeywords: []
         }, config || {});
+        var darkModeMessage = 'dcat-admin.iframe-tab.dark-mode';
 
         options.adminPrefix = normalizePath(options.adminPrefix || '/');
         options.shellPath = normalizePath(options.shellPath || '');
+
+        function applyDarkMode(enabled) {
+            if (window.Dcat && window.Dcat.darkMode && typeof window.Dcat.darkMode.display === 'function') {
+                window.Dcat.darkMode.display(enabled);
+
+                return;
+            }
+
+            document.body.classList.toggle('dark-mode', enabled);
+        }
+
+        function syncDarkModeFromParent() {
+            try {
+                if (window.parent !== window) {
+                    applyDarkMode(window.parent.document.body.classList.contains('dark-mode'));
+                }
+            } catch (error) {
+                // A cross-origin parent cannot host an admin iframe-tab child.
+            }
+        }
+
+        window.addEventListener('message', function (event) {
+            if (event.origin !== window.location.origin || ! event.data || event.data.type !== darkModeMessage) {
+                return;
+            }
+
+            applyDarkMode(Boolean(event.data.dark));
+        });
+
+        syncDarkModeFromParent();
 
         function toUrl(href) {
             try {
