@@ -5,6 +5,7 @@ namespace Dcat\Admin\Http\Middleware;
 use Closure;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Http\Auth\Permission;
+use Dcat\Admin\Support\UeditorConfig;
 use Illuminate\Http\Request;
 
 class UeditorPermission
@@ -14,7 +15,7 @@ class UeditorPermission
      */
     public function handle(Request $request, Closure $next)
     {
-        $permission = config('admin.ueditor.permission');
+        $permission = UeditorConfig::get('permission');
 
         if ($permission && (! Admin::user() || Admin::user()->cannot($permission))) {
             Permission::error();

@@ -3,6 +3,7 @@
 namespace Dcat\Admin\Http\Controllers;
 
 use Dcat\Admin\Support\UeditorUploadSignature;
+use Dcat\Admin\Support\UeditorConfig;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -40,7 +41,7 @@ class UeditorController
      */
     protected function getDirectory(string $action): string
     {
-        return trim((string) config('admin.ueditor.directory.'.$this->uploadType($action), 'ueditor/files'), '/');
+        return trim((string) UeditorConfig::get('directory.'.$this->uploadType($action), 'ueditor/files'), '/');
     }
 
     /**
@@ -118,7 +119,7 @@ class UeditorController
             'imageActionName'    => 'uploadimage',
             'imageFieldName'     => 'upfile',
             // 上传接口已返回绝对 URL，默认保持为空，避免前端拼出 "undefined" 前缀。
-            'imageUrlPrefix'     => config('admin.ueditor.url_prefix', ''),
+            'imageUrlPrefix'     => UeditorConfig::get('url_prefix', ''),
             'imageMaxSize'       => $this->uploadOption('uploadimage', 'max_size', 2048000),
             'imageAllowFiles'    => $this->configExtensions('uploadimage'),
             'videoActionName'    => 'uploadvideo',
@@ -186,7 +187,7 @@ class UeditorController
      */
     protected function disk(?string $disk = null)
     {
-        $disk = $disk ?: config('admin.ueditor.disk');
+        $disk = $disk ?: UeditorConfig::get('disk');
 
         return $disk ? Storage::disk($disk) : Storage::disk(config('admin.upload.disk'));
     }
@@ -201,7 +202,7 @@ class UeditorController
      */
     protected function uploadTarget(Request $request, string $action): array
     {
-        $disk = config('admin.ueditor.disk');
+        $disk = UeditorConfig::get('disk');
         $directory = $this->getDirectory($action);
         $requestedDisk = $request->input('disk');
         $requestedDirectory = $request->input('dir');
@@ -224,7 +225,7 @@ class UeditorController
         }
 
         if ($requestedDisk) {
-            $allowedDisks = (array) config('admin.ueditor.allowed_disks', []);
+            $allowedDisks = (array) UeditorConfig::get('allowed_disks', []);
             if (! in_array($requestedDisk, $allowedDisks, true)) {
                 throw new \Exception('不允许使用指定的上传磁盘');
             }
@@ -258,7 +259,7 @@ class UeditorController
      */
     protected function uploadOption(string $action, string $option, $default)
     {
-        return config('admin.ueditor.'.$this->uploadType($action).'.'.$option, $default);
+        return UeditorConfig::get($this->uploadType($action).'.'.$option, $default);
     }
 
     /**

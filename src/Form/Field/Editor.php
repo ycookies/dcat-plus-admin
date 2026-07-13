@@ -4,6 +4,7 @@ namespace Dcat\Admin\Form\Field;
 
 use Dcat\Admin\Form\Field;
 use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Support\UeditorConfig;
 use Dcat\Admin\Support\UeditorHtmlSanitizer;
 use Dcat\Admin\Support\UeditorUploadSignature;
 
@@ -17,7 +18,7 @@ class Editor extends Field
     /**
      * UEditor 前端配置。
      *
-     * 工具栏默认值由 admin.ueditor.toolbars 提供；字段的 options 配置优先。
+     * 未配置 admin.ueditor 时使用内置默认值；字段 options 的优先级最高。
      */
     protected $options = [];
 
@@ -100,19 +101,21 @@ class Editor extends Field
      */
     protected function formatOptions()
     {
+        $config = UeditorConfig::all();
+
         $this->options = array_merge([
-            'initialFrameHeight'    => config('admin.ueditor.initial_frame_height', 400),
-            'loadConfigFromServer'  => config('admin.ueditor.load_config_from_server', true),
-            'elementPathEnabled'    => config('admin.ueditor.element_path_enabled', false),
-            'autoHeightEnabled'     => config('admin.ueditor.auto_height_enabled', true),
-            'toolbars'              => config('admin.ueditor.toolbars', []),
+            'initialFrameHeight'    => $config['initial_frame_height'],
+            'loadConfigFromServer'  => $config['load_config_from_server'],
+            'elementPathEnabled'    => $config['element_path_enabled'],
+            'autoHeightEnabled'     => $config['auto_height_enabled'],
+            'toolbars'              => $config['toolbars'],
             // AI is opt-in because requests can send editor content to external providers.
-            'toolbarShows'          => ['ai' => (bool) config('admin.ueditor.enable_ai', false)],
-            'shortcutMenuShows'     => ['ai' => (bool) config('admin.ueditor.enable_ai', false)],
+            'toolbarShows'          => ['ai' => (bool) $config['enable_ai']],
+            'shortcutMenuShows'     => ['ai' => (bool) $config['enable_ai']],
             // Use bundled emoticons instead of the default third-party HTTP endpoint.
-            'emotionLocalization'   => (bool) config('admin.ueditor.emotion_localization', true),
+            'emotionLocalization'   => (bool) $config['emotion_localization'],
             // Follow Dcat's body.dark-mode class, including the editor iframe and dialogs.
-            'dcatDarkMode'          => (bool) config('admin.ueditor.dark_mode', true),
+            'dcatDarkMode'          => (bool) $config['dark_mode'],
         ], $this->options);
 
         $locale = config('app.locale');
@@ -144,7 +147,7 @@ class Editor extends Field
         $parameters = [];
 
         if ($this->disk || $this->imageUploadDirectory) {
-            $expires = time() + (int) config('admin.ueditor.upload_token_ttl', 3600);
+            $expires = time() + (int) UeditorConfig::get('upload_token_ttl', 3600);
 
             $parameters['disk'] = $this->disk;
             $parameters['dir'] = $this->imageUploadDirectory;
@@ -164,7 +167,7 @@ class Editor extends Field
      */
     protected function prepareInputValue($value)
     {
-        if (! config('admin.ueditor.sanitize_html', true)) {
+        if (! UeditorConfig::get('sanitize_html', true)) {
             return $value;
         }
 

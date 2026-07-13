@@ -14,6 +14,7 @@ use Dcat\Admin\Layout\SectionManager;
 use Dcat\Admin\Repositories\EloquentRepository;
 use Dcat\Admin\Support\Composer;
 use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Support\UeditorConfig;
 use Dcat\Admin\Traits\HasAssets;
 use Dcat\Admin\Traits\HasHtml;
 use Dcat\Admin\Traits\HasPermissions;
@@ -668,7 +669,7 @@ class Admin
             $router->post('editor-md/upload', 'EditorMDController@upload')->name('editor-md.upload');
             $router->get('ueditor/server', 'UeditorController@handle')->middleware('admin.ueditor')->name('ueditor.server');
             $router->post('ueditor/server', 'UeditorController@handle')
-                ->middleware(['admin.ueditor', 'throttle:'.config('admin.ueditor.rate_limit', 20).',1'])
+                ->middleware(['admin.ueditor', 'throttle:'.UeditorConfig::get('rate_limit', 20).',1'])
                 ->name('ueditor.server.post');
         });
     }
