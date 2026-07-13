@@ -12,7 +12,15 @@
         overflow: hidden;
     }
     #{{ $id }}.dcat-honor-wall .swiper-wrapper { height: var(--dcat-honor-card-height); align-items: center; }
-    #{{ $id }}.dcat-honor-wall .swiper-slide { width: 100%; height: var(--dcat-honor-card-height); }
+    #{{ $id }}.dcat-honor-wall .swiper-slide {
+        width: 100%;
+        height: var(--dcat-honor-card-height);
+        filter: drop-shadow(0 4px 7px rgba(38, 48, 76, .1));
+        transition-property: transform, opacity, filter !important;
+        will-change: transform, filter;
+    }
+    #{{ $id }}.dcat-honor-wall .swiper-slide.is-near { filter: drop-shadow(0 8px 13px rgba(38, 48, 76, .17)); }
+    #{{ $id }}.dcat-honor-wall .swiper-slide-active { filter: drop-shadow(0 16px 22px rgba(38, 48, 76, .27)); }
     #{{ $id }} .dcat-honor-wall__link { display: block; color: inherit; text-decoration: none; }
     #{{ $id }} .dcat-honor-wall__card {
         box-sizing: border-box;
@@ -22,8 +30,9 @@
         border: 1px solid #e7e9ee;
         border-radius: 7px;
         background: #fff;
-        box-shadow: 0 8px 24px rgba(38, 48, 76, .18);
-        transition: box-shadow .3s ease;
+        transform: translateX(0);
+        transition: transform .65s ease, box-shadow .3s ease;
+        will-change: transform;
     }
     #{{ $id }} .dcat-honor-wall__image {
         position: relative;
@@ -52,7 +61,6 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
     }
-    #{{ $id }} .swiper-slide-active .dcat-honor-wall__card { box-shadow: 0 14px 34px rgba(38, 48, 76, .25); }
     #{{ $id }} .dcat-honor-wall__controls {
         position: relative;
         z-index: 1200;
@@ -110,6 +118,9 @@
     #{{ $id }} .swiper-button-prev { left: 8px; }
     #{{ $id }} .swiper-button-next { right: 8px; }
     body.dark-mode #{{ $id }} .dcat-honor-wall__card { border-color: #484864; background: #242436; box-shadow: 0 8px 24px rgba(0, 0, 0, .32); }
+    body.dark-mode #{{ $id }}.dcat-honor-wall .swiper-slide { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .28)); }
+    body.dark-mode #{{ $id }}.dcat-honor-wall .swiper-slide.is-near { filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .38)); }
+    body.dark-mode #{{ $id }}.dcat-honor-wall .swiper-slide-active { filter: drop-shadow(0 17px 24px rgba(0, 0, 0, .5)); }
     body.dark-mode #{{ $id }} .dcat-honor-wall__image { background: #1d1d2e; }
     body.dark-mode #{{ $id }} .dcat-honor-wall__title { color: #d7d7e4; }
     body.dark-mode #{{ $id }} .dcat-honor-wall__bullet { background: #64647d; }
@@ -168,15 +179,20 @@
     var previousInit = previousEvents.init;
     var previousActiveIndexChange = previousEvents.activeIndexChange;
     var previousTransitionEnd = previousEvents.transitionEnd;
+    var centerGapOffset = 0;
 
     var setCreativeTranslate = function (containerWidth, cardWidth, swiper) {
         var horizontalPadding = containerWidth < 576 ? 36 : 46;
         var outerCardWidth = cardWidth * .44;
         var availableHalfWidth = containerWidth / 2 - horizontalPadding - outerCardWidth / 2 - 10;
         var swiperContentWidth = Math.max(1, containerWidth - horizontalPadding * 2);
-        var translatePercent = Math.max(14, Math.min(22, availableHalfWidth / 2 / swiperContentWidth * 100));
+        var stepWidth = Math.max(0, availableHalfWidth) * 3 / 7;
+        var translatePercent = Math.max(12, Math.min(20, stepWidth / swiperContentWidth * 100));
+        var actualStepWidth = swiperContentWidth * translatePercent / 100;
         var prevTranslate = -translatePercent.toFixed(2) + '%';
         var nextTranslate = translatePercent.toFixed(2) + '%';
+
+        centerGapOffset = actualStepWidth / 3;
 
         options.creativeEffect = options.creativeEffect || {};
         options.creativeEffect.prev = options.creativeEffect.prev || {};
@@ -237,11 +253,23 @@
         var bullets = element.querySelectorAll('[data-honor-bullet]');
 
         for (var index = 0; index < slides.length; index++) {
-            var visible = Math.abs(index - swiper.activeIndex) <= radius;
+            var distance = Math.abs(index - swiper.activeIndex);
+            var visible = distance <= radius;
+            var card = slides[index].querySelector('.dcat-honor-wall__card');
+            var direction = index < swiper.activeIndex ? -1 : 1;
+            var effectiveScale = distance === 1 ? .68 : .44;
+            var cardOffset = distance ? direction * centerGapOffset / effectiveScale : 0;
 
             slides[index].style.opacity = visible ? '1' : '0';
             slides[index].style.visibility = visible ? 'visible' : 'hidden';
             slides[index].style.pointerEvents = visible ? 'auto' : 'none';
+            slides[index].style.left = '0px';
+            if (card) {
+                card.style.transform = 'translateX(' + cardOffset + 'px)';
+                card.style.transitionDuration = (options.speed || 650) + 'ms, 300ms';
+            }
+            slides[index].classList.toggle('is-near', distance === 1);
+            slides[index].classList.toggle('is-far', distance >= 2);
         }
 
         for (var bulletIndex = 0; bulletIndex < bullets.length; bulletIndex++) {
