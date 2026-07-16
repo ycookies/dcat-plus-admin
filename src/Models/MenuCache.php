@@ -27,21 +27,43 @@ trait MenuCache
     /**
      * @return bool|void
      */
-    public function flushCache()
+    public function flushCache(?string $app = null)
     {
         if (! $this->enableCache()) {
             return;
         }
 
-        return $this->getStore()->delete($this->getCacheKey());
+        return $this->getStore()->delete($this->getCacheKey($app));
+    }
+
+    /**
+     * Flush every enabled application key when applications share menu tables.
+     */
+    public function flushAllCache()
+    {
+        if (! $this->enableCache()) {
+            return;
+        }
+
+        $apps = array_unique(array_merge(
+            [Admin::app()->getName(), \Dcat\Admin\Application::DEFAULT],
+            array_keys(Admin::app()->getEnabledApps())
+        ));
+
+        foreach ($apps as $app) {
+            // Different applications may use different bind_permission values
+            // while sharing the same menu table, so clear both cache variants.
+            $this->getStore()->delete(sprintf($this->cacheKey, 0, $app));
+            $this->getStore()->delete(sprintf($this->cacheKey, 1, $app));
+        }
     }
 
     /**
      * @return string
      */
-    protected function getCacheKey()
+    protected function getCacheKey(?string $app = null)
     {
-        return sprintf($this->cacheKey, (int) static::withPermission(), Admin::app()->getName());
+        return sprintf($this->cacheKey, (int) static::withPermission(), $app ?: Admin::app()->getName());
     }
 
     /**

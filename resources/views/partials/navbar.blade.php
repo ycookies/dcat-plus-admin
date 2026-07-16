@@ -4,6 +4,7 @@
 @php
     $savedLayout = [];
     try { $savedLayout = admin_setting_group('layout_config') ?: []; } catch (\Throwable) {}
+    $userPreferences = (array) session('dcat.admin.preferences', []);
     $lcColor = $savedLayout['color'] ?? config('admin.layout.color', 'default');
     $lcSidebarStyle = $savedLayout['sidebar_style'] ?? config('admin.layout.sidebar_style', 'light');
     $lcNavbarColor = $savedLayout['navbar_color'] ?? config('admin.layout.navbar_color', '');
@@ -14,16 +15,20 @@
     $lcDarkModeSwitch = isset($savedLayout['dark_mode_switch']) ? (bool)$savedLayout['dark_mode_switch'] : config('admin.layout.dark_mode_switch', false);
     $lcFullScreen = isset($savedLayout['full_screen']) ? (bool)$savedLayout['full_screen'] : config('admin.layout.full_screen', true);
     $lcHomeUrl = $savedLayout['home_url'] ?? config('admin.layout.home_url', '');
-    $lcLocale = $savedLayout['locale'] ?? config('app.locale', 'zh_CN');
+    $lcLocale = $userPreferences['locale'] ?? ($savedLayout['locale'] ?? config('app.locale', 'zh_CN'));
     $lcShowLocaleSwitch = isset($savedLayout['show_locale_switch']) ? (bool)$savedLayout['show_locale_switch'] : true;
     $lcShowHelp = isset($savedLayout['show_help']) ? (bool)$savedLayout['show_help'] : true;
     $lcShowNotification = isset($savedLayout['show_notification']) ? (bool)$savedLayout['show_notification'] : true;
     $lciframeabs = isset($savedLayout['iframe_tabs']) ? (bool)$savedLayout['iframe_tabs'] : config('admin.layout.iframe_tabs', false);
-    $iframe_tabs_url = '/admin/iframe-tabs';
     $url_path = request()->path();
+    $iframeShellPath = trim((string) config('admin.iframe_tab.shell_path', 'dcat-sys/iframe-tabs'), '/');
+    $adminPrefix = trim((string) config('admin.route.prefix', 'admin'), '/');
+    $iframeShellRequestPath = trim($adminPrefix.'/'.$iframeShellPath, '/');
+    $isIframeShell = trim($url_path, '/') === $iframeShellRequestPath || trim($url_path, '/') === trim($adminPrefix.'/iframe-tabs', '/');
+    $iframe_tabs_url = admin_url($iframeShellPath);
     $iframe_tabs_tips = '切换 iframe-tabs';
-    if($url_path === 'admin/iframe-tabs'){
-        $iframe_tabs_url = '/admin';
+    if($isIframeShell){
+        $iframe_tabs_url = admin_url('/');
         $iframe_tabs_tips = '切回默认';
     }
     // 获取帮助数据（分类+内容）
@@ -188,11 +193,13 @@
                             </script>
                         </li>
                         {{-- 清除缓存 --}}
+                        @if(Dcat\Admin\Admin::user() && Dcat\Admin\Admin::user()->isAdministrator())
                         <li class="nav-item">
                             <a href="javascript:void(0);" class="nav-link lc-clear-cache-btn" style="padding:1.5rem 0rem 1.35rem .5rem !important;">
                                   <img data-tips="tooltip" data-title="清除缓存" data-placement="bottom"  src="/vendor/dcat-admin/images/clear-cache.png" style="width:20px;height:20px;"/>
                             </a>
                         </li>
+                        @endif
                         @if(isset($configData['show_locale_switch']) && $configData['show_locale_switch'])
                         <li class="dropdown nav-item">
                             <a class="nav-link nav-link-label" href="#" data-toggle="dropdown" style="padding:1.5rem 0rem 1.35rem .5rem !important;">
@@ -218,12 +225,12 @@
                         {{-- iframe-tabs 切换 --}}
                         @if($lciframeabs)
                         <li class="nav-item">
-                            <a href="{{ $iframe_tabs_url }}" target="_blank" class="nav-link lc-iframe-tabs-switch" data-target-mode="{{ $url_path === 'admin/iframe-tabs' ? 'default' : 'iframe-tabs' }}" style="padding:1.5rem 0rem 1.35rem 1rem !important;">
+                            <a href="{{ $iframe_tabs_url }}" target="_blank" class="nav-link lc-iframe-tabs-switch" data-target-mode="{{ $isIframeShell ? 'default' : 'iframe-tabs' }}" style="padding:1.5rem 0rem 1.35rem 1rem !important;">
                                   <img data-tips="tooltip" data-title="{{ $iframe_tabs_tips }}" data-placement="bottom"  src="/vendor/dcat-admin/images/tabs.png" style="width:20px;height:20px;"/>
                             </a>
                         </li>
                         @endif
-                        @if(config('admin.layout.layout_config_tool_in_navbar'))
+                        @if(config('admin.layout.layout_config_tool_in_navbar') && Dcat\Admin\Admin::user() && Dcat\Admin\Admin::user()->isAdministrator())
                         <li class="nav-item">
                             {{-- 布局配置按钮（导航栏内） --}}
                             <a href="javascript:void(0);" class="nav-link lc-open-trigger" title="布局配置">
@@ -263,7 +270,7 @@
         <span class="lc-panel-title"><i class="feather icon-settings"></i> 布局配置</span>
         <button type="button" class="lc-panel-close" id="lc-close-panel">&times;</button>
     </div>
-    <form id="lc-config-form" method="POST" action="{{ admin_url('layout-config/save') }}">
+    <form id="lc-config-form" method="POST" action="{{ admin_url('dcat-sys/layout/save') }}">
         <div class="lc-panel-body">
 
             <div class="lc-section">
@@ -722,7 +729,7 @@ code { color: {{ $tc['darker'] }} !important; }
             var fd = new FormData();
             fd.append('locale', locale);
             fd.append('_token', token);
-            fetch('{{ admin_url("layout-config/save") }}', {
+            fetch('{{ admin_url("dcat-sys/preferences/save") }}', {
                 method: 'POST',
                 body: fd,
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -748,7 +755,7 @@ code { color: {{ $tc['darker'] }} !important; }
             var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
             var fd = new FormData();
             fd.append('_token', token);
-            fetch('{{ admin_url("api/notifications") }}/' + id + '/read', {
+            fetch('{{ admin_url("dcat-sys/notifications") }}/' + id + '/read', {
                 method: 'POST',
                 body: fd,
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -784,7 +791,7 @@ code { color: {{ $tc['darker'] }} !important; }
             var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
             var fd = new FormData();
             fd.append('_token', token);
-            fetch('{{ admin_url("api/notifications/read-all") }}', {
+            fetch('{{ admin_url("dcat-sys/notifications/read-all") }}', {
                 method: 'POST',
                 body: fd,
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -799,7 +806,7 @@ code { color: {{ $tc['darker'] }} !important; }
     @if($lcShowNotification && $unreadCount > 0)
     (function autoPopupNotification() {
         var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
-        fetch('{{ admin_url("api/notifications/first-unread") }}', {
+        fetch('{{ admin_url("dcat-sys/notifications/first-unread") }}', {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(function(r) { return r.json(); })
@@ -827,7 +834,7 @@ code { color: {{ $tc['darker'] }} !important; }
                 var btnId = this.getAttribute('data-id');
                 var fd = new FormData();
                 fd.append('_token', token);
-                fetch('{{ admin_url("api/notifications") }}/' + btnId + '/read', {
+                fetch('{{ admin_url("dcat-sys/notifications") }}/' + btnId + '/read', {
                     method: 'POST',
                     body: fd,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -861,7 +868,7 @@ code { color: {{ $tc['darker'] }} !important; }
             var loadingIndex = layer.load(1, { shade: [0.3, '#000'] });
             var fd = new FormData();
             fd.append('_token', token);
-            fetch('{{ admin_url("clear-cache") }}', {
+            fetch('{{ admin_url("dcat-sys/cache/clear") }}', {
                 method: 'POST',
                 body: fd,
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -892,7 +899,7 @@ code { color: {{ $tc['darker'] }} !important; }
             var fd = new FormData();
             fd.append('active_mode', targetMode);
             fd.append('_token', token);
-            fetch('{{ admin_url("layout-config/save") }}', {
+            fetch('{{ admin_url("dcat-sys/preferences/save") }}', {
                 method: 'POST',
                 body: fd,
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }

@@ -235,8 +235,10 @@ class AuthController extends Controller
         // 根据 layout_config 中的 active_mode 决定登录后跳转目标
         try {
             $layoutConfig = admin_setting_group('layout_config');
-            if (is_array($layoutConfig) && ($layoutConfig['active_mode'] ?? '') === 'iframe-tabs') {
-                $shellPath = trim(config('admin.iframe_tab.shell_path', 'iframe-tabs'), '/');
+            $userPreferences = (array) session('dcat.admin.preferences', []);
+            $activeMode = $userPreferences['active_mode'] ?? (is_array($layoutConfig) ? ($layoutConfig['active_mode'] ?? '') : '');
+            if ($activeMode === 'iframe-tabs') {
+                $shellPath = trim(config('admin.iframe_tab.shell_path', 'dcat-sys/iframe-tabs'), '/');
                 return admin_url($shellPath);
             }
         } catch (\Throwable $e) {

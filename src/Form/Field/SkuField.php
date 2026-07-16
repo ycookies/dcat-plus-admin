@@ -8,6 +8,7 @@ use Dcat\Admin\Form\Field;
 use Dcat\Admin\Widgets\Modal;
 use Dcat\Admin\Http\Renderable\SkuAttributesTable;
 use Dcat\Admin\Http\Forms\AddSkuAttrFrom;
+use Dcat\Admin\Support\InternalRouteToken;
 class SkuField extends Field
 {
     protected $view = 'admin::form.extend.sku.sku';
@@ -22,8 +23,11 @@ class SkuField extends Field
 
     public function render()
     {
-        $uploadUrl = admin_setting('sku_plus_img_upload_url') ?: '/admin/sku-image-upload';
-        $deleteUrl = admin_setting('sku_plus_img_remove_url') ?: '/admin/sku-image-remove';
+        $token = app(InternalRouteToken::class);
+        $uploadUrl = admin_setting('sku_plus_img_upload_url')
+            ?: $token->append(admin_route('dcat-sys.sku.upload'), 'sku.write', ['directory' => 'sku']);
+        $deleteUrl = admin_setting('sku_plus_img_remove_url')
+            ?: $token->append(admin_route('dcat-sys.sku.remove'), 'sku.write', ['directory' => 'sku']);
         $skuAttributes = SkuAttribute::orderBy('sort', 'desc')->get();
         $manageSkuAttrModal = $this->manageSkuAttrModal();
         $addSkuAttrFrom = $this->addSkuAttrModal();

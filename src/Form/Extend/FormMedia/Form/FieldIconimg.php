@@ -5,6 +5,7 @@ namespace Dcat\Admin\Form\Extend\FormMedia\Form;
 use Illuminate\Support\Facades\Storage;
 use Dcat\Admin\Form\Field as BaseField;
 use Dcat\Admin\Form\Extend\FormMedia\MediaManager;
+use Dcat\Admin\Support\InternalRouteToken;
 
 /**
  * 表单字段
@@ -383,16 +384,21 @@ class FieldIconimg extends BaseField
             }
         }
         
+        $token = app(InternalRouteToken::class);
+        $claims = [
+            'disk' => $disk ?: config('admin.upload.disk'),
+            'root' => $path ?: '/',
+        ];
         if (empty($this->uploadUrl)) {
-            $this->uploadUrl = admin_route('admin.lake-form-media.upload');
+            $this->uploadUrl = $token->append(admin_route('dcat-sys.media.upload'), 'media.write', $claims);
         }
-        
+
         if (empty($this->listUrl)) {
-            $this->listUrl = admin_route('admin.lake-form-media.get-files');
+            $this->listUrl = $token->append(admin_route('dcat-sys.media.files'), 'media.read', $claims);
         }
-        
+
         if (empty($this->createFolderUrl)) {
-            $this->createFolderUrl = admin_route('admin.lake-form-media.create-folder');
+            $this->createFolderUrl = $token->append(admin_route('dcat-sys.media.create-folder'), 'media.write', $claims);
         }
         
         if ($this->disableUpload) {

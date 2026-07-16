@@ -604,15 +604,21 @@ class Admin
                 $router->put('auth/setting', $authController.'@putSetting');
 
                 # 布局配置（导航栏可视化配置）
-                $router->post('layout-config/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@save');
-                $router->post('clear-cache', 'Dcat\Admin\Http\Controllers\LayoutConfigController@clear');
+                $router->post('layout-config/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@save')
+                    ->defaults('dcat_route_type', 'internal_legacy');
+                $router->post('clear-cache', 'Dcat\Admin\Http\Controllers\LayoutConfigController@clear')
+                    ->defaults('dcat_route_type', 'internal_legacy');
 
                 # 通知管理
                 $router->resource('notifications', \Dcat\Admin\Http\Controllers\NotificationController::class);
-                $router->get('api/notifications', 'Dcat\Admin\Http\Controllers\NotificationApiController@index');
-                $router->post('api/notifications/{id}/read', 'Dcat\Admin\Http\Controllers\NotificationApiController@read');
-                $router->get('api/notifications/first-unread', 'Dcat\Admin\Http\Controllers\NotificationApiController@firstUnread');
-                $router->post('api/notifications/read-all', 'Dcat\Admin\Http\Controllers\NotificationApiController@readAll');
+                $router->get('api/notifications', 'Dcat\Admin\Http\Controllers\NotificationApiController@index')
+                    ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
+                $router->post('api/notifications/{id}/read', 'Dcat\Admin\Http\Controllers\NotificationApiController@read')
+                    ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
+                $router->get('api/notifications/first-unread', 'Dcat\Admin\Http\Controllers\NotificationApiController@firstUnread')
+                    ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
+                $router->post('api/notifications/read-all', 'Dcat\Admin\Http\Controllers\NotificationApiController@readAll')
+                    ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
 
                 # 帮助管理
                 $router->resource('help-categories', \Dcat\Admin\Http\Controllers\HelpCategoryController::class);
@@ -629,13 +635,76 @@ class Admin
                 $router->post('auth/system-log-viewer/clear', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@clear')->name('log-viewer.clear');
                 
                 // form-media
-                $router->any('lake-form-media/get-files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')->name('admin.lake-form-media.get-files');
-                $router->post('lake-form-media/upload', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@upload')->name('admin.lake-form-media.upload');
-                $router->post('lake-form-media/create-folder', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@createFolder')->name('admin.lake-form-media.create-folder');
+                $router->any('lake-form-media/get-files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')
+                    ->defaults('dcat_route_type', 'internal_legacy')->name('admin.lake-form-media.get-files');
+                $router->post('lake-form-media/upload', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@upload')
+                    ->defaults('dcat_route_type', 'internal_legacy')->name('admin.lake-form-media.upload');
+                $router->post('lake-form-media/create-folder', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@createFolder')
+                    ->defaults('dcat_route_type', 'internal_legacy')->name('admin.lake-form-media.create-folder');
                 // sku-image
                 $router->resource('sku-action', \Dcat\Admin\Http\Controllers\SkuAttributeController::class);
-                $router->post('sku-image-upload', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@store')->name('admin.sku-image-upload');
-                $router->post('sku-image-remove', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@delete')->name('admin.sku-image-remove');
+                $router->post('sku-image-upload', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@store')
+                    ->defaults('dcat_route_type', 'internal_legacy')->name('admin.sku-image-upload');
+                $router->post('sku-image-remove', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@delete')
+                    ->defaults('dcat_route_type', 'internal_legacy')->name('admin.sku-image-remove');
+
+                // Framework-internal support routes. These routes are excluded
+                // from URL-based role permissions and authorize themselves via
+                // the admin.internal middleware.
+                $router->prefix('dcat-sys')->as('dcat-sys.')->group(function ($router) {
+                    $router->get('notifications', 'Dcat\Admin\Http\Controllers\NotificationApiController@index')
+                        ->middleware('admin.internal:authenticated')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('notifications.index');
+                    $router->post('notifications/{id}/read', 'Dcat\Admin\Http\Controllers\NotificationApiController@read')
+                        ->middleware('admin.internal:authenticated')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('notifications.read');
+                    $router->get('notifications/first-unread', 'Dcat\Admin\Http\Controllers\NotificationApiController@firstUnread')
+                        ->middleware('admin.internal:authenticated')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('notifications.first-unread');
+                    $router->post('notifications/read-all', 'Dcat\Admin\Http\Controllers\NotificationApiController@readAll')
+                        ->middleware('admin.internal:authenticated')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('notifications.read-all');
+
+                    $router->post('preferences/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@savePreference')
+                        ->middleware('admin.internal:authenticated')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('preferences.save');
+
+                    $router->match(['GET', 'POST'], 'media/files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')
+                        ->middleware('admin.internal:signed,media.read')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('media.files');
+                    $router->post('media/upload', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@upload')
+                        ->middleware('admin.internal:signed,media.write')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('media.upload');
+                    $router->post('media/create-folder', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@createFolder')
+                        ->middleware('admin.internal:signed,media.write')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('media.create-folder');
+
+                    $router->post('sku/upload', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@store')
+                        ->middleware('admin.internal:signed,sku.write')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('sku.upload');
+                    $router->post('sku/remove', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@delete')
+                        ->middleware('admin.internal:signed,sku.write')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('sku.remove');
+
+                    $router->post('cache/clear', 'Dcat\Admin\Http\Controllers\LayoutConfigController@clear')
+                        ->middleware('admin.internal:administrator')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('cache.clear');
+                    $router->post('layout/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@save')
+                        ->middleware('admin.internal:administrator')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('layout.save');
+                });
 
             });
         }

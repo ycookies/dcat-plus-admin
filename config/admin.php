@@ -232,6 +232,46 @@ return [
             'auth/logout',
             'auth/setting',
         ],
+
+        // Unified role editor settings. Existing permission/menu tables and
+        // relationships are reused, so enabling this does not require a migration.
+        'role_editor' => [
+            // Create an exact permission record when a selected route has no match.
+            'auto_create' => true,
+
+            // Show exempt/internal routes as a read-only diagnostic list.
+            'show_system_routes' => false,
+
+            // Include current-prefix routes without an explicit route name.
+            'include_unnamed_routes' => true,
+
+            // Checking a parent menu also checks its descendants and maintains
+            // the indeterminate state. Parent IDs are still persisted.
+            'menu_cascade' => true,
+
+            // Additional Laravel route-name patterns treated as system routes.
+            // Supports Str::is wildcards, for example: dcat.admin.internal.*
+            'system_route_names' => [],
+
+            // Additional paths treated as system routes, relative to admin prefix.
+            'system_paths' => [
+                'dcat-api/*',
+                'dcat-sys/*',
+                'lake-form-media/*',
+                'sku-image-*',
+            ],
+
+            // Controller class/basename wildcard patterns treated as system routes.
+            'system_controllers' => [],
+        ],
+
+        // Framework-internal route settings. Internal routes are excluded from
+        // ordinary URL RBAC and protected by their own policy middleware.
+        'internal' => [
+            // Lifetime in seconds for component capability tokens generated
+            // while rendering fields such as FormMedia and SKU.
+            'token_ttl' => 3600,
+        ],
     ],
 
     /*
@@ -470,13 +510,13 @@ return [
         | 后台 iframe 标签页入口
         |--------------------------------------------------------------------------
         |
-        | 适配版默认不替换 /admin 首页，只新增 /admin/iframe-tabs 作为标签页入口。
+        | 适配版默认不替换 /admin 首页，只新增 /admin/dcat-sys/iframe-tabs 作为标签页入口。
         | 这样即使标签页模式出现兼容问题，也可以直接回到原后台入口排查。
         |
         */
         'enabled' => env('ADMIN_IFRAME_TAB_ENABLED', true),
 
-        'shell_path' => env('ADMIN_IFRAME_TAB_SHELL_PATH', 'iframe-tabs'),
+        'shell_path' => env('ADMIN_IFRAME_TAB_SHELL_PATH', 'dcat-sys/iframe-tabs'),
 
         'query_key' => env('ADMIN_IFRAME_TAB_QUERY_KEY', 'iframe_tab'),
 

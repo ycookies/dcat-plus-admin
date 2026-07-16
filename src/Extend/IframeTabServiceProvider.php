@@ -65,7 +65,17 @@ class IframeTabServiceProvider extends ServiceProvider
             'domain' => config('admin.route.domain'),
         ], function (): void {
             Route::get($this->shellPath(), [IframeTabController::class, 'index'])
+                ->middleware('admin.internal:authenticated')
+                ->defaults('dcat_route_type', 'internal')
                 ->name('admin.iframe-tab.index');
+
+            // Keep the historical shell URL for one compatibility cycle.
+            if ($this->shellPath() !== 'iframe-tabs') {
+                Route::get('iframe-tabs', [IframeTabController::class, 'index'])
+                    ->middleware('admin.internal:authenticated')
+                    ->defaults('dcat_route_type', 'internal')
+                    ->name('admin.iframe-tab.legacy');
+            }
         });
     }
 
@@ -169,7 +179,9 @@ JS);
         $path = trim($request->path(), '/');
         $expected = trim($prefix.'/'.$shellPath, '/');
 
-        return $path === $expected;
+        $legacy = trim($prefix.'/iframe-tabs', '/');
+
+        return $path === $expected || $path === $legacy;
     }
 
     protected function isLoginPath(Request $request): bool
@@ -183,6 +195,6 @@ JS);
 
     protected function shellPath(): string
     {
-        return trim((string) config('admin.iframe_tab.shell_path', 'iframe-tabs'), '/') ?: 'iframe-tabs';
+        return trim((string) config('admin.iframe_tab.shell_path', 'dcat-sys/iframe-tabs'), '/') ?: 'dcat-sys/iframe-tabs';
     }
 }

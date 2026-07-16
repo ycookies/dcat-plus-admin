@@ -83,6 +83,7 @@ class AdminServiceProvider extends ServiceProvider {
         'admin.session'    => Http\Middleware\Session::class,
         'admin.upload'     => Http\Middleware\WebUploader::class,
         'admin.ueditor'    => Http\Middleware\UeditorPermission::class,
+        'admin.internal'   => Http\Middleware\InternalRoute::class,
         'admin.app'        => Http\Middleware\Application::class,
         'admin.apiAuth'    => \App\Http\Middleware\AdminApiAuth::class,
         'member.apiAuth'   => \App\Http\Middleware\MemberApiAuth::class,

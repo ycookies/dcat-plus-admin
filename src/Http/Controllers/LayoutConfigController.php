@@ -11,6 +11,35 @@ use Illuminate\Support\Facades\Artisan;
 class LayoutConfigController extends Controller
 {
     /**
+     * Save preferences that belong to the current administrator session.
+     * Global layout configuration remains administrator-managed separately.
+     */
+    public function savePreference(Request $request)
+    {
+        $preferences = (array) $request->session()->get('dcat.admin.preferences', []);
+
+        if ($request->has('locale')) {
+            $locale = (string) $request->input('locale');
+            if (! in_array($locale, ['zh_CN', 'zh_TW', 'en'], true)) {
+                return response()->json(['status' => false, 'message' => '不支持的语言配置'], 422);
+            }
+            $preferences['locale'] = $locale;
+        }
+
+        if ($request->has('active_mode')) {
+            $mode = (string) $request->input('active_mode');
+            if (! in_array($mode, ['default', 'iframe-tabs'], true)) {
+                return response()->json(['status' => false, 'message' => '不支持的页面模式'], 422);
+            }
+            $preferences['active_mode'] = $mode;
+        }
+
+        $request->session()->put('dcat.admin.preferences', $preferences);
+
+        return response()->json(['status' => true, 'message' => '偏好设置已保存']);
+    }
+
+    /**
      * 保存布局配置
      */
     public function save(Request $request)

@@ -8,6 +8,43 @@ use Dcat\Admin\Form\Extend\FormMedia\MediaManager;
 
 class FormMedia extends Controller
 {
+    protected function authorizedDisk(): string
+    {
+        $claims = request()->attributes->get('dcat_internal_claims');
+        $configured = (string) config('admin.upload.disk');
+        $allowed = is_array($claims) ? (string) ($claims['disk'] ?? $configured) : $configured;
+        $requested = (string) request()->input('disk', '');
+
+        if ($requested !== '' && $requested !== $allowed) {
+            abort(403, trans('admin.deny'));
+        }
+
+        return $allowed ?: $configured;
+    }
+
+    protected function authorizedPath(string $parameter, string $default = '/'): string
+    {
+        $path = $this->sanitizePath(request()->input($parameter, $default));
+        $claims = request()->attributes->get('dcat_internal_claims');
+        if (! is_array($claims)) {
+            return $path;
+        }
+
+        $disk = (string) request()->input('disk', '');
+        $allowedDisk = (string) ($claims['disk'] ?? config('admin.upload.disk'));
+        if ($disk !== '' && $disk !== $allowedDisk) {
+            abort(403, trans('admin.deny'));
+        }
+
+        $root = trim($this->sanitizePath((string) ($claims['root'] ?? '/')), '/');
+        $candidate = trim($path, '/');
+        if ($root !== '' && $candidate !== $root && ! str_starts_with($candidate, $root.'/')) {
+            abort(403, trans('admin.deny'));
+        }
+
+        return $path;
+    }
+
     /**
      * 清理路径参数，防止路径穿越
      */
@@ -45,21 +82,14 @@ class FormMedia extends Controller
      */
     public function getFiles()
     {
-        $path = $this->sanitizePath(request()->input('path', '/'));
+        $path = $this->authorizedPath('path');
 
         $currentPage = (int) request()->input('page', 1);
         $perPage = (int) request()->input('pageSize', 120);
 
         $manager = MediaManager::create()
-            ->defaultDisk()
+            ->withDisk($this->authorizedDisk())
             ->setPath($path);
-
-        // 驱动磁盘 - 使用配置默认值，不再接受用户参数
-        $disk = request()->input('disk', '');
-        $configDisk = config('admin.upload.disk');
-        if (! empty($disk) && $disk === $configDisk) {
-            $manager = $manager->withDisk($disk);
-        }
 
         $type = (string) request()->input('type', 'image');
         $order = (string) request()->input('order', 'time');
@@ -88,7 +118,7 @@ class FormMedia extends Controller
     public function upload()
     {
         $files = request()->file('files');
-        $path = $this->sanitizePath(request()->input('path', '/'));
+        $path = $this->authorizedPath('path');
 
         $type = request()->input('type');
         $nametype = request()->input('nametype', 'uniqid');
@@ -102,16 +132,9 @@ class FormMedia extends Controller
         $resize = request()->input('resize', '');
 
         $manager = MediaManager::create()
-            ->defaultDisk()
+            ->withDisk($this->authorizedDisk())
             ->setPath($path)
             ->setNametype($nametype);
-
-        // 驱动磁盘 - 使用配置默认值，不再接受用户参数
-        $disk = request()->input('disk', '');
-        $configDisk = config('admin.upload.disk');
-        if (! empty($disk) && $disk === $configDisk) {
-            $manager = $manager->withDisk($disk);
-        }
 
         if ($type != 'blend') {
             if (! $manager->checkType($files, $type)) {
@@ -156,7 +179,7 @@ class FormMedia extends Controller
      */
     public function createFolder()
     {
-        $dir = $this->sanitizePath(request()->input('dir'));
+        $dir = $this->authorizedPath('dir', '/');
         $name = $this->sanitizeFolderName(request()->input('name'));
 
         if (empty($dir)) {
@@ -168,15 +191,8 @@ class FormMedia extends Controller
         }
 
         $manager = MediaManager::create()
-            ->defaultDisk()
+            ->withDisk($this->authorizedDisk())
             ->setPath($dir);
-
-        // 驱动磁盘 - 使用配置默认值，不再接受用户参数
-        $disk = request()->input('disk', '');
-        $configDisk = config('admin.upload.disk');
-        if (! empty($disk) && $disk === $configDisk) {
-            $manager = $manager->withDisk($disk);
-        }
 
         try {
             if ($manager->createFolder($name)) {

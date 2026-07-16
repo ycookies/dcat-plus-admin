@@ -93,6 +93,11 @@ class Permission
      */
     public function shouldPassThrough($request)
     {
+        $route = $request->route();
+        if ($this->isProtectedInternalRoute($route)) {
+            return true;
+        }
+
         if ($this->isApiRoute($request) || Authenticate::shouldPassThrough($request)) {
             return true;
         }
@@ -119,5 +124,21 @@ class Permission
         }
 
         return false;
+    }
+
+    /**
+     * Internal metadata alone must never disable URL RBAC. Requiring the
+     * dedicated policy middleware keeps extension routes fail-closed when an
+     * author forgets to declare how the capability is secured.
+     */
+    protected function isProtectedInternalRoute($route): bool
+    {
+        if (! $route || ($route->defaults['dcat_route_type'] ?? null) !== 'internal') {
+            return false;
+        }
+
+        return (bool) collect($route->middleware())->first(function ($middleware) {
+            return is_string($middleware) && Str::startsWith($middleware, 'admin.internal:');
+        });
     }
 }

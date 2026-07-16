@@ -221,6 +221,12 @@ return [
             'auth/setting',
         ],
 
+        // Framework-internal routes use dedicated authentication, signed-token,
+        // or administrator policies instead of ordinary URL permissions.
+        'internal' => [
+            'token_ttl' => 3600,
+        ],
+
     ],
 
     /*

@@ -1,7 +1,7 @@
 @php
     $adminPrefix = trim((string) config('admin.route.prefix', 'admin'), '/');
     $adminPrefixPath = $adminPrefix === '' ? '/' : '/'.$adminPrefix;
-    $shellPath = trim((string) config('admin.iframe_tab.shell_path', 'iframe-tabs'), '/');
+    $shellPath = trim((string) config('admin.iframe_tab.shell_path', 'dcat-sys/iframe-tabs'), '/');
     $homePath = trim((string) config('admin.iframe_tab.home_path', '/'), '/');
     $homeUrl = admin_url($homePath);
     $footer = config('admin.iframe_tab.footer', []);

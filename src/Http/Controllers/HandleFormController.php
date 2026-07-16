@@ -38,6 +38,10 @@ class HandleFormController
     {
         $form = $this->resolveForm($request);
 
+        if (! $form->passesAuthorization()) {
+            return $form->failedAuthorization();
+        }
+
         $form->form();
 
         return $this->getField($request, $form)->upload($this->file());
@@ -75,6 +79,10 @@ class HandleFormController
     public function destroyFile(Request $request)
     {
         $form = $this->resolveForm($request);
+
+        if (! $form->passesAuthorization()) {
+            return $form->failedAuthorization();
+        }
 
         $form->form();
 

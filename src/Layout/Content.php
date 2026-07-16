@@ -460,6 +460,11 @@ class Content implements Renderable
             $this->config
         );
 
+        $userPreferences = (array) session('dcat.admin.preferences', []);
+        if (! empty($userPreferences['locale'])) {
+            $data['locale'] = $userPreferences['locale'];
+        }
+
         $allOptions = [
             'theme'             => '',
             'footer_type'       => '',
