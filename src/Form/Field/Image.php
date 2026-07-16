@@ -53,6 +53,13 @@ class Image extends File
 
     protected $view = 'admin::form.file';
 
+    /**
+     * 预览图片 src.
+     *
+     * @var mixed
+     */
+    protected $preview_srcs;
+
     public function __construct($column, $arguments = [])
     {
         parent::__construct($column, $arguments);
@@ -121,5 +128,24 @@ class Image extends File
         $this->callInterventionMethods($file->getRealPath(), $file->getMimeType());
 
         $this->uploadAndDeleteOriginalThumbnail($file);
+    }
+
+    /**
+     * 设置预览图片的 src
+     *
+     * @param callable|string|null $previewSrcs
+     * @return $this
+     */
+    public function previewSrcs($preview_srcs = null)
+    {
+        if (is_null($preview_srcs)) {
+            if ($this->preview_srcs !== null) {
+                return $this->preview_srcs;
+            }
+            return $this->value();
+        }
+        // 设置预览 URL（支持闭包）
+        $this->preview_srcs = value($preview_srcs);
+        return $this;
     }
 }
