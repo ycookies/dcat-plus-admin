@@ -334,6 +334,17 @@ class AdminTablesSeeder extends Seeder
             ],
         ]);
 
+        // Bind every initial menu to the administrator role. Without these
+        // pivot records the menu is globally visible, while its destination
+        // may still be rejected by role-based authorization.
+        $administrator = Role::query()->find(Role::ADMINISTRATOR_ID);
+        if ($administrator) {
+            $menu = new Menu();
+            $administrator->menus()->sync(
+                Menu::query()->pluck($menu->getKeyName())->all()
+            );
+        }
+
         (new Menu())->flushCache();
         $this->seedMemberUsers();
     }

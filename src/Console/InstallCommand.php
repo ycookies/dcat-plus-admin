@@ -53,6 +53,53 @@ class InstallCommand extends Command {
         if ($userModel::count() == 0) {
             $this->call('db:seed', ['--class' => AdminTablesSeeder::class]);
         }
+
+        $menuCount = $this->syncAdministratorMenus();
+        if ($menuCount === null) {
+            $this->warn('Administrator role [ID: 1] was not found, default menus were not bound.');
+        } elseif ($menuCount > 0) {
+            $this->line("<info>Administrator role was bound to {$menuCount} menus.</info>");
+        }
+    }
+
+    /**
+     * Ensure every installed menu belongs to the administrator role.
+     *
+     * This runs even when the database seeder is skipped, so re-running the
+     * installer can repair projects created before the role-menu relation was
+     * initialized. syncWithoutDetaching keeps the operation idempotent.
+     *
+     * @return int|null Number of current menus, or null when role ID 1 is absent.
+     */
+    protected function syncAdministratorMenus(): ?int {
+        $roleModel = config('admin.database.roles_model');
+        $menuModel = config('admin.database.menu_model');
+        $administratorId = defined($roleModel . '::ADMINISTRATOR_ID')
+            ? (int) constant($roleModel . '::ADMINISTRATOR_ID')
+            : 1;
+        $administrator = $roleModel::query()->find($administratorId);
+
+        if (! $administrator) {
+            return null;
+        }
+
+        $menu = new $menuModel();
+        $menuIds = $menuModel::query()
+            ->pluck($menu->getKeyName())
+            ->map(static fn ($id) => (int) $id)
+            ->all();
+
+        if ($menuIds) {
+            $administrator->menus()->syncWithoutDetaching($menuIds);
+        }
+
+        if (method_exists($menu, 'flushAllCache')) {
+            $menu->flushAllCache();
+        } elseif (method_exists($menu, 'flushCache')) {
+            $menu->flushCache();
+        }
+
+        return count($menuIds);
     }
 
     /**

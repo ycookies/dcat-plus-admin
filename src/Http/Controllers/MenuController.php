@@ -32,7 +32,7 @@ class MenuController extends AdminController
                     $form->action(admin_url('auth/menu'));
 
                     $menuModel = config('admin.database.menu_model');
-                    $permissionModel = config('admin.database.permissions_model');
+                    //$permissionModel = config('admin.database.permissions_model');
                     $roleModel = config('admin.database.roles_model');
 
                     $form->select('parent_id', trans('admin.parent_id'))->options($menuModel::selectOptions());
@@ -46,12 +46,12 @@ class MenuController extends AdminController
                         ->pluck('name', 'id'))
                         ->default([$roleModel::query()->value('id')]);
                     }
-                    if ($menuModel::withPermission()) {
-                        $form->tree('permissions', trans('admin.permission'))
-                            ->expand(false)
-                            ->treeState(false)
-                            ->nodes((new $permissionModel())->allNodes());
-                    }
+                    // if ($menuModel::withPermission()) {
+                    //     $form->tree('permissions', trans('admin.permission'))
+                    //         ->expand(false)
+                    //         ->treeState(false)
+                    //         ->nodes((new $permissionModel())->allNodes());
+                    // }
 
                     $form->width(9, 2);
 
