@@ -20,6 +20,20 @@
     $lcShowHelp = isset($savedLayout['show_help']) ? (bool)$savedLayout['show_help'] : true;
     $lcShowNotification = isset($savedLayout['show_notification']) ? (bool)$savedLayout['show_notification'] : true;
     $lciframeabs = isset($savedLayout['iframe_tabs']) ? (bool)$savedLayout['iframe_tabs'] : config('admin.layout.iframe_tabs', false);
+    $lcRoleSwitchEnabled = (bool) config('admin.permission.active_role.enable', false);
+    $lcAdminUser = null;
+    $lcActiveRole = null;
+    $lcAvailableRoles = collect();
+    if ($lcRoleSwitchEnabled) {
+        try {
+            $lcAdminUser = \Dcat\Admin\Admin::user();
+            if ($lcAdminUser) {
+                $lcRoleResolver = app(\Dcat\Admin\Support\Authorization\ActiveRole::class);
+                $lcAvailableRoles = $lcRoleResolver->roles($lcAdminUser);
+                $lcActiveRole = $lcRoleResolver->current($lcAdminUser);
+            }
+        } catch (\Throwable) {}
+    }
     $url_path = request()->path();
     $iframeShellPath = trim((string) config('admin.iframe_tab.shell_path', 'dcat-sys/iframe-tabs'), '/');
     $adminPrefix = trim((string) config('admin.route.prefix', 'admin'), '/');
@@ -239,8 +253,6 @@
                         </li>
                         @endif
                         {{-- <li class="nav-item">
-                        </li>
-                        <li class="nav-item">
                         </li> --}}
                     </ul>
                     
@@ -418,6 +430,353 @@
 <style>
 .fs18{
     font-size: 18px !important;
+}
+.dropdown-user .dropdown-menu {
+    min-width: 248px;
+}
+.dcat-user-role-panel {
+    padding: 8px;
+}
+.dcat-user-role-panel__current {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #dce5fa;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #f1f5ff, #f9fbff);
+}
+.dcat-user-role-panel__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #5875c5;
+    color: #fff;
+    font-size: 16px;
+    box-shadow: 0 4px 9px rgba(74, 100, 185, .22);
+}
+.dcat-user-role-panel__current-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+}
+.dcat-user-role-panel__current-content small,
+.dcat-user-role-panel__switch-label {
+    color: #91a0b8;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+.dcat-user-role-panel__current-content small {
+    margin-bottom: 4px;
+}
+.dcat-user-role-panel__current-content strong {
+    overflow: hidden;
+    color: #31415d;
+    font-size: 14px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dcat-user-role-panel__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 5px 7px;
+    border: 1px solid #d8e2fa;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, .72);
+    color: #5870b8;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background .16s ease, color .16s ease;
+}
+.dcat-user-role-panel__toggle:hover,
+.dcat-user-role-panel__toggle[aria-expanded="true"] {
+    background: #e8efff;
+    color: #3f5eaf;
+}
+.dcat-user-role-panel__toggle i {
+    font-size: 14px;
+    transition: transform .16s ease;
+}
+.dcat-user-role-panel__toggle[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+.dcat-user-role-panel__list {
+    margin-top: 8px;
+}
+.dcat-user-role-panel__list[hidden] {
+    display: none !important;
+}
+.dcat-user-role-panel__switch-label {
+    margin: 12px 5px 5px;
+}
+.dcat-user-role-panel__items {
+    display: grid;
+    gap: 3px;
+}
+body.dark-mode .dropdown-user .dropdown-menu {
+    background: #24283a;
+}
+body.dark-mode .dcat-user-role-panel__current {
+    border-color: #414d77;
+    background: linear-gradient(135deg, #303b60, #293249);
+}
+body.dark-mode .dcat-user-role-panel__current-content strong {
+    color: #edf1fb;
+}
+body.dark-mode .dcat-user-role-panel__current-content small,
+body.dark-mode .dcat-user-role-panel__switch-label {
+    color: #a3afc8;
+}
+body.dark-mode .dcat-user-role-panel__toggle {
+    background: #2d3653;
+    color: #bdc9ee;
+}
+body.dark-mode .dcat-user-role-panel__toggle:hover,
+body.dark-mode .dcat-user-role-panel__toggle[aria-expanded="true"] {
+    background: #37446d;
+    color: #fff;
+}
+/* 右侧导航列表本身没有交叉轴对齐规则，致使高度较小的角色卡片贴在顶部。 */
+.header-navbar .navbar-container .navbar-right > .nav.navbar-nav {
+    align-items: center;
+    min-height: 60px;
+}
+.dcat-active-role-dropdown {
+    display: flex !important;
+    align-items: center !important;
+    align-self: center;
+    height: 60px !important;
+    min-height: 60px;
+    margin: 0 4px 0 8px;
+}
+.dcat-active-role-trigger {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 4px 9px !important;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: #334155 !important;
+    align-self: center;
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.dcat-active-role-trigger:hover,
+.dcat-active-role-dropdown.show .dcat-active-role-trigger {
+    background: #f4f7ff;
+    border-color: #dce5fb;
+    box-shadow: 0 3px 10px rgba(61, 91, 159, .08);
+}
+.dcat-active-role-trigger--static {
+    cursor: default;
+}
+.dcat-active-role-trigger__icon,
+.dcat-active-role-option__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    background: #e9efff;
+    color: #506dc1;
+}
+.dcat-active-role-trigger__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+}
+.dcat-active-role-trigger__content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.05;
+}
+.dcat-active-role-trigger__content small {
+    margin-bottom: 3px;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .03em;
+}
+.dcat-active-role-trigger__content strong {
+    max-width: 110px;
+    overflow: hidden;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dcat-active-role-trigger__arrow {
+    color: #7b8799;
+    font-size: 14px;
+    transition: transform .18s ease;
+}
+.dcat-active-role-dropdown.show .dcat-active-role-trigger__arrow {
+    transform: rotate(180deg);
+}
+.dcat-active-role-menu {
+    width: 248px;
+    margin-top: 10px;
+    padding: 7px;
+    border: 1px solid #e3e9f3;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 14px 32px rgba(30, 41, 59, .18);
+}
+.dcat-active-role-menu::before,
+.dcat-active-role-menu::after {
+    display: none !important;
+}
+.dcat-active-role-menu__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 5px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    background: #f6f8fc;
+}
+.dcat-active-role-menu__header span {
+    color: #93a1b5;
+    font-size: 11px;
+    font-weight: 600;
+}
+.dcat-active-role-menu__header strong {
+    overflow: hidden;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dcat-active-role-menu__items {
+    display: grid;
+    gap: 3px;
+}
+.dcat-active-role-switch {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 51px;
+    padding: 8px 9px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    text-align: left;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.dcat-active-role-switch:hover {
+    border-color: #e1e8f7;
+    background: #f7f9fd;
+    transform: translateX(2px);
+}
+.dcat-active-role-switch.active {
+    border-color: #d6e1ff;
+    background: linear-gradient(90deg, #eaf0ff, #f5f7ff);
+    color: #3f5eaf;
+}
+.dcat-active-role-option__icon {
+    width: 31px;
+    height: 31px;
+    margin-right: 10px;
+    font-size: 16px;
+}
+.dcat-active-role-switch.active .dcat-active-role-option__icon {
+    background: #5975c4;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(74, 99, 180, .24);
+}
+.dcat-active-role-option__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+}
+.dcat-active-role-option__content strong {
+    overflow: hidden;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dcat-active-role-option__content small {
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+.dcat-active-role-option__check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background: #5975c4;
+    color: #fff;
+    font-size: 13px;
+}
+body.dark-mode .dcat-active-role-trigger {
+    color: #e6ebf7 !important;
+}
+body.dark-mode .dcat-active-role-trigger:hover,
+body.dark-mode .dcat-active-role-dropdown.show .dcat-active-role-trigger {
+    border-color: rgba(161, 178, 229, .2);
+    background: rgba(118, 137, 202, .16);
+    box-shadow: none;
+}
+body.dark-mode .dcat-active-role-trigger__icon,
+body.dark-mode .dcat-active-role-option__icon {
+    background: rgba(104, 125, 199, .26);
+    color: #b7c5ff;
+}
+body.dark-mode .dcat-active-role-trigger__content strong,
+body.dark-mode .dcat-active-role-menu__header strong {
+    color: #edf1fb;
+}
+body.dark-mode .dcat-active-role-trigger__content small,
+body.dark-mode .dcat-active-role-menu__header span,
+body.dark-mode .dcat-active-role-option__content small {
+    color: #9aa7c4;
+}
+body.dark-mode .dcat-active-role-menu {
+    border-color: #343a52;
+    background: #24283a;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, .36);
+}
+body.dark-mode .dcat-active-role-menu__header {
+    background: #2d3248;
+}
+body.dark-mode .dcat-active-role-switch {
+    color: #dce3f4;
+}
+body.dark-mode .dcat-active-role-switch:hover {
+    border-color: #3c4665;
+    background: #2c3147;
+}
+body.dark-mode .dcat-active-role-switch.active {
+    border-color: #47598e;
+    background: linear-gradient(90deg, #35446f, #303a5d);
+    color: #eff3ff;
 }
 .lc-overlay {
     position: fixed;
@@ -667,7 +1026,7 @@ code { color: {{ $tc['darker'] }} !important; }
 .lc-input:focus { border-color: {{ $tc['main'] }}; }
 .lc-panel-footer .btn-primary { background-color: {{ $tc['main'] }} !important; border-color: {{ $tc['main'] }} !important; }
 </style>
-@endif
+@endif 
 @endif
 
 {{-- 布局配置 JS --}}
@@ -737,6 +1096,58 @@ code { color: {{ $tc['darker'] }} !important; }
             .then(function(r) { return r.json(); })
             .then(function(d) { if (d.status) location.reload(); else alert(d.message || '切换失败'); })
             .catch(function() { alert('请求失败'); });
+        });
+    });
+
+    // 切换当前角色会写入会话。必须刷新顶层页面，确保 iframe 子页、菜单和操作按钮同步以新角色重新渲染。
+    document.querySelectorAll('.dcat-active-role-switch').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            var roleId = this.getAttribute('data-role-id');
+            if (!roleId || this.classList.contains('active')) return;
+
+            var token = (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : '';
+            var formData = new FormData();
+            formData.append('role_id', roleId);
+            formData.append('_token', token);
+
+            fetch('{{ admin_url("dcat-sys/roles/switch") }}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (!data.status) {
+                    throw new Error(data.message || '{{ trans('admin.role_switch_invalid') }}');
+                }
+
+                // 切换角色后回到后台首页，避免当前页面对新角色无权限而触发 403。
+                window.top.location.href = '{{ admin_url('/') }}';
+            })
+            .catch(function(error) {
+                if (typeof Dcat !== 'undefined' && Dcat.swal) {
+                    Dcat.swal.warning('{{ trans('admin.permission_denied') }}', error.message, {showCancelButton: false});
+                } else {
+                    alert(error.message || '{{ trans('admin.role_switch_invalid') }}');
+                }
+            });
+        });
+    });
+
+    // 账户下拉面板默认只显示当前角色，点击“切换角色”后再展开候选列表。
+    document.querySelectorAll('.dcat-user-role-panel__toggle').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var roleList = document.getElementById(this.getAttribute('data-target'));
+            if (!roleList) return;
+
+            var expanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+            roleList.hidden = expanded;
         });
     });
 

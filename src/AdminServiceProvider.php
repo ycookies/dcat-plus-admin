@@ -20,6 +20,7 @@ use Dcat\Admin\Layout\Navbar;
 use Dcat\Admin\Layout\SectionManager;
 use Dcat\Admin\Support\Context;
 use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Support\Authorization\RoutePermissionMetadata;
 use Dcat\Admin\Support\Setting;
 use Dcat\Admin\Support\Translator;
 use Dcat\Admin\Support\WebUploader;
@@ -106,6 +107,8 @@ class AdminServiceProvider extends ServiceProvider {
     ];
 
     public function register() {
+        RoutePermissionMetadata::registerMacro();
+
         // 更早执行，避免 boot() 的延迟
         $this->app->afterResolving('view', function ($view) {
             if (file_exists(base_path('config/scramble.php'))) {

@@ -208,8 +208,6 @@ class RoleController extends AdminController
             'role_authorization_present' => ['required', 'accepted'],
             'route_permissions'          => ['nullable', 'array'],
             'route_permissions.*'        => ['string'],
-            'custom_permissions'         => ['nullable', 'array'],
-            'custom_permissions.*'       => ['integer', 'min:1'],
             'role_menus'                 => ['nullable', 'string'],
         ];
 
@@ -247,7 +245,6 @@ class RoleController extends AdminController
         $hasOldInput = array_key_exists('role_authorization_present', $oldInput);
         $oldPayload = $hasOldInput ? (new RoleAuthorizationService())->payload($oldInput) : [];
         $selectedRouteKeys = $oldPayload['route_permissions'] ?? [];
-        $selectedCustomIds = $oldPayload['custom_permissions'] ?? [];
 
         $decorate = function (array $descriptor) use ($matches, $checkedIds, $hasOldInput, $selectedRouteKeys) {
             $permission = $matches[$descriptor['key']] ?? null;
@@ -266,38 +263,64 @@ class RoleController extends AdminController
         $grouped['singles'] = array_map($decorate, $grouped['singles']);
         $grouped['system'] = array_map($decorate, $grouped['system']);
 
-        $mappedPermissionIds = array_values(array_unique(array_map(function ($permission) {
-            return (int) $permission->getKey();
-        }, $matches)));
-        $customPermissions = [];
+        return [
+            'resources'    => $grouped['resources'],
+            'resourceGroups' => $this->groupResourceRoutes($grouped['resources']),
+            'singles'      => $grouped['singles'],
+            'singleGroups' => $this->groupSingleRoutes($grouped['singles']),
+            'systemRoutes' => $grouped['system'],
+            'autoCreate'   => (bool) config('admin.permission.role_editor.auto_create', true),
+        ];
+    }
 
-        foreach (Helper::array((new $permissionModel())->allNodes()) as $node) {
-            $node = Helper::array($node);
-            $permissionId = (int) ($node[$permissionKey] ?? $node['id'] ?? 0);
-            if (! $permissionId || in_array($permissionId, $mappedPermissionIds, true)) {
-                continue;
+    /**
+     * Group resource routes by the business group declared in the resource language file.
+     */
+    protected function groupResourceRoutes(array $resources, ?string $fallback = null): array
+    {
+        $fallback = $fallback ?: trans('admin.resource_route_ungrouped');
+        $groups = [];
+
+        foreach ($resources as $resource) {
+            $title = trim((string) ($resource['group'] ?? '')) ?: $fallback;
+
+            if (! isset($groups[$title])) {
+                $groups[$title] = [
+                    'key'       => substr(sha1($title), 0, 12),
+                    'title'     => $title,
+                    'resources' => [],
+                ];
             }
 
-            $customPermissions[] = [
-                'id'          => $permissionId,
-                'parent_id'   => (int) ($node['parent_id'] ?? 0),
-                'name'        => (string) ($node['name'] ?? ''),
-                'slug'        => (string) ($node['slug'] ?? ''),
-                'http_method' => array_values(array_filter((array) ($node['http_method'] ?? []))),
-                'http_path'   => array_values(array_filter((array) ($node['http_path'] ?? []))),
-                'checked'     => $hasOldInput
-                    ? in_array($permissionId, $selectedCustomIds, true)
-                    : in_array($permissionId, $checkedIds, true),
-            ];
+            $groups[$title]['resources'][] = $resource;
         }
 
-        return [
-            'resources'         => $grouped['resources'],
-            'singles'           => $grouped['singles'],
-            'systemRoutes'      => $grouped['system'],
-            'customPermissions' => $customPermissions,
-            'autoCreate'        => (bool) config('admin.permission.role_editor.auto_create', true),
-        ];
+        return array_values($groups);
+    }
+
+    /**
+     * Group standalone routes by their human-readable permission group.
+     */
+    protected function groupSingleRoutes(array $routes, ?string $fallback = null): array
+    {
+        $fallback = $fallback ?: trans('admin.single_route_ungrouped');
+        $groups = [];
+
+        foreach ($routes as $route) {
+            $title = trim((string) ($route['permission_group'] ?? '')) ?: $fallback;
+
+            if (! isset($groups[$title])) {
+                $groups[$title] = [
+                    'key'    => substr(sha1($title), 0, 12),
+                    'title'  => $title,
+                    'routes' => [],
+                ];
+            }
+
+            $groups[$title]['routes'][] = $route;
+        }
+
+        return array_values($groups);
     }
 
     protected function menuEditorData(Model $role, array $oldInput = []): array
@@ -312,26 +335,95 @@ class RoleController extends AdminController
             : ($role->exists && $role->relationLoaded('menus')
                 ? array_map('intval', $role->menus->pluck($keyName)->all())
                 : []);
-        $treeNodes = [];
-
-        foreach (Helper::array($menu->allNodes()) as $node) {
-            $node = Helper::array($node);
-            $id = (int) ($node[$keyName] ?? $node['id'] ?? 0);
-            if (! $id) {
-                continue;
-            }
-
-            $treeNodes[] = [
-                'id'     => (string) $id,
-                'parent' => empty($node['parent_id']) ? '#' : (string) $node['parent_id'],
-                'text'   => (string) ($node['title'] ?? ('menu-'.$id)),
-                'state'  => ['selected' => in_array($id, $checkedIds, true)],
-            ];
-        }
+        $treeNodes = $this->normalizeMenuTreeNodes(
+            Helper::array($menu->allNodes()),
+            $keyName,
+            $checkedIds
+        );
 
         return [
             'nodes'   => $treeNodes,
             'cascade' => (bool) config('admin.permission.role_editor.menu_cascade', true),
         ];
+    }
+
+    /**
+     * Convert menu records to a jsTree-safe flat structure.
+     *
+     * Historical menu tables may contain orphaned parent IDs after a parent is
+     * removed manually or by an extension. jsTree assumes every non-root parent
+     * exists and otherwise crashes inside its Web Worker while reading
+     * `parent.children`. Orphaned nodes and their descendants are therefore
+     * omitted. Duplicate IDs, self references and cyclic branches are omitted
+     * as invalid data too.
+     */
+    protected function normalizeMenuTreeNodes(array $nodes, string $keyName, array $checkedIds): array
+    {
+        $records = [];
+
+        foreach ($nodes as $node) {
+            $node = Helper::array($node);
+            $id = (int) ($node[$keyName] ?? $node['id'] ?? 0);
+
+            if (! $id || isset($records[$id])) {
+                continue;
+            }
+
+            $records[$id] = [
+                'id'        => $id,
+                'parent_id' => (int) ($node['parent_id'] ?? 0),
+                'text'      => (string) ($node['title'] ?? ('menu-'.$id)),
+            ];
+        }
+
+        $parentMap = array_map(static function (array $record) {
+            return $record['parent_id'];
+        }, $records);
+        $checkedMap = array_fill_keys(array_map('intval', $checkedIds), true);
+        $treeNodes = [];
+
+        foreach ($records as $id => $record) {
+            $parentId = $record['parent_id'];
+
+            if (! $this->menuNodeHasValidParentChain($id, $parentMap)) {
+                continue;
+            }
+
+            $treeNodes[] = [
+                'id'     => (string) $id,
+                'parent' => $parentId === 0 ? '#' : (string) $parentId,
+                'text'   => $record['text'],
+                'state'  => ['selected' => isset($checkedMap[$id])],
+            ];
+        }
+
+        return $treeNodes;
+    }
+
+    protected function menuNodeHasValidParentChain(int $id, array $parentMap): bool
+    {
+        $visited = [];
+        $current = $id;
+
+        while (isset($parentMap[$current])) {
+            if (isset($visited[$current])) {
+                return false;
+            }
+
+            $visited[$current] = true;
+            $parentId = (int) $parentMap[$current];
+
+            if ($parentId === 0) {
+                return true;
+            }
+
+            if ($parentId < 0 || ! isset($parentMap[$parentId])) {
+                return false;
+            }
+
+            $current = $parentId;
+        }
+
+        return false;
     }
 }

@@ -3,7 +3,6 @@
     $editorId = 'role-permission-editor-'.uniqid();
     $resourceCount = count($resources ?? []);
     $singleCount = count($singles ?? []);
-    $customCount = count($customPermissions ?? []);
     $resourcePermissionGroups = [
         'preview' => [
             'label' => 'admin.permission_group_preview',
@@ -37,6 +36,38 @@
         ],
     ];
     $safeHttpMethods = ['GET', 'HEAD', 'OPTIONS'];
+    if (! isset($resourceGroups)) {
+        $resourceGroups = [];
+        $resourceGroupFallback = trans('admin.resource_route_ungrouped');
+        foreach (($resources ?? []) as $resource) {
+            $resourceGroupTitle = trim((string) ($resource['group'] ?? '')) ?: $resourceGroupFallback;
+            if (! isset($resourceGroups[$resourceGroupTitle])) {
+                $resourceGroups[$resourceGroupTitle] = [
+                    'key' => substr(sha1($resourceGroupTitle), 0, 12),
+                    'title' => $resourceGroupTitle,
+                    'resources' => [],
+                ];
+            }
+            $resourceGroups[$resourceGroupTitle]['resources'][] = $resource;
+        }
+        $resourceGroups = array_values($resourceGroups);
+    }
+    if (! isset($singleGroups)) {
+        $singleGroups = [];
+        $singleGroupFallback = trans('admin.single_route_ungrouped');
+        foreach (($singles ?? []) as $route) {
+            $singleGroupTitle = trim((string) ($route['permission_group'] ?? '')) ?: $singleGroupFallback;
+            if (! isset($singleGroups[$singleGroupTitle])) {
+                $singleGroups[$singleGroupTitle] = [
+                    'key' => substr(sha1($singleGroupTitle), 0, 12),
+                    'title' => $singleGroupTitle,
+                    'routes' => [],
+                ];
+            }
+            $singleGroups[$singleGroupTitle]['routes'][] = $route;
+        }
+        $singleGroups = array_values($singleGroups);
+    }
 @endphp
 
 <div id="{{ $editorId }}" class="role-permission-editor">
@@ -55,13 +86,6 @@
                 <i class="feather icon-link"></i>
                 {{ trans('admin.single_routes') }}
                 <span class="rp-tab__count">{{ $singleCount }}</span>
-            </a>
-        </li>
-        <li>
-            <a class="rp-tab" data-toggle="tab" href="#{{ $editorId }}-custom">
-                <i class="feather icon-key"></i>
-                {{ trans('admin.existing_permissions') }}
-                <span class="rp-tab__count">{{ $customCount }}</span>
             </a>
         </li>
     </ul>
@@ -90,81 +114,118 @@
             </div>
 
             <div class="rp-scroll">
-            @forelse($resources as $resourceIndex => $resource)
-                @php
-                    $availableActions = array_filter($resource['actions'], fn ($action) => $autoCreate || $action['permission_id']);
-                    $allChecked = count($availableActions) > 0 && count(array_filter($availableActions, fn ($action) => $action['checked'])) === count($availableActions);
-                @endphp
-                <div class="rbac-resource-card rp-resource-card" data-search="{{ strtolower($resource['title'].' '.$resource['uri'].' '.$resource['controller']) }}">
-                    <div class="rp-resource-card__header">
-                        <div class="rp-resource-card__identity">
-                            <strong>{{ $resource['title'] }}</strong>
-                            <code>/{{ $resource['uri'] }}</code>
+            <div class="rp-resource-groups">
+            @forelse($resourceGroups as $resourceSection)
+                <section class="rbac-resource-section rp-resource-section" data-group="{{ $resourceSection['key'] }}">
+                    <header class="rp-resource-section__header">
+                        <div class="rp-resource-section__identity">
+                            <span class="rp-resource-section__icon"><i class="feather icon-folder"></i></span>
+                            <strong>{{ $resourceSection['title'] }}</strong>
+                            <small>{{ trans('admin.resource_route_group_count', ['count' => count($resourceSection['resources'])]) }}</small>
                         </div>
                         <label class="rp-check-action rp-check-action--small">
-                            <input type="checkbox" class="rbac-resource-all" {{ $allChecked ? 'checked' : '' }}>
+                            <input type="checkbox" class="rbac-resource-section-all">
                             <span>{{ trans('admin.select_all') }}</span>
                         </label>
-                    </div>
-                    <div class="rp-resource-card__body">
-                        <div class="rp-action-grid">
-                            @foreach($resourcePermissionGroups as $groupKey => $group)
-                                @php
-                                    $groupActions = array_values(array_filter(
-                                        $resource['actions'],
-                                        fn ($action) => in_array($action['resource_action'], $group['actions'], true)
-                                    ));
-                                    $availableGroupActions = array_values(array_filter(
-                                        $groupActions,
-                                        fn ($action) => $autoCreate || $action['permission_id']
-                                    ));
-                                    $checkedGroupActions = array_values(array_filter(
-                                        $availableGroupActions,
-                                        fn ($action) => $action['checked']
-                                    ));
-                                    $groupDisabled = count($availableGroupActions) !== count($groupActions);
-                                    $groupChecked = ! $groupDisabled && count($checkedGroupActions) === count($availableGroupActions);
-                                    $groupActionLabels = array_map(
-                                        fn ($action) => trans('admin.permission_action_'.$action['resource_action']),
-                                        $groupActions
-                                    );
-                                @endphp
-
-                                @if($groupActions)
-                                <div class="rbac-permission-item" data-search="{{ strtolower(trans($group['label']).' '.implode(' ', $groupActionLabels).' '.implode(' ', array_column($groupActions, 'uri'))) }}">
-                                    <label class="rp-action-option {{ $groupDisabled ? 'is-disabled' : '' }}" title="{{ $groupDisabled ? trans('admin.role_editor_auto_create_disabled') : implode(', ', array_column($groupActions, 'http_path')) }}">
-                                        <input type="checkbox"
-                                               class="rbac-resource-group rbac-permission-type-{{ $group['type'] }}"
-                                               data-group="{{ $groupKey }}"
-                                               data-assignable="{{ $groupDisabled ? '0' : '1' }}"
-                                               {{ $groupChecked ? 'checked' : '' }}
-                                               {{ $groupDisabled ? 'disabled' : '' }}>
-                                        <span>
-                                            <strong>{{ trans($group['label']) }}</strong>
-                                            <small>{{ implode(' + ', $groupActionLabels) }}</small>
-                                        </span>
-                                    </label>
-                                    <span class="rp-route-values" aria-hidden="true">
-                                        @foreach($groupActions as $action)
-                                            @php $disabled = ! $autoCreate && ! $action['permission_id']; @endphp
-                                            <input type="checkbox"
-                                                   name="route_permissions[]"
-                                                   value="{{ $action['key'] }}"
-                                                   class="rbac-route-permission"
-                                                   tabindex="-1"
-                                                   {{ $action['checked'] ? 'checked' : '' }}
-                                                   {{ $disabled ? 'disabled' : '' }}>
-                                        @endforeach
-                                    </span>
-                                </div>
-                                @endif
+                    </header>
+                    <div class="rp-resource-section__body">
+                    <div class="rp-resource-matrix-head" aria-hidden="true">
+                        <span>{{ trans('admin.resource_permission_column') }}</span>
+                        <div class="rp-action-grid rp-action-grid--head">
+                            @foreach($resourcePermissionGroups as $group)
+                                <span class="rp-action-column rp-action-column--{{ $group['type'] }}">{{ trans($group['label']) }}</span>
                             @endforeach
                         </div>
                     </div>
-                </div>
+                    @foreach($resourceSection['resources'] as $resourceIndex => $resource)
+                        @php
+                            $availableActions = array_filter($resource['actions'], fn ($action) => $autoCreate || $action['permission_id']);
+                            $allChecked = count($availableActions) > 0 && count(array_filter($availableActions, fn ($action) => $action['checked'])) === count($availableActions);
+                        @endphp
+                        <div class="rbac-resource-card rp-resource-card" data-search="{{ strtolower($resourceSection['title'].' '.$resource['title'].' '.$resource['description'].' '.$resource['uri'].' '.$resource['controller']) }}">
+                            <div class="rp-resource-card__header">
+                                <div class="rp-resource-card__identity">
+                                    <span class="rp-resource-card__copy">
+                                        <span class="rp-resource-card__heading">
+                                            <strong>{{ $resource['title'] }}</strong>
+                                            <code>/{{ $resource['uri'] }}</code>
+                                        </span>
+                                        @if($resource['description'])
+                                            <small>{{ $resource['description'] }}</small>
+                                        @endif
+                                    </span>
+                                </div>
+                                <label class="rp-check-action rp-check-action--small rp-resource-card__select">
+                                    <input type="checkbox" class="rbac-resource-all" {{ $allChecked ? 'checked' : '' }}>
+                                    <span>{{ trans('admin.select_all') }}</span>
+                                </label>
+                            </div>
+                            <div class="rp-resource-card__body">
+                                <div class="rp-action-grid">
+                                    @foreach($resourcePermissionGroups as $groupKey => $group)
+                                        @php
+                                            $groupActions = array_values(array_filter(
+                                                $resource['actions'],
+                                                fn ($action) => in_array($action['resource_action'], $group['actions'], true)
+                                            ));
+                                            $availableGroupActions = array_values(array_filter(
+                                                $groupActions,
+                                                fn ($action) => $autoCreate || $action['permission_id']
+                                            ));
+                                            $checkedGroupActions = array_values(array_filter(
+                                                $availableGroupActions,
+                                                fn ($action) => $action['checked']
+                                            ));
+                                            $groupDisabled = count($availableGroupActions) !== count($groupActions);
+                                            $groupChecked = ! $groupDisabled && count($checkedGroupActions) === count($availableGroupActions);
+                                            $groupActionLabels = array_map(
+                                                fn ($action) => $action['permission_title'] ?: trans('admin.permission_action_'.$action['resource_action']),
+                                                $groupActions
+                                            );
+                                            $groupActionDescriptions = array_values(array_filter(array_column($groupActions, 'description')));
+                                        @endphp
+
+                                        <div class="rbac-permission-item" data-search="{{ strtolower(trans($group['label']).' '.implode(' ', $groupActionLabels).' '.implode(' ', $groupActionDescriptions).' '.implode(' ', array_column($groupActions, 'uri'))) }}">
+                                            @if($groupActions)
+                                            <label class="rp-action-option rp-action-option--{{ $group['type'] }} {{ $groupDisabled ? 'is-disabled' : '' }}" title="{{ $groupDisabled ? trans('admin.role_editor_auto_create_disabled') : (implode('；', $groupActionDescriptions) ?: implode(', ', array_column($groupActions, 'http_path'))) }}">
+                                                <input type="checkbox"
+                                                       class="rbac-resource-group rbac-permission-type-{{ $group['type'] }}"
+                                                       data-group="{{ $groupKey }}"
+                                                       data-assignable="{{ $groupDisabled ? '0' : '1' }}"
+                                                       {{ $groupChecked ? 'checked' : '' }}
+                                                       {{ $groupDisabled ? 'disabled' : '' }}>
+                                                <span>
+                                                    <strong>{{ trans($group['label']) }}</strong>
+                                                    <small>{{ implode(' + ', $groupActionLabels) }}</small>
+                                                </span>
+                                            </label>
+                                            <span class="rp-route-values" aria-hidden="true">
+                                                @foreach($groupActions as $action)
+                                                    @php $disabled = ! $autoCreate && ! $action['permission_id']; @endphp
+                                                    <input type="checkbox"
+                                                           name="route_permissions[]"
+                                                           value="{{ $action['key'] }}"
+                                                           class="rbac-route-permission"
+                                                           tabindex="-1"
+                                                           {{ $action['checked'] ? 'checked' : '' }}
+                                                    {{ $disabled ? 'disabled' : '' }}>
+                                                @endforeach
+                                            </span>
+                                            @else
+                                                <span class="rp-action-empty">—</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                    </div>
+                </section>
             @empty
                 <div class="rp-empty">{{ trans('admin.permission_matrix_empty') }}</div>
             @endforelse
+            </div>
             </div>
         </div>
 
@@ -191,29 +252,73 @@
             </div>
 
             <div class="rp-scroll">
-            <div class="rp-route-grid">
-                @forelse($singles as $route)
+            <div class="rp-single-groups">
+                @forelse($singleGroups as $singleGroup)
                     @php
-                        $disabled = ! $autoCreate && ! $route['permission_id'];
-                        $methods = array_values(array_unique(array_map('strtoupper', $route['http_methods'])));
-                        $permissionType = count($methods) > 0 && count(array_diff($methods, $safeHttpMethods)) === 0
-                            ? 'view'
-                            : 'change';
+                        $availableGroupRoutes = array_values(array_filter(
+                            $singleGroup['routes'],
+                            fn ($route) => $autoCreate || $route['permission_id']
+                        ));
+                        $checkedGroupRoutes = array_values(array_filter(
+                            $availableGroupRoutes,
+                            fn ($route) => $route['checked']
+                        ));
+                        $singleGroupChecked = count($availableGroupRoutes) > 0
+                            && count($checkedGroupRoutes) === count($availableGroupRoutes);
                     @endphp
-                    <div class="rbac-single-item" data-search="{{ strtolower($route['label'].' '.$route['uri'].' '.$route['controller'].' '.$route['action']) }}">
-                        <label class="rp-route-card rp-route-card--simple {{ $disabled ? 'is-disabled' : '' }}" title="{{ $disabled ? trans('admin.role_editor_auto_create_disabled') : $route['http_path'] }}">
-                            <input type="checkbox"
-                                   name="route_permissions[]"
-                                   value="{{ $route['key'] }}"
-                                   class="rbac-route-permission rbac-permission-type-{{ $permissionType }}"
-                                   {{ $route['checked'] ? 'checked' : '' }}
-                                   {{ $disabled ? 'disabled' : '' }}>
-                            <span class="rp-route-summary">
-                                <strong class="rp-method-badge">{{ implode('|', $route['http_methods']) ?: 'ANY' }}</strong>
-                                <span class="rp-route-path">/{{ $route['uri'] }}</span>
-                            </span>
-                        </label>
-                    </div>
+                    <section class="rbac-single-group rp-single-group" data-group="{{ $singleGroup['key'] }}">
+                        <header class="rp-single-group__header">
+                            <div class="rp-single-group__identity">
+                                <span class="rp-single-group__icon"><i class="feather icon-folder"></i></span>
+                                <strong>{{ $singleGroup['title'] }}</strong>
+                                <small>{{ trans('admin.single_route_group_count', ['count' => count($singleGroup['routes'])]) }}</small>
+                            </div>
+                            <label class="rp-check-action rp-check-action--small">
+                                <input type="checkbox"
+                                       class="rbac-single-group-all"
+                                       {{ $singleGroupChecked ? 'checked' : '' }}
+                                       {{ count($availableGroupRoutes) === 0 ? 'disabled' : '' }}>
+                                <span>{{ trans('admin.select_all') }}</span>
+                            </label>
+                        </header>
+                        <div class="rp-single-group__body">
+                            <div class="rp-route-grid">
+                                @foreach($singleGroup['routes'] as $route)
+                                    @php
+                                        $disabled = ! $autoCreate && ! $route['permission_id'];
+                                        $methods = array_values(array_unique(array_map('strtoupper', $route['http_methods'])));
+                                        $permissionType = count($methods) > 0 && count(array_diff($methods, $safeHttpMethods)) === 0
+                                            ? 'view'
+                                            : 'change';
+                                    @endphp
+                                    <div class="rbac-single-item" data-search="{{ strtolower($route['permission_title'].' '.$route['permission_group'].' '.$route['description'].' '.$route['uri'].' '.$route['controller'].' '.$route['action']) }}">
+                                        <label class="rp-route-card rp-route-card--simple {{ $disabled ? 'is-disabled' : '' }}" title="{{ $disabled ? trans('admin.role_editor_auto_create_disabled') : $route['http_path'] }}">
+                                            <input type="checkbox"
+                                                   name="route_permissions[]"
+                                                   value="{{ $route['key'] }}"
+                                                   class="rbac-route-permission rbac-permission-type-{{ $permissionType }}"
+                                                   {{ $route['checked'] ? 'checked' : '' }}
+                                                   {{ $disabled ? 'disabled' : '' }}>
+                                            <span class="rp-route-content">
+                                                <span class="rp-route-heading">
+                                                    @if($route['label_source'] !== 'fallback')
+                                                        <strong class="rp-route-title">{{ $route['permission_title'] }}</strong>
+                                                    @endif
+                                                    <strong class="rp-method-badge">{{ implode('|', $route['http_methods']) ?: 'ANY' }}</strong>
+                                                </span>
+                                                @if($route['label_source'] !== 'fallback')
+                                                    @if($route['description'])
+                                                        <small class="rp-route-description">{{ $route['description'] }}</small>
+                                                    @endif
+                                                @endif
+                                                <span class="rp-route-path">/{{ $route['uri'] }}</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </section>
                 @empty
                     <div class="rp-empty">{{ trans('admin.permission_matrix_empty') }}</div>
                 @endforelse
@@ -233,46 +338,6 @@
             @endif
         </div>
 
-        <div class="tab-pane fade" id="{{ $editorId }}-custom">
-            <div class="rp-custom-note">{{ trans('admin.existing_permissions_help') }}</div>
-            <div class="rp-toolbar role-editor-toolbar">
-                <div class="rp-search role-editor-search">
-                    <i class="feather icon-search"></i>
-                    <input type="text" class="rbac-search" data-target=".rbac-custom-item" placeholder="{{ trans('admin.search') }}">
-                </div>
-                <label class="rp-check-action">
-                    <input type="checkbox" class="rbac-custom-all">
-                    <span>{{ trans('admin.select_all') }}</span>
-                </label>
-            </div>
-
-            <div class="rp-scroll rp-scroll--custom">
-            <div class="rp-route-grid">
-                @forelse($customPermissions as $permission)
-                    <div class="rbac-custom-item" data-search="{{ strtolower($permission['name'].' '.$permission['slug'].' '.implode(' ', $permission['http_path'])) }}">
-                        <label class="rp-route-card">
-                            <input type="checkbox"
-                                   name="custom_permissions[]"
-                                   value="{{ $permission['id'] }}"
-                                   class="rbac-custom-permission"
-                                   {{ $permission['checked'] ? 'checked' : '' }}>
-                            <span class="text-break">
-                                <strong>{{ $permission['name'] }}</strong>
-                                <code>{{ $permission['slug'] }}</code>
-                                @if($permission['parent_id'])<small>#{{ $permission['parent_id'] }}</small>@endif
-                                <small>
-                                    {{ $permission['http_method'] ? implode('|', $permission['http_method']) : 'ANY' }}
-                                    · {{ implode(', ', $permission['http_path']) ?: '-' }}
-                                </small>
-                            </span>
-                        </label>
-                    </div>
-                @empty
-                    <div class="rp-empty">{{ trans('admin.no_custom_permissions') }}</div>
-                @endforelse
-            </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -309,40 +374,97 @@
     body.dark-mode #{{ $editorId }} .rp-check-action--view { color: #6ee7b7; }
     body.dark-mode #{{ $editorId }} .rp-check-action--change { color: #fcd34d; }
     #{{ $editorId }} .rp-scroll { max-height: 560px; overflow: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--role-border-strong) transparent; }
-    #{{ $editorId }} .rp-resource-card { margin-bottom: 7px; overflow: hidden; border: 1px solid var(--role-border); border-radius: 10px; background: var(--role-surface); transition: border-color .15s, box-shadow .15s; }
-    #{{ $editorId }} .rp-resource-card:hover { border-color: var(--role-border-strong); box-shadow: 0 4px 12px rgba(15, 23, 42, .045); }
-    #{{ $editorId }} .rp-resource-card__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 7px 11px; border-bottom: 1px solid var(--role-border); background: var(--role-surface-soft); }
-    #{{ $editorId }} .rp-resource-card__identity { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    #{{ $editorId }} .rp-resource-card__identity strong { color: var(--role-text); font-size: 15.5px; line-height: 1.25; font-weight: 750; }
-    #{{ $editorId }} .rp-resource-card__identity code { max-width: 360px; overflow: hidden; padding: 2px 6px; color: var(--role-primary); background: var(--role-primary-soft); text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-    #{{ $editorId }} .rp-resource-card__body { padding: 6px 8px; }
-    #{{ $editorId }} .rp-action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 3px 6px; }
+    #{{ $editorId }} .rp-resource-groups { display: grid; gap: 12px; }
+    #{{ $editorId }} .rp-resource-section { overflow: hidden; border: 1px solid var(--role-border-strong); border-radius: 10px; background: var(--role-surface); }
+    #{{ $editorId }} .rp-resource-section__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 12px 8px 10px; border-bottom: 1px solid var(--role-border-strong); border-left: 4px solid var(--role-primary); background: var(--role-primary-soft); }
+    #{{ $editorId }} .rp-resource-section__identity { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    #{{ $editorId }} .rp-resource-section__icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 8px; color: var(--role-primary); background: var(--role-primary-soft); font-size: 14px; }
+    #{{ $editorId }} .rp-resource-section__identity > strong { overflow: hidden; color: var(--role-primary); text-overflow: ellipsis; white-space: nowrap; font-size: 16px; line-height: 1.25; font-weight: 800; }
+    #{{ $editorId }} .rp-resource-section__identity > small { flex: 0 0 auto; padding: 2px 7px; border-radius: 10px; color: var(--role-muted); background: var(--role-surface-hover); font-size: 11.5px; line-height: 1.4; }
+    #{{ $editorId }} .rp-resource-section__body { padding: 0; }
+    #{{ $editorId }} .rp-resource-matrix-head, #{{ $editorId }} .rp-resource-card { display: grid; grid-template-columns: minmax(270px, 32%) minmax(0, 1fr); }
+    #{{ $editorId }} .rp-resource-matrix-head { min-height: 37px; border-bottom: 1px solid var(--role-border); color: var(--role-muted); background: var(--role-surface-soft); font-size: 12px; font-weight: 750; }
+    #{{ $editorId }} .rp-resource-matrix-head > span { display: flex; align-items: center; padding: 7px 12px; border-right: 1px solid var(--role-border); }
+    #{{ $editorId }} .rp-resource-card { border-bottom: 1px solid var(--role-border); background: var(--role-surface); transition: background .15s; }
+    #{{ $editorId }} .rp-resource-card:last-child { border-bottom: 0; }
+    #{{ $editorId }} .rp-resource-card:hover { background: var(--role-surface-hover); }
+    #{{ $editorId }} .rp-resource-card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; min-height: 78px; padding: 11px 12px; border-right: 1px solid var(--role-border); background: transparent; }
+    #{{ $editorId }} .rp-resource-card__identity { min-width: 0; flex: 1 1 auto; }
+    #{{ $editorId }} .rp-resource-card__copy { display: grid; gap: 3px; min-width: 0; }
+    #{{ $editorId }} .rp-resource-card__heading { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    #{{ $editorId }} .rp-resource-card__copy strong { min-width: 0; overflow: hidden; color: var(--role-text); text-overflow: ellipsis; white-space: nowrap; font-size: 15px; line-height: 1.25; font-weight: 780; }
+    #{{ $editorId }} .rp-resource-card__copy small { display: block; min-width: 0; overflow: hidden; color: var(--role-muted); text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; line-height: 1.3; }
+    #{{ $editorId }} .rp-resource-card__heading code { max-width: 360px; flex: 0 1 auto; overflow: hidden; padding: 2px 6px; color: var(--role-primary); background: var(--role-primary-soft); text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+    #{{ $editorId }} .rp-resource-card__select { flex: 0 0 auto; margin-top: 1px; font-size: 12px; }
+    #{{ $editorId }} .rp-resource-card__select input { width: 16px; height: 16px; flex-basis: 16px; }
+    #{{ $editorId }} .rp-resource-card__body { display: flex; align-items: stretch; min-width: 0; padding: 0; }
+    #{{ $editorId }} .rp-action-grid { display: grid; width: 100%; grid-template-columns: repeat(6, minmax(78px, 1fr)); gap: 0; }
+    #{{ $editorId }} .rp-action-grid--head { align-items: stretch; }
+    #{{ $editorId }} .rp-action-column { display: flex; align-items: center; justify-content: center; min-width: 0; padding: 7px 4px; border-left: 1px solid var(--role-border); text-align: center; }
+    #{{ $editorId }} .rp-action-column:first-child { border-left: 0; }
+    #{{ $editorId }} .rp-action-column--view { color: #0f8a63; }
+    #{{ $editorId }} .rp-action-column--change { color: #b45309; }
+    body.dark-mode #{{ $editorId }} .rp-action-column--view { color: #6ee7b7; }
+    body.dark-mode #{{ $editorId }} .rp-action-column--change { color: #fcd34d; }
+    #{{ $editorId }} .rp-single-groups { display: grid; gap: 9px; }
+    #{{ $editorId }} .rp-single-group { overflow: hidden; border: 1px solid var(--role-border); border-radius: 10px; background: var(--role-surface); transition: border-color .15s, box-shadow .15s; }
+    #{{ $editorId }} .rp-single-group:hover { border-color: var(--role-border-strong); box-shadow: 0 4px 12px rgba(15, 23, 42, .045); }
+    #{{ $editorId }} .rp-single-group__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 45px; padding: 7px 11px; border-bottom: 1px solid var(--role-border); background: var(--role-surface-soft); }
+    #{{ $editorId }} .rp-single-group__identity { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    #{{ $editorId }} .rp-single-group__icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 8px; color: var(--role-primary); background: var(--role-primary-soft); font-size: 14px; }
+    #{{ $editorId }} .rp-single-group__identity > strong { overflow: hidden; color: var(--role-text); text-overflow: ellipsis; white-space: nowrap; font-size: 15.5px; line-height: 1.25; font-weight: 750; }
+    #{{ $editorId }} .rp-single-group__identity > small { flex: 0 0 auto; padding: 2px 7px; border-radius: 10px; color: var(--role-muted); background: var(--role-surface-hover); font-size: 11.5px; line-height: 1.4; }
+    #{{ $editorId }} .rp-single-group__body { padding: 8px; }
     #{{ $editorId }} .rp-route-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
-    #{{ $editorId }} .rbac-permission-item, #{{ $editorId }} .rbac-single-item, #{{ $editorId }} .rbac-custom-item { min-width: 0; padding: 0; }
+    #{{ $editorId }} .rbac-permission-item, #{{ $editorId }} .rbac-single-item { min-width: 0; padding: 0; }
+    #{{ $editorId }} .rp-resource-card .rbac-permission-item { display: flex; align-items: stretch; justify-content: center; border-left: 1px solid var(--role-border); }
+    #{{ $editorId }} .rp-resource-card .rbac-permission-item:first-child { border-left: 0; }
     #{{ $editorId }} .rp-route-values { display: none !important; }
-    #{{ $editorId }} .rp-action-option { display: flex; align-items: center; gap: 9px; min-height: 43px; padding: 5px 8px; border-radius: 8px; transition: background .15s; }
-    #{{ $editorId }} .rp-action-option:hover { background: var(--role-surface-hover); }
+    #{{ $editorId }} .rp-action-option { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 78px; padding: 7px 5px; border-radius: 0; text-align: center; transition: background .15s; }
+    #{{ $editorId }} .rp-action-option--view { --rp-accent: #10b981; }
+    #{{ $editorId }} .rp-action-option--change { --rp-accent: #f59e0b; }
+    #{{ $editorId }} .rp-action-option--view:hover { background: rgba(16, 185, 129, .08); }
+    #{{ $editorId }} .rp-action-option--change:hover { background: rgba(245, 158, 11, .08); }
     #{{ $editorId }} .rp-action-option > span { min-width: 0; }
-    #{{ $editorId }} .rp-action-option strong { display: block; color: var(--role-text); font-size: 12px; line-height: 1.25; font-weight: 650; }
-    #{{ $editorId }} .rp-action-option small { display: block; margin-top: 2px; color: var(--role-muted); font-size: 12px; line-height: 1.25; }
+    #{{ $editorId }} .rp-action-option strong { display: none; color: var(--role-text); font-size: 12px; line-height: 1.25; font-weight: 700; }
+    #{{ $editorId }} .rp-action-option small { display: -webkit-box; overflow: hidden; margin-top: 0; color: var(--role-muted); -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 11.5px; line-height: 1.3; }
+    #{{ $editorId }} .rp-action-empty { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 78px; color: var(--role-border-strong); font-size: 16px; }
     #{{ $editorId }} .rp-route-card { display: flex; align-items: flex-start; gap: 9px; width: 100%; min-height: 70px; padding: 9px 10px; border: 1px solid var(--role-border); border-radius: 9px; background: var(--role-surface); transition: border-color .15s, background .15s, transform .15s; }
     #{{ $editorId }} .rp-route-card:hover { border-color: var(--role-primary); background: var(--role-primary-soft); transform: translateY(-1px); }
     #{{ $editorId }} .rp-route-card > span { display: block; min-width: 0; }
-    #{{ $editorId }} .rp-route-card strong { display: inline; color: var(--role-text); font-size: 16px; line-height: 1.3; font-weight: 700; }
+    #{{ $editorId }} .rp-route-card strong { display: inline; color: var(--role-text); font-size: 14px; line-height: 1.3; font-weight: 700; }
     #{{ $editorId }} .rp-route-card code { margin-left: 5px; color: var(--role-primary); background: var(--role-primary-soft); font-size: 13px; }
     #{{ $editorId }} .rp-route-card small { display: block; margin-top: 3px; overflow: hidden; color: var(--role-muted); text-overflow: ellipsis; white-space: nowrap; font-size: 13px; line-height: 1.25; }
     #{{ $editorId }} .rp-route-card--simple { align-items: flex-start; min-height: 72px; }
     #{{ $editorId }} .rp-route-card--simple > input { margin-top: 5px; }
-    #{{ $editorId }} .rp-route-summary { display: grid !important; gap: 4px; min-width: 0; }
-    #{{ $editorId }} .rp-method-badge { display: inline-flex !important; align-items: center; justify-content: center; width: max-content; min-width: 50px; min-height: 25px; padding: 2px 8px; border-radius: 7px; color: var(--role-primary) !important; background: var(--role-primary-soft); font-size: 13px !important; line-height: 1.2 !important; font-weight: 800 !important; letter-spacing: .02em; }
-    #{{ $editorId }} .rp-route-path { min-width: 0; overflow: hidden; color: var(--role-text); text-overflow: ellipsis; white-space: nowrap; font-size: 15px; line-height: 1.3; font-weight: 650; }
+    #{{ $editorId }} .rp-route-content { display: grid !important; gap: 3px; min-width: 0; }
+    #{{ $editorId }} .rp-route-heading { display: flex !important; align-items: center; gap: 7px; min-width: 0; }
+    #{{ $editorId }} .rp-route-title { min-width: 0; overflow: hidden; color: var(--role-text); text-overflow: ellipsis; white-space: nowrap; font-size: 15px; line-height: 1.3; font-weight: 750; }
+    #{{ $editorId }} .rp-route-description { overflow: hidden; color: var(--role-muted); text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 1.3; }
+    #{{ $editorId }} .rp-method-badge { display: inline-flex !important; align-items: center; justify-content: center; width: max-content; min-height: 20px; flex: 0 0 auto; padding: 1px 6px; border-radius: 6px; color: var(--role-primary) !important; background: var(--role-primary-soft); font-size: 11px !important; line-height: 1.2 !important; font-weight: 800 !important; letter-spacing: .025em; }
+    #{{ $editorId }} .rp-route-path { min-width: 0; overflow: hidden; color: var(--role-muted); text-overflow: ellipsis; white-space: nowrap; font-size: 13px; line-height: 1.3; font-weight: 500; opacity: .82; }
     #{{ $editorId }} .is-disabled { cursor: not-allowed; opacity: .55; }
     #{{ $editorId }} .is-disabled:hover { border-color: var(--role-border); background: var(--role-surface); transform: none; }
-    #{{ $editorId }} .rp-system-note, #{{ $editorId }} .rp-custom-note { padding: 9px 11px; margin-bottom: 8px; border: 1px solid var(--role-border); border-radius: 9px; color: var(--role-muted); background: var(--role-surface-soft); font-size: 14px; }
+    #{{ $editorId }} .rp-system-note { padding: 9px 11px; margin-bottom: 8px; border: 1px solid var(--role-border); border-radius: 9px; color: var(--role-muted); background: var(--role-surface-soft); font-size: 14px; }
     #{{ $editorId }} .rp-system-note { margin-top: 10px; margin-bottom: 0; }
     #{{ $editorId }} .rp-system-note strong { color: var(--role-text); margin-right: 5px; }
     #{{ $editorId }} .rp-system-note > div { margin-top: 6px; }
     #{{ $editorId }} .rp-empty { padding: 28px 10px; text-align: center; color: var(--role-muted); font-size: 14px; }
+
+    @media (max-width: 1199px) {
+        #{{ $editorId }} .rp-resource-matrix-head { display: none; }
+        #{{ $editorId }} .rp-resource-card { display: block; }
+        #{{ $editorId }} .rp-resource-card__header { min-height: 0; border-right: 0; border-bottom: 1px solid var(--role-border); background: var(--role-surface-soft); }
+        #{{ $editorId }} .rp-resource-card__body { display: block; }
+        #{{ $editorId }} .rp-resource-card .rp-action-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        #{{ $editorId }} .rp-resource-card .rbac-permission-item { border-top: 0; }
+        #{{ $editorId }} .rp-resource-card .rbac-permission-item:nth-child(n+4) { border-top: 1px solid var(--role-border); }
+        #{{ $editorId }} .rp-resource-card .rbac-permission-item:nth-child(3n+1) { border-left: 0; }
+        #{{ $editorId }} .rp-action-option, #{{ $editorId }} .rp-action-empty { min-height: 62px; }
+        #{{ $editorId }} .rp-action-option { justify-content: flex-start; padding: 7px 10px; text-align: left; }
+        #{{ $editorId }} .rp-action-option strong { display: block; }
+        #{{ $editorId }} .rp-action-option small { margin-top: 2px; }
+    }
 
     @media (max-width: 767px) {
         #{{ $editorId }} .rp-tabs { padding-left: 8px; padding-right: 8px; overflow-x: auto; }
@@ -352,13 +474,22 @@
         #{{ $editorId }} .rp-toolbar__actions { justify-content: flex-start; flex-wrap: wrap; }
         #{{ $editorId }} .rp-search { width: 100%; }
         #{{ $editorId }} .rp-check-action { align-self: auto; }
-        #{{ $editorId }} .rp-resource-card__identity code { max-width: 170px; }
+        #{{ $editorId }} .rp-resource-card__header { align-items: flex-start; }
+        #{{ $editorId }} .rp-resource-card__heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+        #{{ $editorId }} .rp-resource-card__identity code { max-width: 220px; }
+        #{{ $editorId }} .rp-resource-section__header { align-items: flex-start; }
+        #{{ $editorId }} .rp-resource-section__identity { flex-wrap: wrap; }
+        #{{ $editorId }} .rp-single-group__header { align-items: flex-start; }
+        #{{ $editorId }} .rp-single-group__identity { flex-wrap: wrap; }
         #{{ $editorId }} .rp-scroll { max-height: 500px; }
-        #{{ $editorId }} .rp-action-grid, #{{ $editorId }} .rp-route-grid { grid-template-columns: 1fr; }
+        #{{ $editorId }} .rp-resource-card .rp-action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        #{{ $editorId }} .rp-resource-card .rbac-permission-item { border-top: 0; border-left: 0; }
+        #{{ $editorId }} .rp-resource-card .rbac-permission-item:nth-child(n+3) { border-top: 1px solid var(--role-border); }
+        #{{ $editorId }} .rp-resource-card .rbac-permission-item:nth-child(2n) { border-left: 1px solid var(--role-border); }
+        #{{ $editorId }} .rp-route-grid { grid-template-columns: 1fr; }
     }
 
     @media (min-width: 768px) and (max-width: 1199px) {
-        #{{ $editorId }} .rp-action-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         #{{ $editorId }} .rp-route-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 </style>
@@ -421,6 +552,29 @@
             .prop('indeterminate', checked > 0 && checked < $routes.length);
     }
 
+    function refreshSingleGroup($group) {
+        var $routes = $group.find('.rbac-route-permission').filter(':not(:disabled)'),
+            checked = $routes.filter(':checked').length,
+            $control = $group.find('.rbac-single-group-all').first();
+
+        $control
+            .prop('disabled', $routes.length === 0)
+            .prop('checked', $routes.length > 0 && checked === $routes.length)
+            .prop('indeterminate', checked > 0 && checked < $routes.length);
+    }
+
+    function refreshResourceSection($section) {
+        var $controls = $section.find('.rbac-resource-group').filter(':not(:disabled)'),
+            checked = $controls.filter(':checked').length,
+            partial = $controls.filter(function () { return this.indeterminate; }).length,
+            $control = $section.find('.rbac-resource-section-all').first();
+
+        $control
+            .prop('disabled', $controls.length === 0)
+            .prop('checked', $controls.length > 0 && checked === $controls.length)
+            .prop('indeterminate', partial > 0 || (checked > 0 && checked < $controls.length));
+    }
+
     function refreshPane($pane) {
         $pane.find('.rbac-resource-group').each(function () {
             refreshResourceGroup($(this));
@@ -428,9 +582,14 @@
         $pane.find('.rbac-resource-card:visible').each(function () {
             refreshAll($(this), '.rbac-resource-group', '.rbac-resource-all');
         });
+        $pane.find('.rbac-resource-section:visible').each(function () {
+            refreshResourceSection($(this));
+        });
+        $pane.find('.rbac-single-group:visible').each(function () {
+            refreshSingleGroup($(this));
+        });
         refreshAll($pane, '.rbac-resource-card:visible .rbac-resource-group', '.rbac-resource-global-all');
         refreshAll($pane, '.rbac-single-item:visible .rbac-route-permission', '.rbac-single-all');
-        refreshAll($pane, '.rbac-custom-item:visible .rbac-custom-permission', '.rbac-custom-all');
         refreshPermissionTypes($pane);
     }
 
@@ -448,6 +607,15 @@
             available($pane, '.rbac-resource-card:visible .rbac-resource-group').prop('checked', this.checked).each(function () {
                 syncResourceGroup($(this));
             });
+            refreshPane($pane);
+        })
+        .on('change' + namespace, '.rbac-resource-section-all', function () {
+            var $section = $(this).closest('.rbac-resource-section'),
+                $pane = $(this).closest('.tab-pane');
+            $section.find('.rbac-resource-group').filter(':not(:disabled)').prop('checked', this.checked).each(function () {
+                syncResourceGroup($(this));
+            });
+            $(this).prop('indeterminate', false);
             refreshPane($pane);
         })
         .on('change' + namespace, '.rbac-type-all', function () {
@@ -471,15 +639,14 @@
             available($pane, '.rbac-single-item:visible .rbac-route-permission').prop('checked', this.checked);
             refreshPane($pane);
         })
-        .on('change' + namespace, '.rbac-single-item .rbac-route-permission', function () {
-            refreshPane($(this).closest('.tab-pane'));
-        })
-        .on('change' + namespace, '.rbac-custom-all', function () {
-            var $pane = $(this).closest('.tab-pane');
-            available($pane, '.rbac-custom-item:visible .rbac-custom-permission').prop('checked', this.checked);
+        .on('change' + namespace, '.rbac-single-group-all', function () {
+            var $group = $(this).closest('.rbac-single-group'),
+                $pane = $(this).closest('.tab-pane');
+            $group.find('.rbac-route-permission').filter(':not(:disabled)').prop('checked', this.checked);
+            $(this).prop('indeterminate', false);
             refreshPane($pane);
         })
-        .on('change' + namespace, '.rbac-custom-permission', function () {
+        .on('change' + namespace, '.rbac-single-item .rbac-route-permission', function () {
             refreshPane($(this).closest('.tab-pane'));
         })
         .on('input' + namespace, '.rbac-search', function () {
@@ -490,6 +657,20 @@
             $pane.find(target).each(function () {
                 var matched = !keyword || String($(this).data('search') || '').indexOf(keyword) !== -1;
                 $(this).toggle(matched);
+            });
+
+            $pane.find('.rbac-single-group').each(function () {
+                var hasMatchedRoute = $(this).find('.rbac-single-item').filter(function () {
+                    return $(this).css('display') !== 'none';
+                }).length > 0;
+                $(this).toggle(hasMatchedRoute);
+            });
+
+            $pane.find('.rbac-resource-section').each(function () {
+                var hasMatchedResource = $(this).find('.rbac-resource-card').filter(function () {
+                    return $(this).css('display') !== 'none';
+                }).length > 0;
+                $(this).toggle(hasMatchedResource);
             });
 
             refreshPane($pane);

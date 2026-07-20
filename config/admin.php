@@ -233,6 +233,33 @@ return [
             'auth/setting',
         ],
 
+        // Apply route permissions to the default resource Grid buttons/actions.
+        'resource_actions' => [
+            // Behavior when the current role has no corresponding route permission:
+            // hide = do not render the action; prompt = render it and show a dialog.
+            'denied' => 'hide',
+
+            // Enable or disable permission control for individual default actions.
+            'actions' => [
+                'create'       => true,
+                'edit'         => true,
+                'quick_edit'   => true,
+                'delete'       => true,
+                'batch_delete' => true,
+            ],
+        ],
+
+        // Let a user with multiple roles work under one selected role per
+        // session. Disabled by default to preserve historical union behavior.
+        'active_role' => [
+            // Enable the current-role authorization model.
+            'enable' => false,
+
+            // Column on the administrator table that stores the role selected
+            // by an administrator as the user's default at next login.
+            'default_column' => 'default_role_id',
+        ],
+
         // Unified role editor settings. Existing permission/menu tables and
         // relationships are reused, so enabling this does not require a migration.
         'role_editor' => [
@@ -336,9 +363,6 @@ return [
 
         // Extra disks a field may select with a signed, short-lived upload target; empty denies overrides.
         'allowed_disks' => [],
-
-        // Dcat permission required for UEditor uploads; administrators always pass this check.
-        'permission' => 'ueditor.upload',
 
         // Maximum number of upload requests per account per minute.
         'rate_limit' => 20,

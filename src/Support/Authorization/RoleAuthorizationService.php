@@ -24,10 +24,9 @@ class RoleAuthorizationService
     public function payload(array $input): array
     {
         return [
-            'present'                => (bool) Arr::get($input, 'role_authorization_present', false),
-            'route_permissions'      => $this->strings(Arr::get($input, 'route_permissions', [])),
-            'custom_permissions'     => $this->integers(Arr::get($input, 'custom_permissions', [])),
-            'menus'                  => $this->integers(Arr::get($input, 'role_menus', [])),
+            'present'           => (bool) Arr::get($input, 'role_authorization_present', false),
+            'route_permissions' => $this->strings(Arr::get($input, 'route_permissions', [])),
+            'menus'             => $this->integers(Arr::get($input, 'role_menus', [])),
         ];
     }
 
@@ -44,7 +43,15 @@ class RoleAuthorizationService
             throw new InvalidArgumentException(trans('admin.role_editor_routes_changed'));
         }
 
-        $permissionIds = [];
+        // Permissions that cannot be represented by the current route catalog
+        // may be legacy wildcards, logical abilities, or permissions belonging
+        // to routes removed by an extension. They are deliberately hidden from
+        // the simplified role editor, but must survive an unrelated role edit.
+        $mappedPermissionIds = array_values(array_unique(array_map(function (Model $permission) {
+            return (int) $permission->getKey();
+        }, $this->resolver->map($descriptors))));
+        $preservedPermissionIds = $this->preservedPermissionIds($role, $mappedPermissionIds);
+        $permissionIds = $preservedPermissionIds;
         $autoCreate = (bool) config('admin.permission.role_editor.auto_create', true);
         foreach ($selectedKeys as $key) {
             $permission = $this->resolver->resolve($descriptors[$key], $autoCreate);
@@ -53,18 +60,6 @@ class RoleAuthorizationService
             }
 
             $permissionIds[] = (int) $permission->getKey();
-        }
-
-        $permissionModel = config('admin.database.permissions_model');
-        $customPermissionIds = $this->integers($payload['custom_permissions'] ?? []);
-        if ($customPermissionIds) {
-            $permissionIds = array_merge($permissionIds, $permissionModel::query()
-                ->whereKey($customPermissionIds)
-                ->pluck((new $permissionModel())->getKeyName())
-                ->map(function ($id) {
-                    return (int) $id;
-                })
-                ->all());
         }
 
         $permissionIds = array_values(array_unique($permissionIds));
@@ -90,9 +85,31 @@ class RoleAuthorizationService
         }
 
         return [
-            'permission_ids' => $permissionIds,
-            'menu_ids'       => $menuIds,
+            'permission_ids'           => $permissionIds,
+            'preserved_permission_ids' => $preservedPermissionIds,
+            'menu_ids'                 => $menuIds,
         ];
+    }
+
+    protected function preservedPermissionIds(Model $role, array $mappedPermissionIds): array
+    {
+        if (! $role->exists) {
+            return [];
+        }
+
+        $permissionModel = config('admin.database.permissions_model');
+        $permissionKey = (new $permissionModel())->getKeyName();
+        $currentPermissionIds = $role->permissions()
+            ->pluck($permissionKey)
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->all();
+
+        return array_values(array_diff(
+            array_values(array_unique($currentPermissionIds)),
+            array_values(array_unique(array_map('intval', $mappedPermissionIds)))
+        ));
     }
 
     protected function strings($values): array

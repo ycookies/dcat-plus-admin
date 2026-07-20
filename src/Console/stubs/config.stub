@@ -221,6 +221,13 @@ return [
             'auth/setting',
         ],
 
+        // Enable a single current role per administrator session. Keep false
+        // to preserve the historical union of all assigned roles.
+        'active_role' => [
+            'enable' => false,
+            'default_column' => 'default_role_id',
+        ],
+
         // Framework-internal routes use dedicated authentication, signed-token,
         // or administrator policies instead of ordinary URL permissions.
         'internal' => [

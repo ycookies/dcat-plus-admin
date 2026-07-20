@@ -29,6 +29,7 @@ class RoutePermissionResolverTest extends TestCase
         $permission->http_path = ['/users/*', '/users/export'];
         $this->assertFalse($resolver->isExactMatch($permission, $descriptor));
     }
+
 }
 
 class RoutePermissionTestModel extends Model

@@ -8,6 +8,7 @@ use Dcat\Admin\Grid\Actions\Edit;
 use Dcat\Admin\Grid\Actions\QuickEdit;
 use Dcat\Admin\Grid\Actions\Show;
 use Dcat\Admin\Grid\RowAction;
+use Dcat\Admin\Support\Authorization\GridActionPermission;
 use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
@@ -336,8 +337,17 @@ HTML;
     {
         $action = config('admin.grid.actions.edit') ?: Edit::class;
         $action = $action::make($this->getEditLabel());
+        $action = $this->prepareAction($action);
 
-        return $this->prepareAction($action);
+        if (GridActionPermission::allows($this->grid, 'edit')) {
+            return $action;
+        }
+
+        if (GridActionPermission::mode() === GridActionPermission::MODE_HIDE) {
+            return '';
+        }
+
+        return GridActionPermission::deniedControl(Helper::render($action->title()), 'edit');
     }
 
     /**
@@ -357,8 +367,17 @@ HTML;
     {
         $action = config('admin.grid.actions.quick_edit') ?: QuickEdit::class;
         $action = $action::make($this->getQuickEditLabel());
+        $action = $this->prepareAction($action);
 
-        return $this->prepareAction($action);
+        if (GridActionPermission::allows($this->grid, 'quick_edit')) {
+            return $action;
+        }
+
+        if (GridActionPermission::mode() === GridActionPermission::MODE_HIDE) {
+            return '';
+        }
+
+        return GridActionPermission::deniedControl(Helper::render($action->title()), 'quick_edit');
     }
 
     /**
@@ -380,8 +399,17 @@ HTML;
     {
         $action = config('admin.grid.actions.delete') ?: Delete::class;
         $action = $action::make($this->getDeleteLabel());
+        $action = $this->prepareAction($action);
 
-        return $this->prepareAction($action);
+        if (GridActionPermission::allows($this->grid, 'delete')) {
+            return $action;
+        }
+
+        if (GridActionPermission::mode() === GridActionPermission::MODE_HIDE) {
+            return '';
+        }
+
+        return GridActionPermission::deniedControl(Helper::render($action->title()), 'delete');
     }
 
     /**

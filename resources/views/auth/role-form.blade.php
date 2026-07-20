@@ -106,7 +106,7 @@
                         <span class="role-panel__number">02</span>
                         <div class="role-panel__heading">
                             <h2>{{ trans('admin.permissions') }}</h2>
-                            <p>{{ trans('admin.resource_routes') }} · {{ trans('admin.single_routes') }} · {{ trans('admin.existing_permissions') }}</p>
+                            <p>{{ trans('admin.resource_routes') }} · {{ trans('admin.single_routes') }}</p>
                         </div>
                     </div>
                     <div class="role-panel__body role-panel__body--flush">

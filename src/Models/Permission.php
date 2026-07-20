@@ -2,6 +2,7 @@
 
 namespace Dcat\Admin\Models;
 
+use Dcat\Admin\Support\Authorization\ResourceRouteAction;
 use Dcat\Admin\Support\Helper;
 use Dcat\Admin\Traits\HasDateTimeFormatter;
 use Dcat\Admin\Traits\ModelTree;
@@ -85,7 +86,7 @@ class Permission extends Model implements Sortable
      */
     public function shouldPassThrough(Request $request): bool
     {
-        if (! $this->http_path) {
+        if (! $this->http_path || ! ResourceRouteAction::matchesRequest($this, $request)) {
             return false;
         }
 

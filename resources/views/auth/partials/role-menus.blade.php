@@ -102,7 +102,11 @@
             core: {
                 data: @json($nodes),
                 themes: { name: 'proton', responsive: true },
-                check_callback: true
+                check_callback: true,
+                // Flat menu data is small and is replaced frequently by PJAX.
+                // Parsing it synchronously avoids stale Blob workers continuing
+                // after the role page has already been replaced.
+                worker: false
             },
             plugins: ['checkbox', 'types', 'search'],
             checkbox: {

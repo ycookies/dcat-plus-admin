@@ -6,6 +6,7 @@ use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Http\Repositories\Administrator;
 use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Support\Authorization\ActiveRole;
 use Dcat\Admin\Traits\HasFormResponse;
 use Illuminate\Auth\GuardHelpers;
 use Illuminate\Http\Request;
@@ -79,6 +80,7 @@ class AuthController extends Controller
      */
     public function getLogout(Request $request)
     {
+        app(ActiveRole::class)->forget($this->guard()->user());
         $this->guard()->logout();
 
         $request->session()->invalidate();
@@ -257,6 +259,10 @@ class AuthController extends Controller
     protected function sendLoginResponse(Request $request)
     {
         $request->session()->regenerate();
+
+        // A login always starts from the user's configured default role rather
+        // than retaining a role chosen in a previous browser session.
+        app(ActiveRole::class)->initialize($this->guard()->user());
 
         $path = $this->getRedirectPath();
 

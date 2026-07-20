@@ -3,6 +3,7 @@
 namespace Dcat\Admin\Show;
 
 use Dcat\Admin\Form;
+use Dcat\Admin\Support\Authorization\GridActionPermission;
 use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
@@ -266,7 +267,18 @@ HTML;
     protected function renderEdit()
     {
         if (! $this->showQuickEdit && ! $this->showEdit) {
-            return;
+            return '';
+        }
+
+        $editAllowed = $this->showEdit
+            && GridActionPermission::allowsResource($this->resource(), 'edit');
+        $quickEditAllowed = $this->showQuickEdit
+            && GridActionPermission::allowsResource($this->resource(), 'quick_edit');
+
+        if (! $editAllowed
+            && ! $quickEditAllowed
+            && GridActionPermission::mode() === GridActionPermission::MODE_HIDE) {
+            return '';
         }
 
         $edit = trans('admin.edit');
@@ -275,25 +287,40 @@ HTML;
         $quickBtn = $btn = '';
 
         if ($this->showEdit) {
-            $btn = <<<EOF
+            if ($editAllowed) {
+                $btn = <<<EOF
 <a href="{$url}" class="btn btn-sm btn-primary">
         <i class="feather icon-edit-1"></i><span class="d-none d-sm-inline"> {$edit}</span>
     </a>
 EOF;
+            } elseif (GridActionPermission::mode() === GridActionPermission::MODE_PROMPT) {
+                $content = "<i class=\"feather icon-edit-1\"></i><span class=\"d-none d-sm-inline\"> {$edit}</span>";
+                $btn = GridActionPermission::deniedControl($content, 'edit', 'btn btn-sm btn-primary');
+            }
         }
 
         if ($this->showQuickEdit) {
-            $id = 'show-edit-'.Str::random(8);
-            [$width, $height] = $this->dialogFormDimensions;
+            if ($quickEditAllowed) {
+                $id = 'show-edit-'.Str::random(8);
+                [$width, $height] = $this->dialogFormDimensions;
 
-            Form::dialog($edit)
-                ->click(".$id")
-                ->dimensions($width, $height)
-                ->success('Dcat.reload()');
+                Form::dialog($edit)
+                    ->click(".$id")
+                    ->dimensions($width, $height)
+                    ->success('Dcat.reload()');
 
-            $text = $this->showEdit ? '' : "<span class='d-none d-sm-inline'> &nbsp; $edit</span>";
+                $text = $this->showEdit ? '' : "<span class='d-none d-sm-inline'> &nbsp; $edit</span>";
 
-            $quickBtn = "<button data-url='$url' class='btn btn-sm btn-primary {$id}'><i class=' fa fa-clone'></i>$text</button>";
+                $quickBtn = "<button data-url='$url' class='btn btn-sm btn-primary {$id}'><i class=' fa fa-clone'></i>$text</button>";
+            } elseif (GridActionPermission::mode() === GridActionPermission::MODE_PROMPT) {
+                $text = $this->showEdit ? '' : "<span class='d-none d-sm-inline'> &nbsp; $edit</span>";
+                $content = "<i class='fa fa-clone'></i>{$text}";
+                $quickBtn = GridActionPermission::deniedControl($content, 'quick_edit', 'btn btn-sm btn-primary', 'button');
+            }
+        }
+
+        if ($btn === '' && $quickBtn === '') {
+            return '';
         }
 
         return <<<HTML
@@ -309,7 +336,21 @@ HTML;
     protected function renderDelete()
     {
         if (! $this->showDelete) {
-            return;
+            return '';
+        }
+
+        if (! GridActionPermission::allowsResource($this->resource(), 'delete')) {
+            if (GridActionPermission::mode() === GridActionPermission::MODE_HIDE) {
+                return '';
+            }
+
+            $delete = trans('admin.delete');
+            $content = "<i class=\"feather icon-trash\"></i><span class=\"d-none d-sm-inline\"> {$delete}</span>";
+            $button = GridActionPermission::deniedControl($content, 'delete', 'btn btn-sm btn-white', 'button');
+
+            return <<<HTML
+<div class="btn-group pull-right btn-mini" style="margin-right: 5px">{$button}</div>
+HTML;
         }
 
         $delete = trans('admin.delete');

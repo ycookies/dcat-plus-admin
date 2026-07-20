@@ -51,7 +51,8 @@ class IframeTabServiceProvider extends ServiceProvider
     {
         Route::get('vendor/admin-iframe-tab/{path}', [AssetController::class, 'show'])
             ->where('path', '.*')
-            ->name('admin-iframe-tab.asset');
+            ->name('admin-iframe-tab.asset')
+            ->permissionLabel('Iframe Tab 静态资源', '读取 Iframe Tab 组件所需的前端资源', 'Iframe Tab');
     }
 
     /**
@@ -67,14 +68,16 @@ class IframeTabServiceProvider extends ServiceProvider
             Route::get($this->shellPath(), [IframeTabController::class, 'index'])
                 ->middleware('admin.internal:authenticated')
                 ->defaults('dcat_route_type', 'internal')
-                ->name('admin.iframe-tab.index');
+                ->name('admin.iframe-tab.index')
+                ->permissionLabel('Iframe Tab 容器', '显示后台多标签页的主容器页面', 'Iframe Tab');
 
             // Keep the historical shell URL for one compatibility cycle.
             if ($this->shellPath() !== 'iframe-tabs') {
                 Route::get('iframe-tabs', [IframeTabController::class, 'index'])
                     ->middleware('admin.internal:authenticated')
                     ->defaults('dcat_route_type', 'internal')
-                    ->name('admin.iframe-tab.legacy');
+                    ->name('admin.iframe-tab.legacy')
+                    ->permissionLabel('Iframe Tab 兼容入口', '兼容旧版本的多标签页容器地址', 'Iframe Tab');
             }
         });
     }

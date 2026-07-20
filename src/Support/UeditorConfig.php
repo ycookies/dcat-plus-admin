@@ -50,7 +50,6 @@ class UeditorConfig
         return [
             'disk'                    => null,
             'allowed_disks'           => [],
-            'permission'              => 'ueditor.upload',
             'rate_limit'              => 20,
             'upload_token_ttl'        => 3600,
             'sanitize_html'           => true,

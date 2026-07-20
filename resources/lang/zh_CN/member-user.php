@@ -37,4 +37,21 @@ return [
     ],
     'options' => [
     ],
+    'permissions' => [
+        'resource' => ['group' => '会员管理'],
+        'description' => '管理后台会员账号、基础资料和账户状态',
+        'actions' => [
+            'index'   => '列表',
+            'show'    => '详情',
+            'create'  => '新建',
+            'store'   => '保存',
+            'edit'    => '编辑',
+            'update'  => '更新',
+            'destroy' => '删除',
+            'import'  => '导入',
+            'export'  => '导出',
+        ],
+        'routes' => [
+        ],
+    ],
 ];

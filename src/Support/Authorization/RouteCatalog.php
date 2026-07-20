@@ -4,6 +4,7 @@ namespace Dcat\Admin\Support\Authorization;
 
 use Dcat\Admin\Admin;
 use Dcat\Admin\Application;
+use Dcat\Admin\Support\Helper;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Str;
@@ -18,6 +19,8 @@ class RouteCatalog
     protected Application $application;
 
     protected array $options;
+
+    protected array $permissionLanguageCache = [];
 
     public function __construct(?Router $router = null, ?Application $application = null, ?array $options = null)
     {
@@ -74,11 +77,13 @@ class RouteCatalog
                 $resource = $descriptor['resource'];
                 if (! isset($resources[$resource])) {
                     $resources[$resource] = [
-                        'key'        => $resource,
-                        'title'      => $descriptor['resource_title'],
-                        'controller' => $descriptor['controller_name'],
-                        'uri'        => $this->resourceUri($descriptor),
-                        'actions'    => [],
+                        'key'         => $resource,
+                        'title'       => $descriptor['resource_title'],
+                        'description' => $descriptor['resource_description'],
+                        'group'       => $descriptor['resource_group'],
+                        'controller'  => $descriptor['controller_name'],
+                        'uri'         => $this->resourceUri($descriptor),
+                        'actions'     => [],
                     ];
                 }
 
@@ -130,6 +135,17 @@ class RouteCatalog
         $exempt = $this->isExempt($routeName, $relativeUri);
         $api = $this->isApiRoute($routeName, $relativeUri);
         $system = $internal || $api || $exempt || $manual || $this->matchesSystemRule($routeName, $relativeUri, $controller);
+        $technicalLabel = $this->routeLabel($relativeName, $relativeUri, $controller, $action);
+        $presentation = $this->permissionPresentation(
+            $route,
+            $routeName,
+            $relativeName,
+            $controller,
+            $action,
+            $resourceAction,
+            $resource,
+            $technicalLabel
+        );
         $identity = implode('|', [
             $this->application->getName(),
             $routeName,
@@ -150,9 +166,16 @@ class RouteCatalog
             'controller'       => $controller,
             'controller_name'  => $controller === 'Closure' ? 'Closure' : class_basename($controller),
             'action'           => $action,
-            'label'            => $this->routeLabel($relativeName, $relativeUri, $controller, $action),
+            'label'            => $presentation['title'],
+            'technical_label'  => $technicalLabel,
+            'description'      => $presentation['description'],
+            'permission_title' => $presentation['title'],
+            'permission_group' => $presentation['group'],
+            'label_source'     => $presentation['source'],
             'resource'         => $resource,
-            'resource_title'   => $this->resourceTitle($resource, $controller),
+            'resource_title'   => $presentation['resource_title'],
+            'resource_description' => $presentation['resource_description'],
+            'resource_group'   => $presentation['resource_group'],
             'resource_action'  => $resourceAction,
             'permission_slug'  => $this->permissionSlug($relativeName, $relativeUri, $action, $identity),
             'manual'           => $manual,
@@ -284,6 +307,131 @@ class RouteCatalog
         }
 
         return $resource ?: 'Resource';
+    }
+
+    protected function permissionPresentation(
+        Route $route,
+        string $routeName,
+        string $relativeName,
+        string $controller,
+        string $action,
+        ?string $resourceAction,
+        ?string $resource,
+        string $technicalLabel
+    ): array {
+        $language = $this->permissionLanguage($controller);
+        $permissions = is_array($language['permissions'] ?? null) ? $language['permissions'] : [];
+        $resourceMetadata = RoutePermissionMetadata::normalize($permissions['resource'] ?? []);
+
+        if (empty($resourceMetadata['title']) && is_scalar($permissions['title'] ?? null)) {
+            $resourceMetadata['title'] = trim((string) $permissions['title']);
+        }
+        if (empty($resourceMetadata['description']) && is_scalar($permissions['description'] ?? null)) {
+            $resourceMetadata['description'] = trim((string) $permissions['description']);
+        }
+
+        $resourceTitle = $resourceMetadata['title'] ?? $this->languageResourceTitle($language, $controller);
+        if ($resourceTitle === '') {
+            $resourceTitle = $this->resourceTitle($resource, $controller);
+        }
+
+        $actions = is_array($permissions['actions'] ?? null) ? $permissions['actions'] : [];
+        $routes = is_array($permissions['routes'] ?? null) ? $permissions['routes'] : [];
+        $actionMetadata = RoutePermissionMetadata::normalize($actions[$action] ?? []);
+        $routeMetadata = RoutePermissionMetadata::normalize(
+            $routes[$relativeName]
+                ?? $routes[$routeName]
+                ?? []
+        );
+        $explicitMetadata = RoutePermissionMetadata::normalize(
+            $route->defaults[RoutePermissionMetadata::DEFAULT_KEY] ?? []
+        );
+
+        $metadata = array_replace($actionMetadata, $routeMetadata, $explicitMetadata);
+        $source = $explicitMetadata ? 'route' : ($routeMetadata ? 'lang.route' : ($actionMetadata ? 'lang.action' : 'fallback'));
+
+        if (empty($metadata['title']) && $resourceAction) {
+            $metadata['title'] = $this->translatedActionTitle($resourceAction);
+            $source = 'lang.default_action';
+        }
+
+        return [
+            'title'                => $metadata['title'] ?? $technicalLabel,
+            'description'          => $metadata['description'] ?? '',
+            'group'                => $metadata['group'] ?? '',
+            'source'               => $source,
+            'resource_title'       => $resourceTitle,
+            'resource_description' => $resourceMetadata['description'] ?? '',
+            'resource_group'       => $resourceMetadata['group'] ?? '',
+        ];
+    }
+
+    protected function permissionLanguage(string $controller): array
+    {
+        if ($controller === '' || $controller === 'Closure' || ! app()->bound('translator')) {
+            return [];
+        }
+
+        $controllerName = preg_replace('/Controller$/', '', class_basename($controller));
+        $slug = Helper::slug($controllerName);
+        $locale = (string) app('translator')->getLocale();
+        $cacheKey = $locale.'|'.$slug;
+
+        if (! array_key_exists($cacheKey, $this->permissionLanguageCache)) {
+            $language = app('translator')->get($slug, [], $locale);
+            $language = is_array($language) ? $language : [];
+            $defaults = $this->frameworkPermissionLanguage($slug, $locale);
+
+            $this->permissionLanguageCache[$cacheKey] = array_replace_recursive($defaults, $language);
+        }
+
+        return $this->permissionLanguageCache[$cacheKey];
+    }
+
+    /**
+     * Load package-owned resource language defaults without requiring users to
+     * republish language files after every upgrade. Application Lang files are
+     * merged over these defaults by permissionLanguage().
+     */
+    protected function frameworkPermissionLanguage(string $slug, string $locale): array
+    {
+        $locale = preg_replace('/[^A-Za-z0-9_-]/', '', $locale);
+        if ($locale === '') {
+            return [];
+        }
+
+        $path = dirname(__DIR__, 3).'/resources/lang/'.$locale.'/'.$slug.'.php';
+        if (! is_file($path)) {
+            return [];
+        }
+
+        $language = require $path;
+
+        return is_array($language) ? $language : [];
+    }
+
+    protected function languageResourceTitle(array $language, string $controller): string
+    {
+        $labels = is_array($language['labels'] ?? null) ? $language['labels'] : [];
+        $controllerName = preg_replace('/Controller$/', '', class_basename($controller));
+        $slug = Helper::slug($controllerName);
+        $title = $labels[$controllerName]
+            ?? $labels[$slug]
+            ?? $labels[Str::plural($controllerName)]
+            ?? $labels[Str::plural($slug)]
+            ?? ($language['title'] ?? '');
+
+        return is_scalar($title) ? trim((string) $title) : '';
+    }
+
+    protected function translatedActionTitle(string $action): string
+    {
+        $key = 'admin.permission_action_'.$action;
+        if (app()->bound('translator') && app('translator')->has($key)) {
+            return (string) app('translator')->get($key);
+        }
+
+        return Str::headline($action);
     }
 
     protected function resourceUri(array $descriptor): string

@@ -8,6 +8,7 @@ use Dcat\Admin\Http\Auth\Permission;
 use Dcat\Admin\Http\Repositories\Administrator;
 use Dcat\Admin\Models\Administrator as AdministratorModel;
 use Dcat\Admin\Show;
+use Dcat\Admin\Support\Authorization\ActiveRole;
 use Dcat\Admin\Support\Helper;
 use Dcat\Admin\Widgets\Tree;
 
@@ -155,15 +156,23 @@ class UserController extends AdminController
             $form->ignore(['password_confirmation']);
 
             if (config('admin.permission.enable')) {
-                $form->multipleSelect('roles', trans('admin.roles'))
-                    ->options(function () {
-                        $roleModel = config('admin.database.roles_model');
+                $roleOptions = function () {
+                    $roleModel = config('admin.database.roles_model');
 
-                        return $roleModel::all()->pluck('name', 'id');
-                    })
+                    return $roleModel::query()->orderBy('name')->pluck('name', 'id');
+                };
+
+                $form->multipleSelect('roles', trans('admin.roles'))
+                    ->options($roleOptions)
                     ->customFormat(function ($v) {
                         return array_column($v, 'id');
                     });
+
+                if (app(ActiveRole::class)->enabled()) {
+                    $form->select('default_role_id', trans('admin.default_role'))
+                        ->options($roleOptions)
+                        ->help('用户每次登录后会以此角色进入后台；必须同时包含在已分配角色中。');
+                }
             }
 
             $form->display('created_at', trans('admin.created_at'));
@@ -179,6 +188,18 @@ class UserController extends AdminController
 
             if (! $form->password) {
                 $form->deleteInput('password');
+            }
+        })->saved(function (Form $form) {
+            if (app(ActiveRole::class)->enabled()) {
+                $user = $form->model();
+
+                // The relation may have been preloaded before the form synced
+                // its roles, so resolve the default from the new pivot data.
+                if (method_exists($user, 'unsetRelation')) {
+                    $user->unsetRelation('roles');
+                }
+
+                app(ActiveRole::class)->synchronizeDefault($user);
             }
         });
     }

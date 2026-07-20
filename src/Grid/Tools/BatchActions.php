@@ -4,6 +4,7 @@ namespace Dcat\Admin\Grid\Tools;
 
 use Dcat\Admin\Admin;
 use Dcat\Admin\Grid\BatchAction;
+use Dcat\Admin\Support\Authorization\GridActionPermission;
 use Dcat\Admin\Traits\HasVariables;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
@@ -139,6 +140,12 @@ class BatchActions extends AbstractTool
     {
         if (! $this->enableDelete) {
             $this->actions->forget('_delete_');
+        } elseif (! GridActionPermission::allows($this->parent, 'batch_delete')) {
+            if (GridActionPermission::mode() === GridActionPermission::MODE_HIDE) {
+                $this->actions->forget('_delete_');
+            } else {
+                $this->actions->put('_delete_', new PermissionDeniedBatchDelete(trans('admin.delete')));
+            }
         }
 
         if ($this->actions->isEmpty()) {

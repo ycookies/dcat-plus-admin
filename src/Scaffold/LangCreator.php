@@ -39,6 +39,24 @@ class LangCreator
             ],
             'fields'  => [],
             'options' => [],
+            'permissions' => [
+                'resource' => [
+                    'group' => $title,
+                ],
+                'description' => '',
+                'actions' => [
+                    'index'   => trans('admin.permission_action_index'),
+                    'show'    => trans('admin.permission_action_show'),
+                    'create'  => trans('admin.permission_action_create'),
+                    'store'   => trans('admin.permission_action_store'),
+                    'edit'    => trans('admin.permission_action_edit'),
+                    'update'  => trans('admin.permission_action_update'),
+                    'destroy' => trans('admin.permission_action_destroy'),
+                    'import'  => trans('admin.permission_action_import'),
+                    'export'  => trans('admin.permission_action_export'),
+                ],
+                'routes' => [],
+            ],
         ];
         foreach ($this->fields as $field) {
             if (empty($field['name'])) {

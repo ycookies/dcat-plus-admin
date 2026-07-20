@@ -1,6 +1,24 @@
 <?php
 
 return [
+    'labels' => [
+        'Menu' => '菜单管理',
+        'menu' => '菜单管理',
+    ],
+    'permissions' => [
+        'resource' => ['group' => '权限管理'],
+        'description' => '维护后台导航菜单、层级结构和访问绑定',
+        'actions' => [
+            'index'   => '查看菜单列表',
+            'show'    => '查看菜单详情',
+            'create'  => '新建菜单',
+            'store'   => '保存菜单',
+            'edit'    => '编辑菜单',
+            'update'  => '更新菜单',
+            'destroy' => '删除菜单',
+        ],
+        'routes' => [],
+    ],
     'titles' => [
         'index'         => '主页',
         'admin'         => '后台管理',

@@ -9,16 +9,17 @@ use Dcat\Admin\Layout\Column;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Layout\Row;
 use Dcat\Admin\Tree;
+use Dcat\Admin\Grid;
 use Dcat\Admin\Widgets\Box;
 use Dcat\Admin\Widgets\Form as WidgetForm;
-
+use Dcat\Admin\Http\Forms\MenuPermissionConfig;
+use Illuminate\Support\Str;
 class MenuController extends AdminController
 {
     public function title()
     {
         return trans('admin.menu');
     }
-
     public function index(Content $content)
     {
         return $content
@@ -38,20 +39,21 @@ class MenuController extends AdminController
                     $form->select('parent_id', trans('admin.parent_id'))->options($menuModel::selectOptions());
                     $form->text('title', trans('admin.title'))->required();
                     $form->icon('icon', trans('admin.icon'))->help($this->iconHelp());
-                    $form->text('uri', trans('admin.uri'));
-
-                    if ($menuModel::withRole()) {
-                        $form->multipleSelect('roles', trans('admin.roles'))
-                        ->options($roleModel::all()
-                        ->pluck('name', 'id'))
-                        ->default([$roleModel::query()->value('id')]);
-                    }
-                    if ($menuModel::withPermission()) {
-                        $form->tree('permissions', trans('admin.permission'))
-                            ->expand(false)
-                            ->treeState(false)
-                            ->nodes((new $permissionModel())->allNodes());
-                    }
+                    $form->text('uri', trans('admin.uri'))
+                        ->datalist($this->getRoutes())
+                        ->help('可以是外部链接，如：https://www.baidu.com');
+                    // if ($menuModel::withRole()) {
+                    //     $form->multipleSelect('roles', trans('admin.roles'))
+                    //     ->options($roleModel::all()
+                    //     ->pluck('name', 'id'))
+                    //     ->default([$roleModel::query()->value('id')]);
+                    // }
+                    // if ($menuModel::withPermission()) {
+                    //     $form->tree('permissions', trans('admin.permission'))
+                    //         ->expand(false)
+                    //         ->treeState(false)
+                    //         ->nodes((new $permissionModel())->allNodes());
+                    // }
 
                     $form->width(9, 2);
 
@@ -124,7 +126,9 @@ class MenuController extends AdminController
             });
             $form->text('title', trans('admin.title'))->required();
             $form->icon('icon', trans('admin.icon'))->help($this->iconHelp());
-            $form->text('uri', trans('admin.uri'));
+            $form->text('uri', trans('admin.uri'))
+                ->datalist($this->getRoutes())
+                ->help('可以是外部链接，如：https://www.baidu.com');
             $form->switch('show', trans('admin.show'));
 
             if ($menuModel::withRole()) {
@@ -138,22 +142,22 @@ class MenuController extends AdminController
                         return array_column($v, 'id');
                     });
             }
-            if ($menuModel::withPermission()) {
-                $form->tree('permissions', trans('admin.permission'))
-                    ->treeState(false)
-                    ->nodes(function () {
-                        $permissionModel = config('admin.database.permissions_model');
+            // if ($menuModel::withPermission()) {
+            //     $form->tree('permissions', trans('admin.permission'))
+            //         ->treeState(false)
+            //         ->nodes(function () {
+            //             $permissionModel = config('admin.database.permissions_model');
 
-                        return (new $permissionModel())->allNodes();
-                    })
-                    ->customFormat(function ($v) {
-                        if (! $v) {
-                            return [];
-                        }
+            //             return (new $permissionModel())->allNodes();
+            //         })
+            //         ->customFormat(function ($v) {
+            //             if (! $v) {
+            //                 return [];
+            //             }
 
-                        return array_column($v, 'id');
-                    });
-            }
+            //             return array_column($v, 'id');
+            //         });
+            // }
 
             $form->display('created_at', trans('admin.created_at'));
             $form->display('updated_at', trans('admin.updated_at'));
@@ -176,5 +180,58 @@ class MenuController extends AdminController
     protected function iconHelp()
     {
         return 'For more icons please see <a href="http://fontawesome.io/icons/" target="_blank">http://fontawesome.io/icons/</a>';
+    }
+
+    public function getRoutes()
+    {
+        $prefix = (string) config('admin.route.prefix');
+
+        $container = collect();
+
+        $routes = collect(app('router')->getRoutes())->map(function ($route) use ($prefix, $container) {
+            if (! in_array('GET', $route->methods(), true)) {
+                return;
+            }
+
+            if (! Str::startsWith($uri = $route->uri(), $prefix) && $prefix && $prefix !== '/') {
+                return;
+            }
+
+            if (! Str::contains($uri, '{')) {
+                if ($prefix !== '/') {
+                    $route = Str::replaceFirst($prefix, '', $uri.'*');
+                } else {
+                    $route = $uri.'*';
+                }
+
+                if ($route !== '*') {
+                    $container->push($route);
+                }
+            }
+
+            $path = preg_replace('/{.*}+/', '*', $uri);
+
+            if ($prefix !== '/') {
+                return Str::replaceFirst($prefix, '', $path);
+            }
+
+            return $path;
+        });
+
+        return $container
+            ->merge($routes)
+            ->filter(function ($route) {
+                $route = (string) $route;
+
+                if ($route === '' || Str::endsWith($route, '*')) {
+                    return false;
+                }
+
+                // 菜单只展示页面路由，过滤 dcat-api、admin-api 等接口路由。
+                return ! preg_match('#^/?[^/]*-api(?:/|$)#i', $route);
+            })
+            ->unique()
+            ->values()
+            ->all();
     }
 }

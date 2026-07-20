@@ -4,6 +4,7 @@ namespace Dcat\Admin\Grid\Tools;
 
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
+use Dcat\Admin\Support\Authorization\GridActionPermission;
 use Illuminate\Contracts\Support\Renderable;
 
 class CreateButton implements Renderable
@@ -57,6 +58,20 @@ class CreateButton implements Renderable
 
     public function render()
     {
+        if (! GridActionPermission::allows($this->grid, 'create')) {
+            if (GridActionPermission::mode() === GridActionPermission::MODE_HIDE) {
+                return '';
+            }
+
+            $new = trans('admin.new');
+            $content = "<i class='feather icon-plus'></i><span class='d-none d-sm-inline'>&nbsp;&nbsp;{$new}</span>";
+            $tag = $this->mode === Grid::CREATE_MODE_DIALOG ? 'button' : 'a';
+
+            return $this->grid->tools()->format(
+                GridActionPermission::deniedControl($content, 'create', 'btn btn-primary', $tag)
+            );
+        }
+
         return $this->grid->tools()->format(
             "{$this->renderCreateButton()}{$this->renderDialogCreateButton()}"
         );

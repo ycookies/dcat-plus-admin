@@ -22,6 +22,7 @@ use Dcat\Admin\Grid\Concerns\CanFormatState;
  * @method $this switch(string $color = '', $refresh = false)
  * @method $this switchGroup($columns = [], string $color = '', $refresh = false)
  * @method $this image($server = '', int $width = 200, int $height = 200)
+ * @method $this icon()
  * @method $this label($style = 'primary', int $max = null)
  * @method $this button($style = 'success');
  * @method $this link($href = '', $target = '_blank',$view = '');
@@ -78,6 +79,7 @@ class Column
         'switchGroup'      => Displayers\SwitchGroup::class,
         'select'           => Displayers\Select::class,
         'image'            => Displayers\Image::class,
+        'icon'             => Displayers\Icon::class,
         'label'            => Displayers\Label::class,
         'button'           => Displayers\Button::class,
         'link'             => Displayers\Link::class,

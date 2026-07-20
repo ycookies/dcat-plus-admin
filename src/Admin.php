@@ -597,27 +597,38 @@ class Admin
 
                 $authController = config('admin.auth.controller', AuthController::class);
 
-                $router->get('auth/login', $authController.'@getLogin');
-                $router->post('auth/login', $authController.'@postLogin');
-                $router->get('auth/logout', $authController.'@getLogout');
-                $router->get('auth/setting', $authController.'@getSetting');
-                $router->put('auth/setting', $authController.'@putSetting');
+                $router->get('auth/login', $authController.'@getLogin')
+                    ->permissionLabel('后台登录页', '显示后台账号登录页面', '身份认证');
+                $router->post('auth/login', $authController.'@postLogin')
+                    ->permissionLabel('后台登录', '验证后台账号并建立登录会话', '身份认证');
+                $router->get('auth/logout', $authController.'@getLogout')
+                    ->permissionLabel('退出后台', '结束当前后台登录会话', '身份认证');
+                $router->get('auth/setting', $authController.'@getSetting')
+                    ->permissionLabel('个人设置', '查看当前管理员的个人资料和安全设置', '个人中心');
+                $router->put('auth/setting', $authController.'@putSetting')
+                    ->permissionLabel('更新个人设置', '保存当前管理员的个人资料和密码', '个人中心');
 
                 # 布局配置（导航栏可视化配置）
                 $router->post('layout-config/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@save')
+                    ->permissionLabel('保存布局配置', '保存导航栏和后台界面布局配置', '系统设置')
                     ->defaults('dcat_route_type', 'internal_legacy');
                 $router->post('clear-cache', 'Dcat\Admin\Http\Controllers\LayoutConfigController@clear')
+                    ->permissionLabel('清理系统缓存', '清理后台框架运行缓存', '系统维护')
                     ->defaults('dcat_route_type', 'internal_legacy');
 
                 # 通知管理
                 $router->resource('notifications', \Dcat\Admin\Http\Controllers\NotificationController::class);
                 $router->get('api/notifications', 'Dcat\Admin\Http\Controllers\NotificationApiController@index')
+                    ->permissionLabel('通知列表数据', '获取当前管理员的通知列表', '消息通知')
                     ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
                 $router->post('api/notifications/{id}/read', 'Dcat\Admin\Http\Controllers\NotificationApiController@read')
+                    ->permissionLabel('标记通知已读', '将指定通知标记为已读', '消息通知')
                     ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
                 $router->get('api/notifications/first-unread', 'Dcat\Admin\Http\Controllers\NotificationApiController@firstUnread')
+                    ->permissionLabel('获取未读通知', '获取当前管理员第一条未读通知', '消息通知')
                     ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
                 $router->post('api/notifications/read-all', 'Dcat\Admin\Http\Controllers\NotificationApiController@readAll')
+                    ->permissionLabel('全部通知已读', '将当前管理员的全部通知标记为已读', '消息通知')
                     ->middleware('admin.internal:authenticated')->defaults('dcat_route_type', 'internal');
 
                 # 帮助管理
@@ -625,27 +636,46 @@ class Admin
                 $router->resource('helps', \Dcat\Admin\Http\Controllers\HelpController::class);
 
                 # 操作日志
-                $router->get('auth/operation-logs', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@index')->name('dcat-admin.operation-log.index');
-                $router->delete('auth/operation-logs/{id}', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@destroy')->name('dcat-admin.operation-log.destroy');
+                $router->get('auth/operation-logs', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@index')
+                    ->name('dcat-admin.operation-log.index')
+                    ->permissionLabel('查看操作日志', '查询管理员在后台执行的操作记录', '操作审计');
+                $router->delete('auth/operation-logs/{id}', \Dcat\Admin\Http\Controllers\OperationLogController::class.'@destroy')
+                    ->name('dcat-admin.operation-log.destroy')
+                    ->permissionLabel('删除操作日志', '删除指定的后台操作记录', '操作审计');
                 # 系统日志查看
-                $router->get('auth/system-log-viewer', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('log-viewer');
-                $router->get('auth/system-log-viewer/{file}', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')->name('log-viewer.log-viewer-file');
-                $router->get('auth/system-log-viewer/download', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@download')->name('log-viewer.download');
-                $router->post('auth/system-log-viewer/delete', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@delete')->name('log-viewer.delete');
-                $router->post('auth/system-log-viewer/clear', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@clear')->name('log-viewer.clear');
+                $router->get('auth/system-log-viewer', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')
+                    ->name('log-viewer')
+                    ->permissionLabel('查看系统日志', '浏览和检索应用运行日志', '系统日志');
+                $router->get('auth/system-log-viewer/{file}', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@index')
+                    ->name('log-viewer.log-viewer-file')
+                    ->permissionLabel('查看日志文件', '读取指定的应用日志文件', '系统日志');
+                $router->get('auth/system-log-viewer/download', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@download')
+                    ->name('log-viewer.download')
+                    ->permissionLabel('下载系统日志', '下载指定的应用日志文件', '系统日志');
+                $router->post('auth/system-log-viewer/delete', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@delete')
+                    ->name('log-viewer.delete')
+                    ->permissionLabel('删除系统日志', '删除指定的应用日志文件', '系统日志');
+                $router->post('auth/system-log-viewer/clear', \Dcat\Admin\Http\Controllers\SystemLogViewerController::class.'@clear')
+                    ->name('log-viewer.clear')
+                    ->permissionLabel('清空系统日志', '清空应用日志目录中的日志文件', '系统日志');
                 
                 // form-media
                 $router->any('lake-form-media/get-files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')
+                    ->permissionLabel('浏览媒体文件', '读取媒体库中的目录和文件', '媒体管理')
                     ->defaults('dcat_route_type', 'internal_legacy')->name('admin.lake-form-media.get-files');
                 $router->post('lake-form-media/upload', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@upload')
+                    ->permissionLabel('上传媒体文件', '向后台媒体库上传文件', '媒体管理')
                     ->defaults('dcat_route_type', 'internal_legacy')->name('admin.lake-form-media.upload');
                 $router->post('lake-form-media/create-folder', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@createFolder')
+                    ->permissionLabel('创建媒体目录', '在后台媒体库中创建文件夹', '媒体管理')
                     ->defaults('dcat_route_type', 'internal_legacy')->name('admin.lake-form-media.create-folder');
                 // sku-image
                 $router->resource('sku-action', \Dcat\Admin\Http\Controllers\SkuAttributeController::class);
                 $router->post('sku-image-upload', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@store')
+                    ->permissionLabel('上传规格图片', '上传商品 SKU 规格使用的图片', '商品规格')
                     ->defaults('dcat_route_type', 'internal_legacy')->name('admin.sku-image-upload');
                 $router->post('sku-image-remove', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@delete')
+                    ->permissionLabel('删除规格图片', '删除商品 SKU 规格使用的图片', '商品规格')
                     ->defaults('dcat_route_type', 'internal_legacy')->name('admin.sku-image-remove');
 
                 // Framework-internal support routes. These routes are excluded
@@ -653,54 +683,72 @@ class Admin
                 // the admin.internal middleware.
                 $router->prefix('dcat-sys')->as('dcat-sys.')->group(function ($router) {
                     $router->get('notifications', 'Dcat\Admin\Http\Controllers\NotificationApiController@index')
+                        ->permissionLabel('通知列表数据', '获取当前管理员的通知列表', '消息通知')
                         ->middleware('admin.internal:authenticated')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('notifications.index');
                     $router->post('notifications/{id}/read', 'Dcat\Admin\Http\Controllers\NotificationApiController@read')
+                        ->permissionLabel('标记通知已读', '将指定通知标记为已读', '消息通知')
                         ->middleware('admin.internal:authenticated')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('notifications.read');
                     $router->get('notifications/first-unread', 'Dcat\Admin\Http\Controllers\NotificationApiController@firstUnread')
+                        ->permissionLabel('获取未读通知', '获取当前管理员第一条未读通知', '消息通知')
                         ->middleware('admin.internal:authenticated')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('notifications.first-unread');
                     $router->post('notifications/read-all', 'Dcat\Admin\Http\Controllers\NotificationApiController@readAll')
+                        ->permissionLabel('全部通知已读', '将当前管理员的全部通知标记为已读', '消息通知')
                         ->middleware('admin.internal:authenticated')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('notifications.read-all');
 
                     $router->post('preferences/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@savePreference')
+                        ->permissionLabel('保存界面偏好', '保存当前管理员的界面显示偏好', '个人中心')
                         ->middleware('admin.internal:authenticated')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('preferences.save');
 
+                    $router->post('roles/switch', 'Dcat\Admin\Http\Controllers\ActiveRoleController@switchRole')
+                        ->permissionLabel('切换当前角色', '在当前登录会话中切换已分配的角色', '个人中心')
+                        ->middleware('admin.internal:authenticated')
+                        ->defaults('dcat_route_type', 'internal')
+                        ->name('roles.switch');
+
                     $router->match(['GET', 'POST'], 'media/files', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@getFiles')
+                        ->permissionLabel('浏览媒体文件', '读取媒体库中的目录和文件', '媒体管理')
                         ->middleware('admin.internal:signed,media.read')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('media.files');
                     $router->post('media/upload', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@upload')
+                        ->permissionLabel('上传媒体文件', '向后台媒体库上传文件', '媒体管理')
                         ->middleware('admin.internal:signed,media.write')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('media.upload');
                     $router->post('media/create-folder', \Dcat\Admin\Form\Extend\FormMedia\Controllers\FormMedia::class.'@createFolder')
+                        ->permissionLabel('创建媒体目录', '在后台媒体库中创建文件夹', '媒体管理')
                         ->middleware('admin.internal:signed,media.write')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('media.create-folder');
 
                     $router->post('sku/upload', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@store')
+                        ->permissionLabel('上传规格图片', '上传商品 SKU 规格使用的图片', '商品规格')
                         ->middleware('admin.internal:signed,sku.write')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('sku.upload');
                     $router->post('sku/remove', \Dcat\Admin\Form\Extend\Sku\Controllers\UploadController::class.'@delete')
+                        ->permissionLabel('删除规格图片', '删除商品 SKU 规格使用的图片', '商品规格')
                         ->middleware('admin.internal:signed,sku.write')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('sku.remove');
 
                     $router->post('cache/clear', 'Dcat\Admin\Http\Controllers\LayoutConfigController@clear')
+                        ->permissionLabel('清理系统缓存', '清理后台框架运行缓存', '系统维护')
                         ->middleware('admin.internal:administrator')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('cache.clear');
                     $router->post('layout/save', 'Dcat\Admin\Http\Controllers\LayoutConfigController@save')
+                        ->permissionLabel('保存布局配置', '保存导航栏和后台界面布局配置', '系统设置')
                         ->middleware('admin.internal:administrator')
                         ->defaults('dcat_route_type', 'internal')
                         ->name('layout.save');
@@ -728,18 +776,28 @@ class Admin
 
         app('router')->group($attributes, function ($router) {
             /* @var \Illuminate\Routing\Router $router */
-            $router->post('action', 'HandleActionController@handle')->name('action');
-            $router->post('form', 'HandleFormController@handle')->name('form');
-            $router->post('form/upload', 'HandleFormController@uploadFile')->name('form.upload');
-            $router->post('form/destroy-file', 'HandleFormController@destroyFile')->name('form.destroy-file');
-            $router->post('value', 'ValueController@handle')->name('value');
-            $router->get('render', 'RenderableController@handle')->name('render');
-            $router->post('tinymce/upload', 'TinymceController@upload')->name('tinymce.upload');
-            $router->post('editor-md/upload', 'EditorMDController@upload')->name('editor-md.upload');
-            $router->get('ueditor/server', 'UeditorController@handle')->middleware('admin.ueditor')->name('ueditor.server');
+            $router->post('action', 'HandleActionController@handle')->name('action')
+                ->permissionLabel('执行后台动作', '处理 Grid、Form 等组件提交的后台动作', '框架服务');
+            $router->post('form', 'HandleFormController@handle')->name('form')
+                ->permissionLabel('提交异步表单', '处理弹窗表单和异步表单提交', '框架服务');
+            $router->post('form/upload', 'HandleFormController@uploadFile')->name('form.upload')
+                ->permissionLabel('上传表单文件', '处理后台表单字段的文件上传', '文件上传');
+            $router->post('form/destroy-file', 'HandleFormController@destroyFile')->name('form.destroy-file')
+                ->permissionLabel('删除表单文件', '删除后台表单字段已上传的文件', '文件上传');
+            $router->post('value', 'ValueController@handle')->name('value')
+                ->permissionLabel('更新字段值', '处理表格可编辑字段和快捷状态更新', '框架服务');
+            $router->get('render', 'RenderableController@handle')->name('render')
+                ->permissionLabel('渲染异步组件', '加载延迟渲染组件和异步内容', '框架服务');
+            $router->post('tinymce/upload', 'TinymceController@upload')->name('tinymce.upload')
+                ->permissionLabel('上传 TinyMCE 文件', '处理 TinyMCE 编辑器文件上传', '编辑器上传');
+            $router->post('editor-md/upload', 'EditorMDController@upload')->name('editor-md.upload')
+                ->permissionLabel('上传 Editor.md 文件', '处理 Editor.md 编辑器文件上传', '编辑器上传');
+            $router->get('ueditor/server', 'UeditorController@handle')->name('ueditor.server')
+                ->permissionLabel('加载 UEditor 配置', '返回 UEditor 后端配置和上传参数', '编辑器上传');
             $router->post('ueditor/server', 'UeditorController@handle')
-                ->middleware(['admin.ueditor', 'throttle:'.UeditorConfig::get('rate_limit', 20).',1'])
-                ->name('ueditor.server.post');
+                ->middleware('throttle:'.UeditorConfig::get('rate_limit', 20).',1')
+                ->name('ueditor.server.post')
+                ->permissionLabel('处理 UEditor 上传', '处理 UEditor 图片、文件和视频上传', '编辑器上传');
         });
     }
 
@@ -761,10 +819,14 @@ class Admin
 
         app('router')->group($attributes, function ($router) {
             /* @var \Illuminate\Routing\Router $router */
-            $router->get('helpers/scaffold', 'Dcat\Admin\Http\Controllers\ScaffoldController@index');
-            $router->post('helpers/scaffold', 'Dcat\Admin\Http\Controllers\ScaffoldController@store');
-            $router->post('helpers/scaffold/table', 'Dcat\Admin\Http\Controllers\ScaffoldController@table');
-            $router->get('helpers/icons', 'Dcat\Admin\Http\Controllers\IconController@index');
+            $router->get('helpers/scaffold', 'Dcat\Admin\Http\Controllers\ScaffoldController@index')
+                ->permissionLabel('代码生成器', '打开后台 CRUD 代码生成工具', '开发工具');
+            $router->post('helpers/scaffold', 'Dcat\Admin\Http\Controllers\ScaffoldController@store')
+                ->permissionLabel('执行代码生成', '根据数据表和配置生成后台 CRUD 代码', '开发工具');
+            $router->post('helpers/scaffold/table', 'Dcat\Admin\Http\Controllers\ScaffoldController@table')
+                ->permissionLabel('读取数据表结构', '读取指定数据表的字段结构供代码生成器使用', '开发工具');
+            $router->get('helpers/icons', 'Dcat\Admin\Http\Controllers\IconController@index')
+                ->permissionLabel('图标库', '浏览后台框架可用的图标', '开发工具');
         });
     }
 }

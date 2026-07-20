@@ -2,6 +2,7 @@
 
 namespace Dcat\Admin\Traits;
 
+use Dcat\Admin\Support\Authorization\ActiveRole;
 use Dcat\Admin\Support\Helper;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
@@ -17,15 +18,60 @@ trait HasPermissions
      */
     public function allPermissions(): Collection
     {
-        if ($this->allPermissions) {
+        if ($this->allPermissions !== null) {
             return $this->allPermissions;
         }
 
+        $activeRole = app(ActiveRole::class);
+
+        // Preserve the legacy eager-loading behavior when the opt-in active
+        // role feature is disabled, so a user with many roles does not cause
+        // one query per role.
+        if (! $activeRole->enabled() && method_exists($this, 'loadMissing')) {
+            $this->loadMissing('roles.permissions');
+        }
+
+        $roles = $this->authorizationRoles();
+
+        // Load only the effective role's permissions in active-role mode;
+        // legacy mode continues to aggregate every assigned role.
+        $roles->each(function ($role) {
+            if (method_exists($role, 'loadMissing')) {
+                $role->loadMissing('permissions');
+            }
+        });
+
         return $this->allPermissions =
-            $this->roles
+            $roles
             ->pluck('permissions')
             ->flatten()
             ->keyBy($this->getKeyName());
+    }
+
+    /**
+     * All roles assigned to the user remain available for management/UI.
+     * Authorization itself uses this one-role collection when active roles
+     * are enabled.
+     */
+    public function authorizationRoles(): Collection
+    {
+        return app(ActiveRole::class)->authorizationRoles($this);
+    }
+
+    /**
+     * Get the role currently active in this administrator session.
+     */
+    public function activeRole()
+    {
+        return app(ActiveRole::class)->current($this);
+    }
+
+    /**
+     * Reset request-local permission data after a role switch.
+     */
+    public function forgetAuthorizationCache(): void
+    {
+        $this->allPermissions = null;
     }
 
     /**
@@ -85,7 +131,7 @@ trait HasPermissions
     public function isRole(string $role): bool
     {
         /* @var Collection $roles */
-        $roles = $this->roles;
+        $roles = $this->authorizationRoles();
 
         return $roles->pluck('slug')->contains($role) ?:
             $roles->pluck('id')->contains($role);
@@ -100,7 +146,7 @@ trait HasPermissions
     public function inRoles($roles = []): bool
     {
         /* @var Collection $all */
-        $all = $this->roles;
+        $all = $this->authorizationRoles();
 
         $roles = Helper::array($roles);
 

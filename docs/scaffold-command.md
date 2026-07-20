@@ -13,6 +13,14 @@
 
 它不会生成 migration、repository、API controller、JsonResource，也不会执行 migrate。
 
+新生成的 Lang 文件会同时包含 `labels`、`fields`、`options` 和 `permissions`。
+`permissions` 用于在角色编辑页展示资源路由的中文名称和功能说明。
+
+详细配置见：
+
+- [资源语言包（Lang）结构说明](./资源语言包-lang-结构说明.md)
+- [路由权限中文说明开发指南](./路由权限中文说明开发指南.md)
+
 ---
 
 ## 一、命令总览
