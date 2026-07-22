@@ -1,307 +1,503 @@
+@php
+    $captchaEnabled = (bool) config('admin.auth.captcha.enable', false);
+    $backgroundImage = admin_asset(config('admin.login_background_image') ?: '@admin/images/login_32-bg.jpg');
+    $boxImage = admin_asset('@admin/images/login_32-box.png');
+    $loginError = $errors->first('username') ?: $errors->first('password') ?: $errors->first('captcha');
+    $genericLoginError = trans('admin.auth_failed');
+
+    if ($genericLoginError === 'admin.auth_failed') {
+        $genericLoginError = '登录失败，请检查账号和密码。';
+    }
+@endphp
+
 <style>
-    .row {
-        margin: 0;
-    }
-    .col-md-12,
-    .col-md-3 {
-        padding: 0;
-    }
-    @media screen and (min-width: 1000px) and (max-width: 1150px) {
-        .col-lg-3,
-        .col-lg-9 {
-            flex: 0 0 50%;
-            max-width: 50%;
-        }
-    }
-    @media screen and (min-width: 1151px) and (max-width: 1300px) {
-        .col-lg-3 {
-            flex: 0 0 40%;
-            max-width: 40%;
-        }
-        .col-lg-9 {
-            flex: 0 0 60%;
-            max-width: 60%;
-        }
-    }
-    @media screen and (min-width: 1301px) and (max-width: 1700px) {
-        .col-lg-3 {
-            flex: 0 0 35%;
-            max-width: 35%;
-        }
-        .col-lg-9 {
-            flex: 0 0 65%;
-            max-width: 65%;
-        }
+    /*
+     * 此布局按 login_32.html 原始尺寸、定位和背景资源还原。
+     * 仅将 Vue/Element 表单替换为 Laravel 登录表单。
+     */
+    html {
+        font-size: 10vw;
     }
 
-    .login-page {
-        height: auto;
+    body.dcat-admin-body.full-page,
+    body.dcat-admin-body.full-page .app-content.content,
+    body.dcat-admin-body.full-page .wrapper,
+    body.dcat-admin-body.full-page .content-body,
+    body.dcat-admin-body.full-page .content {
+        width: 100%;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
     }
-    .login-main {
+
+    .login32-page,
+    .login32-page * {
+        box-sizing: border-box;
+    }
+
+    .login32-page {
+        --login-form-top: 16%;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background: url('{{ $backgroundImage }}') center center / 100% 100% no-repeat;
+    }
+
+    .login32-page .loginBodyCenter {
         position: relative;
         display: flex;
-        min-height: 100vh;
-        flex-direction: row;
-        align-items: stretch;
-        margin: 0;
-    }
-
-    .login-main .login-page {
-        background-color: #fff;
-    }
-
-    .login-main .card {
-        box-shadow: none;
-    }
-
-    .login-main .auth-brand {
-        margin: 4rem 0 4rem;
-        font-size: 26px;
-        width: 325px;
-    }
-
-    @media (max-width: 576px) {
-        .login-main .auth-brand {
-            width: 90%;
-            margin-left: 24px
-        }
-    }
-
-    .login-main .login-logo {
-        font-size: 2.1rem;
-        font-weight: 300;
-        margin-bottom: 0.9rem;
-        text-align: left;
-        margin-left: 20px;
-    }
-
-    .login-main .login-box-msg {
-        margin: 0;
-        padding: 0 0 20px;
-        font-size: 0.9rem;
-        font-weight: 400;
-        text-align: left;
-    }
-
-    .login-main .btn {
-        width: 100%;
-    }
-
-    .login-page-right {
-        padding: 6rem 3rem;
-        flex: 1;
-        position: relative;
-        color: #fff;
-        background-color: rgba(0, 0, 0, 0.3);
-        text-align: center !important;
-        background-size: cover;
-    }
-
-    .login-description {
-        position: absolute;
+        width: calc(100% - 1.45833rem);
+        height: 100%;
         margin: 0 auto;
-        padding: 0 1.75rem;
-        bottom: 3rem;
-        left: 0;
-        right: 0;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        z-index: 10;
     }
 
-    .content-front {
+    .login32-page .loginTitle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login32-page .loginTitle p {
+        padding-top: .10417rem;
+        color: #fff;
+        font-family: PingFang SC, PingFang, sans-serif;
+        font-size: .25rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .login32-page .loginBodyMain {
         position: absolute;
-        left: 0;
-        right: 0;
-        height: 100vh;
-        background: rgba(0,0,0,.1);
-        margin-top: -6rem;
+        top: var(--login-form-top);
+        right: 1%;
+        left: 7%;
+        display: flex;
+        width: auto;
+        margin: 0;
+        align-items: center;
+        justify-content: flex-end;
     }
 
-    body.dark-mode .content-front {
-        background: rgba(0,0,0,.3);
+    .login32-page .loginBody2 {
+        width: 3.125rem;
+        height: 3.125rem;
+        background: url('{{ $boxImage }}') center center / 100% 100% no-repeat;
     }
 
-    body.dark-mode .auth-brand {
-        color: #cacbd6
+    /* 验证码开启时仍保持登录框为正方形。 */
+    .login32-page .loginBody2.has-captcha {
+        height: 3.125rem;
+    }
+
+    .login32-page .loginBody2Title {
+        display: flex;
+        padding-top: .3125rem;
+        padding-bottom: .20833rem;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-family: PingFang SC, PingFang, sans-serif;
+        font-size: .16667rem;
+        font-weight: 800;
+    }
+
+    .login32-page .loginInput {
+        display: flex;
+        width: 2.08333rem;
+        height: .28125rem;
+        margin: 0 auto .10417rem;
+        align-items: center;
+        border: 1px solid #00c0ff;
+        background: rgba(0, 168, 255, .1);
+    }
+
+    .login32-page .loginInput:focus-within {
+        border-color: #64dbff;
+        box-shadow: 0 0 .05208rem rgba(0, 192, 255, .42);
+    }
+
+    .login32-page .loginInput.is-invalid {
+        border-color: #ff8097;
+        box-shadow: 0 0 .05208rem rgba(255, 91, 122, .35);
+    }
+
+    .login32-page .loginInput .icon {
+        display: flex;
+        width: .29688rem;
+        flex: 0 0 .29688rem;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: .10417rem;
+        opacity: .92;
+    }
+
+    .login32-page .loginInput input {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        padding: 0 .05208rem 0 0;
+        border: 0;
+        outline: 0;
+        color: #fff;
+        font-family: PingFang SC, PingFang, sans-serif;
+        font-size: .08333rem;
+        font-weight: 500;
+        background: none;
+    }
+
+    .login32-page .loginInput input::placeholder {
+        color: #fff;
+        opacity: 1;
+    }
+
+    .login32-page .loginCaptcha {
+        display: flex;
+        width: 2.08333rem;
+        height: .28125rem;
+        margin: 0 auto .10417rem;
+        gap: .05208rem;
+    }
+
+    .login32-page .loginCaptcha .loginInput {
+        width: auto;
+        min-width: 0;
+        margin: 0;
+        flex: 1;
+    }
+
+    .login32-page .loginCaptcha img {
+        width: .79167rem;
+        height: .28125rem;
+        cursor: pointer;
+        border: 1px solid #00c0ff;
+        background: #fff;
+        object-fit: cover;
+    }
+
+    .login32-page .loginCaptcha img:hover,
+    .login32-page .loginCaptcha img:focus {
+        outline: 0;
+        border-color: #72e0ff;
+        box-shadow: 0 0 .05208rem rgba(0, 192, 255, .42);
+    }
+
+    .login32-page .info {
+        display: flex;
+        width: 2.08333rem;
+        min-height: .10417rem;
+        margin: 0 auto .10417rem;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .login32-page .rememberPwd {
+        display: inline-flex;
+        align-items: center;
+        color: #1badf1;
+        font-family: PingFang SC, PingFang, sans-serif;
+        font-size: .07292rem;
+        font-weight: 500;
+        cursor: pointer;
+        gap: .04167rem;
+    }
+
+    .login32-page .rememberPwd input {
+        width: .08333rem;
+        height: .08333rem;
+        margin: 0;
+        accent-color: #0ca0ed;
+    }
+
+    .login32-page .forget,
+    .login32-page .captcha-refresh {
+        padding: 0;
+        border: 0;
+        color: #00b8ff;
+        font-family: PingFang SC, PingFang, sans-serif;
+        font-size: .07292rem;
+        font-weight: 500;
+        background: transparent;
+    }
+
+    .login32-page .captcha-refresh {
+        cursor: pointer;
+    }
+
+    .login32-page .captcha-refresh:hover {
+        color: #fff;
+    }
+
+    .login32-page .loginBut {
+        display: flex;
+        width: 2.08333rem;
+        height: .26042rem;
+        margin: .20833rem auto 0;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        color: #fff;
+        cursor: pointer;
+        font-family: PingFang SC, PingFang, sans-serif;
+        font-size: .10417rem;
+        font-weight: 800;
+        background-image: linear-gradient(#04c8ee, #0493ee);
+    }
+
+    .login32-page .loginBut:hover,
+    .login32-page .loginBut:focus {
+        outline: 0;
+        filter: brightness(1.08);
+    }
+
+    .login32-page .loginBut[disabled] {
+        cursor: wait;
+        opacity: .72;
+    }
+
+    .login32-page .loginError {
+        width: 2.08333rem;
+        min-height: .10417rem;
+        margin: .05208rem auto -.15625rem;
+        color: #ffb2c0;
+        font-family: PingFang SC, PingFang, sans-serif;
+        font-size: .06771rem;
+        line-height: .10417rem;
+        text-align: center;
+    }
+
+    .login32-page .loginError:empty {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        html {
+            font-size: 76.8px;
+        }
+
+        .login32-page {
+            min-width: 768px;
+        }
     }
 </style>
 
-<div class="row login-main">
-    <div class="col-lg-9 col-12 login-page-right" @if(config('admin.login_background_image'))style="background: url({{admin_asset(config('admin.login_background_image'))}}) center no-repeat;background-size: cover;"@endif>
-        <div class="content-front"></div>
-        <div class="login-description">
-            <p class="lead">
-                专注于Laravel项目的极速开发
-            </p>
-            <p>
-                速码邦
-            </p>
+<main class="login32-page">
+    <div class="loginBodyCenter">
+        <div class="loginTitle">
+            <p>{{ config('admin.name') }}</p>
         </div>
-    </div>
-    <div class="col-lg-3 col-12 bg-white">
-        <div class="login-page">
-            <div class="auth-brand text-lg-left">
-                {!! config('admin.logo') !!}
-            </div>
 
-            <div class="login-box">
-                <div class="login-logo mb-2">
-                    <h4 class="mt-0">让后台开发更简单</h4>
-                    <p class="login-box-msg mt-1 mb-1">{{ __('admin.welcome_back') }}</p>
-                </div>
-                <div class="card card-primary card-outline card-outline-tabs" style="box-shadow:0 0 1px rgba(0,0,0,.125),0 1px 3px rgba(0,0,0,.2)">
-                    <div class="card-header p-0 border-bottom-0">
-                        <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="password_login" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">密码登陆</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="qrcode_login" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">扫码登陆</a>
-                            </li>
-                        </ul>
+        <div class="loginBodyMain">
+            <section class="loginBody2 {{ $captchaEnabled ? 'has-captcha' : '' }}" aria-label="{{ trans('admin.login') }}">
+                <div class="loginBody2Title">{{ trans('admin.login') }}</div>
+
+                <form id="login-form" method="POST" action="{{ admin_url('auth/login') }}" novalidate>
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                    <div class="loginInput {{ $errors->has('username') ? 'is-invalid' : '' }}" data-field="username">
+                        <span class="icon"><i class="feather icon-user"></i></span>
+                        <input
+                            type="text"
+                            name="username"
+                            value="{{ old('username') }}"
+                            placeholder="{{ trans('admin.username') }}"
+                            aria-label="{{ trans('admin.username') }}"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
                     </div>
-                    <div class="card-body">
-                        <div class="tab-content" id="custom-tabs-four-tabContent">
-                            <div class="tab-pane fade active show" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
-                                <form id="login-form" method="POST" action="{{ admin_url('auth/login') }}">
 
-                                    <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
+                    <div class="loginInput {{ $errors->has('password') ? 'is-invalid' : '' }}" data-field="password">
+                        <span class="icon"><i class="feather icon-lock"></i></span>
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="{{ trans('admin.password') }}"
+                            aria-label="{{ trans('admin.password') }}"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
 
-                                    <fieldset class="form-label-group form-group position-relative has-icon-left">
-                                        <input
-                                                type="text"
-                                                class="form-control {{ $errors->has('username') ? 'is-invalid' : '' }}"
-                                                name="username"
-                                                placeholder="{{ trans('admin.username') }}"
-                                                value="admin"
-                                                required
-                                                autofocus
-                                        >
-
-                                        <div class="form-control-position">
-                                            <i class="feather icon-user"></i>
-                                        </div>
-
-                                        <label for="email">{{ trans('admin.username') }}</label>
-
-                                        <div class="help-block with-errors"></div>
-                                        @if($errors->has('username'))
-                                            <span class="invalid-feedback text-danger" role="alert">
-                                                    @foreach($errors->get('username') as $message)
-                                                    <span class="control-label" for="inputError"><i class="feather icon-x-circle"></i> {{$message}}</span><br>
-                                                @endforeach
-                                                </span>
-                                        @endif
-                                    </fieldset>
-
-                                    <fieldset class="form-label-group form-group position-relative has-icon-left">
-                                        <input
-                                                minlength="5"
-                                                maxlength="20"
-                                                id="password"
-                                                type="password"
-                                                class="form-control {{ $errors->has('password') ? 'is-invalid' : '' }}"
-                                                name="password"
-                                                placeholder="{{ trans('admin.password') }}"
-                                                required
-                                                value="admin"
-                                                autocomplete="current-password"
-                                        >
-
-                                        <div class="form-control-position">
-                                            <i class="feather icon-lock"></i>
-                                        </div>
-                                        <label for="password">{{ trans('admin.password') }}</label>
-
-                                        <div class="help-block with-errors"></div>
-                                        @if($errors->has('password'))
-                                            <span class="invalid-feedback text-danger" role="alert">
-                                                    @foreach($errors->get('password') as $message)
-                                                    <span class="control-label" for="inputError"><i class="feather icon-x-circle"></i> {{$message}}</span><br>
-                                                @endforeach
-                                                    </span>
-                                        @endif
-
-                                    </fieldset>
-                                    <div class="form-group d-flex justify-content-between align-items-center">
-                                        <div class="text-left">
-                                            <fieldset class="checkbox">
-                                                <div class="vs-checkbox-con vs-checkbox-primary">
-                                                    <input id="remember" name="remember"  value="1" type="checkbox" {{ old('remember') ? 'checked' : '' }}>
-                                                    <span class="vs-checkbox">
-                                                                <span class="vs-checkbox--check">
-                                                                  <i class="vs-icon feather icon-check"></i>
-                                                                </span>
-                                                            </span>
-                                                    <span> {{ trans('admin.remember_me') }}</span>
-                                                </div>
-                                            </fieldset>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary float-right login-btn">
-
-                                        {{ __('admin.login') }}
-                                        &nbsp;
-                                        <i class="feather icon-arrow-right"></i>
-                                    </button>
-
-                                </form>
+                    @if($captchaEnabled)
+                        <div class="loginCaptcha">
+                            <div class="loginInput {{ $errors->has('captcha') ? 'is-invalid' : '' }}" data-field="captcha">
+                                <span class="icon"><i class="feather icon-shield"></i></span>
+                                <input
+                                    type="text"
+                                    name="captcha"
+                                    placeholder="{{ trans('admin.captcha') }}"
+                                    aria-label="{{ trans('admin.captcha') }}"
+                                    autocomplete="off"
+                                    maxlength="8"
+                                    spellcheck="false"
+                                    required
+                                >
                             </div>
-                            <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" style="min-height: 120px;text-align: center;" aria-labelledby="custom-tabs-four-profile-tab">
-                                <div id="qrcode-box">
-                                    {{--<div class="overlay-wrapper">
-                                        <div class="overlay">
-                                            <i class="fa fa-spin fa-spinner" style="font-size: 24px;margin-top: 40px"></i>
-                                            <div class="text-bold pt-2">自行实现</div>
-                                        </div>
-                                    </div>--}}
-                                    <div class="text-bold pt-2" style="font-size: 24px;margin-top: 40px">自行实现</div>
-                                </div>
-
-                                {{--<div >
-                                    <i class="fa fa-spin fa-spinner" style="font-size: 24px;margin-top: 40px"></i>
-                                </div>--}}
-                            </div>
-
+                            <img
+                                id="login-captcha-image"
+                                src="{{ admin_url('auth/captcha') }}"
+                                data-url="{{ admin_url('auth/captcha') }}"
+                                alt="{{ trans('admin.captcha') }}"
+                                title="{{ trans('admin.captcha') }}"
+                                role="button"
+                                tabindex="0"
+                            >
                         </div>
+                    @endif
+
+                    <div class="info">
+                        @if(config('admin.auth.remember'))
+                            <label class="rememberPwd">
+                                <input id="remember" name="remember" value="1" type="checkbox" {{ old('remember') ? 'checked' : '' }}>
+                                <span>{{ trans('admin.remember_me') }}</span>
+                            </label>
+                        @else
+                            <span></span>
+                        @endif
+
+                        @if($captchaEnabled)
+                            <button id="refresh-login-captcha" class="captcha-refresh" type="button">{{ trans('admin.refresh') }}</button>
+                        @else
+                            <span class="forget"></span>
+                        @endif
                     </div>
 
-                </div>
+                    <div id="login-error" class="loginError" role="alert">{{ $loginError }}</div>
 
-            </div>
+                    <button id="login-submit" class="loginBut" type="submit">{{ trans('admin.login') }}</button>
+                </form>
+            </section>
         </div>
-
     </div>
-</div>
-
+</main>
 
 <script>
-    Dcat.ready(function () {
-        // ajax表单提交
-        $('#login-form').form({
-            validate: true,
-        });
-    });
-    var timer = null;
-    $('#password_login').on('click',function (e) {
-        clearInterval(timer);
-    });
-    $('#qrcode_login').on('click',function (e) {
-        var formdata = {};
-        formdata._token = '{{csrf_token()}}';
-        // 自行实现扫码登陆 url('/admin/auth/getQrcode')
-        /*$.ajax('', {data: formdata}).then(function (resp) {
-            if(resp.status){
-                $('#qrcode-box').html(resp.data.qrcode_html);
-                timer = setInterval(() => {
-                    // 请求参数是二维码中的场景值 url('/admin/auth/qrcode-login-check')
-                    $.ajax('', {params: {wechat_flag: '',_token:'{{csrf_token()}}'}}).then(response => {
-                        let result = response.data;
-                        if (result.data) {
-                            window.location.href = '/'
-                        }
-                    })
-                }, 2000)
+    (function ($) {
+        function initializeLogin() {
+            var $form = $('#login-form');
+
+            if (! $form.length || $form.data('login32-bound')) {
+                return;
             }
 
-        });*/
-    });
+            $form.data('login32-bound', true);
+
+            var $captcha = $('#login-captcha-image');
+            var $error = $('#login-error');
+            var $submit = $('#login-submit');
+            var genericError = @json($genericLoginError);
+
+            function refreshCaptcha() {
+                if (! $captcha.length) {
+                    return;
+                }
+
+                var url = $captcha.data('url');
+                $captcha.attr('src', url + (url.indexOf('?') === -1 ? '?' : '&') + '_=' + Date.now());
+            }
+
+            function clearError() {
+                $error.empty();
+                $form.find('.loginInput').removeClass('is-invalid');
+            }
+
+            function firstError(errors, fallback) {
+                var field;
+
+                for (field in errors) {
+                    if (! Object.prototype.hasOwnProperty.call(errors, field)) {
+                        continue;
+                    }
+
+                    var message = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+
+                    if (message) {
+                        return message;
+                    }
+                }
+
+                return fallback || genericError;
+            }
+
+            function showError(errors, fallback) {
+                errors = errors || {};
+
+                $.each(errors, function (field) {
+                    $form.find('[data-field="' + field + '"]').addClass('is-invalid');
+                });
+
+                $error.text(firstError(errors, fallback));
+            }
+
+            $('#refresh-login-captcha').on('click', refreshCaptcha);
+            $captcha.on('click keydown', function (event) {
+                if (event.type === 'click' || event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    refreshCaptcha();
+                }
+            });
+
+            $form.on('submit', function (event) {
+                event.preventDefault();
+                clearError();
+
+                if ($submit.prop('disabled')) {
+                    return;
+                }
+
+                if (this.checkValidity && ! this.checkValidity()) {
+                    this.reportValidity();
+                    return;
+                }
+
+                $submit.prop('disabled', true);
+
+                $.ajax({
+                    url: $form.attr('action'),
+                    type: 'POST',
+                    data: $form.serialize(),
+                    dataType: 'json',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).done(function (response) {
+                    if (response && response.status) {
+                        var data = response.data || {};
+                        var redirect = data.then && data.then.value ? data.then.value : data.redirect;
+
+                        window.location.assign(redirect || '{{ admin_url('/') }}');
+
+                        return;
+                    }
+
+                    showError((response || {}).errors, (response || {}).message);
+                }).fail(function (xhr) {
+                    var response = xhr.responseJSON || {};
+                    var data = response.data || {};
+
+                    showError(response.errors, data.message || response.message);
+                }).always(function () {
+                    $submit.prop('disabled', false);
+                    refreshCaptcha();
+                });
+            });
+        }
+
+        if (window.Dcat && typeof window.Dcat.ready === 'function') {
+            window.Dcat.ready(initializeLogin);
+        } else {
+            $(initializeLogin);
+        }
+    })(window.jQuery);
 </script>

@@ -54,23 +54,16 @@ return Admin::validateCode([
     'length' => 4,
     'width' => 120,
     'height' => 42,
-    'font' => null, // null 使用扩展包内置 Elephant.ttf
-    'font_size' => null,
-    'charset' => '23456789ABCDEFGHJKMNPQRSTUVWXYZ',
-    'case_sensitive' => false,
+    // 验证码图片背景色，RGB 数组。
     'background' => [248, 250, 252],
-    'line_color' => [203, 213, 225],
-    'dot_color' => [148, 163, 184],
-    'text_colors' => [[30, 64, 175], [15, 118, 110]],
-    'line_count' => 5,
-    'dot_count' => 28,
-    'session_key' => 'dcat.validate_code',
-    'ttl' => 300,
-    'png_compression' => 6,
+    // 雪花干扰强度：1 默认，2-10 同时增强干扰线与随机像素点。
+    'noise_level' => 1,
 ],
 ```
 
 所有颜色均为 `[红, 绿, 蓝]`（每项为 `0-255`）。验证码长度限制为 `3-8`，宽度限制为 `80-600`，高度限制为 `32-180`，以避免不合理配置消耗过多资源。
+
+noise_level 范围为 1-10：1 为默认强度，2-10 会按倍数同时增强随机干扰线和雪花点。字体、颜色、字符集及两类干扰的基础密度都使用扩展包内置的安全默认值，无须在应用配置中维护。
 
 ## 其他输出方式
 
@@ -88,3 +81,24 @@ $captcha->store();
 ```
 
 旧版 `doimg()` 仍保留，但现在返回 Laravel Response；请使用 `return $captcha->doimg()`，不要再直接调用后依赖它输出图片。
+
+## 后台登录验证码
+
+登录页已内置图形验证码开关。在 `config/admin.php` 设置后即可生效：
+
+```php
+'auth' => [
+    // ...
+    'captcha' => [
+        'enable' => true,
+        'session_key' => 'dcat.login_captcha',
+        'options' => [
+            'length' => 5,
+            'width' => 130,
+            'height' => 44,
+        ],
+    ],
+],
+```
+
+开启后，登录页会显示验证码和刷新按钮，后台通过 `GET auth/captcha` 生成图片，并在登录时执行一次性 Session 校验。该端点限流为每分钟 30 次；关闭开关后，页面、端点和登录校验都会跳过验证码逻辑。

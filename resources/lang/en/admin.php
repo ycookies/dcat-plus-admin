@@ -96,6 +96,7 @@ return [
     'show'                  => 'Show',
     'entries'               => 'entries',
     'captcha'               => 'Captcha',
+    'captcha_invalid'       => 'The captcha is invalid or has expired. Please try again.',
     'action'                => 'Action',
     'title'                 => 'Title',
     'description'           => 'Description',

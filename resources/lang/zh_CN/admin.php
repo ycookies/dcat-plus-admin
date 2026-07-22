@@ -92,6 +92,7 @@ return [
     'show'                  => '显示',
     'entries'               => '条',
     'captcha'               => '验证码',
+    'captcha_invalid'       => '验证码错误或已过期，请重新输入。',
     'action'                => '操作',
     'title'                 => '标题',
     'description'           => '简介',

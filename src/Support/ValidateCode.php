@@ -35,6 +35,8 @@ class ValidateCode
         ],
         'line_color' => [203, 213, 225],
         'dot_color' => [148, 163, 184],
+        // 雪花干扰强度：1 为默认强度，2-10 逐级增强。
+        'noise_level' => 1,
         'line_count' => 5,
         'dot_count' => 28,
         // false 时校验忽略字符大小写。
@@ -232,20 +234,22 @@ class ValidateCode
 
         $background = $this->color($image, $this->options['background']);
         imagefill($image, 0, 0, $background);
-        $this->drawNoise($image);
+
         $this->drawCode($image);
+        // 干扰必须在文字之后绘制，才能真正遮挡字符轮廓并提高识别难度。
+        $this->drawNoise($image, $this->options['noise_level']);
 
         return $image;
     }
 
-    protected function drawNoise(\GdImage $image): void
+    protected function drawNoise(\GdImage $image, int $level): void
     {
         $width = $this->options['width'];
         $height = $this->options['height'];
         $lineColor = $this->color($image, $this->options['line_color']);
         $dotColor = $this->color($image, $this->options['dot_color']);
 
-        for ($index = 0; $index < $this->options['line_count']; $index++) {
+        for ($index = 0, $count = $this->options['line_count'] * $level; $index < $count; $index++) {
             imageline(
                 $image,
                 random_int(0, $width - 1),
@@ -256,8 +260,15 @@ class ValidateCode
             );
         }
 
-        for ($index = 0; $index < $this->options['dot_count']; $index++) {
-            imagesetpixel($image, random_int(0, $width - 1), random_int(0, $height - 1), $dotColor);
+        for ($index = 0, $count = $this->options['dot_count'] * $level; $index < $count; $index++) {
+            $size = random_int(1, $level >= 5 ? 2 : 1);
+            $x = random_int($size, $width - 1 - $size);
+            $y = random_int($size, $height - 1 - $size);
+
+            // 单像素在高分辨率屏幕上几乎不可见；绘制短十字让雪花干扰真实可见。
+            imagefilledellipse($image, $x, $y, ($size * 2) + 1, ($size * 2) + 1, $dotColor);
+            imageline($image, $x - $size, $y, $x + $size, $y, $dotColor);
+            imageline($image, $x, $y - $size, $x, $y + $size, $dotColor);
         }
     }
 
@@ -340,7 +351,7 @@ class ValidateCode
 
     protected function ensureGdAvailable(): void
     {
-        foreach (['imagecreatetruecolor', 'imagepng', 'imagettftext'] as $function) {
+        foreach (['imagecreatetruecolor', 'imagepng', 'imagefilledellipse', 'imagettftext'] as $function) {
             if (! function_exists($function)) {
                 throw new \RuntimeException('The GD extension with FreeType support is required to generate validation code images.');
             }
@@ -353,6 +364,7 @@ class ValidateCode
             'length' => [3, 8],
             'width' => [80, 600],
             'height' => [32, 180],
+            'noise_level' => [1, 10],
             'line_count' => [0, 20],
             'dot_count' => [0, 300],
             'ttl' => [60, 3600],

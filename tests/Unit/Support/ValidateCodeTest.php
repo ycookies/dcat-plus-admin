@@ -62,6 +62,20 @@ class ValidateCodeTest extends TestCase
         new ValidateCode(['width' => 10]);
     }
 
+    public function test_noise_level_can_be_configured(): void
+    {
+        $captcha = new ValidateCode(['noise_level' => 3]);
+
+        $this->assertSame(3, $captcha->getOptions()['noise_level']);
+    }
+
+    public function test_noise_level_must_be_between_one_and_ten(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new ValidateCode(['noise_level' => 0]);
+    }
+
     public function test_admin_factory_returns_a_fresh_configured_instance(): void
     {
         app()->bind(ValidateCode::class, fn () => new ValidateCode(['length' => 4]));

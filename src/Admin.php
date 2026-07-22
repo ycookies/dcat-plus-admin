@@ -642,6 +642,9 @@ class Admin
                     ->permissionLabel('后台登录页', '显示后台账号登录页面', '身份认证');
                 $router->post('auth/login', $authController.'@postLogin')
                     ->permissionLabel('后台登录', '验证后台账号并建立登录会话', '身份认证');
+                $router->get('auth/captcha', $authController.'@getCaptcha')
+                    ->middleware('throttle:30,1')
+                    ->defaults('dcat_route_type', 'internal_legacy');
                 $router->get('auth/logout', $authController.'@getLogout')
                     ->permissionLabel('退出后台', '结束当前后台登录会话', '身份认证');
                 $router->get('auth/setting', $authController.'@getSetting')

@@ -62,7 +62,7 @@ return [
     | This value is used to set the background image of login page.
     |
     */
-    'login_background_image' => '@admin/images/login-bg.jpg',
+    'login_background_image' => '@admin/images/login_32-bg.jpg',
     /*
     |--------------------------------------------------------------------------
     | dcat-admin route settings
@@ -160,10 +160,23 @@ return [
         // Add "remember me" to login form
         'remember' => true,
 
+        // Login graphic captcha. When disabled, neither the input nor server-side validation is used.
+        'captcha' => [
+            // Set true to require a graphic captcha when administrators log in.
+            'enable' => false,
+
+            // Kept separate from other ValidateCode usages to prevent session collisions.
+            'session_key' => 'dcat.login_captcha',
+
+            // Override only this login captcha's ValidateCode options; empty uses admin.validate_code defaults.
+            'options' => [],
+        ],
+
         // All method to path like: auth/users/*/edit
         // or specific method to path like: get:auth/users.
         'except' => [
             'auth/login',
+            'auth/captcha',
             'auth/logout',
         ],
 
@@ -187,39 +200,11 @@ return [
         'width' => 120,
         'height' => 42,
 
-        // Set a custom readable TTF path; null uses fonts/Elephant.ttf.
-        'font' => null,
-
-        // Text size in pixels; null calculates a suitable size from height.
-        'font_size' => null,
-
-        // Characters used to generate the code. Avoid ambiguous characters.
-        'charset' => '23456789ABCDEFGHJKMNPQRSTUVWXYZ',
-
-        // Whether verification distinguishes upper/lower case.
-        'case_sensitive' => false,
-
-        // RGB colors: image background, interference lines/dots, and text palette.
+        // Captcha image background color as an RGB array.
         'background' => [248, 250, 252],
-        'line_color' => [203, 213, 225],
-        'dot_color' => [148, 163, 184],
-        'text_colors' => [
-            [30, 64, 175],
-            [15, 118, 110],
-            [126, 34, 206],
-            [180, 83, 9],
-        ],
 
-        // Amount of visual noise. Set either to 0 to disable it.
-        'line_count' => 5,
-        'dot_count' => 28,
-
-        // Session key and lifetime (seconds) used by response()/store()/check().
-        'session_key' => 'dcat.validate_code',
-        'ttl' => 300,
-
-        // PNG compression level, 0 (fastest) through 9 (smallest file).
-        'png_compression' => 6,
+        // Snowflake-style visual noise strength: 1 is default; 2-10 increase both types.
+        'noise_level' => 1,
     ],
 
     /*

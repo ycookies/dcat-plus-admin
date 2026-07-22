@@ -44,6 +44,16 @@ class AuthController extends Controller
     }
 
     /**
+     * 生成登录页图形验证码。
+     */
+    public function getCaptcha()
+    {
+        abort_unless($this->loginCaptchaEnabled(), 404);
+
+        return Admin::validateCode($this->loginCaptchaOptions())->response();
+    }
+
+    /**
      * Handle a login request.
      *
      * @param  Request  $request
@@ -54,15 +64,29 @@ class AuthController extends Controller
         $credentials = $request->only([$this->username(), 'password']);
         $remember = (bool) $request->input('remember', false);
 
+        if ($this->loginCaptchaEnabled()) {
+            $credentials['captcha'] = $request->input('captcha');
+        }
+
         /** @var \Illuminate\Validation\Validator $validator */
         $validator = Validator::make($credentials, [
             $this->username()   => 'required',
             'password'          => 'required',
+            'captcha'           => $this->loginCaptchaEnabled() ? 'required|string|max:8' : 'nullable',
         ]);
 
         if ($validator->fails()) {
             return $this->validationErrorsResponse($validator);
         }
+
+        if ($this->loginCaptchaEnabled() && ! Admin::validateCode($this->loginCaptchaOptions())
+            ->check((string) $request->input('captcha'), $request->session())) {
+            return $this->validationErrorsResponse([
+                'captcha' => $this->loginCaptchaFailedMessage(),
+            ]);
+        }
+
+        unset($credentials['captcha']);
 
         if ($this->guard()->attempt($credentials, $remember)) {
             return $this->sendLoginResponse($request);
@@ -281,6 +305,34 @@ class AuthController extends Controller
     protected function username()
     {
         return 'username';
+    }
+
+    /**
+     * 是否启用后台登录图形验证码。
+     */
+    protected function loginCaptchaEnabled(): bool
+    {
+        return (bool) config('admin.auth.captcha.enable', false);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function loginCaptchaOptions(): array
+    {
+        $options = (array) config('admin.auth.captcha.options', []);
+
+        // 登录验证码使用独立 Session 键，避免与业务页面的验证码互相覆盖。
+        $options['session_key'] = (string) config('admin.auth.captcha.session_key', 'dcat.login_captcha');
+
+        return $options;
+    }
+
+    protected function loginCaptchaFailedMessage(): string
+    {
+        return Lang::has('admin.captcha_invalid')
+            ? trans('admin.captcha_invalid')
+            : 'The captcha is invalid or has expired.';
     }
 
     /**

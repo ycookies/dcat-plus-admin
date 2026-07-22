@@ -89,6 +89,7 @@ return [
     'show'                  => '詳情',
     'entries'               => '條',
     'captcha'               => '驗證碼',
+    'captcha_invalid'       => '驗證碼錯誤或已過期，請重新輸入。',
     'action'                => '操作',
     'title'                 => '標題',
     'description'           => '簡介',
