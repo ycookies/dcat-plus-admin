@@ -15,6 +15,7 @@ use Dcat\Admin\Repositories\EloquentRepository;
 use Dcat\Admin\Support\Composer;
 use Dcat\Admin\Support\Helper;
 use Dcat\Admin\Support\UeditorConfig;
+use Dcat\Admin\Support\ValidateCode;
 use Dcat\Admin\Traits\HasAssets;
 use Dcat\Admin\Traits\HasHtml;
 use Dcat\Admin\Traits\HasPermissions;
@@ -95,6 +96,46 @@ class Admin
         $builder && $builder($menu);
 
         return $menu;
+    }
+
+    /**
+     * 获取指定面板的资源路由与单路由能力目录。
+     *
+     * 该方法只读取当前已注册的路由信息，不会创建或修改权限记录。
+     * 可用于 SaaS 套餐、功能开关或外部授权中心配置。
+     *
+     * @param  string  $panel
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    public static function permissionPackage(string $panel = Application::DEFAULT, array $options = []): array
+    {
+        return app(\Dcat\Admin\Support\Authorization\PermissionPackage::class)->get($panel, $options);
+    }
+
+    /**
+     * 获取指定面板的菜单树目录。
+     *
+     * 返回数据保持既有 admin_menu 结构，不会新增字段或修改菜单记录。
+     *
+     * @param  string  $panel
+     * @return array<string, mixed>
+     */
+    public static function menuPackage(string $panel = Application::DEFAULT): array
+    {
+        return app(\Dcat\Admin\Support\Authorization\MenuPackage::class)->get($panel);
+    }
+
+    /**
+     * 创建一个图形验证码实例。
+     *
+     * 默认参数来自 admin.validate_code，传入的参数只覆盖当前实例。
+     *
+     * @param  array<string, mixed>  $options
+     */
+    public static function validateCode(array $options = []): ValidateCode
+    {
+        return app(ValidateCode::class)->withOptions($options);
     }
 
     /**

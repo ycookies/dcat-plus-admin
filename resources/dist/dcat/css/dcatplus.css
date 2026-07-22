@@ -102,6 +102,7 @@
     border-top-left-radius: calc(.25rem - 1px);
     border-top-right-radius: calc(.25rem - 1px);
 }
+.dropdown-user .dropdown-menu-right{top:60px !important;right:15px !important;}
 .accordion .card{
     margin-bottom:0px;
 }

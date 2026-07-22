@@ -3,38 +3,7 @@
     $editorId = 'role-permission-editor-'.uniqid();
     $resourceCount = count($resources ?? []);
     $singleCount = count($singles ?? []);
-    $resourcePermissionGroups = [
-        'preview' => [
-            'label' => 'admin.permission_group_preview',
-            'type' => 'view',
-            'actions' => ['index', 'show'],
-        ],
-        'create' => [
-            'label' => 'admin.permission_action_create',
-            'type' => 'change',
-            'actions' => ['create', 'store'],
-        ],
-        'edit' => [
-            'label' => 'admin.permission_action_edit',
-            'type' => 'change',
-            'actions' => ['edit', 'update'],
-        ],
-        'delete' => [
-            'label' => 'admin.permission_action_destroy',
-            'type' => 'change',
-            'actions' => ['destroy'],
-        ],
-        'import' => [
-            'label' => 'admin.permission_action_import',
-            'type' => 'change',
-            'actions' => ['import'],
-        ],
-        'export' => [
-            'label' => 'admin.permission_action_export',
-            'type' => 'view',
-            'actions' => ['export'],
-        ],
-    ];
+    $resourcePermissionGroups = \Dcat\Admin\Support\Authorization\ResourcePermissionGroups::all();
     $safeHttpMethods = ['GET', 'HEAD', 'OPTIONS'];
     if (! isset($resourceGroups)) {
         $resourceGroups = [];

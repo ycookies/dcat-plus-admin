@@ -172,6 +172,58 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Graphic validation code setting
+    |--------------------------------------------------------------------------
+    |
+    | Defaults for Admin::validateCode(). The image uses the bundled
+    | Elephant.ttf font by default. Each call may override any value.
+    |
+    */
+    'validate_code' => [
+        // Number of characters shown in the image. Allowed range: 3-8.
+        'length' => 4,
+
+        // Image dimensions in pixels. Width: 80-600, height: 32-180.
+        'width' => 120,
+        'height' => 42,
+
+        // Set a custom readable TTF path; null uses fonts/Elephant.ttf.
+        'font' => null,
+
+        // Text size in pixels; null calculates a suitable size from height.
+        'font_size' => null,
+
+        // Characters used to generate the code. Avoid ambiguous characters.
+        'charset' => '23456789ABCDEFGHJKMNPQRSTUVWXYZ',
+
+        // Whether verification distinguishes upper/lower case.
+        'case_sensitive' => false,
+
+        // RGB colors: image background, interference lines/dots, and text palette.
+        'background' => [248, 250, 252],
+        'line_color' => [203, 213, 225],
+        'dot_color' => [148, 163, 184],
+        'text_colors' => [
+            [30, 64, 175],
+            [15, 118, 110],
+            [126, 34, 206],
+            [180, 83, 9],
+        ],
+
+        // Amount of visual noise. Set either to 0 to disable it.
+        'line_count' => 5,
+        'dot_count' => 28,
+
+        // Session key and lifetime (seconds) used by response()/store()/check().
+        'session_key' => 'dcat.validate_code',
+        'ttl' => 300,
+
+        // PNG compression level, 0 (fastest) through 9 (smallest file).
+        'png_compression' => 6,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | The global Grid setting
     |--------------------------------------------------------------------------
     */

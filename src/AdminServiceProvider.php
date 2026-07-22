@@ -280,6 +280,9 @@ class AdminServiceProvider extends ServiceProvider {
         $this->app->singleton('admin.web-uploader', WebUploader::class);
         $this->app->singleton(ExceptionHandler::class, config('admin.exception_handler') ?: Handler::class);
         $this->app->singleton('admin.translator', Translator::class);
+        $this->app->bind(\Dcat\Admin\Support\ValidateCode::class, function () {
+            return new \Dcat\Admin\Support\ValidateCode((array) config('admin.validate_code', []));
+        });
     }
 
     public function registerExtensions() {

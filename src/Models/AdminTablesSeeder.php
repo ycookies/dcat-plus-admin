@@ -20,14 +20,14 @@ class AdminTablesSeeder extends Seeder
         Administrator::create([
             'username'   => 'admin',
             'password'   => bcrypt('admin'),
-            'name'       => 'Administrator',
+            'name'       => '管理员',
             'created_at' => $createdAt,
         ]);
 
         // create a role.
         Role::truncate();
         Role::create([
-            'name'       => 'Administrator',
+            'name'       => '超级管理员',
             'slug'       => Role::ADMINISTRATOR,
             'created_at' => $createdAt,
         ]);
