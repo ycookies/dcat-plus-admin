@@ -102,6 +102,13 @@ class ActiveRoleTest extends TestCase
         $this->assertTrue($user->can('reports.edit'));
         $this->assertCount(2, $user->authorizationRoles());
     }
+
+    public function test_forget_ignores_a_missing_authenticated_user(): void
+    {
+        (new ActiveRole())->forget(null);
+
+        $this->addToAssertionCount(1);
+    }
 }
 
 class ActiveRoleUser

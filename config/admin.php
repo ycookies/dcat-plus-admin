@@ -4,41 +4,39 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin name
+    | Dcat Admin 名称
     |--------------------------------------------------------------------------
     |
-    | This value is the name of dcat-admin, This setting is displayed on the
-    | login page.
+    | 后台名称，会展示在登录页等位置。
     |
     */
     'name' => 'Dcat-plus Admin',
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin logo
+    | Dcat Admin 标志
     |--------------------------------------------------------------------------
     |
-    | The logo of all admin pages. You can also set it as an image by using a
-    | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
+    | 所有后台页面使用的标志。可使用 img 标签设置图片，例如
+    | '<img src="http://logo-url" alt="后台标志">'。
     |
     */
     'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;Dcat-plus Admin',
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin mini logo
+    | Dcat Admin 折叠标志
     |--------------------------------------------------------------------------
     |
-    | The logo of all admin pages when the sidebar menu is collapsed. You can
-    | also set it as an image by using a `img` tag, eg
-    | '<img src="http://logo-url" alt="Admin logo">'.
+    | 侧边栏折叠时展示的标志。可使用 img 标签设置图片，例如
+    | '<img src="http://logo-url" alt="后台标志">'。
     |
     */
     'logo-mini' => '<img src="/vendor/dcat-admin/images/logo.png">',
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin favicon
+    | Dcat Admin 浏览器图标
     |--------------------------------------------------------------------------
     |
     */
@@ -46,31 +44,30 @@ return [
 
     /*
      |--------------------------------------------------------------------------
-     | User default avatar
+     | 用户默认头像
      |--------------------------------------------------------------------------
      |
-     | Set a default avatar for newly created users.
+     | 为新创建的用户设置默认头像。
      |
      */
     'default_avatar' => '@admin/images/default-avatar.jpg',
 
     /*
     |--------------------------------------------------------------------------
-    | Login page background image
+    | 登录页背景图片
     |--------------------------------------------------------------------------
     |
-    | This value is used to set the background image of login page.
+    | 用于设置登录页背景图片。
     |
     */
     'login_background_image' => '@admin/images/login_32-bg.jpg',
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin route settings
+    | Dcat Admin 路由配置
     |--------------------------------------------------------------------------
     |
-    | The routing configuration of the admin page, including the path prefix,
-    | the controller namespace, and the default middleware. If you want to
-    | access through the root path, just set the prefix to empty string.
+    | 后台路由配置，包括路径前缀、控制器命名空间和默认中间件。
+    | 如需通过根路径访问，将 prefix 设为空字符串即可。
     |
     */
     'route' => [
@@ -87,29 +84,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin install directory
+    | Dcat Admin 安装目录
     |--------------------------------------------------------------------------
     |
-    | The installation directory of the controller and routing configuration
-    | files of the administration page. The default is `app/Admin`, which must
-    | be set before running `artisan admin::install` to take effect.
+    | 后台控制器和路由配置文件的安装目录。默认为 app/Admin；
+    | 必须在执行 artisan admin::install 前设置才会生效。
     |
     */
     'directory' => app_path('Admin'),
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin html title
+    | Dcat Admin 页面标题
     |--------------------------------------------------------------------------
     |
-    | Html title for all pages.
+    | 所有后台页面的 HTML title。
     |
     */
     'title' => 'Admin',
 
     /*
     |--------------------------------------------------------------------------
-    | Assets hostname
+    | 静态资源域名
     |--------------------------------------------------------------------------
     |
    */
@@ -117,23 +113,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Access via `https`
+    | 使用 HTTPS 访问
     |--------------------------------------------------------------------------
     |
-    | If your page is going to be accessed via https, set it to `true`.
+    | 后台页面通过 HTTPS 访问时，设为 true。
     |
     */
     'https' => env('ADMIN_HTTPS', false),
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin auth setting
+    | Dcat Admin 认证配置
     |--------------------------------------------------------------------------
     |
-    | Authentication settings for all admin pages. Include an authentication
-    | guard and a user provider setting of authentication driver.
+    | 所有后台页面的认证配置，包括认证 Guard 和用户提供者。
     |
-    | You can specify a controller for `login` `logout` and other auth routes.
+    | 可指定登录、退出等认证路由使用的控制器。
     |
     */
     'auth' => [
@@ -157,23 +152,23 @@ return [
             ],
         ],
 
-        // Add "remember me" to login form
+        // 是否在登录表单中显示“记住登录”。
         'remember' => true,
 
-        // Login graphic captcha. When disabled, neither the input nor server-side validation is used.
+        // 登录图形验证码。关闭后，前端输入框和服务端校验都会跳过。
         'captcha' => [
-            // Set true to require a graphic captcha when administrators log in.
+            // 设为 true 后，管理员登录必须通过图形验证码校验。
             'enable' => false,
 
-            // Kept separate from other ValidateCode usages to prevent session collisions.
+            // 与其他 ValidateCode 使用场景隔离，避免 Session 数据冲突。
             'session_key' => 'dcat.login_captcha',
 
-            // Override only this login captcha's ValidateCode options; empty uses admin.validate_code defaults.
+            // 仅覆盖登录验证码的参数；留空则使用 admin.validate_code 默认配置。
             'options' => [],
         ],
 
-        // All method to path like: auth/users/*/edit
-        // or specific method to path like: get:auth/users.
+        // 所有请求方法可写为 auth/users/*/edit；
+        // 指定请求方法可写为 get:auth/users。
         'except' => [
             'auth/login',
             'auth/captcha',
@@ -185,42 +180,42 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Graphic validation code setting
+    | 图形验证码配置
     |--------------------------------------------------------------------------
     |
-    | Defaults for Admin::validateCode(). The image uses the bundled
-    | Elephant.ttf font by default. Each call may override any value.
+    | Admin::validateCode() 的默认参数。图片默认使用内置 Elephant.ttf
+    | 字体；每次调用均可覆盖任意参数。
     |
     */
     'validate_code' => [
-        // Number of characters shown in the image. Allowed range: 3-8.
+        // 验证码字符数量，允许范围：3-8。
         'length' => 4,
 
-        // Image dimensions in pixels. Width: 80-600, height: 32-180.
+        // 图片尺寸（像素）。宽度：80-600，高度：32-180。
         'width' => 120,
         'height' => 42,
 
-        // Captcha image background color as an RGB array.
+        // 验证码图片背景色，使用 RGB 数组。
         'background' => [248, 250, 252],
 
-        // Snowflake-style visual noise strength: 1 is default; 2-10 increase both types.
+        // 雪花干扰强度：1 为默认；2-10 会同时增强干扰线和随机像素点。
         'noise_level' => 1,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | The global Grid setting
+    | 全局 Grid 配置
     |--------------------------------------------------------------------------
     */
     'grid' => [
 
-        // The global Grid action display class.
+        // 全局 Grid 行操作展示类。
         'grid_action_class' => Dcat\Admin\Grid\Displayers\DropdownActions::class,
 
-        // The global Grid batch action display class.
+        // 全局 Grid 批量操作展示类。
         'batch_action_class' => Dcat\Admin\Grid\Tools\BatchActions::class,
 
-        // The global Grid pagination display class.
+        // 全局 Grid 分页展示类。
         'paginator_class' => Dcat\Admin\Grid\Tools\Paginator::class,
 
         'actions' => [
@@ -231,7 +226,7 @@ return [
             'batch_delete' => Dcat\Admin\Grid\Tools\BatchDelete::class,
         ],
 
-        // The global Grid column selector setting.
+        // 全局 Grid 列选择器配置。
         'column_selector' => [
             'store' => Dcat\Admin\Grid\ColumnSelector\SessionStore::class,
             'store_params' => [
@@ -242,7 +237,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin helpers setting.
+    | Dcat Admin 助手功能配置
     |--------------------------------------------------------------------------
     */
     'helpers' => [
@@ -251,18 +246,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin permission setting
+    | Dcat Admin 权限配置
     |--------------------------------------------------------------------------
     |
-    | Permission settings for all admin pages.
+    | 所有后台页面的权限配置。
     |
     */
     'permission' => [
-        // Whether enable permission.
+        // 是否启用权限控制。
         'enable' => true,
 
-        // All method to path like: auth/users/*/edit
-        // or specific method to path like: get:auth/users.
+        // 所有请求方法可写为 auth/users/*/edit；
+        // 指定请求方法可写为 get:auth/users。
         'except' => [
             '/',
             'auth/login',
@@ -270,13 +265,13 @@ return [
             'auth/setting',
         ],
 
-        // Apply route permissions to the default resource Grid buttons/actions.
+        // 将路由权限应用到资源 Grid 的默认按钮和操作。
         'resource_actions' => [
-            // Behavior when the current role has no corresponding route permission:
-            // hide = do not render the action; prompt = render it and show a dialog.
+            // 当前角色缺少对应路由权限时的行为：
+            // hide = 不渲染操作；prompt = 渲染操作并弹出提示。
             'denied' => 'hide',
 
-            // Enable or disable permission control for individual default actions.
+            // 是否对各默认操作启用权限控制。
             'actions' => [
                 'create'       => true,
                 'edit'         => true,
@@ -286,38 +281,37 @@ return [
             ],
         ],
 
-        // Let a user with multiple roles work under one selected role per
-        // session. Disabled by default to preserve historical union behavior.
+        // 允许拥有多个角色的用户在一个会话中使用选定的单一角色；
+        // 默认关闭，以兼容历史上的多角色权限并集行为。
         'active_role' => [
-            // Enable the current-role authorization model.
+            // 是否启用当前角色授权模式。
             'enable' => false,
 
-            // Column on the administrator table that stores the role selected
-            // by an administrator as the user's default at next login.
+            // 管理员表中的字段，用于保存用户下次登录时默认使用的角色。
             'default_column' => 'default_role_id',
         ],
 
-        // Unified role editor settings. Existing permission/menu tables and
-        // relationships are reused, so enabling this does not require a migration.
+        // 统一角色编辑器配置。复用现有权限/菜单表及关联关系，
+        // 因此启用后无需执行数据库迁移。
         'role_editor' => [
-            // Create an exact permission record when a selected route has no match.
+            // 选中的路由未匹配到权限记录时，自动创建精确权限记录。
             'auto_create' => true,
 
-            // Show exempt/internal routes as a read-only diagnostic list.
+            // 将豁免/内部路由以只读诊断列表展示。
             'show_system_routes' => false,
 
-            // Include current-prefix routes without an explicit route name.
+            // 扫描包含当前前缀且未显式命名的路由。
             'include_unnamed_routes' => true,
 
-            // Checking a parent menu also checks its descendants and maintains
-            // the indeterminate state. Parent IDs are still persisted.
+            // 勾选父级菜单时一并勾选所有后代，并维护半选状态；
+            // 父级菜单 ID 仍会保存。
             'menu_cascade' => true,
 
-            // Additional Laravel route-name patterns treated as system routes.
-            // Supports Str::is wildcards, for example: dcat.admin.internal.*
+            // 额外视为系统路由的 Laravel 路由名称匹配规则。
+            // 支持 Str::is 通配符，例如：dcat.admin.internal.*。
             'system_route_names' => [],
 
-            // Additional paths treated as system routes, relative to admin prefix.
+            // 额外视为系统路由的路径，路径相对于后台前缀。
             'system_paths' => [
                 'dcat-api/*',
                 'dcat-sys/*',
@@ -325,39 +319,38 @@ return [
                 'sku-image-*',
             ],
 
-            // Controller class/basename wildcard patterns treated as system routes.
+            // 额外视为系统路由的控制器类名/基类名通配规则。
             'system_controllers' => [],
         ],
 
-        // Framework-internal route settings. Internal routes are excluded from
-        // ordinary URL RBAC and protected by their own policy middleware.
+        // 框架内部路由配置。内部路由不参与常规 URL RBAC，
+        // 由其专用策略中间件保护。
         'internal' => [
-            // Lifetime in seconds for component capability tokens generated
-            // while rendering fields such as FormMedia and SKU.
+            // 渲染 FormMedia、SKU 等字段时生成的组件能力令牌有效期（秒）。
             'token_ttl' => 3600,
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin menu setting
+    | Dcat Admin 菜单配置
     |--------------------------------------------------------------------------
     |
     */
     'menu' => [
         'cache' => [
-            // enable cache or not
+            // 是否启用缓存。
             'enable' => false,
             'store'  => 'file',
         ],
 
-        // Whether enable menu bind to a permission.
+        // 是否启用菜单绑定权限。
         'bind_permission' => true,
 
-        // Whether enable role bind to menu.
+        // 是否启用角色绑定菜单。
         'role_bind_menu' => true,
 
-        // Whether enable permission bind to menu.
+        // 是否启用权限绑定菜单。
         'permission_bind_menu' => true,
 
         'default_icon' => 'feather icon-circle',
@@ -365,19 +358,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin upload setting
+    | Dcat Admin 上传配置
     |--------------------------------------------------------------------------
     |
-    | File system configuration for form upload files and images, including
-    | disk and upload path.
+    | 表单图片和文件上传的文件系统配置，包括磁盘和上传路径。
     |
     */
     'upload' => [
 
-        // Disk in `config/filesystem.php`.
+        // config/filesystem.php 中定义的磁盘。
         'disk' => 'public',
 
-        // Image and file upload path under the disk above.
+        // 上述磁盘下图片和文件的上传目录。
         'directory' => [
             'image' => 'images',
             'file'  => 'files',
@@ -387,58 +379,58 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | UEditor setting
+    | UEditor 配置
     |--------------------------------------------------------------------------
     |
-    | UEditor upload and frontend defaults. Set `disk` to null to reuse the
-    | disk configured in `upload.disk`.
+    | UEditor 上传与前端默认配置。将 disk 设为 null 时，
+    | 会复用 upload.disk 配置的磁盘。
     |
     */
     'ueditor' => [
-        // The filesystem disk used for uploads; null reuses upload.disk.
+        // 上传使用的文件系统磁盘；null 时复用 upload.disk。
         'disk' => null,
 
-        // Extra disks a field may select with a signed, short-lived upload target; empty denies overrides.
+        // 字段可通过带签名、短时有效的上传目标选择的额外磁盘；留空则禁止覆盖。
         'allowed_disks' => [],
 
-        // Maximum number of upload requests per account per minute.
+        // 每个账号每分钟允许的最大上传请求数。
         'rate_limit' => 20,
 
-        // Lifetime in seconds for a signed field-specific upload disk or directory.
+        // 字段专属上传磁盘或目录签名的有效期（秒）。
         'upload_token_ttl' => 3600,
 
-        // Whether to sanitize rich text server-side when the form is saved.
+        // 表单保存时是否在服务端清理富文本内容。
         'sanitize_html' => true,
 
-        // Upload directories under the configured disk.
+        // 配置磁盘下的上传目录。
         'directory' => [
-            // Directory for image uploads.
+            // 图片上传目录。
             'image' => 'ueditor/images',
-            // Directory for video uploads.
+            // 视频上传目录。
             'video' => 'ueditor/videos',
-            // Directory for attachment uploads.
+            // 附件上传目录。
             'file'  => 'ueditor/files',
         ],
 
-        // Image URL prefix; keep empty when the upload controller returns absolute URLs.
+        // 图片 URL 前缀；上传控制器返回绝对 URL 时保持为空。
         'url_prefix' => '',
 
-        // Whether to load upload actions, field names, limits, and allow lists from the server.
+        // 是否从服务端加载上传动作、字段名称、限制和允许列表。
         'load_config_from_server' => true,
-        // Initial editor height in pixels.
+        // 编辑器初始高度（像素）。
         'initial_frame_height'    => 400,
-        // Whether to display the element path at the bottom of the editor.
+        // 是否在编辑器底部显示元素路径。
         'element_path_enabled'    => false,
-        // Whether to grow the editor height as content is added.
+        // 是否随内容增加自动增长编辑器高度。
         'auto_height_enabled'     => true,
-        // Whether to enable AI tools; disabled by default to prevent third-party data disclosure.
+        // 是否启用 AI 工具；默认关闭，避免向第三方泄露数据。
         'enable_ai'               => false,
-        // Whether to use bundled emoticons instead of the default third-party HTTP endpoint.
+        // 是否使用内置表情，替代默认的第三方 HTTP 服务。
         'emotion_localization'    => true,
-        // Whether to follow Dcat dark mode for the editor, editing iframe, and dialogs.
+        // 编辑器、编辑 iframe 和弹窗是否跟随 Dcat 深色模式。
         'dark_mode'               => true,
 
-        // Toolbar layout. Remove button names or add supported UEditor buttons; "|" is a separator.
+        // 工具栏布局。可删除按钮名称或加入 UEditor 支持的按钮；“|”表示分隔符。
         'toolbars' => [
             [
                 'fullscreen', 'source', '|', 'undo', 'redo', '|',
@@ -458,71 +450,71 @@ return [
             ],
         ],
 
-        // Image upload rules.
+        // 图片上传规则。
         'image' => [
-            // Maximum allowed image size in bytes.
+            // 允许的图片最大字节数。
             'max_size'   => 2048000,
-            // Allowed image file extensions.
+            // 允许的图片文件扩展名。
             'allow_files' => ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'],
-            // Allowed image MIME types; an empty array disables MIME validation.
+            // 允许的图片 MIME 类型；空数组表示不校验 MIME 类型。
             'mime_types' => ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'],
         ],
 
-        // Video upload rules.
+        // 视频上传规则。
         'video' => [
-            // Maximum allowed video size in bytes.
+            // 允许的视频最大字节数。
             'max_size'   => 102400000,
-            // Allowed video file extensions.
+            // 允许的视频文件扩展名。
             'allow_files' => ['.mp4', '.avi', '.wmv', '.mov', '.flv', '.mkv', '.webm', '.m4v'],
-            // Allowed video MIME types; an empty array disables MIME validation.
+            // 允许的视频 MIME 类型；空数组表示不校验 MIME 类型。
             'mime_types' => ['video/mp4', 'video/x-msvideo', 'video/x-ms-wmv', 'video/quicktime', 'video/x-flv', 'video/x-matroska', 'video/webm'],
         ],
 
-        // Attachment upload rules.
+        // 附件上传规则。
         'file' => [
-            // Maximum allowed attachment size in bytes.
+            // 允许的附件最大字节数。
             'max_size'   => 51200000,
-            // Allowed attachment file extensions.
+            // 允许的附件文件扩展名。
             'allow_files' => [
                 '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf',
                 '.zip', '.rar', '.7z', '.gz', '.tar', '.txt', '.csv', '.md',
                 '.mp3', '.wav', '.aac', '.flac', '.ogg',
             ],
-            // Allowed attachment MIME types; an empty array disables MIME validation.
+            // 允许的附件 MIME 类型；空数组表示不校验 MIME 类型。
             'mime_types' => [],
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin database settings
+    | Dcat Admin 数据库配置
     |--------------------------------------------------------------------------
     |
-    | Here are database settings for dcat-admin builtin model & tables.
+    | Dcat Admin 内置模型和数据表的数据库配置。
     |
     */
     'database' => [
 
-        // Database connection for following tables.
+        // 以下数据表使用的数据库连接。
         'connection' => '',
 
-        // User tables and model.
+        // 用户数据表及模型。
         'users_table' => 'admin_users',
         'users_model' => Dcat\Admin\Models\Administrator::class,
 
-        // Role table and model.
+        // 角色数据表及模型。
         'roles_table' => 'admin_roles',
         'roles_model' => Dcat\Admin\Models\Role::class,
 
-        // Permission table and model.
+        // 权限数据表及模型。
         'permissions_table' => 'admin_permissions',
         'permissions_model' => Dcat\Admin\Models\Permission::class,
 
-        // Menu table and model.
+        // 菜单数据表及模型。
         'menu_table' => 'admin_menu',
         'menu_model' => Dcat\Admin\Models\Menu::class,
 
-        // Pivot table for table above.
+        // 上述关联关系使用的中间表。
         'role_users_table'       => 'admin_role_users',
         'role_permissions_table' => 'admin_role_permissions',
         'role_menu_table'        => 'admin_role_menu',
@@ -534,28 +526,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Application layout
+    | 后台布局
     |--------------------------------------------------------------------------
     |
-    | This value is the layout of admin pages.
+    | 后台页面的布局配置。
     */
     'layout' => [
-        // default, blue, blue-light, green
+        // 可选：default、blue、blue-light、green。
         'color' => 'default',
 
-        // sidebar-separate
+        // 可选：sidebar-separate。
         'body_class' => [],
 
         'horizontal_menu' => false,
 
         'sidebar_collapsed' => false,
 
-        // light, primary, dark
+        // 可选：light、primary、dark。
         'sidebar_style' => 'light',
 
         'dark_mode_switch' => false,
 
-        // bg-primary, bg-info, bg-warning, bg-success, bg-danger, bg-dark
+        // 可选：bg-primary、bg-info、bg-warning、bg-success、bg-danger、bg-dark。
         'navbar_color' => '',
 
         'full_screen' => true, // 是否展示全屏按钮
@@ -603,7 +595,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The exception handler class
+    | 异常处理类
     |--------------------------------------------------------------------------
     |
     */
@@ -611,21 +603,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Enable default breadcrumb
+    | 启用默认面包屑导航
     |--------------------------------------------------------------------------
     |
-    | Whether enable default breadcrumb for every page content.
+    | 是否为每个页面内容启用默认面包屑导航。
     */
     'enable_default_breadcrumb' => true,
 
     /*
     |--------------------------------------------------------------------------
-    | Extension
+    | 扩展配置
     |--------------------------------------------------------------------------
     */
     'extension' => [
-        // When you use command `php artisan admin:ext-make` to generate extensions,
-        // the extension files will be generated in this directory.
+        // 使用 php artisan admin:ext-make 创建扩展时，
+        // 扩展文件会生成到此目录。
         'dir' => base_path('dcat-admin-extensions'),
     ],
     /*

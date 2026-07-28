@@ -120,6 +120,12 @@ class ActiveRole
 
     public function forget($user): void
     {
+        // 登出地址可能在 Guard 已没有用户（会话过期、重复请求）时被访问。
+        // 此时会话随后会被注销，无需也无法按用户维度清理当前角色键。
+        if (! $user) {
+            return;
+        }
+
         if ($session = $this->session()) {
             $session->forget($this->sessionKey($user));
         }

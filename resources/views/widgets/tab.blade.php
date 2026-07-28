@@ -1,13 +1,13 @@
 <div {!! $attributes !!}>
     <ul class="nav nav-tabs {{ $tabStyle }}" role="tablist">
-        @foreach($tabs as $id => $tab)
+        @foreach($tabs as $index => $tab)
             @if($tab['type'] == \Dcat\Admin\Widgets\Tab::TYPE_CONTENT)
                 <li class="nav-item" >
-                    <a href="#tab_{{ $tab['id'] }}" class=" nav-link  {{ $id == $active ? 'active' : '' }}" data-toggle="tab">{!! $tab['icon'] ?? '' !!} {!! $tab['title'] !!}</a>
+                    <a href="#tab_{{ $tab['id'] }}" class=" nav-link  {{ $index == $active ? 'active' : '' }}" data-toggle="tab">{!! $tab['icon'] ?? '' !!} {!! $tab['title'] !!}</a>
                 </li>
             @elseif($tab['type'] == \Dcat\Admin\Widgets\Tab::TYPE_LINK)
                 <li class="nav-item" >
-                    <a href="{{ $tab['href'] }}" class=" nav-link  {{ $id == $active ? 'active' : '' }}"> {!! $tab['icon'] ?? '' !!} {!! $tab['title'] !!}</a>
+                    <a href="{{ $tab['href'] }}" class=" nav-link  {{ $index == $active ? 'active' : '' }}"> {!! $tab['icon'] ?? '' !!} {!! $tab['title'] !!}</a>
                 </li>
             @endif
         @endforeach
@@ -28,8 +28,8 @@
     </ul>
 
     <div class="tab-content" style="{!! $padding !!}">
-        @foreach($tabs as $id => $tab)
-            <div class="tab-pane {{ $id == $active ? 'active' : '' }}" id="tab_{{ $tab['id'] }}">
+        @foreach($tabs as $index => $tab)
+            <div class="tab-pane {{ $index == $active ? 'active' : '' }}" id="tab_{{ $tab['id'] }}">
                 {!! $tab['content'] ?? '' !!}
             </div>
         @endforeach

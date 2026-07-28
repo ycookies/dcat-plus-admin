@@ -47,7 +47,8 @@ JS;
 
         $icon = '<i class="fa fa-angle-right"></i>';
         $model =  get_class($this->grid->model()->repository()->model());
-        $num = $model::where(['parent_id'=> $key])->count();
+        $model1 = $this->grid->model()->repository()->model();
+        $num = $model1->newQuery()->where($model1->getParentColumn(), $key)->count();
         if(empty($num)) $icon = '';
 
         return <<<EOT

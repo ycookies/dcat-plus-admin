@@ -72,7 +72,7 @@ export default class Ajax {
             case 500:
                 return Dcat.error(_msg || (Dcat.lang['500'] || 'Server internal error.'));
             case 403:
-                return Dcat.error(_msg || (Dcat.lang['403'] || 'Permission deny!'));
+                return Dcat.error(_msg || (Dcat.lang['403'] || '无权限!'));
             case 401:
                 if (json.redirect) {
                     return location.href = json.redirect;
