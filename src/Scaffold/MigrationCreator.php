@@ -2,6 +2,7 @@
 
 namespace Dcat\Admin\Scaffold;
 
+use Dcat\Admin\Scaffold\Support\SemanticFieldResolver;
 use Dcat\Admin\Exception\AdminException;
 use Illuminate\Database\Migrations\MigrationCreator as BaseMigrationCreator;
 use Illuminate\Filesystem\Filesystem;
@@ -88,30 +89,44 @@ class MigrationCreator extends BaseMigrationCreator
             throw new AdminException('Table fields can\'t be empty');
         }
 
-        $rows[] = "\$table->bigIncrements('$keyName');\n";
+        if (! SemanticFieldResolver::validFieldName($keyName)) {
+            throw new AdminException('Invalid primary key name');
+        }
+
+        $rows[] = "\$table->bigIncrements(".SemanticFieldResolver::export($keyName).");\n";
 
         foreach ($fields as $field) {
-            $column = "\$table->{$field['type']}('{$field['name']}')";
+            $name = (string) $field['name'];
+            $type = (string) ($field['type'] ?? 'string');
+            if (! SemanticFieldResolver::validFieldName($name) || ! preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $type)) {
+                throw new AdminException('Invalid table field definition');
+            }
 
-            if ($field['key']) {
-                $column .= "->{$field['key']}()";
+            $column = "\$table->{$type}(".SemanticFieldResolver::export($name).')';
+
+            if (! empty($field['key'])) {
+                $key = (string) $field['key'];
+                if (! in_array($key, ['unique', 'index'], true)) {
+                    throw new AdminException('Invalid table field key');
+                }
+                $column .= "->{$key}()";
             }
 
             $hasDefault = isset($field['default'])
                 && ! is_null($field['default'])
                 && $field['default'] !== '';
             if ($hasDefault) {
-                $column .= "->default('{$field['default']}')";
+                $column .= '->default('.SemanticFieldResolver::export($field['default']).')';
             }
 
             if (Arr::get($field, 'nullable') == 'on') {
                 $column .= '->nullable()';
-            } elseif (! $hasDefault && $field['type'] === 'string') {
+            } elseif (! $hasDefault && $type === 'string') {
                 $column .= "->default('')";
             }
 
             if (isset($field['comment']) && $field['comment']) {
-                $column .= "->comment('{$field['comment']}')";
+                $column .= '->comment('.SemanticFieldResolver::export($field['comment']).')';
             }
 
             $rows[] = $column.";\n";

@@ -155,7 +155,12 @@ class ScaffoldController extends Controller {
             // 2. Create controller.
             if (in_array('controller', $creates)) {
                 $paths['controller'] = (new ControllerCreator($controller))
-                    ->create(in_array('repository', $creates) ? $repository : $model);
+                    ->create(
+                        in_array('repository', $creates) ? $repository : $model,
+                        $request->input('primary_key', 'id'),
+                        (array) $request->input('fields', []),
+                        $request->input('timestamps') == 1
+                    );
             }
             // 3. Create migration.
             if (in_array('migration', $creates)) {

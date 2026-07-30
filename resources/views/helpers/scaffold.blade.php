@@ -219,6 +219,8 @@
                     <th>{{trans('admin.scaffold.key')}}</th>
                     <th>{{trans('admin.scaffold.default')}}</th>
                     <th>{{trans('admin.scaffold.comment')}}</th>
+                    <th>语义类型</th>
+                    <th>枚举选项 (JSON)</th>
                     <th>{{trans('admin.action')}}</th>
                 </tr>
                 </thead>
@@ -260,6 +262,14 @@
                             <td><input type="text" class="form-control" placeholder="{{trans('admin.scaffold.default')}}" name="fields[{{$index}}][default]" value="{{$field['default']}}"/></td>
                             <td><input type="text" class="form-control" placeholder="{{trans('admin.scaffold.comment')}}" name="fields[{{$index}}][comment]" value="{{$field['comment']}}" /></td>
                             <td>
+                                <select style="width: 145px" name="fields[{{$index}}][semantic_type]">
+                                    @foreach(['auto' => '自动识别', 'text' => '普通文本', 'long_text' => '长文本', 'integer' => '整数', 'decimal' => '小数', 'image' => '图片', 'file' => '文件', 'url' => 'URL', 'email' => '邮箱', 'phone' => '手机/电话', 'password' => '密码', 'color' => '颜色', 'status' => '状态/枚举', 'boolean' => '布尔开关', 'date' => '日期', 'datetime' => '日期时间', 'time' => '时间', 'json' => 'JSON'] as $value => $label)
+                                        <option value="{{$value}}" {{($field['semantic_type'] ?? 'auto') == $value ? 'selected' : ''}}>{{$label}}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="text" class="form-control" placeholder='{"0":"草稿","1":"发布"}' name="fields[{{$index}}][semantic_options]" value="{{$field['semantic_options'] ?? ''}}" /></td>
+                            <td>
                                 <button class="btn btn-sm btn-white table-field-sort-handle" type="button" title="{{trans('admin.order')}}"><i class="fa fa-sort"></i></button>
                                 <button class="btn btn-sm btn-white table-field-remove"><i class="feather icon-trash"></i></button>
                             </td>
@@ -299,6 +309,14 @@
                         </td>
                         <td><input type="text" class="form-control" placeholder="{{trans('admin.scaffold.default')}}" name="fields[0][default]"></td>
                         <td><input type="text" class="form-control" placeholder="{{trans('admin.scaffold.comment')}}" name="fields[0][comment]"></td>
+                        <td>
+                            <select style="width: 145px" name="fields[0][semantic_type]">
+                                @foreach(['auto' => '自动识别', 'text' => '普通文本', 'long_text' => '长文本', 'integer' => '整数', 'decimal' => '小数', 'image' => '图片', 'file' => '文件', 'url' => 'URL', 'email' => '邮箱', 'phone' => '手机/电话', 'password' => '密码', 'color' => '颜色', 'status' => '状态/枚举', 'boolean' => '布尔开关', 'date' => '日期', 'datetime' => '日期时间', 'time' => '时间', 'json' => 'JSON'] as $value => $label)
+                                    <option value="{{$value}}">{{$label}}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td><input type="text" class="form-control" placeholder='{"0":"草稿","1":"发布"}' name="fields[0][semantic_options]"></td>
                         <td>
                             <button class="btn btn-sm btn-white table-field-sort-handle" type="button" title="{{trans('admin.order')}}"><i class="fa fa-sort"></i></button>
                             <button class="btn btn-sm btn-white table-field-remove"><i class="feather icon-trash"></i></button>
@@ -397,6 +415,29 @@
         <td><input value="{default}" type="text" class="form-control" placeholder="{{trans('admin.scaffold.default')}}" name="fields[__index__][default]"></td>
         <td><input value="{comment}" type="text" class="form-control" placeholder="{{trans('admin.scaffold.comment')}}" name="fields[__index__][comment]"></td>
         <td>
+            <select style="width: 145px" name="fields[__index__][semantic_type]">
+                <option value="auto" selected>自动识别</option>
+                <option value="text">普通文本</option>
+                <option value="long_text">长文本</option>
+                <option value="integer">整数</option>
+                <option value="decimal">小数</option>
+                <option value="image">图片</option>
+                <option value="file">文件</option>
+                <option value="url">URL</option>
+                <option value="email">邮箱</option>
+                <option value="phone">手机/电话</option>
+                <option value="password">密码</option>
+                <option value="color">颜色</option>
+                <option value="status">状态/枚举</option>
+                <option value="boolean">布尔开关</option>
+                <option value="date">日期</option>
+                <option value="datetime">日期时间</option>
+                <option value="time">时间</option>
+                <option value="json">JSON</option>
+            </select>
+        </td>
+        <td><input value="{semantic_options}" type="text" class="form-control" placeholder='{"0":"草稿","1":"发布"}' name="fields[__index__][semantic_options]"></td>
+        <td>
             <button class="btn btn-sm btn-white table-field-sort-handle" type="button" title="{{trans('admin.order')}}"><i class="fa fa-sort"></i></button>
             <button class="btn btn-sm btn-white table-field-remove"><i class="feather icon-trash"></i></button>
         </td>
@@ -442,7 +483,7 @@
             onEnd: function () {
                 getTR().each(function(index){
                     $(this).find("[name^='fields']").each(function(){
-                        var newName = $(this).attr('name').replace(/fields\[(\d)\]/, `fields[${index}]`);
+                        var newName = $(this).attr('name').replace(/fields\[(\d+)\]/, `fields[${index}]`);
                         $(this).attr('name', newName);
                     })
                 });
@@ -616,6 +657,7 @@
                         .replace(/{translation}/g, val.lang || '')
                         .replace(/{default}/g, val.default || '')
                         .replace(/{comment}/g, val.comment || '')
+                        .replace(/{semantic_options}/g, val.semantic_options || '')
                         .replace(/{nullable}/g, val.nullable ? 'checked' : '')
                 ),
                 i;

@@ -29,6 +29,8 @@ use Dcat\Admin\Show;
 // // 统一全局定义数据表格
 // Grid::resolving(function (Grid $grid) {
 //     $grid->tableCollapse(false); //表格布局样式
+//     $grid->addTableClass(['table-text-center']); // 设置表格文字居中
+//     $grid->rowSelector()->background(Admin::color()->dark20()); // 设置选中行的背景颜色
 //     $grid->withBorder(); // 表格显示边框
 //     $grid->filter(function (Grid\Filter $filter) {
 //         $filter->panel();  // 更改为 panel 布局

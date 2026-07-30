@@ -2,6 +2,8 @@
 
 namespace Dcat\Admin\Scaffold;
 
+use Dcat\Admin\Scaffold\Support\SemanticFieldResolver;
+
 trait GridCreator
 {
     /**
@@ -12,28 +14,31 @@ trait GridCreator
     protected function generateGrid(?string $primaryKey = null, ?array $fields = null, $timestamps = null)
     {
         $primaryKey = $primaryKey ?: request('primary_key', 'id');
+        $primaryKey = SemanticFieldResolver::validFieldName($primaryKey) ? $primaryKey : 'id';
         $fields = $fields === null ? request('fields', []) : $fields;
         $timestamps = $timestamps === null ? request('timestamps') : $timestamps;
 
         $rows = [
-            "\$grid->column('{$primaryKey}')->sortable();",
+            "\$grid->model()->orderBy('{$primaryKey}', 'desc');",
+            "            \$grid->column('{$primaryKey}');",
         ];
 
         foreach ($fields as $field) {
-            if (empty($field['name'])) {
+            $name = (string) ($field['name'] ?? '');
+            if (! $name || $name === $primaryKey || ! SemanticFieldResolver::validFieldName($name)) {
                 continue;
             }
 
-            if ($field['name'] == $primaryKey) {
+            $definition = SemanticFieldResolver::resolve($field);
+            if ($definition['type'] === 'password') {
                 continue;
             }
 
-            $rows[] = "            \$grid->column('{$field['name']}');";
+            $rows[] = '            '.$this->gridColumnCode($name, $definition);
         }
 
         if ($timestamps) {
-            $rows[] = '            $grid->column(\'created_at\');';
-            $rows[] = '            $grid->column(\'updated_at\')->sortable();';
+            $rows[] = '            $grid->column(\'created_at\')->date(\'Y-m-d H:i\');';
         }
 
         $rows[] = <<<EOF
@@ -46,10 +51,30 @@ trait GridCreator
             });
             \$grid->filter(function (Grid\Filter \$filter) {
                 \$filter->equal('$primaryKey');
-        
+
             });
 EOF;
 
         return implode("\n", $rows);
+    }
+
+    /**
+     * @param array{type:string,options:array} $definition
+     */
+    protected function gridColumnCode(string $name, array $definition): string
+    {
+        $column = "\$grid->column(".SemanticFieldResolver::export($name).')';
+
+        return match ($definition['type']) {
+            'image' => $column."->image('', 44, 44);",
+            'file' => $column.'->downloadable();',
+            'status' => $definition['options']
+                ? $column.'->using('.SemanticFieldResolver::export($definition['options']).')->label();'
+                : $column.';',
+            'boolean' => $column.'->bool();',
+            'long_text', 'json' => $column.'->limit(80);',
+            'date', 'datetime', 'time', 'integer', 'decimal' => $column.'->sortable();',
+            default => $column.';',
+        };
     }
 }
