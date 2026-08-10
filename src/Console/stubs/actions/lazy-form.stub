@@ -1,0 +1,36 @@
+<?php
+
+namespace DummyNamespace;
+
+use Dcat\Admin\Contracts\LazyRenderable;
+use Dcat\Admin\Traits\LazyWidget;
+use Dcat\Admin\Widgets\Form;
+
+class DummyClass extends Form implements LazyRenderable
+{
+    use LazyWidget;
+
+    public function handle(array $input)
+    {
+        // 获取外部传递的参数
+        // $key1 = $this->payload['key1'] ?? null;
+
+        return $this->success('保存成功');
+    }
+
+    public function form()
+    {
+        // 获取外部传递的参数
+        // $key1 = $this->payload['key1'] ?? null;
+
+        $this->text('name', trans('admin.name'))->required()->help('用户昵称');
+        $this->email('email', trans('admin.email'));
+    }
+
+    public function default()
+    {
+        return [
+            'name' => '...',
+        ];
+    }
+}

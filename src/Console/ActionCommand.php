@@ -34,6 +34,19 @@ class ActionCommand extends GeneratorCommand
     protected $namespace;
 
     /**
+     * 异步加载渲染类（非 action）映射的命名空间段。
+     *
+     * 这两种类型不是 action 类，而是异步加载渲染类，
+     * 命名空间不在 Actions 下：表格渲染类放在 Renderable，工具表单放在 Forms。
+     *
+     * @var array
+     */
+    protected $lazyTypeNamespaceMap = [
+        'lazy-table' => ['Renderable', null],
+        'lazy-form'  => ['Forms', null],
+    ];
+
+    /**
      * @var array
      */
     protected $namespaceMap = [
@@ -82,6 +95,8 @@ class ActionCommand extends GeneratorCommand
             'show-tool',
             'tree-row',
             'tree-tool',
+            'lazy-table',
+            'lazy-form',
         ];
     }
 
@@ -131,6 +146,14 @@ class ActionCommand extends GeneratorCommand
 
         $segments = explode('\\', config('admin.route.namespace'));
         array_pop($segments);
+
+        // 异步加载渲染类不在 Actions 命名空间下：表格放在 Renderable，工具表单放在 Forms
+        if (isset($this->lazyTypeNamespaceMap[$this->choice])) {
+            array_push($segments, $this->lazyTypeNamespaceMap[$this->choice][0]);
+
+            return implode('\\', $segments);
+        }
+
         array_push($segments, 'Actions');
 
         if (isset($this->namespaceMap[$this->choice])) {
