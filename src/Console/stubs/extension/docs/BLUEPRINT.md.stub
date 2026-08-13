@@ -1,0 +1,63 @@
+# {pluginName} 开发蓝图
+
+> 本文件是扩展包 `{extensionName}` 的开发总纲，供 AI / 开发者按工作流推进。
+> 生成时间：由 `admin:ext-make-pro` 自动创建，随开发进展持续更新。
+
+## 一、扩展定位
+
+- **一句话介绍**：{pluginDesc}
+- **命名空间**：`{namespace}`
+- **根包名**：`{package}`
+- **Service Provider**：`{namespace}\{className}ServiceProvider`
+
+> 请补充：目标用户是谁？解决什么核心痛点？核心价值主张是什么？
+
+## 二、功能模块清单
+
+> 规划本扩展包含的功能模块，每完成一个把状态改为 ☑。
+
+| 模块 | 后台路由 | 数据表 | 优先级 | 状态 |
+| --- | --- | --- | --- | --- |
+| _示例：用户管理_ | `users` | `member_users` | P0 | ☐ |
+| | | | | |
+
+## 三、技术架构
+
+- **命名空间**：`{namespace}`
+- **Service Provider**：`src/{className}ServiceProvider.php`（`boot()` final，API 请求会被短路，API 路由须在 `register()` 加载）
+- **数据表**：见 [database/schema.md](database/schema.md)
+- **后台路由**：`src/Http/routes.php`，前缀 `admin.route.prefix`
+- **菜单**：通过 `settingForm()` 或 `ext-install` 注册
+{apiOrNone}- **API 文档（Scramble）**：`/docs/admin-api`、`/docs/member-api`
+
+## 四、开发阶段指引
+
+| 阶段 | 内容 | 产出 | 参考 |
+| --- | --- | --- | --- |
+| 0. 脚手架 | 扩展骨架已就绪 | 本目录 | ☑ 已完成 |
+| 1. 数据层 | 完善/核对表结构、字段、注释、关联 | [database/schema.md](database/schema.md) | [database-schema.md](../../../../.claude/skills/dcat-plus-admin/references/database-schema.md) |
+| 2. 后台 CRUD | 用 `/admin/helpers/scaffold` 按 schema 生成 Grid/Form/Show | `src/Http/Controllers/*` | 技能 references/grid-system.md、form-fields.md |
+| 3. 业务逻辑 | 控制器事件、Repository、自定义动作 | `src/Models`、`src/Http` | references/extension-development.md |
+| 4. 接口 | member-api / admin-api，维护交付文档 | [delivery/api_delivery.md](delivery/api_delivery.md) | [api-development.md](../../../../.claude/skills/dcat-plus-admin/references/api-development.md) |
+| 5. 发布 | 市场介绍、落地页 | [MARKETPLACE.md](../MARKETPLACE.md)（需 `--marketplace`） | — |
+
+> 进度看板见 [tasks/PLAN.md](tasks/PLAN.md)。
+
+## 五、关键约定（务必遵守）
+
+1. **迁移**：`updates/` 下必须**具名类、无 namespace、无时间戳前缀**，且在 `version.php` 中登记——未登记的脚本**不会执行**。本项目已自动登记生成的迁移。
+2. **字段注释**：承载 `@scaffold:type` / `@scaffold:options` 指令，遵循 [database-schema.md](../../../../.claude/skills/dcat-plus-admin/references/database-schema.md)，让脚手架能自动生成合适的控件。
+3. **Seeder**：`updates/seed_*.php` 必须**幂等**（`if(DB::table()->count()>0) return;`），同样需登记。
+4. **禁用** `php artisan migrate` / `migrate:fresh` / `db:seed` 修改库结构；扩展迁移通过 `php artisan admin:ext-update {extensionName}` 执行。
+5. 一个 migration 文件只对应一张表。
+
+## 六、本次已生成的资产
+
+- 数据表：{tables}
+- 详见 [database/schema.md](database/schema.md) 的「已生成表清单」章节。
+
+## 七、相关技能参考
+
+- [database-schema.md](../../../../.claude/skills/dcat-plus-admin/references/database-schema.md) — 建表与字段语义
+- [api-development.md](../../../../.claude/skills/dcat-plus-admin/references/api-development.md) — 接口开发与交付文档规范
+- [extension-development.md](../../../../.claude/skills/dcat-plus-admin/references/extension-development.md) — 扩展生命周期

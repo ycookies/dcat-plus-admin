@@ -5,13 +5,15 @@
 `admin:scaffold` 是面向命令行的代码生成器。它从数据库表结构读取字段信息，批量生成：
 
 - Model
-- Controller
+- Controller（后台 CRUD，继承 `AdminController`）
 - Lang 语言包
 - 后台 Resource Route 路由
 - Permission 权限
 - Menu 菜单
+- （可选）member-api / admin-api 控制器（继承项目里的 `BaseApiController`）+ JsonResource
+- （可选）JsonResource（每个 model 一个，`toArray()` 自动填充字段注释）
 
-它不会生成 migration、repository、API controller、JsonResource，也不会执行 migrate。
+它不会生成 migration、repository，也不会执行 migrate。代码可以生成到**主项目**，也可以通过 `--extension=` 生成到**扩展包**（命名空间、目录、路由全部按扩展包约定落位）。
 
 新生成的 Lang 文件会同时包含 `labels`、`fields`、`options` 和 `permissions`。
 `permissions` 用于在角色编辑页展示资源路由的中文名称和功能说明。
@@ -47,6 +49,10 @@ php artisan admin:scaffold --help
 | `--menu-parent=` | `0` | 生成菜单的父级菜单 ID |
 | `--menu-icon=` | `fa-file-text-o` | 生成菜单的图标 |
 | `--role=` | `1` | 自动绑定菜单和权限到指定角色；传 `0` 表示不绑定角色 |
+| `--api` | 否 | 为每个表生成 member-api（C 端）控制器 + JsonResource，路由写入 `app/Api/routes.php` |
+| `--admin-api` | 否 | 为每个表生成 admin-api（管理端）控制器 + JsonResource，路由写入 `app/Admin/Api/routes.php` |
+| `--resource` | 否 | 为每个 model 生成一个 JsonResource 类（`--api`/`--admin-api` 已隐含包含） |
+| `--extension=` | （主项目） | 代码生成到指定扩展包（`vendor/name`），命名空间/目录/路由按扩展包约定；见下方「扩展包模式」 |
 
 ---
 
@@ -267,6 +273,8 @@ php artisan admin:scaffold \
 - Model 文件
 - Controller 文件
 - Lang 语言包文件
+- JsonResource 文件（当指定 `--resource`/`--api`/`--admin-api` 时）
+- member-api / admin-api 控制器文件（当指定 `--api`/`--admin-api` 时）
 
 菜单和权限使用 `firstOrNew` / `updateOrCreate` 方式写入，不会重复创建同一个 URI/权限。
 
@@ -337,7 +345,94 @@ php artisan admin:scaffold \
 
 ---
 
-## 十二、生成规则说明
+## 十二、生成 API 控制器与 JsonResource
+
+除了后台 CRUD，命令还能为每张表生成接口层的 API 控制器和 Resource 类。三个开关任一开启都会生成对应的 JsonResource（`--api`/`--admin-api` 已隐含 `--resource`）。
+
+| 开关 | 生成内容 | 控制器基类 | 命名空间（主项目） | 路由文件 |
+|------|----------|------------|-------------------|----------|
+| `--api` | member-api 控制器 + Resource | `App\Api\Controllers\BaseApiController` | `App\Api\Controllers` | `app/Api/routes.php` |
+| `--admin-api` | admin-api 控制器 + Resource | `App\Admin\Api\Controllers\BaseApiController` | `App\Admin\Api\Controllers` | `app/Admin/Api/routes.php` |
+| `--resource` | 仅 Resource | — | `App\Http\Resources` | — |
+
+生成的 API 控制器完整继承项目的 `BaseApiController`，自带列表/详情/增/删/批量更新/批量删除，admin-api 还包含导入模板下载/导入/导出/字段元数据接口；`getValidationRules()` 已留好空实现待业务补充。生成的 Resource 类 `toArray()` 会按表字段自动填好 `/** 字段注释 @var 类型 */` 注释，供 Scramble 生成接口文档。
+
+### 主项目用法
+
+```bash
+# 同时生成后台 CRUD + member-api + admin-api + Resource
+php artisan admin:scaffold \
+  --table=orders \
+  --api --admin-api --resource
+```
+
+生成产物（表 `orders`）：
+
+```text
+app/Models/Order.php
+app/Admin/Controllers/OrderController.php                 # 后台 CRUD
+app/Http/Resources/OrderResource.php                      # JsonResource
+app/Api/Controllers/OrderController.php                   # member-api
+app/Admin/Api/Controllers/OrderController.php             # admin-api
+lang/zh_CN/order.php
+```
+
+路由自动写入：
+
+```text
+app/Admin/routes.php        -> $router->resource('order', OrderController::class)
+app/Api/routes.php          -> $router->apiResource('/order', ...) + 批量/导入导出辅助端点
+app/Admin/Api/routes.php    -> $router->apiResource('/order', ...) + 批量/导入导出辅助端点
+```
+
+> member-api 控制器继承 `App\Api\Controllers\BaseApiController`，admin-api 控制器继承 `App\Admin\Api\Controllers\BaseApiController`。两者均有抽象方法 `getValidationRules(string $action): array`，生成后请按业务补全校验规则。
+
+---
+
+## 十三、扩展包模式（--extension）
+
+传入 `--extension=vendor/name` 后，所有代码都生成到指定扩展包（`dcat-admin-extensions/<vendor>/<name>/`），命名空间、目录、路由全部按扩展包约定落位，不再写主项目。
+
+```bash
+php artisan admin:scaffold \
+  --table=orders \
+  --api --admin-api --resource \
+  --extension=acme/shop
+```
+
+命名空间与目录约定（以扩展根命名空间 `Acme\Shop` 为例）：
+
+| 产物 | 命名空间 | 文件 |
+|------|----------|------|
+| Model | `Acme\Shop\Models` | `src/Models/Order.php` |
+| 后台 Controller | `Acme\Shop\Http\Controllers` | `src/Http/Controllers/OrderController.php` |
+| Resource | `Acme\Shop\Http\Resources` | `src/Http/Resources/OrderResource.php` |
+| member-api | `Acme\Shop\Http\Api\Controllers` | `src/Http/Api/Controllers/OrderController.php` |
+| admin-api | `Acme\Shop\Http\AdminApi\Controllers` | `src/Http/AdminApi/Controllers/OrderController.php` |
+
+路由写入扩展包自己的路由文件：
+
+```text
+src/Http/routes.php              -> Route::resource('order', OrderController::class)
+src/Http/Api/routes.php          -> Route::apiResource('order', ...) + 辅助端点
+src/Http/AdminApi/routes.php     -> Route::apiResource('order', ...) + 辅助端点
+```
+
+扩展包模式的关键点：
+
+1. **根命名空间**优先读扩展包 `composer.json` 的 `psr-4`；缺失时按 `vendor/name` 推断（`acme/shop` → `Acme\Shop`）。
+2. **扩展包必须已存在**（先用 `admin:ext-make-pro` 创建骨架）。命令只生成代码，不建包。
+3. member-api / admin-api 控制器继承的仍是主项目的 `BaseApiController`（`App\Api\Controllers\...` / `App\Admin\Api\Controllers\...`），因为基类是项目全局的。
+4. 后台路由、API 路由都用 `Route::` facade 风格 + 完整类名追加到扩展包路由文件末尾，与扩展包现有约定一致。
+5. 菜单和权限仍写入主项目的后台菜单/权限表（扩展包的菜单通常由 `ext-install` 注册，这里直接写入可立即在后台看到）。
+
+### 类名与表名前缀
+
+命令按 `Str::singular(Str::studly($table))` 生成类名。如果扩展包的表带统一前缀（如 `shop_orders`），默认会得到 `ShopOrder`。若希望类名是 `Order`，可显式指定命名空间下类名无法直接改类名，建议在建表阶段就用无前缀的逻辑表名，或生成后手动重命名类（同时改 `$table`）。表名前缀约定见扩展包 `docs/database/schema.md`。
+
+---
+
+## 十四、生成规则说明
 
 ### 类名规则
 
@@ -402,7 +497,7 @@ Model 会自动引入并使用 `SoftDeletes`。
 
 ---
 
-## 十三、常见场景
+## 十五、常见场景
 
 ### 场景一：给默认库全部表生成后台代码
 
@@ -450,9 +545,35 @@ php artisan admin:scaffold \
   --role=0
 ```
 
+### 场景七：同时生成后台 CRUD 与 member-api/admin-api
+
+```bash
+php artisan admin:scaffold \
+  --table=orders \
+  --api --admin-api
+```
+
+### 场景八：生成代码到扩展包
+
+```bash
+# 先确保扩展包已由 admin:ext-make-pro 创建
+php artisan admin:scaffold \
+  --table=orders,order_items \
+  --extension=acme/shop
+```
+
+### 场景九：扩展包全套（后台 + 双端 API + Resource）
+
+```bash
+php artisan admin:scaffold \
+  --table=orders \
+  --api --admin-api --resource \
+  --extension=acme/shop
+```
+
 ---
 
-## 十四、注意事项
+## 十六、注意事项
 
 1. 运行前确保目标数据库连接能正常访问。
 2. 不传 `--table` 会处理当前连接下全部表，首次使用建议先指定少量表验证结果。
@@ -460,3 +581,7 @@ php artisan admin:scaffold \
 4. 命令会写入后台菜单和权限表，请确保已执行 `php artisan admin:install`。
 5. 命令会自动写入 `app/Admin/routes.php`；如果文件不存在、不可写或无法定位最后一个后台路由组，当前表会生成失败并显示错误。
 6. 菜单 URI、资源路由和权限路径根据表名单数生成，如 `orders` 生成 `order`。
+7. `--api` / `--admin-api` 生成的 API 控制器依赖主项目里的 `BaseApiController`（`App\Api\Controllers\...` / `App\Admin\Api\Controllers\...`），若项目未提供该基类会生成后报错，请确认基类存在。
+8. API 控制器的 `getValidationRules()` 默认是空实现，生成后务必按业务补全校验规则，否则 `store`/`update` 不做任何字段约束。
+9. `--extension=` 模式下扩展包必须已存在；命令只往 `src/` 下写代码和路由，不会创建扩展包骨架。扩展包的根命名空间从其 `composer.json` 的 `psr-4` 读取。
+10. 扩展包模式的菜单/权限仍写入主项目后台表；若希望由扩展包自行注册菜单，可加 `--role=0` 并在扩展 `settingForm()` 或 `ext-install` 里配置。

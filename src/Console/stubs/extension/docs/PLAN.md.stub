@@ -1,0 +1,76 @@
+# 开发任务看板（{pluginName}）
+
+> 勾选规则：完成一项把 `☐` 改为 `☑`。本文件随开发进展持续更新，是「现在做到哪一步」的唯一事实来源。
+
+## 阶段 0 · 脚手架就绪
+
+- [x] 扩展骨架已生成（Service Provider / 路由 / 控制器 / 资源）
+- [x] version.php 已创建{apiOrNone}
+
+## 阶段 1 · 数据层完善
+
+> 核对 [database/schema.md](../database/schema.md) 中已生成的表；占位表需补充字段。
+> 当前数据表：{tables}
+> **表名前缀**：`{tablePrefix}`（新建表必须加，反推表保持原名，详见 schema.md「表名前缀约定」）
+
+- [ ] 核对每个表字段类型 / 长度 / 注释与业务一致
+- [ ] 为占位表（若反推时表不存在）补充真实字段，注释加 `@scaffold:type` / `@scaffold:options`
+- [ ] 确认新建表名都带前缀 `{tablePrefix}`，Model 的 `$table` 与物理表名一致
+- [ ] 补充表注释（`COMMENT='业务实体'`）
+- [ ] 建立关联（`user_id` 等外键列）与索引
+- [ ] 执行 `php artisan admin:ext-update {extensionName}` 让迁移生效
+- [ ] 运行 seeder 确认幂等（带 `--seed` 时已生成）
+
+## 阶段 2 · 后台 CRUD
+
+> **铁律：用命令行脚手架生成，不要手写 Controller 骨架。**
+> 按 [schema.md](../database/schema.md) 逐表执行：
+> `php artisan admin:scaffold --table=<表名> --extension={extensionName} --force`
+> 命令自动生成 Model / Controller / Lang / 后台路由 / 菜单 / 权限。再按 [database-schema.md](../../../../.claude/skills/dcat-plus-admin/references/database-schema.md) 补充人工项。
+
+- [ ] 用 `admin:scaffold --extension={extensionName}` 生成各表的 Controller（字段注释写得好，控件就准）
+- [ ] 补充关联下拉、上传 disk/dir、富文本等人工项
+- [ ] Grid 筛选器 / 快捷搜索 / 列显示器调优
+
+## 阶段 3 · 业务逻辑
+
+- [ ] 表单 saving/saved 事件钩子
+- [ ] Repository / 模型作用域
+- [ ] 自定义 Action（见 references/action-system.md）
+- [ ] 中间件（如需）
+
+## 阶段 4 · 接口开发
+
+> **铁律：用命令行脚手架生成 API 控制器与 Resource，不要手写骨架。**
+> `php artisan admin:scaffold --table=<表名> --extension={extensionName} --api --admin-api --force`
+> 生成 member-api / admin-api 控制器（继承 BaseApiController）+ Resource 类，路由自动注册。
+> 维护 [delivery/api_delivery.md](../delivery/api_delivery.md) 作为移动端唯一数据源。
+
+- [ ] 用 `admin:scaffold --api/--admin-api --extension={extensionName}` 生成 API 控制器 + Resource
+- [ ] 补全各控制器的 `getValidationRules()`（脚手架留空实现）
+- [ ] 按业务裁剪默认生成的列表/批量/导入导出接口
+- [ ] Scramble 注释（方法 PHPDoc / validate 字段注释 / Resource 注解）
+- [ ] 汇总交付文档 [api_delivery.md](../delivery/api_delivery.md)
+
+## 阶段 5 · 发布准备
+
+- [ ] 完善 README（若 `--marketplace` 则完善 MARKETPLACE.md）
+- [ ] 准备封面图 / 截图（可用 `<!-- AI_PROMPT -->` 占位提示词调用 AI 生图）
+- [ ] composer.json 元信息（name/description/authors）
+- [ ] 打 tag 并发布到应用市场
+
+---
+
+## 当前进度
+
+- **当前阶段**：阶段 1 · 数据层完善
+- **上一步完成**：阶段 0 脚手架生成
+- **下一步**：核对 / 补充表结构字段
+
+## 交付检查清单（发布前）
+
+- [ ] 所有表已在 version.php 登记，`ext-update` 能正确执行
+- [ ] 后台 CRUD 全部可访问且权限正确
+- [ ] 接口交付文档与实际接口一致
+- [ ] 市场介绍 / 落地页就绪
+- [ ] README 含安装与使用说明

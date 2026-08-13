@@ -1,3 +1,63 @@
-# Dcat Admin Extension
+# {pluginName}
 
+> Dcat Plus Admin 扩展包 · `{extensionName}`
 
+{pluginDesc}
+
+## 目录结构
+
+```
+{package}/
+├── README.md                  # 本文件
+├── composer.json              # 包元信息与 psr-4
+├── version.php                # 版本与迁移注册表（迁移必须在此登记才执行）
+├── docs/                      # 开发蓝图与交付文档（AI 驱动开发起点）
+│   ├── BLUEPRINT.md           # 扩展总纲：定位 / 模块 / 阶段
+│   ├── database/schema.md     # 数据表结构与字段语义
+│   ├── tasks/PLAN.md          # 开发任务看板（做到哪一步）
+│   └── delivery/api_delivery.md  # 接口交付文档（移动端唯一数据源，--api 时）
+├── updates/                   # 迁移与 seeder（具名类、无 namespace、无时间戳前缀）
+├── resources/
+│   ├── views/                 # Blade 视图
+│   └── assets/{css,js}        # 静态资源
+└── src/
+    ├── {className}ServiceProvider.php  # boot() final，API 路由须在 register() 加载
+    ├── Setting.php
+    ├── Models/
+    └── Http/
+        ├── routes.php         # 后台路由
+        ├── Controllers/
+        ├── Api/               # member-api（--api 时）
+        └── AdminApi/          # admin-api（--api 时）
+```
+
+## 开发工作流
+
+1. **读蓝图**：先看 [docs/BLUEPRINT.md](docs/BLUEPRINT.md) 了解定位与阶段，再看 [docs/tasks/PLAN.md](docs/tasks/PLAN.md) 看进度。
+2. **完善数据层**：按 [docs/database/schema.md](docs/database/schema.md) 核对/补充表结构，字段注释遵循 database-schema.md 约定。
+3. **后台 CRUD**：用 `/admin/helpers/scaffold` 按 schema 生成 Controller，再补充关联/上传/富文本。
+4. **接口开发**：维护 [docs/delivery/api_delivery.md](docs/delivery/api_delivery.md) 作为移动端唯一数据源。
+
+详细规范见项目技能：`database-schema.md`、`api-development.md`、`extension-development.md`。
+
+## 安装与使用
+
+```bash
+# 1. 安装扩展（会执行 version.php 登记的迁移与 seeder）
+php artisan admin:ext-import {extensionName}
+# 或开发期本地：
+php artisan admin:ext-update {extensionName}
+
+# 2. 进入后台「扩展」页面启用本扩展
+# 3. 按需在「权限菜单」配置入口
+```
+
+## 关键约定
+
+- 迁移放 `updates/`，**具名类、无 namespace、无时间戳前缀**，必须在 `version.php` 登记。
+- Seeder 必须**幂等**。
+- 禁用 `php artisan migrate`；扩展迁移走 `admin:ext-update`。
+
+## License
+
+MIT

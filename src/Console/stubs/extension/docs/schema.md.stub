@@ -1,0 +1,56 @@
+# 数据结构（Schema）
+
+> 本文件记录扩展 `{extensionName}` 的全部数据表结构。字段注释遵循
+> [database-schema.md](../../../../.claude/skills/dcat-plus-admin/references/database-schema.md) 约定，
+> 让 Dcat Plus Admin 脚手架（`/admin/helpers/scaffold`）能自动生成合适的 Grid / Form / Show。
+
+## 表名前缀约定
+
+本扩展**新建表**统一加前缀 `{tablePrefix}`（由扩展包名自动缩写生成，可用 `admin:ext-make-pro --table-prefix=` 覆盖）。
+
+- 新建表：物理表名 = `{tablePrefix}` + 逻辑表名（如 `{tablePrefix}articles`）；Model 类名仍用逻辑名（`Article`），`$table` 属性为物理表名。
+- 反推的已存在表：保持原名，不加前缀。
+- **后续手动新建表也必须遵守此前缀**，避免与其他扩展撞名、便于通过前缀识别归属。
+
+## 字段语义优先级（引自 database-schema.md）
+
+脚手架识别字段类型时，**优先级**从高到低：
+
+1. Scaffold 页面「语义类型」人工选择
+2. 字段注释中的 `@scaffold:type` 指令
+3. 字段注释中的 `@scaffold:options` 状态/枚举选项
+4. 数据库类型
+5. 高置信度的字段命名
+6. 普通文本字段回退
+
+> `status` / `state` 本身**不会**被自动解释为「启用/禁用」，必须配 `@scaffold:options` 才生成 `select` + `using()->label()`。
+
+## 已生成表清单
+
+{tableSummaries}
+
+---
+
+## 建表 SQL 模板（新增表时对照）
+
+```sql
+CREATE TABLE `your_table` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) NOT NULL DEFAULT '' COMMENT '名称',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否启用',
+  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态 @scaffold:options={"0":"禁用","1":"启用"}',
+  `cover_image` varchar(191) DEFAULT NULL COMMENT '封面图',
+  `price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '价格',
+  `content` text COMMENT '正文内容',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='业务实体说明';
+```
+
+## migration 写法要点
+
+- 主键 `$table->id()`；时间戳 `$table->timestamps()`；软删除 `$table->softDeletes()`。
+- 可空字段显式 `->nullable()`，金额用 `decimal`（禁 float/double），布尔用 `boolean`。
+- 字段注释 `->comment()` 承载业务说明与 `@scaffold:` 指令。
+- **一个文件一张表**；具名类、无 namespace、无时间戳前缀；必须登记 `version.php`。

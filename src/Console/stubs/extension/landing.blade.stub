@@ -1,0 +1,73 @@
+{{-- 应用市场落地页：dcat-admin 风格静态 Blade，用于扩展详情展示。 --}}
+@extends('admin::app')
+
+@section('title', '{pluginName}')
+@section('description', '{pluginDesc}')
+
+@section('content')
+<div class="extension-landing">
+    {{-- Hero 区 --}}
+    <section class="hero" style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color:#fff; padding:48px 24px; border-radius:8px;">
+        <div class="container">
+            <h1 style="font-size:32px; margin:0 0 12px;">{pluginName}</h1>
+            <p style="font-size:18px; opacity:.92; margin:0 0 20px;">{pluginDesc}</p>
+            <a href="#" class="btn btn-light btn-lg">立即安装</a>
+        </div>
+    </section>
+
+    {{-- 系统亮点 --}}
+    <section style="padding:32px 0;">
+        <div class="container">
+            <h2 style="margin-bottom:20px;">系统亮点</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <h5>🚀 开箱即用</h5>
+                            <p class="text-muted">基于 Dcat Plus Admin，内置完整后台 CRUD。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <h5>🔌 接口齐全</h5>
+                            <p class="text-muted">内置 member-api / admin-api，移动端可直接对接。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <h5>🛠️ 可维护</h5>
+                            <p class="text-muted">遵循项目建表与接口规范，结构清晰可追溯。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- 界面预览（AI 生图占位） --}}
+    <section style="padding:24px 0;">
+        <div class="container">
+            <h2 style="margin-bottom:20px;">界面预览</h2>
+            <div class="card card-default">
+                <div class="card-body" style="text-align:center; padding:40px; background:#f5f7fb;">
+                    {{-- AI_PROMPT: 生成一张 {pluginName} 后台管理界面截图，dcat-admin 蓝色主题，左侧菜单，主区域数据表格 --}}
+                    <span class="text-muted">界面截图位（由 AI 生图后回填）</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- 价格 / 行为召唤 --}}
+    <section style="padding:32px 0;">
+        <div class="container text-center">
+            <h2>开始使用</h2>
+            <p class="text-muted mb-3">立即安装 {pluginName}，快速搭建您的业务系统。</p>
+            <a href="#" class="btn btn-primary btn-lg">立即安装</a>
+        </div>
+    </section>
+</div>
+@endsection
