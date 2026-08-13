@@ -9,7 +9,12 @@ class ActionCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'admin:action';
+    protected $signature = 'admin:action
+        {action? : The type of action (default/grid-batch/grid-row/grid-tool/form-tool/show-tool/tree-row/tree-tool/lazy-table/lazy-form)}
+        {name? : The name of action class}
+        {--namespace= : The namespace of the action class}
+        {--base= : The application path}
+        {--force : Overwrite the action class if it already exists}';
 
     /**
      * The console command description.
@@ -61,22 +66,52 @@ class ActionCommand extends GeneratorCommand
 
     public function handle()
     {
-        $this->choice = $this->choice(
-            'Which type of action would you like to make?',
-            $choices = $this->actionTyps()
-        );
+        // 1. action 类型：有参数则用参数并校验，否则交互式选择
+        if ($actionArg = $this->argument('action')) {
+            if (! in_array($actionArg, $this->actionTyps(), true)) {
+                $this->error(sprintf('Invalid action type [%s]. Valid types are: %s', $actionArg, implode(', ', $this->actionTyps())));
 
-        INPUT_NAME:
-
-        $this->className = ucfirst(trim($this->ask('Please enter a name of action class')));
-
-        if (! $this->className) {
-            goto INPUT_NAME;
+                return false;
+            }
+            $this->choice = $actionArg;
+        } else {
+            $this->choice = $this->choice(
+                'Which type of action would you like to make?',
+                $this->actionTyps()
+            );
         }
 
-        $this->namespace = ucfirst(trim($this->ask('Please enter the namespace of action class', $this->getDefaultNamespace(null))));
+        // 2. 类名：有参数则用参数，否则交互式输入
+        if ($nameArg = $this->argument('name')) {
+            $this->className = ucfirst(trim($nameArg));
+        } else {
+            INPUT_NAME:
 
-        $this->askBaseDirectory();
+            $this->className = ucfirst(trim($this->ask('Please enter a name of action class')));
+
+            if (! $this->className) {
+                goto INPUT_NAME;
+            }
+        }
+
+        // 3. 命名空间：传了 --namespace 就直接用；
+        //    否则参数模式下采用类型对应的默认命名空间（不再停下来询问，对 AI 友好），
+        //    纯交互模式（无 action 参数）下才交互式询问。
+        if ($namespaceOpt = $this->option('namespace')) {
+            $this->namespace = ucfirst(trim($namespaceOpt));
+        } elseif ($actionArg) {
+            $this->namespace = $this->getDefaultNamespace(null);
+        } else {
+            $this->namespace = ucfirst(trim($this->ask('Please enter the namespace of action class', $this->getDefaultNamespace(null))));
+        }
+
+        // 4. 应用路径：传了 --base 就直接用；
+        //    否则参数模式下沿用当前应用路径（app/），纯交互模式才询问。
+        if ($baseOpt = $this->option('base')) {
+            $this->baseDirectory = trim($baseOpt);
+        } elseif (! $actionArg) {
+            $this->askBaseDirectory();
+        }
 
         return parent::handle();
     }
