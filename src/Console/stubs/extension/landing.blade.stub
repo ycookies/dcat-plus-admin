@@ -1,73 +1,48 @@
-{{-- 应用市场落地页：dcat-admin 风格静态 Blade，用于扩展详情展示。 --}}
-@extends('admin::app')
+{{--
+    {pluginName} 应用市场落地页（空壳）
 
-@section('title', '{pluginName}')
-@section('description', '{pluginDesc}')
+    本文件是落地页的统一起点：所有扩展包的落地页都用这个独立 HTML 结构，方便统一管理。
+    具体内容（区块、文案、色彩、图片、动效）由 AI 或开发者按业务功能自由生成，
+    不预设固定结构，不要照搬其他扩展。质量要求见 extension-workflow.md「阶段 4.2 · 落地页开发」。
 
-@section('content')
-<div class="extension-landing">
-    {{-- Hero 区 --}}
-    <section class="hero" style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color:#fff; padding:48px 24px; border-radius:8px;">
-        <div class="container">
-            <h1 style="font-size:32px; margin:0 0 12px;">{pluginName}</h1>
-            <p style="font-size:18px; opacity:.92; margin:0 0 20px;">{pluginDesc}</p>
-            <a href="#" class="btn btn-light btn-lg">立即安装</a>
-        </div>
-    </section>
+    技术基线（已就绪，保持不变）：
+    - 独立 HTML，不继承后台布局，面向访客，可独立路由访问。
+    - Tailwind v4 浏览器版 CDN + Lucide 图标 CDN（无需 npm 构建，部署即用）。
+    - 设计令牌：用 :root CSS 变量定义品牌色，方便换肤。
 
-    {{-- 系统亮点 --}}
-    <section style="padding:32px 0;">
-        <div class="container">
-            <h2 style="margin-bottom:20px;">系统亮点</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card card-default">
-                        <div class="card-body">
-                            <h5>🚀 开箱即用</h5>
-                            <p class="text-muted">基于 Dcat Plus Admin，内置完整后台 CRUD。</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card card-default">
-                        <div class="card-body">
-                            <h5>🔌 接口齐全</h5>
-                            <p class="text-muted">内置 member-api / admin-api，移动端可直接对接。</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card card-default">
-                        <div class="card-body">
-                            <h5>🛠️ 可维护</h5>
-                            <p class="text-muted">遵循项目建表与接口规范，结构清晰可追溯。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    生成器已替换：{pluginName}（系统名）、{pluginDesc}（一句话定位）、{extensionName}（包名）。
+    下方 <body> 为空，请在里面按业务生成完整的落地页内容。
+--}}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{pluginName} - {pluginDesc}</title>
+    <meta name="description" content="{pluginDesc}">
 
-    {{-- 界面预览（AI 生图占位） --}}
-    <section style="padding:24px 0;">
-        <div class="container">
-            <h2 style="margin-bottom:20px;">界面预览</h2>
-            <div class="card card-default">
-                <div class="card-body" style="text-align:center; padding:40px; background:#f5f7fb;">
-                    {{-- AI_PROMPT: 生成一张 {pluginName} 后台管理界面截图，dcat-admin 蓝色主题，左侧菜单，主区域数据表格 --}}
-                    <span class="text-muted">界面截图位（由 AI 生图后回填）</span>
-                </div>
-            </div>
-        </div>
-    </section>
+    {{-- 设计令牌：换成 {pluginName} 的品牌色 --}}
+    <style>
+:root {
+  --brand-primary: #4F46E5;          /* 主色：按业务改 */
+  --brand-accent: #F59E0B;           /* 强调色：按业务改 */
+  --brand-bg: #FFFFFF;
+  --brand-fg: #14142B;
+}
+    </style>
 
-    {{-- 价格 / 行为召唤 --}}
-    <section style="padding:32px 0;">
-        <div class="container text-center">
-            <h2>开始使用</h2>
-            <p class="text-muted mb-3">立即安装 {pluginName}，快速搭建您的业务系统。</p>
-            <a href="#" class="btn btn-primary btn-lg">立即安装</a>
-        </div>
-    </section>
-</div>
-@endsection
+    {{-- Tailwind v4 浏览器版（自包含，无需构建） --}}
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    {{-- Lucide 图标（按需用 <i data-lucide="图标名"></i>，文末调 lucide.createIcons()） --}}
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    {{-- TODO: 在此按 {pluginName} 的业务功能生成落地页内容。
+         要求（详见 extension-workflow.md 阶段 4.2）：美观、内容丰富、有层次感、有动态感、自带所需图片。 --}}
+
+
+
+    {{-- 初始化 Lucide 图标（若使用了 data-lucide 图标则必须调用） --}}
+    <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -52,10 +52,35 @@
 - [ ] Scramble 注释（方法 PHPDoc / validate 字段注释 / Resource 注解）
 - [ ] 汇总交付文档 [api_delivery.md](../delivery/api_delivery.md)
 
+## 阶段 4.1 · 前端小程序页面开发（带 --api 时）
+
+> **铁律：前端 AI 只读 [api_delivery.md](../delivery/api_delivery.md) 对接接口，不读后端控制器、不猜接口。** 契约有出入先回阶段 4 修文档。
+> 基于 `web_tpl/association`（unibest：uni-app + Vue3 + TS + wot-ui + pnpm）开发。先把 `association` 复制为独立前端工程再 `pnpm install`。
+
+- [ ] 通读 `api_delivery.md`，按「用户流程」列出页面清单（流程步骤 → 页面 → 所需接口）
+- [ ] 配置 `.env` 的 `VITE_SERVER_BASEURL` 指向 member-api 地址（含统一前缀，避免与接口路径重复）
+- [ ] 建立请求层：有 openapi.json 跑 `pnpm openapi` 生成 `src/service/`；否则按接口清单写 `src/api/<模块>.ts` + 类型
+- [ ] 按用户流程逐页开发（`src/pages/<模块>/`，wot-ui 渲染，列表页接 `{list, page_info}` 分页）
+- [ ] 接入鉴权（登录存 token 到 `useTokenStore`，受保护页靠拦截器自动带 token）
+- [ ] `pnpm dev:h5` 或 `dev:mp` 跑通至少一条核心主流程（登录→列表→详情→下单→我的）
+
+## 阶段 4.2 · 落地页开发（带 --marketplace 时）
+
+> **创作题不是填空题**：空壳 `resources/views/landing.blade.php` 只提供统一技术基线（独立 HTML + Tailwind v4 CDN + Lucide + CSS 变量换肤），body 为空。按本扩展**真实业务功能**自主设计结构与内容，不套固定模板。
+> 质量要求五条：美观（品牌色）、内容丰富（对应真实模块）、层次感（区块节奏）、动态感（渐入/计数/hover + reduced-motion 降级）、自带图片（AI 生图，无占位）。
+> 参考标杆：`dybang.saishiyun.net/resources/views/fishing_web.blade.php`（学水准，不照抄结构）。
+
+- [ ] 读 BLUEPRINT.md / schema.md 提炼业务价值，定下落地页要讲的区块（对应真实功能模块，不凑数）
+- [ ] 品牌色写入 `:root` 变量，独立路由可访问，不继承后台布局
+- [ ] 实现五项目标效果（美观/丰富/层次/动态/图片齐全）
+- [ ] 所需图片全部 AI 生图填充到 `public/images/{extensionName}/`，无占位灰块
+- [ ] 响应式（桌面/平板/移动端）+ `prefers-reduced-motion` 无障碍降级
+- [ ] 文案对应真实功能、行业语言，无通用废话；统计数据标 TODO 待换真实值
+
 ## 阶段 5 · 发布准备
 
 - [ ] 完善 README（若 `--marketplace` 则完善 MARKETPLACE.md）
-- [ ] 准备封面图 / 截图（可用 `<!-- AI_PROMPT -->` 占位提示词调用 AI 生图）
+- [ ] 核对落地页（阶段 4.2 已完成）最终可访问、图片齐全
 - [ ] composer.json 元信息（name/description/authors）
 - [ ] 打 tag 并发布到应用市场
 
