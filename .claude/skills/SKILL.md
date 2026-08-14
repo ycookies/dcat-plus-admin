@@ -16,11 +16,11 @@ triggers:
 
 ## 概述
 
-**dcat-plus-admin** (Composer: `dcat-plus/laravel-admin`) 是原 dcat/laravel-admin 的社区维护分支，由杨光(ycookies)持续维护。原版停更后 fork 而来，新增 JWT API、会员系统、SKU 字段、动态表单、OpenAPI 文档等功能，兼容 Laravel 8~12。
+**dcat-plus-admin** (Composer: `dcat-plus/laravel-admin`) 是原 dcat/laravel-admin 的社区维护分支，由杨光(ycookies)持续维护。原版停更后 fork 而来，新增 JWT API、会员系统、SKU 字段、动态表单、OpenAPI 文档等功能，兼容 Laravel 8~13。
 
 - 命名空间仍为 `Dcat\Admin\`，向后兼容
 - 技术栈: Laravel + AdminLTE3 + Bootstrap4 + jQuery3 + PJAX
-- PHP >= 7.4, 推荐 PHP 8.2 + Laravel 10
+- PHP >= 7.4, 推荐 PHP 8.3 + Laravel 12
 - 官方文档 http://docs.dcat-admin.com 已过时，**以代码为准**
 - GitHub: https://github.com/ycookies/dcat-plus-admin
 
@@ -30,7 +30,7 @@ triggers:
 
 ```bash
 # 1. 新建 Laravel 项目
-composer create-project --prefer-dist laravel/laravel myproject 10.*
+composer create-project --prefer-dist laravel/laravel myproject 12.*
 
 # 2. 配置 .env 数据库
 # DB_CONNECTION=mysql / DB_DATABASE=...
