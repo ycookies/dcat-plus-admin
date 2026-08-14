@@ -297,7 +297,7 @@ php artisan admin:scaffold \
 
 ### 四、参考标杆
 
-`dybang.saishiyun.net/resources/views/fishing_web.blade.php`（垂钓文旅落地页）是质量标杆：设计令牌 + 暗色模式、9 区块完整营销链路、三种动态效果、响应式、无障碍降级、真实场景图。**学习它的质量水准和动效手法，但结构按本扩展业务重新设计，不照抄它的区块。**
+`vendor/dcat-plus/laravel-admin/resources/views/pages/fishing_web.blade.php`（垂钓文旅落地页）是质量标杆：设计令牌 + 暗色模式、9 区块完整营销链路、三种动态效果、响应式、无障碍降级、真实场景图。**学习它的质量水准和动效手法，但结构按本扩展业务重新设计，不照抄它的区块。**
 
 ### 自检
 - [ ] 落地页独立可访问（路由已注册），不依赖后台登录。
