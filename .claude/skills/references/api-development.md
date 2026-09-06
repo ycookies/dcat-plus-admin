@@ -115,7 +115,7 @@ use Illuminate\Http\Request;
 use App\Models\MemberUser;
 use Dedoc\Scramble\Attributes\Group;
 
-#[Group('用户', '用户', 2)] // 参数：中文名、英文名、排序权重
+#[Group('会员-用户', '会员-用户', 2)] // 参数：分组-模块名、描述、排序权重；必须带「分组-」前缀（见 4.2）
 class MemberUserController extends BaseApiController
 {
     public function __construct()
@@ -250,17 +250,51 @@ public function index(Request $request)
 
 - 不需要登录的接口在方法 PHPDoc 加 `@unauthenticated`（参考 `AuthController::login`）。
 
-### 4.2 分组与排序（类级属性）
+### 4.2 分组命名（三级导航，**强制**）
+
+文档页（`/docs/api`）使用 Scalar 渲染器，侧边栏是**三级导航**：
+
+```
+一级 分组（如 点餐） → 二级 模块（如 订单） → 三级 接口（如 创建订单）
+```
+
+三级结构由包内 `TagGroupsTransformer`（`ycookies/apidoc`，配置 `scramble.tag_groups` 默认开启）生成：它把 `Group` 名按分隔符 `-` 或 `/` 拆成「分组-模块」两段，写入 OpenAPI `x-tagGroups` 扩展。因此：
+
+**规则 1 —— 每个 API 控制器类的 `Group` 名必须写成 `分组-模块` 格式**（分隔符用 `-`，前后不加空格）：
 
 ```php
 use Dedoc\Scramble\Attributes\Group;
 
-#[Group('用户', '用户', 2)]   // 参数：中文名、英文名、排序权重 weight（小的排前面）
-class MemberUserController extends BaseApiController
+#[Group('点餐-订单', '点餐订单管理', 4)]   // 参数：分组-模块、描述、排序权重 weight（小的排前面）
+class OrderController extends BaseApiController
 ```
 
-- 不写 `Group` 时按控制器名自动分组；同名类跨命名空间时默认用 FQCN，用 `#[SchemaName]` 显式命名避免冲突。
-- 多标签可用类 PHPDoc `@tags a, b`（UI 只显示第一个）。
+- 名字里**不含** `-`/`/` 分隔符的 tag（如 `#[Group('用户')]`）**不会出现在 Scalar 侧边栏**——存在 x-tagGroups 时所有未分组 tag 一律被隐藏。这是最容易踩的坑，新增/修改控制器后必须检查文档页该接口是否可见。
+- 不写 `Group` 时按控制器名自动分组，同样因不含分隔符而被隐藏，所以**必须显式写 `Group`**。
+- 第二个参数是模块描述，展示在分组标题下方，可写业务说明；省略时默认取名字本身。
+- 同一业务域的多个控制器共用分组名（如 `点餐-分类`、`点餐-菜品`、`点餐-订单`），模块名用简短中文名。
+
+**规则 2 —— 复用既有分组名，不新造同义分组**。当前已有分组：
+
+| 分组（一级） | 模块（二级）示例 | 所属 |
+|------|------|------|
+| `会员` | `会员-授权`、`会员-用户` | `app/Api/` 会员端基础 |
+| `平台` | `平台-组织机构` | `dcat-admin/organization` 扩展 |
+| `点餐` | `点餐-分类/菜品/桌台/订单/支付` | food-ordering 扩展 |
+| `服务预约` | `服务预约-分类/服务项/套餐/技师/时段/订单/支付` | service-booking 扩展 |
+| `小程序管理插件` | `小程序管理插件-微信小程序` | MiniappManager 扩展 |
+
+新扩展/新模块优先归入以上分组；确需新分组时用简短中文业务域名（2-6 字）。
+
+**规则 3 —— 避免跨分组同名模块**。不同分组下出现同名模块（如 `点餐-订单` 与 `服务预约-订单`）时，transformer 会让首个分组保留短名、后续分组保留全名显示，侧边栏观感不一致。同名业务尽量用可区分的模块名（如 `点餐-订单` / `预约-订单`）。
+
+**规则 4 —— 改完 `Group` 必须清缓存**。文档有缓存，修改/新增 `Group` 属性后执行：
+
+```bash
+php artisan scramble:clear   # 分别清 [default] 与 [admin-api] 两份缓存后再访问文档页
+```
+
+文档页配置与渲染器细节见 `packages/apidoc/docs/scalar-renderer.md`。多标签可用类 PHPDoc `@tags a, b`（UI 只显示第一个）；同名类跨命名空间时默认用 FQCN，用 `#[SchemaName]` 显式命名避免冲突。
 
 ### 4.3 请求体字段注释（写在 validate 规则数组里）
 
