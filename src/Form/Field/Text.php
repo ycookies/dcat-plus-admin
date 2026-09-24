@@ -11,13 +11,27 @@ class Text extends Field
     use PlainInput;
     use Sizeable;
 
+    /**
+     * 默认前置图标（仅 Text 基类），HasMany useTable 模式下按此常量识别并自动去除，
+     * 用户显式设置的其他 prepend 不受影响。
+     */
+    const DEFAULT_PREPEND = '<i class="feather icon-edit-2"></i>';
+
     public function __construct($column, $arguments = [])
     {
         if (static::class === self::class) {
-            $this->prepend('<i class="feather icon-edit-2"></i>');
+            $this->prepend(self::DEFAULT_PREPEND);
         }
 
         parent::__construct($column, $arguments);
+    }
+
+    /**
+     * @return bool 当前 prepend 是否为默认图标（用户未显式设置过）
+     */
+    public function isDefaultPrepend(): bool
+    {
+        return $this->prepend === self::DEFAULT_PREPEND;
     }
 
     /**

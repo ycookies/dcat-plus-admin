@@ -62,11 +62,25 @@ class Tab
         $fields = $this->collectFields();
         $layout = $this->collectColumnLayout();
 
-        $id = $id ?: ('tab-form-'.($this->tabs->count() + 1).'-'.mt_rand(0, 9999));
+        $id = $id ?: $this->generateId();
 
         $this->tabs->push(compact('id', 'title', 'fields', 'active', 'layout'));
 
         return $this;
+    }
+
+    /**
+     * Generate a deterministic tab id.
+     *
+     * addScript() 会把当前 tab 的 id 写入 URL hash 并在页面加载时按 hash 恢复，
+     * 所以自动生成的 id 必须跨渲染稳定：以「请求路径 + 表单类名」为种子，
+     * 同一页面每次渲染结果一致；序号后缀保证同一表单内不重复。
+     */
+    protected function generateId(): string
+    {
+        $seed = request()->path().':'.class_basename($this->form);
+
+        return 'tab-'.substr(md5($seed), 0, 8).'-'.($this->tabs->count() + 1);
     }
 
     /**

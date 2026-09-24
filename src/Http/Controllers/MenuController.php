@@ -42,12 +42,12 @@ class MenuController extends AdminController
                     $form->text('uri', trans('admin.uri'))
                         ->datalist($this->getRoutes())
                         ->help('可以是外部链接，如：https://www.baidu.com');
-                    // if ($menuModel::withRole()) {
-                    //     $form->multipleSelect('roles', trans('admin.roles'))
-                    //     ->options($roleModel::all()
-                    //     ->pluck('name', 'id'))
-                    //     ->default([$roleModel::query()->value('id')]);
-                    // }
+                    if ($menuModel::withRole()) {
+                        $form->multipleSelect('roles', trans('admin.roles'))
+                        ->options($roleModel::all()
+                        ->pluck('name', 'id'))
+                        ->default([$roleModel::query()->value('id')]);
+                    }
                     // if ($menuModel::withPermission()) {
                     //     $form->tree('permissions', trans('admin.permission'))
                     //         ->expand(false)
@@ -130,7 +130,6 @@ class MenuController extends AdminController
                 ->datalist($this->getRoutes())
                 ->help('可以是外部链接，如：https://www.baidu.com');
             $form->switch('show', trans('admin.show'));
-
             if ($menuModel::withRole()) {
                 $form->multipleSelect('roles', trans('admin.roles'))
                     ->options(function () {
@@ -142,22 +141,22 @@ class MenuController extends AdminController
                         return array_column($v, 'id');
                     });
             }
-            // if ($menuModel::withPermission()) {
-            //     $form->tree('permissions', trans('admin.permission'))
-            //         ->treeState(false)
-            //         ->nodes(function () {
-            //             $permissionModel = config('admin.database.permissions_model');
+            if ($menuModel::withPermission()) {
+                $form->tree('permissions', trans('admin.permission'))
+                    ->treeState(false)
+                    ->nodes(function () {
+                        $permissionModel = config('admin.database.permissions_model');
 
-            //             return (new $permissionModel())->allNodes();
-            //         })
-            //         ->customFormat(function ($v) {
-            //             if (! $v) {
-            //                 return [];
-            //             }
+                        return (new $permissionModel())->allNodes();
+                    })
+                    ->customFormat(function ($v) {
+                        if (! $v) {
+                            return [];
+                        }
 
-            //             return array_column($v, 'id');
-            //         });
-            // }
+                        return array_column($v, 'id');
+                    });
+            }
 
             $form->display('created_at', trans('admin.created_at'));
             $form->display('updated_at', trans('admin.updated_at'));

@@ -14,6 +14,11 @@ class Textarea extends Field
     protected $rows = 5;
 
     /**
+     * @var bool rows 是否为默认值（用户未显式调用 rows()）
+     */
+    protected $rowsIsDefault = true;
+
+    /**
      * Set rows of textarea.
      *
      * @param  int  $rows
@@ -22,8 +27,17 @@ class Textarea extends Field
     public function rows($rows = 5)
     {
         $this->rows = $rows;
+        $this->rowsIsDefault = false;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDefaultRows(): bool
+    {
+        return $this->rowsIsDefault;
     }
 
     /**
@@ -32,7 +46,7 @@ class Textarea extends Field
     public function render()
     {
         if (is_array($this->value)) {
-            $this->value = json_encode($this->value, JSON_PRETTY_PRINT);
+            $this->value = json_encode($this->value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         }
 
         $this->addVariables(['rows' => $this->rows]);
