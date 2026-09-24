@@ -8,8 +8,8 @@ use Illuminate\Contracts\Support\Renderable;
 class Box extends Widget
 {
     protected $view = 'admin::widgets.box';
-    protected $title = 'Box header';
-    protected $content = 'here is the box content.';
+    protected $title = '';
+    protected $content = '暂无内容';
     protected $tools = [];
     protected $padding;
 

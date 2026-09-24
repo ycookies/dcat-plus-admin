@@ -221,6 +221,13 @@ class Field implements Renderable
     protected $formGroupClass = ['form-field'];
 
     /**
+     * HasMany useTable 模式下的表头列宽提示（如 '25%'、'150px'）。
+     *
+     * @var string|int|null
+     */
+    protected $tableColumnWidth;
+
+    /**
      * @var \Closure[]
      */
     protected $savingCallbacks = [];
@@ -625,6 +632,50 @@ class Field implements Renderable
         $this->help = compact('text', 'icon');
 
         return $this;
+    }
+
+    /**
+     * Get the help block content.
+     *
+     * @return array|null
+     */
+    public function getHelp()
+    {
+        return $this->help;
+    }
+
+    /**
+     * Remove the help block. (HasMany useTable 模式统一把 help 收集到表头后调用)
+     *
+     * @return $this
+     */
+    public function clearHelp()
+    {
+        $this->help = null;
+
+        return $this;
+    }
+
+    /**
+     * HasMany useTable 模式的列宽提示，渲染到对应表头 <th> 的 width；
+     * 不设置时按字段类型取默认宽度。
+     *
+     * @param  string|int  $width  如 '25%'、'150px'
+     * @return $this
+     */
+    public function columnWidth($width)
+    {
+        $this->tableColumnWidth = $width;
+
+        return $this;
+    }
+
+    /**
+     * @return string|int|null
+     */
+    public function getTableColumnWidth()
+    {
+        return $this->tableColumnWidth ?? null;
     }
 
     /**

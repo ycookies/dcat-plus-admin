@@ -88,6 +88,14 @@ class HasMany extends Field
     protected $columnClass;
 
     /**
+     * useTable 模式的结构化表头（label/help/width/class），
+     * 由 applyTableStyle() 在每次 buildNestedForm() 时重建。
+     *
+     * @var array
+     */
+    protected $tableColumns = [];
+
+    /**
      * Create a new HasMany field instance.
      *
      * @param $relationName
@@ -419,7 +427,101 @@ class HasMany extends Field
         // 使用column布局之后需要重新追加字段
         $form->layout()->appendToLastColumn($hidden);
 
+        // 表格模式的行内样式统一在这里处理，保证模板行与数据行渲染结果一致
+        if ($this->viewMode === 'table') {
+            $this->applyTableStyle($form);
+        }
+
         return $form;
+    }
+
+    /**
+     * useTable 模式的行内字段收敛：隐藏 label、去除 Text 默认前置图标、
+     * 行内 help 收集到表头、textarea 默认行数降为 2、number 收窄。
+     *
+     * @param  NestedForm  $form
+     */
+    protected function applyTableStyle(Form\NestedForm $form)
+    {
+        $this->tableColumns = [];
+
+        /* @var Field $field */
+        foreach ($form->fields() as $field) {
+            if ($field instanceof Hidden) {
+                continue;
+            }
+
+            $field->setLabelClass(['hidden']);
+            $field->width(12, 0);
+
+            if ($field instanceof Text && $field->isDefaultPrepend()) {
+                $field->prepend('');
+            }
+
+            if ($field instanceof Textarea && $field->isDefaultRows()) {
+                $field->rows(2);
+            }
+
+            if ($field instanceof Number) {
+                // 覆盖 Number::render() 里的 defaultAttribute('style', 'width: 140px')
+                $field->attribute('style', 'width: 90px;flex:none');
+            }
+
+            $help = $field->getHelp();
+
+            $this->tableColumns[] = [
+                'label' => $field->label(),
+                'help'  => $help['text'] ?? null,
+                'width' => $this->defaultColumnWidth($field),
+                'class' => $this->defaultColumnClass($field),
+            ];
+
+            if ($help) {
+                $field->clearHelp();
+            }
+        }
+    }
+
+    /**
+     * @param  Field  $field
+     * @return string|null
+     */
+    protected function defaultColumnWidth(Field $field)
+    {
+        if ($width = $field->getTableColumnWidth()) {
+            return $width;
+        }
+
+        if ($field instanceof SwitchField) {
+            return '70px';
+        }
+
+        if ($field instanceof Number) {
+            return '100px';
+        }
+
+        if ($field instanceof Textarea) {
+            return '200px';
+        }
+
+        if ($field instanceof Select) {
+            return '150px';
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  Field  $field
+     * @return string
+     */
+    protected function defaultColumnClass(Field $field)
+    {
+        if ($field instanceof SwitchField || $field instanceof Number) {
+            return 'text-center';
+        }
+
+        return '';
     }
 
     /**
@@ -581,6 +683,9 @@ class HasMany extends Field
     /**
      * Render the `HasMany` field for table style.
      *
+     * 行内字段的样式（隐藏 label、去默认图标、help 上收表头、列宽）已统一在
+     * applyTableStyle() 中处理，这里只负责组装模板行与表头变量。
+     *
      * @return mixed
      *
      * @throws \Exception
@@ -590,26 +695,29 @@ class HasMany extends Field
         $headers = [];
         $fields = [];
         $hidden = [];
+        $tdClasses = [];
+
+        /* Build row elements */
+        $template = '';
 
         /* @var Field $field */
         foreach ($this->buildNestedForm()->fields() as $field) {
             if (is_a($field, Hidden::class)) {
                 $hidden[] = $field->render();
-            } else {
-                /* Hide label and set field width 100% */
-                $field->setLabelClass(['hidden']);
-                $field->width(12, 0);
-                $fields[] = $field->render();
-                $headers[] = $field->label();
+                $tdClasses[] = '';
+                continue;
             }
+
+            $headers[] = $field->label();
+
+            $rendered = $field->render();
+            $fields[] = $rendered;
+
+            // 列对齐类同步落到 td，与表头（tableColumns.class）保持一致
+            $tdClass = $this->defaultColumnClass($field);
+            $tdClasses[] = $tdClass;
+            $template .= '<td class="'.$tdClass.'">'.$rendered.'</td>';
         }
-
-        /* Build row elements */
-        $template = array_reduce($fields, function ($all, $field) {
-            $all .= "<td>{$field}</td>";
-
-            return $all;
-        }, '');
 
         /* Build cell with hidden elements */
         $template .= '<td class="hidden">'.implode('', $hidden).'</td>';
@@ -618,7 +726,12 @@ class HasMany extends Field
         $this->view = $this->view ?: $this->views[$this->viewMode];
 
         $this->addVariables([
+            // 兼容旧自定义视图：纯 label 数组
             'headers'      => $headers,
+            // 结构化表头（label/help/width/class），配合新版 hasmanytable 视图
+            'tableHeaders' => $this->tableColumns,
+            // 各列 td 的对齐类（下标与 fields() 顺序一致，含 hidden 占位）
+            'tdClasses'    => $tdClasses,
             'forms'        => $this->buildRelatedForms(),
             'template'     => $template,
             'relationName' => $this->relationName,
