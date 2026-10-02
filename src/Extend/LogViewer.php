@@ -120,6 +120,11 @@ class LogViewer
 
     protected function formatPath($path)
     {
+        // 非字符串输入（如数组）一律归一为空串，避免下游字符串拼接报 Array to string conversion
+        if (! is_string($path)) {
+            return '';
+        }
+
         return $path ? str_replace(['../'], '', $path) : '';
     }
 
@@ -237,11 +242,12 @@ class LogViewer
 
     public function getFile()
     {
-        if (! $this->file) {
-            $this->file = $this->getLastModifiedLog();
+        if (! $this->file || ! is_string($this->file)) {
+            $last = $this->getLastModifiedLog();
+            $this->file = is_string($last) ? $last : '';
         }
 
-        return $this->file;
+        return is_string($this->file) ? $this->file : '';
     }
 
     public function isCurrentFile($file)
