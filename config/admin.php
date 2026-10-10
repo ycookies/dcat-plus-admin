@@ -419,6 +419,9 @@ return [
         'load_config_from_server' => true,
         // 编辑器初始高度（像素）。
         'initial_frame_height'    => 400,
+        // 编辑器容器 z-index 基准值。需低于吸顶导航栏（997），否则滚动时编辑器会
+        // 盖住导航栏；UEditor 弹窗/菜单基于此值 +10 派生，仍高于导航栏可正常使用。
+        'z_index'                 => 990,
         // 是否在编辑器底部显示元素路径。
         'element_path_enabled'    => false,
         // 是否随内容增加自动增长编辑器高度。
