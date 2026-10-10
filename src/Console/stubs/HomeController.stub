@@ -2,166 +2,275 @@
 
 namespace DummyNamespace;
 
-use App\Admin\Metrics\Examples;
+use Dcat\Admin\Support\ErpDashboardData;
 use App\Http\Controllers\Controller;
-use Dcat\Admin\Http\Controllers\Dashboard;
-use Illuminate\Support\Facades\DB;
-use Dcat\Admin\Layout\Column;
+use Dcat\Admin\Admin;
 use Dcat\Admin\Layout\Content;
-use Dcat\Admin\Layout\Row;
-use Dcat\Admin\Widgets\Card;
-use Dcat\Admin\Widgets\Linkbox;
-use Dcat\Admin\Widgets\MediaList;
-use Dcat\Admin\Widgets\Callout;
 use Dcat\Admin\Widgets\Alert;
-use Dcat\Admin\Widgets\ListGroup;
-use Dcat\Admin\Widgets\InfoList;
-use Dcat\Admin\Widgets\CoverCard;
+use Dcat\Admin\Widgets\ApexCharts\Chart;
+use Dcat\Admin\Widgets\Card;
+use Dcat\Admin\Widgets\MarqueeNotice;
+use Dcat\Admin\Widgets\Swiper;
+use Dcat\Admin\Widgets\Table;
 
 class HomeController extends Controller
 {
+    /**
+     * ERP 经营驾驶舱示例。
+     *
+     * 数据由 ErpDashboardData 集中提供；接入真实业务时，仅替换该类中的数据来源即可。
+     */
     public function index(Content $content)
-        {
+    {
 
-            $alert = Alert::make('<ul><li><code> Dcat-plus Admin </code> 是基于dcat-admin 的功能增强版，主要是加强两方面，加强灵活的布局; 丰富更多的页面组件。以及修正原有的一些问题。最终做成 汇聚Filament，Laravel-admin , Dcat-admin 优点于一身的基于Laravel + Bootstrap 的极速开发框架。</li><li>灵活的页面布局，丰富的页面组件，精细化的组件控制,多管理面板， 多应用开发场景支持。一键把Model自动生成crud，自带多种js插件,能为您的产品开发节省50%时间。</li><li>Dcatplus 官方 <a href="https://dcat-admin.com/">查看</a></li> <li>快速体验Dcatplus 可安装 [Dcatplus 示例大全] <code> composer require ycookies/dcatplus-demo</code>  <a class="copy" copy-text="composer require ycookies/dcatplus-demo" href="javascript:void(0);"><i class="feather icon-copy"></i></a></li><ul>','Dcat-plus Admin 特色');
-            $content =  $content
-                ->header('Dcat-plus Admin')
-                ->description('只为习得《极速开发》神功，实现人身自由，工作自由，财务自由之路')
-                ->row($alert->info())
-                ->row(function (Row $row) {
-                    $row->column(9, function (Column $column) {
-                        $yue = date('m');
-                        $events_list = [
-                            [
-                                'title' => '今天的事项',
-                                'start' => '2024-'.$yue.'-01 14:00:00', // 示例日期，您可以根据需要替换
-                                'backgroundColor' => '#f56954', // red
-                                'borderColor' => '#f56954', // red
-                                'allDay' => false, // 指示事件是否为全天事件。默认为 false
-                                'description' => '这是今天的事项描述', // 描述信息
-                                'showModal' => true,
+        $data = ErpDashboardData::make();
+
+        $this->registerDashboardStyle();
+
+        $salesChart = Chart::make($this->salesChartOptions($data));
+        $channelChart = Chart::make($this->channelChartOptions($data));
+        $categoryChart = Chart::make($this->categoryChartOptions($data));
+        $fulfillmentChart = Chart::make($this->fulfillmentChartOptions($data));
+        $bannerGroups = array_chunk($data['banners'], 2);
+        $primaryBannerSwiper = $this->makeBannerSwiper($bannerGroups[0] ?? [], 4800);
+        $operationsBannerSwiper = $this->makeBannerSwiper($bannerGroups[1] ?? [], 5900);
+
+        $marqueeNotice = MarqueeNotice::make($data['notices'])
+            ->class('erp-dashboard-notice', true)
+            ->options([
+                'autoplay' => ['delay' => 4400],
+            ]);
+
+        $recentOrders = Card::make('最新销售订单', $this->ordersTable($data['orders']))
+            ->withHeaderBorder()
+            ->class('erp-dashboard-card erp-orders-card', true);
+
+        $inventoryWarnings = Card::make('库存预警', $this->inventoryTable($data['inventory']))
+            ->withHeaderBorder()
+            ->class('erp-dashboard-card erp-inventory-card', true);
+        return $content
+            ->header('ERP 经营驾驶舱')
+            ->description('销售、库存、客户与履约的一体化数据视图')
+            ->row(view('admin::dashboard.erp', [
+                'data' => $data,
+                'salesChart' => $salesChart->render(),
+                'channelChart' => $channelChart->render(),
+                'categoryChart' => $categoryChart->render(),
+                'fulfillmentChart' => $fulfillmentChart->render(),
+                'primaryBannerSwiper' => $primaryBannerSwiper->render(),
+                'operationsBannerSwiper' => $operationsBannerSwiper->render(),
+                'marqueeNotice' => $marqueeNotice->render(),
+                'recentOrders' => $recentOrders->render(),
+                'inventoryWarnings' => $inventoryWarnings->render(),
+            ]));
+    }
+
+    /**
+     * 构建首页轮播内容；文案和指标仍统一取自 ErpDashboardData。
+     */
+    protected function heroSlides(array $banners): array
+    {
+        return array_map(function (array $banner) {
+            return '<article class="erp-banner-card erp-banner-card--'.e($banner['theme']).'">'
+                .'<img class="erp-banner-card__image" src="'.e($banner['image']).'" alt="'.e($banner['image_alt']).'">'
+                .'<div class="erp-banner-card__overlay"></div>'
+                .'<div class="erp-banner-card__content">'
+                    .'<div class="erp-hero-slide__eyebrow"><i class="'.e($banner['icon']).'"></i>'.e($banner['eyebrow']).'</div>'
+                    .'<h3>'.e($banner['title']).'</h3>'
+                    .'<p>'.e($banner['description']).'</p>'
+                    .'<span class="erp-banner-card__tag">'.e($banner['tag']).'</span>'
+                .'</div>'
+                .'<div class="erp-banner-card__metrics">'
+                    .'<div class="erp-banner-card__metric"><span>'.e($banner['value_label']).'</span><strong>'.e($banner['value']).'</strong></div>'
+                    .'<div class="erp-banner-card__metric erp-banner-card__metric--side"><span>'.e($banner['side_label']).'</span><strong>'.e($banner['side_value']).'</strong></div>'
+                .'</div>'
+            .'</article>';
+        }, $banners);
+    }
+
+    /**
+     * 每个 Banner 组创建一个独立 Swiper 实例，确保左右两栏互不影响。
+     */
+    protected function makeBannerSwiper(array $banners, int $delay): Swiper
+    {
+        return Swiper::make($this->heroSlides($banners))
+            ->loop(count($banners) > 1)
+            ->autoplay($delay)
+            ->pagination()
+            ->navigation()
+            ->class('erp-hero-swiper', true)
+            ->style('height: 246px;')
+            ->options([
+                'speed' => 700,
+                'slidesPerView' => 1,
+            ]);
+    }
+
+    protected function salesChartOptions(array $data): array
+    {
+        return [
+            'chart' => [
+                'type' => 'area',
+                'height' => 310,
+                'toolbar' => ['show' => false],
+                'zoom' => ['enabled' => false],
+            ],
+            'series' => [
+                ['name' => '实际销售额', 'data' => $data['salesTrend']['actual']],
+                ['name' => '销售目标', 'data' => $data['salesTrend']['target']],
+            ],
+            'colors' => ['#5b6df9', '#aeb8d6'],
+            'stroke' => ['curve' => 'smooth', 'width' => [3, 2], 'dashArray' => [0, 7]],
+            'fill' => [
+                'type' => 'gradient',
+                'gradient' => ['shadeIntensity' => 0.7, 'opacityFrom' => 0.45, 'opacityTo' => 0.02, 'stops' => [0, 90, 100]],
+            ],
+            'dataLabels' => ['enabled' => false],
+            'legend' => ['position' => 'top', 'horizontalAlign' => 'right', 'fontSize' => '12px'],
+            'grid' => ['borderColor' => '#edf0f7', 'strokeDashArray' => 5, 'padding' => ['left' => 0, 'right' => 8]],
+            'xaxis' => [
+                'categories' => $data['salesTrend']['labels'],
+                'axisBorder' => ['show' => false],
+                'axisTicks' => ['show' => false],
+                'labels' => ['style' => ['colors' => '#8b95aa', 'fontSize' => '12px']],
+            ],
+            'yaxis' => [
+                'labels' => [
+                    'style' => ['colors' => '#8b95aa', 'fontSize' => '12px'],
+                    'formatter' => \Dcat\Admin\Support\JavaScript::make('function (value) { return "¥" + value + "k"; }'),
+                ],
+            ],
+            'tooltip' => ['y' => ['formatter' => \Dcat\Admin\Support\JavaScript::make('function (value) { return "¥" + value + ",000"; }')]],
+        ];
+    }
+
+    protected function channelChartOptions(array $data): array
+    {
+        return [
+            'chart' => ['type' => 'donut', 'height' => 275],
+            'series' => $data['channels']['series'],
+            'labels' => $data['channels']['labels'],
+            'colors' => $data['channels']['colors'],
+            'legend' => ['position' => 'bottom', 'fontSize' => '12px', 'itemMargin' => ['horizontal' => 8]],
+            'dataLabels' => ['enabled' => false],
+            'stroke' => ['width' => 4, 'colors' => ['#fff']],
+            'plotOptions' => [
+                'pie' => [
+                    'donut' => [
+                        'size' => '72%',
+                        'labels' => [
+                            'show' => true,
+                            'total' => [
+                                'show' => true,
+                                'label' => '渠道销售',
+                                'formatter' => \Dcat\Admin\Support\JavaScript::make('function () { return "100%"; }'),
                             ],
-                            [
-                                'title' => '长事项',
-                                'start' => '2024-'.$yue.'-27 00:00:00', // 示例日期，您可以根据需要替换
-                                'end' => '2024-'.$yue.'-30 00:00:00', // 示例日期，您可以根据需要替换
-                                'backgroundColor' => '#f39c12', // yellow
-                                'borderColor' => '#f39c12', // yellow
-                                'description' => '长事项描述', // 描述信息
-                                'showModal' => true,
-                            ],
-                            [
-                                'title' => 'Meeting 11111',
-                                'start' => '2024-'.$yue.'-02 10:30:00', // 示例日期，您可以根据需要替换
-                                'allDay' => false,
-                                'backgroundColor' => '#0073b7', // Blue
-                                'borderColor' => '#0073b7', // Blue
-                            ],
-                            [
-                                'title' => 'Lunch 2222',
-                                'start' => '2024-'.$yue.'-02 12:00:00', // 示例日期，您可以根据需要替换
-                                'end' => '2024-'.$yue.'-02 14:00:00', // 示例日期，您可以根据需要替换
-                                'allDay' => false,
-                                'backgroundColor' => '#00c0ef', // Info (aqua)
-                                'borderColor' => '#00c0ef', // Info (aqua)
-                            ],
-                            [
-                                'title' => 'Birthday Party',
-                                'start' => '2024-'.$yue.'-03 19:00:00', // 示例日期，您可以根据需要替换
-                                'end' => '2024-'.$yue.'-03 22:30:00', // 示例日期，您可以根据需要替换
-                                'allDay' => false,
-                                'backgroundColor' => '#00a65a', // Success (green)
-                                'borderColor' => '#00a65a', // Success (green)
-                            ],
-                            [
-                                'title' => 'Click for baidu',
-                                'start' => '2024-'.$yue.'-28 00:00:00', // 示例日期，您可以根据需要替换
-                                'end' => '2024-'.$yue.'-29 00:00:00', // 示例日期，您可以根据需要替换
-                                'url' => 'https://www.baidu.com/',
-                                'backgroundColor' => '#3c8dbc', // Primary (light-blue)
-                                'borderColor' => '#3c8dbc', // Primary (light-blue)
-                            ],
-                        ];
-                        $calendar = \Dcat\Admin\Widgets\Calendar::make();
-                        $calendar->eventItem($events_list);
-                        $Card = Card::make($calendar->render());
-                        $column->row($Card->render());
-                    });
-                    $row->column(3, function (Column $column) {
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
 
-                        $cover_card = CoverCard::make()->add('开源公众号','关注公众号 随时了解更新动态')
-                            ->bg('https://dcat-plus.saishiyun.net/img/card-bg1.jpeg')
-                            ->avatar('https://dcat-plus.saishiyun.net/img/wxgzh_qrcode.jpg');
-                        $column->row($cover_card->render());
-                        $cover_card1 = CoverCard::make()->add('赞助捐助开源','鼓励作者持续更新')
-                            ->bg('https://dcat-plus.saishiyun.net/img/card-bg2.jpeg')
-                            ->avatar('https://dcat-plus.saishiyun.net/img/weixinpay.jpg');
-                        $column->row($cover_card1->render());
-                        $group = ListGroup::make();
+    protected function categoryChartOptions(array $data): array
+    {
+        return [
+            'chart' => ['type' => 'bar', 'height' => 270, 'toolbar' => ['show' => false]],
+            'series' => [['name' => '销售额', 'data' => $data['categories']['series']]],
+            'colors' => ['#5b6df9'],
+            'plotOptions' => ['bar' => ['horizontal' => true, 'borderRadius' => 5, 'barHeight' => '52%']],
+            'dataLabels' => ['enabled' => false],
+            'grid' => ['borderColor' => '#edf0f7', 'strokeDashArray' => 5],
+            'xaxis' => [
+                'categories' => $data['categories']['labels'],
+                'labels' => ['style' => ['colors' => '#8b95aa', 'fontSize' => '11px']],
+                'axisBorder' => ['show' => false],
+                'axisTicks' => ['show' => false],
+            ],
+            'yaxis' => ['labels' => ['style' => ['colors' => '#5e6b85', 'fontSize' => '12px']]],
+            'tooltip' => ['y' => ['formatter' => \Dcat\Admin\Support\JavaScript::make('function (value) { return "¥" + value + "k"; }')]],
+        ];
+    }
 
-                        // 获取已安装扩展包信息
-                        $installedPackages = json_decode(file_get_contents(base_path('vendor/composer/installed.json')), true);
+    protected function fulfillmentChartOptions(array $data): array
+    {
+        return [
+            'chart' => ['type' => 'radialBar', 'height' => 225, 'sparkline' => ['enabled' => true]],
+            'series' => [$data['fulfillment']['value']],
+            'colors' => ['#18b67a'],
+            'plotOptions' => [
+                'radialBar' => [
+                    'startAngle' => -120,
+                    'endAngle' => 120,
+                    'hollow' => ['size' => '63%'],
+                    'track' => ['background' => '#e9f7f1', 'strokeWidth' => '100%'],
+                    'dataLabels' => [
+                        'name' => ['show' => false],
+                        'value' => ['offsetY' => 6, 'fontSize' => '28px', 'fontWeight' => 700, 'color' => '#1d2a45', 'formatter' => \Dcat\Admin\Support\JavaScript::make('function (value) { return value + "%"; }')],
+                    ],
+                ],
+            ],
+            'stroke' => ['lineCap' => 'round'],
+        ];
+    }
 
-                        // 指定要获取版本号的扩展包名称
-                        $packageName = 'dcat-plus/laravel-admin';
+    protected function ordersTable(array $orders): string
+    {
+        $rows = array_map(function (array $order) {
+            return [
+                '<span class="erp-order-no">'.$order['no'].'</span><span class="erp-order-time">'.$order['time'].'</span>',
+                '<span class="erp-customer">'.$order['customer'].'</span>',
+                '<strong>'.$order['amount'].'</strong>',
+                '<span class="badge badge-light-'.$order['tone'].'">'.$order['status'].'</span>',
+            ];
+        }, $orders);
 
-                        // 查找指定扩展包的版本号
-                        $packageVersion = '--';
-                        if(!empty($installedPackages['packages'])){
-                            foreach ($installedPackages['packages'] as $package) {
-                                if ($package['name'] === $packageName) {
-                                    $packageVersion = $package['version'];
-                                    break;
-                                }
-                            }
-                        }
-                        $group->add('Dcat-plus Admin  Version',  $packageVersion,'#');
-                        $group->add('PHP Version',  phpversion(),'#');
-                        $group->add('Laravel Version', app()->version(),'#');
-                        $dbType = config('database.default', env('DB_CONNECTION', 'unknown'));
-                        $dbVersion = '--';
-                        try {
-                            if ($dbType === 'sqlite') {
-                                $dbVersion = DB::selectOne('select sqlite_version() as version')->version ?? '--';
-                            } elseif ($dbType === 'pgsql') {
-                                $dbVersion = DB::selectOne('show server_version')->server_version ?? '--';
-                            } elseif ($dbType === 'sqlsrv') {
-                                $dbVersion = DB::selectOne("SELECT CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50)) AS version")->version ?? '--';
-                            } else {
-                                $dbVersion = DB::selectOne('select version() as version')->version ?? '--';
-                            }
+        return Table::make(['订单号 / 时间', '客户', '订单金额', '状态'], $rows)
+            ->class('erp-data-table', true)
+            ->render();
+    }
 
-                            if ($dbVersion !== '--' && preg_match('/\d+(?:\.\d+){1,3}/', (string) $dbVersion, $matches)) {
-                                $dbVersion = $matches[0];
-                            }
-                        } catch (\Throwable $e) {
-                            $dbVersion = '--';
-                        }
+    protected function inventoryTable(array $items): string
+    {
+        $rows = array_map(function (array $item) {
+            $percentage = min(100, (int) round($item['stock'] / $item['safety'] * 100));
 
-                        $group->add('DB 类型', $dbType, '#');
-                        $group->add('DB 版本号', $dbVersion, '#');
-                        $column->row($group->render());
+            return [
+                '<strong>'.$item['name'].'</strong><span class="erp-sku">'.$item['sku'].'</span>',
+                '<span class="erp-stock-value">'.$item['stock'].'</span><span class="erp-stock-total"> / 安全 '.$item['safety'].'</span>',
+                '<div class="erp-stock-bar"><span style="width: '.$percentage.'%"></span></div>',
+                '<span class="erp-warehouse">'.$item['warehouse'].'</span>',
+            ];
+        }, $items);
 
-                    });
-                })
-                ->row(function (Row $row) {
-                    $row->column(6, function (Column $column) {
-                        $column->row(Dashboard::author());
-                        $column->row(new Examples\Tickets());
-                    });
+        return Table::make(['商品 / SKU', '可用库存', '库存水位', '仓库'], $rows)
+            ->class('erp-data-table erp-stock-table', true)
+            ->render();
+    }
 
-                    $row->column(6, function (Column $column) {
-
-                        $column->row(function (Row $row) {
-                            $row->column(6, new Examples\NewUsers());
-                            $row->column(6, new Examples\NewDevices());
-                        });
-
-                        $column->row(new Examples\Sessions());
-                        $column->row(new Examples\ProductOrders());
-                    });
-                });
-
-            return $content;
-        }
+    protected function registerDashboardStyle(): void
+    {
+        Admin::style(<<<'CSS'
+.erp-dashboard { --erp-primary:#5b6df9; --erp-text:#1d2a45; --erp-muted:#8290a8; --erp-border:#e8ecf4; position:relative; padding:2px; color:var(--erp-text); }
+.erp-dashboard:before { position:absolute; z-index:0; top:82px; right:3%; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,rgba(91,109,249,.09),rgba(91,109,249,0) 68%); content:""; pointer-events:none; }.erp-dashboard>* { position:relative; z-index:1; }
+.erp-dashboard__intro { display:flex; align-items:flex-end; justify-content:space-between; margin:0 2px 16px; }.erp-dashboard__kicker { display:flex; align-items:center; gap:6px; color:var(--erp-primary); font-size:10px; font-weight:800; letter-spacing:.12em; }.erp-dashboard__intro h2 { margin:5px 0 3px; color:var(--erp-text); font-size:25px; font-weight:800; letter-spacing:-.035em; }.erp-dashboard__intro p { margin:0; color:var(--erp-muted); font-size:12px; }.erp-dashboard__date { display:flex; align-items:center; gap:7px; padding:8px 11px; border:1px solid var(--erp-border); border-radius:8px; background:rgba(255,255,255,.72); color:var(--erp-muted); font-size:11px; font-weight:600; }
+.erp-dashboard .card { margin-bottom:20px; border:1px solid var(--erp-border); border-radius:14px; box-shadow:0 5px 20px rgba(29,42,69,.045); overflow:hidden; }.erp-dashboard .card-header { min-height:58px; padding:17px 21px; border-bottom:1px solid var(--erp-border); background:linear-gradient(180deg,#fff,#fdfdff); }.erp-dashboard .card-box-title { color:var(--erp-text); font-size:15px; font-weight:750; }.erp-dashboard .card-body { padding:20px; }
+.erp-dashboard__hero { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-bottom:14px; }.erp-dashboard__banner-column { min-width:0; filter:drop-shadow(0 12px 22px rgba(40,55,122,.13)); }.erp-hero-swiper { border-radius:14px; }.erp-hero-swiper .swiper-button-prev,.erp-hero-swiper .swiper-button-next { width:32px; height:32px; border:1px solid rgba(255,255,255,.48); border-radius:9px; background:rgba(18,28,55,.36); color:#fff!important; box-shadow:0 4px 12px rgba(14,23,51,.2); backdrop-filter:blur(7px); transition:.18s ease; }.erp-hero-swiper .swiper-button-prev:hover,.erp-hero-swiper .swiper-button-next:hover { border-color:rgba(255,255,255,.8); background:rgba(18,28,55,.62); transform:scale(1.06); }.erp-hero-swiper .swiper-button-prev:after,.erp-hero-swiper .swiper-button-next:after { font-size:13px; font-weight:800; }.erp-hero-swiper .swiper-button-prev { left:13px; }.erp-hero-swiper .swiper-button-next { right:13px; }.erp-hero-swiper .swiper-pagination { bottom:9px; padding-left:17px; text-align:left; }.erp-hero-swiper .swiper-pagination-bullet { width:6px; height:6px; background:rgba(255,255,255,.55); opacity:1; transition:.2s ease; }.erp-hero-swiper .swiper-pagination-bullet-active { width:19px; border-radius:8px; background:#fff!important; }
+.erp-banner-card { position:relative; height:100%; min-height:246px; overflow:hidden; border-radius:13px; background:#17233c; color:#fff; }.erp-banner-card__image { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; transform:scale(1.01); transition:transform .7s ease; }.erp-banner-card:hover .erp-banner-card__image { transform:scale(1.07); }.erp-banner-card__overlay { position:absolute; inset:0; background:linear-gradient(90deg,rgba(12,20,43,.9) 0%,rgba(16,29,59,.62) 48%,rgba(16,29,59,.14) 100%); }.erp-banner-card__overlay:after { position:absolute; top:0; bottom:0; left:0; width:5px; background:var(--banner-accent,#8290ff); content:""; }.erp-banner-card--indigo { --banner-accent:#8290ff; }.erp-banner-card--emerald { --banner-accent:#51d6aa; }.erp-banner-card--amber { --banner-accent:#ffbf5c; }.erp-banner-card--violet { --banner-accent:#c29bff; }.erp-banner-card__content,.erp-banner-card__metrics { position:relative; z-index:1; }.erp-banner-card__content { padding:25px 22px 0 27px; }.erp-hero-slide__eyebrow { display:flex; align-items:center; gap:6px; color:rgba(255,255,255,.76); font-size:10px; font-weight:750; letter-spacing:.07em; }.erp-hero-slide__eyebrow i { font-size:13px; }.erp-banner-card h3 { max-width:320px; margin:9px 0 6px; color:#fff; font-size:20px; font-weight:800; letter-spacing:-.025em; line-height:1.25; }.erp-banner-card p { display:-webkit-box; max-width:335px; margin:0; overflow:hidden; color:rgba(255,255,255,.75); font-size:11px; line-height:1.6; -webkit-box-orient:vertical; -webkit-line-clamp:2; }.erp-banner-card__tag { display:inline-block; margin-top:11px; padding:4px 7px; border:1px solid rgba(255,255,255,.22); border-radius:5px; background:rgba(10,15,35,.28); color:rgba(255,255,255,.88); font-size:10px; font-weight:600; }.erp-banner-card__metrics { position:absolute; right:0; bottom:0; left:0; display:flex; padding:11px 19px 12px 27px; border-top:1px solid rgba(255,255,255,.16); background:linear-gradient(90deg,rgba(8,16,38,.65),rgba(8,16,38,.25)); }.erp-banner-card__metric { min-width:50%; }.erp-banner-card__metric--side { padding-left:15px; border-left:1px solid rgba(255,255,255,.2); }.erp-banner-card__metric span { display:block; overflow:hidden; color:rgba(255,255,255,.64); font-size:9px; text-overflow:ellipsis; white-space:nowrap; }.erp-banner-card__metric strong { display:block; margin-top:3px; color:#fff; font-size:17px; font-weight:800; letter-spacing:-.02em; }
+.erp-notice-bar { display:flex; align-items:center; min-height:52px; margin:0 0 20px; padding:0 16px 0 12px; border:1px solid #e5e8ff; border-radius:12px; background:linear-gradient(90deg,#f6f7ff,#fff); box-shadow:0 4px 14px rgba(68,82,178,.04); }.erp-notice-bar__label { display:flex; align-items:center; gap:8px; min-width:112px; color:var(--erp-text); font-size:12px; }.erp-notice-bar__label>span { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:#e9ecff; color:var(--erp-primary); }.erp-notice-bar__content { min-width:0; flex:1; }.erp-notice-bar .dcat-marquee-notice { height:50px!important; border:0!important; border-radius:0!important; background:transparent!important; }.erp-notice-bar .dcat-marquee-notice .swiper-slide { height:50px!important; padding:0 8px!important; }.erp-notice-bar .dcat-marquee-notice__item { color:#66738b!important; font-size:12px; }.erp-notice-bar .dcat-marquee-notice__item .feather { color:#f2a031!important; }.erp-notice-bar__state { display:flex; align-items:center; gap:5px; margin-left:12px; color:#17a875; font-size:10px; font-weight:700; white-space:nowrap; }.erp-notice-bar__state .feather { font-size:11px; }
+.erp-overview-card { position:relative; min-height:158px; border-top:3px solid transparent!important; transition:transform .2s ease,box-shadow .2s ease; }.erp-overview-card:after { position:absolute; right:-30px; bottom:-40px; width:105px; height:105px; border-radius:50%; background:var(--metric-glow,rgba(91,109,249,.08)); content:""; }.erp-overview-card:hover { transform:translateY(-4px); box-shadow:0 14px 28px rgba(29,42,69,.10)!important; }.erp-overview-card .card-body { padding:18px 20px 6px; }.erp-overview-card--primary { --metric-glow:rgba(91,109,249,.11); border-top-color:#5b6df9!important; }.erp-overview-card--warning { --metric-glow:rgba(246,162,60,.12); border-top-color:#f6a23c!important; }.erp-overview-card--danger { --metric-glow:rgba(223,91,105,.10); border-top-color:#df5b69!important; }.erp-overview-card--success { --metric-glow:rgba(24,182,122,.10); border-top-color:#18b67a!important; }.erp-overview-icon { width:39px; height:39px; display:inline-flex; align-items:center; justify-content:center; border-radius:11px; font-size:19px; }.erp-overview-label { color:var(--erp-muted); font-size:12px; font-weight:700; }.erp-overview-value { margin:13px 0 4px; color:var(--erp-text); font-size:26px; font-weight:800; letter-spacing:-.035em; }.erp-overview-sub { color:var(--erp-muted); font-size:11px; }.erp-overview-sub .up { color:#14a36f; }.erp-overview-sub .down { color:#df5b69; }.erp-sparkline { position:relative; z-index:1; height:48px; margin:4px -10px 0; }
+.erp-dashboard-card { position:relative; }.erp-dashboard-card:before { position:absolute; z-index:1; top:0; left:20px; width:35px; height:3px; border-radius:0 0 3px 3px; background:var(--erp-primary); content:""; }.erp-panel-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:3px; }.erp-panel-value { color:var(--erp-text); font-size:19px; font-weight:800; }.erp-panel-hint { color:#14a36f; font-size:11px; font-weight:700; }.erp-muted { color:var(--erp-muted); font-size:11px; }.erp-chart-wrap { min-height:272px; }.erp-chart-wrap .Dcat_Admin_Widgets_ApexCharts_Chart { min-height:265px; }.erp-channel-chart .Dcat_Admin_Widgets_ApexCharts_Chart { min-height:250px; }.erp-category-chart .Dcat_Admin_Widgets_ApexCharts_Chart { min-height:260px; }
+.erp-fulfillment { text-align:center; }.erp-fulfillment .Dcat_Admin_Widgets_ApexCharts_Chart { min-height:210px; }.erp-fulfillment-meta { display:flex; justify-content:space-between; gap:12px; padding-top:9px; border-top:1px dashed var(--erp-border); text-align:left; }.erp-fulfillment-meta span { color:var(--erp-muted); font-size:11px; }.erp-fulfillment-meta strong { display:block; margin-top:4px; color:var(--erp-text); font-size:13px; }
+.erp-data-table { margin:0; }.erp-data-table thead th { border-top:0; border-bottom:1px solid var(--erp-border); background:#f8f9fe; color:#8994a8; font-size:10px; font-weight:800; letter-spacing:.04em; white-space:nowrap; }.erp-data-table td { padding:13px 10px; border-top:1px solid #f0f2f7; color:#53617a; font-size:12px; vertical-align:middle; }.erp-data-table tbody tr { transition:background .15s ease; }.erp-data-table tbody tr:hover { background:#fafbff; }.erp-data-table td:first-child,.erp-data-table th:first-child { padding-left:0; }.erp-data-table td:last-child,.erp-data-table th:last-child { padding-right:0; }.erp-data-table strong,.erp-order-no { color:var(--erp-text); font-weight:750; }.erp-order-time,.erp-sku { display:block; margin-top:3px; color:#9ba5b6; font-size:10px; }.erp-customer { display:block; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.erp-data-table .badge { padding:5px 8px; border-radius:5px; font-size:10px; font-weight:700; }.badge-light-primary { color:#485be3; background:#eef0ff; }.badge-light-info { color:#1c82b8; background:#eaf7ff; }.badge-light-success { color:#0b9561; background:#e9f8f1; }.badge-light-warning { color:#b77717; background:#fff5e3; }.badge-light-secondary { color:#67758d; background:#eff2f6; }
+.erp-stock-value { color:#df5b69; font-size:16px; font-weight:800; }.erp-stock-total { color:#9ba5b6; font-size:11px; }.erp-stock-bar { width:94px; height:6px; overflow:hidden; border-radius:999px; background:#f2e2e5; }.erp-stock-bar span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#df5b69,#f18891); }.erp-warehouse { color:#78859c; }
+.erp-action-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }.erp-action { border:1px solid var(--erp-border); border-radius:10px; padding:15px 13px; background:#fff; cursor:pointer; transition:.18s ease; }.erp-action:hover { border-color:#cfd5ff; box-shadow:0 8px 18px rgba(65,79,150,.1); transform:translateY(-3px); }.erp-action-icon { display:flex; align-items:center; justify-content:center; width:33px; height:33px; margin-bottom:11px; border-radius:9px; font-size:16px; }.erp-action strong { display:block; color:var(--erp-text); font-size:13px; }.erp-action span { display:block; margin-top:4px; color:var(--erp-muted); font-size:11px; line-height:1.45; }
+.erp-todo-list { margin:0; padding:0; list-style:none; }.erp-todo-item { display:flex; align-items:center; padding:13px 0; border-bottom:1px solid #f0f2f7; }.erp-todo-item:last-child { border-bottom:0; }.erp-todo-mark { flex:0 0 auto; width:9px; height:9px; margin-right:10px; border-radius:50%; }.erp-todo-body { min-width:0; flex:1; }.erp-todo-title { color:var(--erp-text); font-size:13px; font-weight:650; }.erp-todo-meta { margin-top:3px; color:var(--erp-muted); font-size:10px; }.erp-todo-priority { padding:3px 7px; border-radius:4px; font-size:10px; font-weight:700; }.erp-priority-danger { color:#d94e60; background:#fff0f2; }.erp-priority-warning { color:#ad751d; background:#fff7e8; }.erp-priority-primary { color:#5367e9; background:#eef0ff; }
+.erp-activity { position:relative; display:flex; gap:11px; padding:0 0 17px; }.erp-activity:last-child { padding-bottom:0; }.erp-activity:before { position:absolute; top:30px; bottom:-2px; left:14px; width:1px; background:#e7ebf3; content:""; }.erp-activity:last-child:before { display:none; }.erp-activity-icon { display:flex; align-items:center; justify-content:center; flex:0 0 29px; width:29px; height:29px; border-radius:9px; color:#fff; font-size:14px; }.erp-activity-title { color:var(--erp-text); font-size:12px; font-weight:750; }.erp-activity-content { margin-top:3px; color:var(--erp-muted); font-size:11px; line-height:1.5; }.erp-activity-time { display:block; margin-top:4px; color:#a9b1bf; font-size:10px; }
+.erp-dashboard .alert { margin-bottom:20px; padding:13px 16px; border:0; border-radius:10px; font-size:12px; }.erp-dashboard .alert-heading { font-size:13px; font-weight:700; }
+body.dark-mode .erp-dashboard,.dark-mode .erp-dashboard { --erp-text:#dbe3f5; --erp-muted:#99a5bb; --erp-border:#343a50; }.dark-mode .erp-dashboard .card,.dark-mode .erp-dashboard .erp-action { background:#252a3b; }.dark-mode .erp-dashboard .card-header,.dark-mode .erp-dashboard .erp-data-table thead th { border-color:#343a50; background:#2a3043; }.dark-mode .erp-dashboard .erp-data-table td,.dark-mode .erp-dashboard .erp-todo-item { border-color:#343a50; }.dark-mode .erp-dashboard .erp-overview-value,.dark-mode .erp-dashboard strong,.dark-mode .erp-dashboard .erp-order-no,.dark-mode .erp-dashboard .erp-todo-title,.dark-mode .erp-dashboard .erp-activity-title { color:#e6edfb; }.dark-mode .erp-dashboard .erp-stock-bar { background:#57333c; }.dark-mode .erp-dashboard__date,.dark-mode .erp-notice-bar { border-color:#353b55; background:#252a3b; }.dark-mode .erp-notice-bar .dcat-marquee-notice__item { color:#bcc7dc!important; }.dark-mode .erp-hero-swiper .swiper-button-prev,.dark-mode .erp-hero-swiper .swiper-button-next { border-color:rgba(255,255,255,.3); }
+@media (max-width:1199px) { .erp-action-grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:767px) { .erp-dashboard__intro { align-items:flex-start; flex-direction:column; gap:10px; }.erp-dashboard__hero { grid-template-columns:1fr; gap:12px; }.erp-notice-bar__state { display:none; } }
+@media (max-width:575px) { .erp-dashboard .card-body { padding:16px; }.erp-hero-swiper { border-radius:12px; }.erp-banner-card__content { padding:22px 18px 0 23px; }.erp-banner-card h3 { max-width:285px; font-size:19px; }.erp-banner-card p { max-width:285px; }.erp-banner-card__metrics { padding:10px 15px 11px 23px; }.erp-banner-card__metric strong { font-size:16px; }.erp-hero-swiper .swiper-button-prev,.erp-hero-swiper .swiper-button-next { display:none; }.erp-notice-bar { padding:0 9px; }.erp-notice-bar__label { min-width:95px; }.erp-action-grid { grid-template-columns:1fr 1fr; }.erp-dashboard__date { font-size:10px; } }
+CSS);
+    }
 }

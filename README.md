@@ -21,10 +21,10 @@
 
 
 - [官方网站](https://www.dcat-admin.com)
-- [中文文档](https://www.dcat-admin.com/books/dcatplus-admin/#/)
+- [中文文档](https://www.dcat-admin.com)
 - [github](https://github.com/ycookies/dcat-plus-admin)
 - [示例源码](https://github.com/ycookies/dcatplus-demo)
-- [技术社区](https://forum.saishiyun.net/t/dcat-admin)
+- [技术社区](https://down.dcat-admin.com/forum)
 
 ### 在线演示
 - laravel12 && php8.2 [>>>查看](https://laravel12.dcat-admin.com/admin)
@@ -99,6 +99,12 @@
  >  - Laravel 12 ~ 13.*
  >  - Fileinfo PHP Extension
 
+   `3.x 环境`
+ >  - PHP >= 8.3
+ >  - Laravel 12 ~ 13.*
+ >  - Fileinfo PHP Extension
+ >  - 重构角色权限
+
 
 
 ### 安装
@@ -107,9 +113,8 @@
 
 首先需要安装`laravel`框架，如已安装可以跳过此步骤。如果您是第一次使用`laravel`，请务必先阅读文档 [Laravel文档](https://laravel.com/docs/12.x/installation) 
 ```bash
-composer create-project --prefer-dist laravel/laravel 项目名称 10.*
-# 或
-composer create-project --prefer-dist laravel/laravel 项目名称
+composer create-project --prefer-dist "laravel/laravel:13.*" laravel13.test 
+
 ```
 
 安装完`laravel`之后需要修改`.env`文件，设置数据库连接设置正确
@@ -136,6 +141,9 @@ composer require dcat-plus/laravel-admin
 composer require dcat-plus/laravel-admin:1.*
 
 # 安装 2.x版本
+composer require dcat-plus/laravel-admin:^2.0
+
+# 安装 3.x版本
 composer require dcat-plus/laravel-admin:^2.0
 ```
 
