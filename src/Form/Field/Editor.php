@@ -107,6 +107,8 @@ class Editor extends Field
             'initialFrameHeight'    => $config['initial_frame_height'],
             'loadConfigFromServer'  => $config['load_config_from_server'],
             'zIndex'                => $config['z_index'],
+            // 工具栏浮动时让出吸顶导航栏的高度，避免钻到导航栏下面
+            'topOffset'              => $config['top_offset'],
             'elementPathEnabled'    => $config['element_path_enabled'],
             'autoHeightEnabled'     => $config['auto_height_enabled'],
             'toolbars'              => $config['toolbars'],

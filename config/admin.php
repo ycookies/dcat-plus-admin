@@ -369,6 +369,9 @@ return [
         // 编辑器容器 z-index 基准值。需低于吸顶导航栏（997），否则滚动时编辑器会
         // 盖住导航栏；UEditor 弹窗/菜单基于此值 +10 派生，仍高于导航栏可正常使用。
         'z_index'                 => 990,
+        // 工具栏浮动（滚动时工具栏吸附视口顶部）时距视口顶部的偏移，
+        // 需让出吸顶导航栏（60px）的高度，避免工具栏钻到导航栏下面被遮住。
+        'top_offset'              => 60,
         // Whether to display the element path at the bottom of the editor.
         'element_path_enabled'    => false,
         // Whether to grow the editor height as content is added.
