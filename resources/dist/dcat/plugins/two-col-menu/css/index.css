@@ -33,12 +33,22 @@
     flex-direction: column;
 }
 
-.two-col-icon-bar::-webkit-scrollbar {
+/* 左栏滚动条：实际滚动发生在内层 .icon-nav，与外层统一为细滚动条
+   （scrollbar-width/scrollbar-color 兼容 Firefox） */
+.two-col-icon-bar,
+.two-col-icon-bar .icon-nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.25) transparent;
+}
+
+.two-col-icon-bar::-webkit-scrollbar,
+.two-col-icon-bar .icon-nav::-webkit-scrollbar {
     width: 4px;
 }
 
-.two-col-icon-bar::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
+.two-col-icon-bar::-webkit-scrollbar-thumb,
+.two-col-icon-bar .icon-nav::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
     border-radius: 4px;
 }
 
