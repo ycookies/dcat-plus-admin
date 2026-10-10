@@ -419,6 +419,278 @@
 .fs18{
     font-size: 18px !important;
 }
+/* 右侧导航列表本身没有交叉轴对齐规则，致使高度较小的角色卡片贴在顶部。 */
+.header-navbar .navbar-container .navbar-right > .nav.navbar-nav {
+    align-items: center;
+    min-height: 60px;
+}
+
+/* ===== 移动端修复（<992px）=====
+   BS4 在 navbar-expand-lg 断点以下把 .navbar-nav 排成纵向 flex，
+   ≤576px 时 fullNav mixin 又把 .navbar-container 改为 display:table/height:auto，
+   二者叠加导致右侧图标竖排、导航栏被撑高到 500px+。
+   恢复为单行 60px 高工具栏；图标总宽超出时横向滚动（隐藏滚动条）。 */
+@media (max-width: 991.98px) {
+    .header-navbar .navbar-container {
+        display: flex !important; /* 覆盖 fullNav 的 display:table */
+        align-items: center;
+        height: 60px !important;  /* 覆盖 fullNav 的 height:auto */
+    }
+    .header-navbar .navbar-container > .bookmark-wrapper {
+        flex: 0 0 auto;
+    }
+    .header-navbar .navbar-container .navbar-collapse {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .header-navbar .navbar-container .navbar-collapse::-webkit-scrollbar {
+        display: none;
+    }
+    .header-navbar .navbar-container .navbar-right {
+        flex-wrap: nowrap;
+        min-width: 0;
+        margin-left: auto;
+    }
+    .header-navbar .navbar-container .navbar-right .nav.navbar-nav {
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+    /* 收窄图标与用户头像的水平内边距，让整行在 390px 视口内放得下 */
+    .header-navbar .navbar-container .navbar-right ul.nav > li > a.nav-link {
+        padding-left: .5rem;
+        padding-right: .35rem;
+    }
+    .header-navbar .navbar-container .navbar-right ul.nav > li > a.dropdown-user-link {
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+}
+.dcat-active-role-dropdown {
+    display: flex !important;
+    align-items: center !important;
+    align-self: center;
+    height: 60px !important;
+    min-height: 60px;
+    margin: 0 4px 0 8px;
+}
+.dcat-active-role-trigger {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 4px 9px !important;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: #334155 !important;
+    align-self: center;
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.dcat-active-role-trigger:hover,
+.dcat-active-role-dropdown.show .dcat-active-role-trigger {
+    background: #f4f7ff;
+    border-color: #dce5fb;
+    box-shadow: 0 3px 10px rgba(61, 91, 159, .08);
+}
+.dcat-active-role-trigger--static {
+    cursor: default;
+}
+.dcat-active-role-trigger__icon,
+.dcat-active-role-option__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    background: #e9efff;
+    color: #506dc1;
+}
+.dcat-active-role-trigger__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+}
+.dcat-active-role-trigger__content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.05;
+}
+.dcat-active-role-trigger__content small {
+    margin-bottom: 3px;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .03em;
+}
+.dcat-active-role-trigger__content strong {
+    max-width: 110px;
+    overflow: hidden;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dcat-active-role-trigger__arrow {
+    color: #7b8799;
+    font-size: 14px;
+    transition: transform .18s ease;
+}
+.dcat-active-role-dropdown.show .dcat-active-role-trigger__arrow {
+    transform: rotate(180deg);
+}
+.dcat-active-role-menu {
+    width: 248px;
+    margin-top: 10px;
+    padding: 7px;
+    border: 1px solid #e3e9f3;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 14px 32px rgba(30, 41, 59, .18);
+}
+.dcat-active-role-menu::before,
+.dcat-active-role-menu::after {
+    display: none !important;
+}
+.dcat-active-role-menu__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 5px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    background: #f6f8fc;
+}
+.dcat-active-role-menu__header span {
+    color: #93a1b5;
+    font-size: 11px;
+    font-weight: 600;
+}
+.dcat-active-role-menu__header strong {
+    overflow: hidden;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dcat-active-role-menu__items {
+    display: grid;
+    gap: 3px;
+}
+.dcat-active-role-switch {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 51px;
+    padding: 8px 9px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    text-align: left;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.dcat-active-role-switch:hover {
+    border-color: #e1e8f7;
+    background: #f7f9fd;
+    transform: translateX(2px);
+}
+.dcat-active-role-switch.active {
+    border-color: #d6e1ff;
+    background: linear-gradient(90deg, #eaf0ff, #f5f7ff);
+    color: #3f5eaf;
+}
+.dcat-active-role-option__icon {
+    width: 31px;
+    height: 31px;
+    margin-right: 10px;
+    font-size: 16px;
+}
+.dcat-active-role-switch.active .dcat-active-role-option__icon {
+    background: #5975c4;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(74, 99, 180, .24);
+}
+.dcat-active-role-option__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+}
+.dcat-active-role-option__content strong {
+    overflow: hidden;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dcat-active-role-option__content small {
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+.dcat-active-role-option__check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background: #5975c4;
+    color: #fff;
+    font-size: 13px;
+}
+body.dark-mode .dcat-active-role-trigger {
+    color: #e6ebf7 !important;
+}
+body.dark-mode .dcat-active-role-trigger:hover,
+body.dark-mode .dcat-active-role-dropdown.show .dcat-active-role-trigger {
+    border-color: rgba(161, 178, 229, .2);
+    background: rgba(118, 137, 202, .16);
+    box-shadow: none;
+}
+body.dark-mode .dcat-active-role-trigger__icon,
+body.dark-mode .dcat-active-role-option__icon {
+    background: rgba(104, 125, 199, .26);
+    color: #b7c5ff;
+}
+body.dark-mode .dcat-active-role-trigger__content strong,
+body.dark-mode .dcat-active-role-menu__header strong {
+    color: #edf1fb;
+}
+body.dark-mode .dcat-active-role-trigger__content small,
+body.dark-mode .dcat-active-role-menu__header span,
+body.dark-mode .dcat-active-role-option__content small {
+    color: #9aa7c4;
+}
+body.dark-mode .dcat-active-role-menu {
+    border-color: #343a52;
+    background: #24283a;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, .36);
+}
+body.dark-mode .dcat-active-role-menu__header {
+    background: #2d3248;
+}
+body.dark-mode .dcat-active-role-switch {
+    color: #dce3f4;
+}
+body.dark-mode .dcat-active-role-switch:hover {
+    border-color: #3c4665;
+    background: #2c3147;
+}
+body.dark-mode .dcat-active-role-switch.active {
+    border-color: #47598e;
+    background: linear-gradient(90deg, #35446f, #303a5d);
+    color: #eff3ff;
+}
 .lc-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
