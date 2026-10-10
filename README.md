@@ -13,8 +13,8 @@
     </a>
     <a href="https://packagist.org/packages/dcat-plus/laravel-admin" ><img src="https://poser.pugx.org/dcat-plus/laravel-admin/v/stable" /></a> 
     <a href="https://packagist.org/packages/dcat/laravel-admin"><img src="https://img.shields.io/packagist/dt/dcat/laravel-admin.svg?color=" /></a> 
-    <a><img src="https://img.shields.io/badge/php-7.1+-59a9f8.svg?style=flat" /></a> 
-    <a><img src="https://img.shields.io/badge/laravel-5.5+-59a9f8.svg?style=flat" ></a>
+    <a><img src="https://img.shields.io/badge/php-8.3+-59a9f8.svg?style=flat" /></a> 
+    <a><img src="https://img.shields.io/badge/laravel-12%20%7C%2013-59a9f8.svg?style=flat" ></a>
 </p>
 
 <p align=""><code>Dcat-plus Admin</code>是一个基于 `Dcat Admin `二次开发而成的后台系统构建工具，只需很少的代码即可快速构建出一个功能完善的高颜值后台系统。内置丰富的后台常用组件，开箱即用，让开发者告别冗杂的HTML代码，对后端开发者非常友好。</p>
@@ -27,8 +27,8 @@
 - [技术社区](https://down.dcat-admin.com/forum)
 
 ### 在线演示
-- laravel12 && php8.2 [>>>查看](https://laravel12.dcat-admin.com/admin)
-- laravel13 && php8.4 [>>>查看](https://laravel13.dcat-admin.com/admin)
+- laravel13 && php8.4（3.x） [>>>查看](https://laravel13.dcat-admin.com/admin)
+- laravel12 && php8.2（2.x） [>>>查看](https://laravel12.dcat-admin.com/admin)
 
 <br>
 <div align="center">
@@ -87,23 +87,38 @@
 - [x] 插件市场，只需在管理页面轻轻点击鼠标即可完成插件的安装、更新和卸载等操作
 
 
+### 3.x 版本亮点
+
+`3.x` 是当前主要维护版本，要求 PHP 8.3+，主要变化：
+
+- [x] 重构 RBAC 角色权限体系，角色/权限绑定更清晰可控
+- [x] 内置 ERP 经营驾驶舱首页示例（ApexCharts 图表 + Swiper 轮播 + 跑马灯公告 + 订单/库存卡片），替换数据源即可用于生产
+- [x] 新增 Swiper 轮播、MarqueeNotice 跑马灯公告、HonorWall 荣誉墙组件
+- [x] ApexCharts v5 支持，新增 ChinaMap 中国地图组件
+- [x] 登录页改版，集成图片验证码
+- [x] 升级 UEditor 内核，未单独配置时也有默认值，开箱即用
+- [x] 增强代码生成器：多数据库脚手架、`admin:action` 支持参数化一次创建与异步加载表格/表单
+- [x] 内置系统日志、操作日志与缓存清理
+- [x] 接口文档切换为 `ycookies/apidoc`，自带管理端、商家端、用户端接口文档
+- [x] HasMany 表格模式重构：结构化表头，支持列宽/对齐/表头 help 提示
+- [x] 随包分发 AI 编码技能（skills）与扩展包开发工作流，配合 ZCode/Claude Code 等 AI 工具开发
+
+
 ### 环境
- `1.x 环境`
- >  - PHP >= 7.4
- >  - Laravel 8.0 ~ 12.*
+ `3.x 环境`（当前版本）
+ >  - PHP >= 8.3
+ >  - Laravel 12 ~ 13.*
  >  - Fileinfo PHP Extension
- >  ``
 
   `2.x 环境`
  >  - PHP >= 8.3
  >  - Laravel 12 ~ 13.*
  >  - Fileinfo PHP Extension
 
-   `3.x 环境`
- >  - PHP >= 8.3
- >  - Laravel 12 ~ 13.*
+ `1.x 环境`
+ >  - PHP >= 7.4
+ >  - Laravel 8.0 ~ 12.*
  >  - Fileinfo PHP Extension
- >  - 重构角色权限
 
 
 
@@ -135,16 +150,15 @@ DB_PASSWORD=
 cd {项目名称}
 
 #  dcat-admin plus版 (杨光维护)
-composer require dcat-plus/laravel-admin
 
-# 或指定版本号
+# 安装 3.x 版本（当前版本，要求 PHP >= 8.3）
+composer require dcat-plus/laravel-admin:^3.0
+
+# 安装 2.x 版本
+composer require dcat-plus/laravel-admin:^2.0
+
+# 安装 1.x 版本
 composer require dcat-plus/laravel-admin:1.*
-
-# 安装 2.x版本
-composer require dcat-plus/laravel-admin:^2.0
-
-# 安装 3.x版本
-composer require dcat-plus/laravel-admin:^2.0
 ```
 
 然后运行下面的命令来发布资源：
