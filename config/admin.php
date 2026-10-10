@@ -366,6 +366,9 @@ return [
         'load_config_from_server' => true,
         // Initial editor height in pixels.
         'initial_frame_height'    => 400,
+        // 编辑器容器 z-index 基准值。需低于吸顶导航栏（997），否则滚动时编辑器会
+        // 盖住导航栏；UEditor 弹窗/菜单基于此值 +10 派生，仍高于导航栏可正常使用。
+        'z_index'                 => 990,
         // Whether to display the element path at the bottom of the editor.
         'element_path_enabled'    => false,
         // Whether to grow the editor height as content is added.

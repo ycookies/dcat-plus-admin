@@ -106,6 +106,7 @@ class Editor extends Field
         $this->options = array_merge([
             'initialFrameHeight'    => $config['initial_frame_height'],
             'loadConfigFromServer'  => $config['load_config_from_server'],
+            'zIndex'                => $config['z_index'],
             'elementPathEnabled'    => $config['element_path_enabled'],
             'autoHeightEnabled'     => $config['auto_height_enabled'],
             'toolbars'              => $config['toolbars'],

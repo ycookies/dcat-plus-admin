@@ -62,6 +62,9 @@ class UeditorConfig
             'url_prefix'              => '',
             'load_config_from_server' => true,
             'initial_frame_height'    => 400,
+            // 编辑器容器的 z-index 基准值。需低于吸顶导航栏（997），否则滚动时
+            // 编辑器会盖住导航栏；UEditor 的弹窗/菜单会基于此值 +10 派生，仍高于导航栏。
+            'z_index'                 => 990,
             'element_path_enabled'    => false,
             'auto_height_enabled'     => true,
             'enable_ai'               => false,
