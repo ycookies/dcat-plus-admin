@@ -558,7 +558,7 @@ body.dark-mode .dcat-user-role-panel__toggle[aria-expanded="true"] {
    BS4 在 navbar-expand-lg 断点以下把 .navbar-nav 排成纵向 flex，
    ≤576px 时 fullNav mixin 又把 .navbar-container 改为 display:table/height:auto，
    二者叠加导致右侧图标竖排、导航栏被撑高到 500px+。
-   恢复为单行 60px 高工具栏；图标总宽超出时横向滚动（隐藏滚动条）。 */
+   恢复为单行 60px 高工具栏；更窄视口下整行超宽时由页面级横向滚动兜底。 */
 @media (max-width: 991.98px) {
     .header-navbar .navbar-container {
         display: flex !important; /* 覆盖 fullNav 的 display:table */
@@ -571,11 +571,6 @@ body.dark-mode .dcat-user-role-panel__toggle[aria-expanded="true"] {
     .header-navbar .navbar-container .navbar-collapse {
         flex: 1 1 auto;
         min-width: 0;
-        overflow-x: auto;
-        scrollbar-width: none;
-    }
-    .header-navbar .navbar-container .navbar-collapse::-webkit-scrollbar {
-        display: none;
     }
     .header-navbar .navbar-container .navbar-right {
         flex-wrap: nowrap;
@@ -594,6 +589,23 @@ body.dark-mode .dcat-user-role-panel__toggle[aria-expanded="true"] {
     .header-navbar .navbar-container .navbar-right ul.nav > li > a.dropdown-user-link {
         padding-left: .5rem;
         padding-right: .5rem;
+    }
+    /* 下拉菜单恢复绝对定位：BS4 在 <lg 把 .navbar-nav .dropdown-menu
+       排成流内 static，主题又在 ≤575.98px 强制 left:0!important，
+       叠加后菜单错位/被裁。这里锚定在触发的 li 下方右对齐。 */
+    .header-navbar .navbar-container .navbar-nav > li.dropdown.show {
+        position: relative;
+    }
+    .header-navbar .navbar-container .navbar-nav .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: auto !important;
+        right: 0;
+        float: none;
+        width: auto;
+        max-width: calc(100vw - 1rem);
+        max-height: 70vh;
+        overflow-y: auto;
     }
 }
 .dcat-active-role-dropdown {
