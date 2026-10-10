@@ -419,6 +419,12 @@
 .fs18{
     font-size: 18px !important;
 }
+/* 吸顶导航栏（60px）下方的滚动定位补偿：锚点跳转、scrollIntoView 等
+   滚动定位会落在视口顶部，钻到导航栏下面被遮住一截；
+   scroll-padding-top 让定位结果停在导航栏下方。 */
+html {
+    scroll-padding-top: 70px;
+}
 /* 右侧导航列表本身没有交叉轴对齐规则，致使高度较小的角色卡片贴在顶部。 */
 .header-navbar .navbar-container .navbar-right > .nav.navbar-nav {
     align-items: center;
