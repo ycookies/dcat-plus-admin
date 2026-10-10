@@ -44,12 +44,22 @@ class UeditorHtmlSanitizer
 
         $previous = libxml_use_internal_errors(true);
         $document = new DOMDocument('1.0', 'UTF-8');
+        // loadHTML 对无 <meta charset> 的字符串按 ISO-8859-1 解析字节流，UTF-8 中文会被
+        // 双重编码（存库即乱码）；前置 XML 声明强制 libxml 以 UTF-8 解析
         $document->loadHTML(
-            '<!DOCTYPE html><html><body><div id="ueditor-sanitizer-root">'.$html.'</div></body></html>',
+            '<?xml encoding="utf-8"?>'
+            . '<!DOCTYPE html><html><body><div id="ueditor-sanitizer-root">'.$html.'</div></body></html>',
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
+
+        // 移除 loadHTML 保留在文档里的 XML 声明节点，避免混入输出
+        foreach (iterator_to_array($document->childNodes) as $childNode) {
+            if ($childNode instanceof \DOMProcessingInstruction) {
+                $document->removeChild($childNode);
+            }
+        }
 
         $root = $document->getElementById('ueditor-sanitizer-root');
         if (! $root) {

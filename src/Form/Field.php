@@ -163,6 +163,13 @@ class Field implements Renderable
     protected $help = [];
 
     /**
+     * HasMany useTable 模式的列宽（columnWidth 设置，渲染到表头 <th> 的 width）.
+     *
+     * @var string|int|null
+     */
+    protected $tableColumnWidth;
+
+    /**
      * Key for errors.
      *
      * @var string|array
@@ -219,13 +226,6 @@ class Field implements Renderable
      * @var array
      */
     protected $formGroupClass = ['form-field'];
-
-    /**
-     * HasMany useTable 模式下的表头列宽提示（如 '25%'、'150px'）。
-     *
-     * @var string|int|null
-     */
-    protected $tableColumnWidth;
 
     /**
      * @var \Closure[]
