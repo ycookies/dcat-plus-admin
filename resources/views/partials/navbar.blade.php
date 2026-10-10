@@ -608,6 +608,31 @@ body.dark-mode .dcat-user-role-panel__toggle[aria-expanded="true"] {
         overflow-y: auto;
     }
 }
+
+/* ===== layui-layer 移动端适配（≤767.98px）=====
+   layer 弹层在桌面端多为固定宽度（600px/800px），layer.js 以行内样式
+   写死 left/width，小屏下会溢出视口（如通知详情 600px 弹层）。
+   改为左右各留 10px 铺满显示；loading/tips/msg 小型浮层保持原定位。 */
+@media (max-width: 767.98px) {
+    .layui-layer:not(.layui-layer-loading):not(.layui-layer-tips):not(.layui-layer-msg) {
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+        max-width: calc(100vw - 20px) !important;
+        box-sizing: border-box;
+    }
+    .layui-layer:not(.layui-layer-loading):not(.layui-layer-tips):not(.layui-layer-msg) .layui-layer-content {
+        max-width: 100%;
+        max-height: calc(100vh - 120px);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* 图片查看弹层同样收敛 */
+    .layui-layer-photos img {
+        max-width: 100%;
+        height: auto;
+    }
+}
 .dcat-active-role-dropdown {
     display: flex !important;
     align-items: center !important;
