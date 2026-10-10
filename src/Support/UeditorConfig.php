@@ -64,6 +64,9 @@ class UeditorConfig
             // 编辑器容器的 z-index 基准值。需低于吸顶导航栏（997），否则滚动时
             // 编辑器会盖住导航栏；UEditor 的弹窗/菜单会基于此值 +10 派生，仍高于导航栏。
             'z_index'                 => 990,
+            // 工具栏浮动（autoFloat）时距视口顶部的偏移，需让出吸顶导航栏（60px）的高度，
+            // 否则滚动时浮动工具栏会钻到导航栏下面被遮住。
+            'top_offset'              => 60,
             'element_path_enabled'    => false,
             'auto_height_enabled'     => true,
             'enable_ai'               => false,
