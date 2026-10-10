@@ -554,6 +554,48 @@ body.dark-mode .dcat-user-role-panel__toggle[aria-expanded="true"] {
     align-items: center;
     min-height: 60px;
 }
+/* ===== 移动端修复（<992px）=====
+   BS4 在 navbar-expand-lg 断点以下把 .navbar-nav 排成纵向 flex，
+   ≤576px 时 fullNav mixin 又把 .navbar-container 改为 display:table/height:auto，
+   二者叠加导致右侧图标竖排、导航栏被撑高到 500px+。
+   恢复为单行 60px 高工具栏；图标总宽超出时横向滚动（隐藏滚动条）。 */
+@media (max-width: 991.98px) {
+    .header-navbar .navbar-container {
+        display: flex !important; /* 覆盖 fullNav 的 display:table */
+        align-items: center;
+        height: 60px !important;  /* 覆盖 fullNav 的 height:auto */
+    }
+    .header-navbar .navbar-container > .bookmark-wrapper {
+        flex: 0 0 auto;
+    }
+    .header-navbar .navbar-container .navbar-collapse {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .header-navbar .navbar-container .navbar-collapse::-webkit-scrollbar {
+        display: none;
+    }
+    .header-navbar .navbar-container .navbar-right {
+        flex-wrap: nowrap;
+        min-width: 0;
+        margin-left: auto;
+    }
+    .header-navbar .navbar-container .navbar-right .nav.navbar-nav {
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+    /* 收窄图标与用户头像的水平内边距，让整行在 390px 视口内放得下 */
+    .header-navbar .navbar-container .navbar-right ul.nav > li > a.nav-link {
+        padding-left: .5rem;
+        padding-right: .35rem;
+    }
+    .header-navbar .navbar-container .navbar-right ul.nav > li > a.dropdown-user-link {
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+}
 .dcat-active-role-dropdown {
     display: flex !important;
     align-items: center !important;
