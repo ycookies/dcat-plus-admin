@@ -4,6 +4,7 @@ namespace Dcat\Admin\Show;
 
 use Dcat\Admin\Admin;
 use Dcat\Admin\Show;
+use Dcat\Admin\Support\ContentFormat;
 use Dcat\Admin\Support\Helper;
 use Dcat\Admin\Traits\HasBuilderEvents;
 use Dcat\Admin\Traits\HasVariables;
@@ -204,6 +205,23 @@ class Field implements Renderable
             }
 
             return Arr::get($values, $value, $default);
+        });
+    }
+
+    /**
+     * 富文本内容预览：自动识别 HTML（editor 编辑器保存）与 Markdown
+     * （markdown 编辑器保存）两种格式并选择对应渲染方式。
+     *
+     * @return $this
+     */
+    public function richText()
+    {
+        return $this->unescape()->as(function ($value) {
+            if ($value === null || $value === '') {
+                return '';
+            }
+
+            return ContentFormat::render($value);
         });
     }
 
