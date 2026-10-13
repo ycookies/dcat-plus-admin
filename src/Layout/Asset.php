@@ -125,6 +125,10 @@ class Asset
             ],
             'css' => '@admin/dcat/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css',
         ],
+        '@daterangepicker' => [
+            'js'  => '@admin/dcat/plugins/bootstrap-datepicker/daterangepicker.min.js',
+            'css' => '@admin/dcat/plugins/bootstrap-datepicker/daterangepicker.css',
+        ],
         '@goods-sku' => [
             'js'  => '@admin/dcat/plugins/goods-sku/sku.js',
             'css' => '@admin/dcat/plugins/goods-sku/sku.css',

@@ -55,6 +55,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @method Field\Month month($column, $label = '')
  * @method Field\DateRange dateRange($start, $end, $label = '')
  * @method Field\DateTimeRange datetimeRange($start, $end, $label = '')
+ * @method Field\DateRangePicker dateRangePicker($start, $end, $label = '')
+ * @method Field\DatetimeRangePicker datetimeRangePicker($start, $end, $label = '')
  * @method Field\TimeRange timeRange($start, $end, $label = '')
  * @method Field\Number number($column, $label = '')
  * @method Field\Currency currency($column, $label = '')
@@ -125,6 +127,8 @@ class Form implements Renderable {
         'dateRange'           => Field\DateRange::class,
         'datetime'            => Field\Datetime::class,
         'datetimeRange'       => Field\DatetimeRange::class,
+        'datetimeRangePicker' => Field\DatetimeRangePicker::class,
+        'dateRangePicker'     => Field\DateRangePicker::class,
         'decimal'             => Field\Decimal::class,
         'display'             => Field\Display::class,
         'divider'             => Field\Divide::class,
