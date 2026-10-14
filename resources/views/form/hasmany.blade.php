@@ -88,7 +88,25 @@
 
         nestedIndex++;
 
-        $(forms).append(replaceNestedFormIndex(tpl.html()));
+        var $row = $(replaceNestedFormIndex(tpl.html()));
+        $(forms).append($row);
+
+        // Dcat.init 底层的 initialize 实现不监听动态插入的元素，新增行内的
+        // select 不会自动挂 select2，而 AdminLTE 的 appearance:none 又去掉了
+        // 原生箭头。这里为未初始化的 select 手动挂载，与初始行渲染一致。
+        $row.find('select.form-control:not([multiple="multiple"])').each(function () {
+            var $sel = $(this);
+            if ($sel.attr('initialized') || $sel.data('select2')) {
+                return;
+            }
+            $sel.attr('initialized', '1');
+            $sel.select2({
+                width: '100%',
+                language: '{{ str_replace('_', '-', config('app.locale')) }}',
+                placeholder: $sel.data('placeholder') || '',
+                allowClear: false
+            });
+        });
     });
 
     $(container).on('click', '.{{$columnClass}}-remove', function () {

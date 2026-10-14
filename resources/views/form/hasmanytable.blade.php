@@ -55,6 +55,14 @@
         cursor: help;
         margin-left: 2px;
     }
+
+    /* AdminLTE 对 select.form-control 设了 appearance:none（预期由 select2 渲染），
+       但新增行的 select 不会自动挂 select2（见底部脚本说明），恢复原生下拉箭头
+       避免看起来像输入框；select2 挂载后会隐藏原生 select，此规则不冲突 */
+    .table-has-many select.form-control:not([multiple="multiple"]) {
+        -webkit-appearance: menulist-button;
+        appearance: menulist-button;
+    }
 </style>
 @endonce
 <div class="has-many-table-box">
@@ -158,7 +166,26 @@
 
         nestedIndex++;
 
-        $con.find('.has-many-table-{{ $columnClass }}-forms').append(replaceNestedFormIndex(tpl.html()));
+        var $row = $(replaceNestedFormIndex(tpl.html()));
+        $con.find('.has-many-table-{{ $columnClass }}-forms').append($row);
+
+        // Dcat.init 底层的 initialize 实现不监听动态插入的元素，新增行内的
+        // select 不会自动挂 select2（静态箭头又被 AdminLTE 的 appearance:none
+        // 去掉）。这里为未初始化的 select 手动挂载，选项在 DOM 中，与初始行
+        // 渲染一致；标记 initialized 防止未来重复初始化。
+        $row.find('select.form-control:not([multiple="multiple"])').each(function () {
+            var $sel = $(this);
+            if ($sel.attr('initialized') || $sel.data('select2')) {
+                return;
+            }
+            $sel.attr('initialized', '1');
+            $sel.select2({
+                width: '100%',
+                language: '{{ str_replace('_', '-', config('app.locale')) }}',
+                placeholder: $sel.data('placeholder') || '',
+                allowClear: false
+            });
+        });
 
         e.preventDefault();
         return false
