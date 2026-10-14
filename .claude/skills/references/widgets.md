@@ -248,11 +248,20 @@ Table::make(['name' => '张三', 'age' => 20]);  // 键值表
 - `Code`（继承 Markdown）· `make($content='',$start=1,$end=1000)` · `.lang($l)`/`.javascript()`/`.section($file,$line,$context)`（读文件行范围）· 支持字符串/数组/对象/文件路径
 - `Markdown::make($md=null)` · `.content($md)` · 内置 emoji/taskList/tex/flowChart 支持
 - `Terminal::make($content=null)` · **静态** `Terminal::call('route:list')` 运行 Artisan 命令并展示 · `.dark()`/`.transparent()`
+- `Support\ContentFormat::render($content)` · **自动识别 HTML/Markdown 并渲染**（详情页富文本预览用）——UEditor 的 `<p>` 块标签/`&nbsp;` 指纹判 HTML，`#` 标题/围栏代码/列表/链接判 Markdown，纯文本兜底按 Markdown 渲染；`detect($content)` 可单独取格式
 
 ```php
 Terminal::call('route:list')->dark();
 Code::make("echo 'hi';")->javascript();
+
+// 详情页（Show）字段：同名字段两种编辑器保存的内容都正确预览
+$show->field('content', '内容')->richText();
+
+// 自定义页面：直接渲染混合来源的内容
+echo \Dcat\Admin\Support\ContentFormat::render($detail['docs_contents']);
 ```
+
+> `Show\Field::richText()` = `unescape()` + `ContentFormat::render()`；确知内容格式时可直接用 `unescape()`（HTML）或 `Markdown::make()`（Markdown）显式指定，跳过启发式识别。
 
 ### 4.5 Descriptions（详情描述列表）
 

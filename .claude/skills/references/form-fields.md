@@ -176,8 +176,17 @@ $form->multipleSelect('tags')->options(['php'=>'PHP','js'=>'JS'])
 | `multiDate($c,$l)` | MultiDate | yyyy-mm-dd | 多日期 |
 | `dateRange($s,$e,$l)` | DateRange | `YYYY-MM-DD` | `options([...])` |
 | `datetimeRange($s,$e,$l)` | DatetimeRange | `YYYY-MM-DD HH:mm:ss` | |
+| `dateRangePicker($s,$e,$l)` | DateRangePicker | `YYYY-MM-DD` | **单输入框** daterangepicker 区间选择 |
+| `datetimeRangePicker($s,$e,$l)` | DatetimeRangePicker | `YYYY-MM-DD HH:mm:ss` | 单输入框，带时分秒；与 datetimeRange 存储结构互通 |
 | `timeRange($s,$e,$l)` | TimeRange | `HH:mm:ss` | |
 | `range($s,$e,$l)` | Range | 纯输入范围 | 无日期选择器 |
+
+**区间选择器（推荐）**：一个输入框内弹出日历拖选起止，中文界面，点「确定」才写回、点「清除」保留原值；插件资源走 `@daterangepicker` 别名随包分发，无需配置。存储按 start/end 两列拆写，与 `datetimeRange`/`dateRange` 完全一致，可无缝互换：
+
+```php
+$form->datetimeRangePicker('start_at', 'end_at', '活动时间');
+$form->dateRangePicker('start_date', 'end_date', '活动日期');   // 回显自动截断时间部分
+```
 
 ## 七、上传类字段（WebUploader）
 
@@ -247,9 +256,9 @@ class FileController {
 
 | 方法 | 类 | 说明 |
 |------|----|------|
-| `editor($c,$l)` | Editor | UEditor。`disk($d)` `imageDirectory($dir)` `imageUrl($url)` `languageUrl($lang)` `height($px)` `darkMode()` `options([...])` |
+| `editor($c,$l)` | Editor | UEditor。`disk($d)` `imageDirectory($dir)` `imageUrl($url)` `languageUrl($lang)` `height($px)` `darkMode()` `options([...])`。层级由 `admin.ueditor.z_index`（默认 990）控制，工具栏浮动偏移 `admin.ueditor.top_offset`（默认 60=吸顶导航栏高度），均已按后台校准无需调整 |
 | `wangEditor($c,$l)` | WangEditor | wangEditor |
-| `markdown($c,$l)` | Markdown | editor.md。`htmlDecode()` `height($px)` `disk($d)` `imageDirectory` `imageUrl` `options([...])` |
+| `markdown($c,$l)` | Markdown | editor.md。`htmlDecode()` `height($px)` `disk($d)` `imageDirectory` `imageUrl` `options([...])`。**支持粘贴图片自动上传**（Ctrl+V 直传 imageUploadURL，`![](url)` 自动插入光标处，多图逐张处理，纯文本不受影响）；全屏按钮悬浮在编辑器右上角 |
 
 ```php
 $form->editor('content')->height(600)->options(['setup'=>JavaScript::make($js)])->disk('oss');
@@ -276,7 +285,7 @@ $form->editor('content')->height(600)->options(['setup'=>JavaScript::make($js)])
 | `embeds($c,$l,Closure)` | Embeds | 单字段 JSON 子表单（**不支持文件上传**）。需模型 `$casts=['extra'=>'json']` |
 | `hasMany($c,$lOrCb,Closure)` | HasMany | 一对多关联。`mode('default'/'tab'/'table')` `useTab()` `useTable()` `disableCreate()` `disableDelete()` |
 | `array($c,$lOrCb,Closure)` | ArrayField (extends HasMany) | 二维数组（非关联）。`saveAsJson()` |
-| `table($c,$lOrCb,Closure)` | Table (extends ArrayField) | 表格视图二维数组 |
+| `table($c,$lOrCb,Closure)` | Table (extends ArrayField) | 表格视图二维数组，**与 useTable 同款表格体验**（结构化表头/列宽/help 上收） |
 | `keyValue($c,$l)` | KeyValue | 键值对象 `{"k":"v"}`。`setKeyLabel()` `setValueLabel()` |
 | `list($c,$l)` | ListField | 一维数组。`max($n)` `min($n)` |
 
@@ -309,6 +318,29 @@ $form->array('items', function ($table) {
 ```
 
 > `embeds` 子字段规则命名空间 `{column}.{sub}`；`hasMany` 为 `{column}.{idx}.{sub}`；`keyValue` 自动 `distinct` 到 `keys.*`。模型需配访问器/修改器 json_encode/array_values。
+
+### 表格模式（useTable / table / array）的结构化表头
+
+`hasMany()->useTable()`、`$form->table()`、`$form->array()` 的表格视图由 `HasMany::applyTableStyle()` 统一收敛，**同一段字段定义在关联表（hasMany）与 JSON 存储（table/array）之间表现完全一致，可原样互搬**：
+
+```php
+$form->table('items', '报名项目', function (NestedForm $table) {   // hasMany 同样适用
+    $table->select('type', '类型')->options([...]);                 // 默认列宽 150px
+    $table->text('name', '项目名称');                                // 无宽度自动伸展
+    $table->decimal('price', '单价')
+        ->columnWidth('120px')                                       // 显式列宽 → 表头 <th>
+        ->help('个人=每人价；团体=每队价');                            // help 上收表头（❓ 图标 + layer.tips 气泡）
+    $table->number('quota', '名额');                                  // 默认列宽 100px、居中
+    $table->switch('enabled', '启用');                                // 默认列宽 70px、居中
+    $table->textarea('remark');                                       // 默认列宽 200px、rows 收敛为 2
+});
+```
+
+- 任意字段可用 `columnWidth('25%'|'150px')` 指定列宽（渲染到表头 `<th>`）；
+- 字段 `->help()` 自动收集到表头，不在单元格内占位；
+- 行内自动隐藏 label、去除 Text/Decimal 默认前置图标、switch/number 居中。
+
+> **⚠ 动态新增行的组件初始化坑**：`Dcat.init`（jquery-initialize）**不监听动态插入的 DOM**，嵌套表格点「新增」克隆出的行里，select 等组件不会自动初始化（框架已对 select 做了手动挂 select2 + 原生箭头兜底）。自定义嵌套行内组件时必须同样在 add 之后手动初始化，不能依赖 `Dcat.init` 自动重放。
 
 ## 十一、弹窗选行 selectTable
 
