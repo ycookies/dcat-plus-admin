@@ -73,6 +73,12 @@ class ArrayField extends HasMany
         // 使用column布局之后需要重新追加字段
         $form->layout()->appendToLastColumn($hidden);
 
+        // 表格模式（table/array 字段）与 HasMany useTable 保持同一套
+        // 行内样式收敛与结构化表头，前端呈现一致的表格输入体验
+        if ($this->viewMode === 'table') {
+            $this->applyTableStyle($form);
+        }
+
         return $form;
     }
 }
