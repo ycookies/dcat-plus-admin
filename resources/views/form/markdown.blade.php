@@ -1,5 +1,37 @@
 <style>
     .editormd-fullscreen {z-index: 99999999;}
+    /* 全屏按钮悬浮到编辑器右上角，方便快速进入/退出全屏（不必在工具堆里找） */
+    .editormd .editormd-toolbar ul {
+        padding-right: 42px; /* 给角落按钮让位，避免遮挡最右侧工具 */
+    }
+    .md-fullscreen-corner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 30;
+        margin: 0;
+        list-style: none;
+        padding: 8px 12px;
+        line-height: 1;
+        background: #fff;
+        border-left: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        box-shadow: -1px 2px 4px rgba(0, 0, 0, .06);
+        cursor: pointer;
+    }
+    .md-fullscreen-corner a {
+        color: #666;
+    }
+    .md-fullscreen-corner:hover {
+        background: #f3f4f7;
+    }
+    .editormd.edui-dark .md-fullscreen-corner {
+        background: #2d3248;
+        border-color: #414d77;
+    }
+    .editormd.edui-dark .md-fullscreen-corner a {
+        color: #b7c5ff;
+    }
 </style>
 
 <div class="{{$viewClass['form-group']}}">
@@ -38,10 +70,33 @@
         (function waitEditorReady(retries) {
             if (editor && editor.cm) {
                 bindMarkdownPasteUpload(editor, opts);
+                moveFullscreenToCorner(editor);
             } else if (retries > 0) {
                 setTimeout(function () { waitEditorReady(retries - 1); }, 100);
             }
         })(50);
+    }
+
+    /**
+     * 全屏按钮从工具栏移到编辑器右上角：editor.md 的工具栏点击是
+     * 祖先级委托绑定，DOM 移动不影响事件触发；全屏状态下按钮随
+     * 容器继续悬浮在右上角，可点它退出（ESC 依然有效）。
+     */
+    function moveFullscreenToCorner(editor) {
+        // editormd 实例没有统一的容器属性，直接按初始化 id 取根容器
+        var container = document.getElementById(id);
+        if (! container) {
+            return;
+        }
+
+        var icon = container.querySelector('[name="fullscreen"]');
+        var li = icon && icon.closest('li');
+        if (!li || li.classList.contains('md-fullscreen-corner')) {
+            return;
+        }
+
+        li.classList.add('md-fullscreen-corner');
+        container.appendChild(li);
     }
 
     /**
