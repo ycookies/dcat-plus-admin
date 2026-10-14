@@ -100,7 +100,18 @@ middleware group `admin`: admin.auth, admin.pjax, admin.bootstrap, admin.permiss
 
 ## 资源别名 (40+)
 
-@adminlte, @dcat, @vendors, @pjax, @toastr, @select2, @tinymce, @wang-editor, @fullcalendar, @webuploader, @chartjs, @apex-charts, @moment, @jstree, @editor-md, @inputmask, @color-picker, @slider, @switchery, @fontawesome-iconpicker, @datamaps, @jquery-nestable, @dropzone, @laravel-file-manager, @simplemde, @poppins, @vapor
+@adminlte, @dcat, @vendors, @pjax, @toastr, @select2, @tinymce, @wang-editor, @fullcalendar, @webuploader, @chartjs, @apex-charts, @moment, @jstree, @editor-md, @inputmask, @color-picker, @slider, @switchery, @fontawesome-iconpicker, @datamaps, @jquery-nestable, @dropzone, @laravel-file-manager, @simplemde, @poppins, @vapor, @daterangepicker
+
+## 前端集成要点（agent 必读约束）
+
+写涉及浮层/层级/动态 DOM 的前端代码时遵守以下已校准的基准，避免遮挡与初始化失效：
+
+- **吸顶导航栏**：高 60px、`z-index: 997`。任何悬浮内容需低于 997（UEditor 容器默认 990，见 `admin.ueditor.z_index`）；滚动定位由全局 `html { scroll-padding-top: 70px }` 自动补偿，锚点跳转无需额外处理。
+- **layui-layer 弹层**：≤768px 已全局适配为左右留 10px 全宽显示（navbar 局部视图样式块），无需对单个弹层做移动端宽度处理。
+- **`Dcat.init` 不监听动态插入的 DOM**（jquery-initialize 无 MutationObserver 重放）：动态克隆出的行/元素内，select、datepicker 等组件必须手动初始化（参考 hasmanytable.blade.php 的 add 处理）。
+- **AdminLTE 去掉了 `select.form-control` 的原生箭头**（`appearance:none`，预期 select2 渲染）；未挂 select2 的原生 select 需自行补 `appearance: menulist-button` 兜底。
+- **全局 CSS 挂载点**：navbar 局部视图（`partials/navbar.blade.php`）的 `<style>` 块被主布局包含、全后台生效，跨页面样式/移动端适配优先放这里。
+- **UEditor 层级/浮动**：容器 z-index 基准 `admin.ueditor.z_index`（默认 990），内部弹窗/菜单自动 +10 派生；工具栏浮动偏移 `admin.ueditor.top_offset`（默认 60，让出导航栏）。
 
 ## 主题颜色
 
