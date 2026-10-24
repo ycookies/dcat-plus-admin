@@ -61,25 +61,52 @@ class Zip extends ZipArchive
      * @param  string  $source  Path for the existing zip
      * @param  string  $destination  Path to extract the zip files
      * @param  array  $options
+     * @param  string|null  $error  失败时回填具体原因（区分扩展缺失/坏包/权限/磁盘）
      * @return bool
      */
-    public static function extract($source, $destination, $options = [])
+    public static function extract($source, $destination, $options = [], &$error = null)
     {
         extract(array_merge([
             'mask' => 0777,
         ], $options));
 
-        if (file_exists($destination) || mkdir($destination, $mask, true)) {
-            $zip = new ZipArchive;
-            if ($zip->open($source) === true) {
-                $zip->extractTo($destination);
-                $zip->close();
+        if (! class_exists(ZipArchive::class)) {
+            $error = 'PHP Zip 扩展未安装或未启用（ext-zip），无法解压';
 
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        if (! (file_exists($destination) || mkdir($destination, $mask, true))) {
+            $error = sprintf('无法创建解压目录 %s（上级目录权限不足）', $destination);
+
+            return false;
+        }
+
+        $zip = new ZipArchive;
+
+        $code = $zip->open($source);
+
+        if ($code !== true) {
+            $error = sprintf('无法打开压缩包（错误码 %d）：%s', $code, $source);
+
+            return false;
+        }
+
+        if (! $zip->extractTo($destination)) {
+            // extractTo 失败常见于磁盘空间不足、目录无写权限
+            $error = sprintf(
+                '解压写入失败（%s）：%s。请检查磁盘剩余空间与目录写权限。',
+                $zip->getStatusString() ?: '未知错误',
+                $destination
+            );
+            $zip->close();
+
+            return false;
+        }
+
+        $zip->close();
+
+        return true;
     }
 
     /**

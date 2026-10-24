@@ -957,6 +957,8 @@ php artisan admin:ext-install my-vendor/notice --path=/path/to/notice.zip
 php artisan admin:ext-update my-vendor/notice
 ```
 
+> 后台上传 ZIP 安装（`Http\Forms\InstallFromLocal`）内置**安装预检** `Extend\InstallPreflight`：解压前一次性检查 PHP Zip 扩展、压缩包有效性（ER_NOZIP/ER_CRC 等错误码转可读原因）、`storage/tmp/extensions` 临时目录与扩展目录权限、磁盘剩余空间（按 zip 体积 5 倍估算），**全部错误一次性收集返回**。自定义安装流程可复用：`(new InstallPreflight())->check($zipPath)` 返回错误数组（空=通过）。`Support\Zip::extract($src, $dest, $options, &$error)` 第 4 参回填解压失败的具体原因。
+
 ### 14.4 扩展目录
 
 默认: `base_path('dcat-admin-extensions/')`
