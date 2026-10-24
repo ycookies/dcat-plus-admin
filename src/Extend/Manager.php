@@ -360,8 +360,10 @@ class Manager
         try {
             $filePath = is_file($filePath) ? $filePath : $this->getFilePath($filePath);
 
-            if (! Zip::extract($filePath, $tempPath)) {
-                throw new AdminException(sprintf('Unable to extract core file \'%s\'.', $filePath));
+            $error = null;
+
+            if (! Zip::extract($filePath, $tempPath, [], $error)) {
+                throw new AdminException(sprintf('Unable to extract core file \'%s\'.', $filePath).($error ? '<br>原因：'.$error : ''));
             }
 
             $extensions = $this->getExtensionDirectories($tempPath);
