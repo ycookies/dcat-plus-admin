@@ -584,6 +584,16 @@ php artisan admin:minify               # 压缩前端资源
 8. Octane 需确保 `FlushAdminState` 监听器已注册
 9. PJAX 异常时可 `Dcat.disablePjax()`
 10. Laravel 11+ 安装自动检测并兼容处理
+11. **Grid 预加载必须传数组**：`Grid\Model::with($relations)` 不是可变参数(源码 `src/Grid/Model.php` 的 `with()` 只收单参数，不像 Eloquent `Builder::with()` 内部用 `func_get_args()` 兼容多参数)。`$grid->model()->with('a','b','c')` 只有第一个生效，其余被 PHP **静默丢弃**(非可变参数方法多余实参不报错，写错关联名也不报错)。正确写法：
+
+    ```php
+    // ✅ 数组 + 关联名与模型方法名一致(驼峰，嵌套用点号)
+    $grid->model()->with(['competition','schedule','scheduleRoster.school']);
+    // ❌ 只有 'competition' 生效，后两个静默丢弃
+    $grid->model()->with('competition','schedule','scheduleRoster.school');
+    ```
+
+    注意 `Grid::make(Model::with('a','b'))` 走 Eloquent 静态 with，多参数没问题。排查技巧：Grid 点分关联列(`relation.field`)整列空白时，根因几乎都是关联没被预加载，而不是列名命名——dcat 取列值链是 `toArray()` + `Helper::camelArray()`(递归加驼峰键且保留原 snake 键，双键并存)，`scheduleRoster.school.name` 和 `schedule_roster.school.name` 都能命中；用 `display(function(){ $this->relation; })` 闭包直接访问预加载关联可彻底绕开命名问题。
 
 ---
 
