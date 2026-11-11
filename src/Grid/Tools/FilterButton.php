@@ -84,16 +84,12 @@ class FilterButton extends AbstractTool
         return false
     });
 
-    $('.wrapper').on('click', '.modal', function (e) {
-        if (typeof e.cancelBubble != "undefined") {
-            e.cancelBubble = true;
-        }
-        if (typeof e.stopPropagation != "undefined") {
-            e.stopPropagation();
-        }
-    });
+    // 注意：不能在这里对 .modal 内点击无差别 stopPropagation——那会掐断冒泡，
+    // document 上的 Bootstrap data-api 委托（[data-toggle="modal"]）收不到
+    // 弹窗内按钮的点击，导致"弹窗内再打开另一个弹窗"的按钮全部失灵。
+    // 改为在关闭筛选面板的判断里排除 .modal 内的点击。
     $(document).on('click', '.wrapper', function (e) {
-        if (slider && slider.close) {
+        if (slider && slider.close && !$(e.target).closest('.modal').length) {
             slider.close();
         }
     });

@@ -109,6 +109,7 @@ middleware group `admin`: admin.auth, admin.pjax, admin.bootstrap, admin.permiss
 - **吸顶导航栏**：高 60px、`z-index: 997`。任何悬浮内容需低于 997（UEditor 容器默认 990，见 `admin.ueditor.z_index`）；滚动定位由全局 `html { scroll-padding-top: 70px }` 自动补偿，锚点跳转无需额外处理。
 - **layui-layer 弹层**：≤768px 已全局适配为左右留 10px 全宽显示（navbar 局部视图样式块），无需对单个弹层做移动端宽度处理。
 - **Bootstrap modal 支持嵌套**（modal 内再开 modal）：Bootstrap 中间件已全局注入幂等补丁（`window.__dcatStackedModalPatch`）——z-index 按层递增、内层自动去 fade、dismiss 截断冒泡、modal 事件直接绑定带 target 守卫、内层 show 时移到 body 下脱离外层 stacking context。自定义嵌套弹窗交互时**无需再自行处理层级/遮罩**，但要意识到内层 modal 可能被移到 `body` 直接子级（不要依赖 DOM 位置选择器）。
+- **弹窗内再开弹窗的按钮依赖 Bootstrap data-api**（document 级 `[data-toggle="modal"]` 委托）——**任何在中间层对 `.modal` 内点击 `stopPropagation()` 的代码都会让弹窗内按钮失灵**（历史上 `Grid\Tools\FilterButton` 的筛选面板就犯过此错，已改为在其 close 判断里排除 `.modal`）。在 modal 内注册 click 委托时严禁无差别阻断冒泡。
 - **`Dcat.init` 不监听动态插入的 DOM**（jquery-initialize 无 MutationObserver 重放）：动态克隆出的行/元素内，select、datepicker 等组件必须手动初始化（参考 hasmanytable.blade.php 的 add 处理）。
 - **AdminLTE 去掉了 `select.form-control` 的原生箭头**（`appearance:none`，预期 select2 渲染）；未挂 select2 的原生 select 需自行补 `appearance: menulist-button` 兜底。
 - **全局 CSS 挂载点**：navbar 局部视图（`partials/navbar.blade.php`）的 `<style>` 块被主布局包含、全后台生效，跨页面样式/移动端适配优先放这里。
