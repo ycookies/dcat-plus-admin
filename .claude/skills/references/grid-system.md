@@ -298,8 +298,35 @@ $grid->actions(function (Grid\Displayers\Actions $actions) {
     $actions->group(function ($g) {
         $g->append(new MyAction($this->id));
     }, 'feather icon-more-vertical', '更多操作');
-});
 ```
+
+### 异步表格（Grid\LazyRenderable）启用 Create / Actions
+
+弹窗异步表格（列 `->modal(LazyRenderable)` / `DialogTable` / `LazyTable`）默认**没有创建按钮、行操作开了也是坏的**，两个独立根因：
+
+1. **CreateButton 被简化模式禁用**（刻意设计）：`Modal::content()` 检测到 LazyRenderable → `LazyTable->simple()` → payload `_simple_=1` → `Grid\LazyRenderable::prepare()` 自动 `disableCreateButton()/disablePerPages()/disableBatchDelete()/disableRefreshButton()`；
+2. **Actions 的 URL 全错**：Grid 构造时 `resource()` 默认取当前请求 PATH，异步请求是 `admin/dcat-api/render`，行操作会拼成 `admin/dcat-api/render/{id}/edit` → 404。
+
+**解法（两行，写在 renderable 的 `grid()` 里）**：
+
+```php
+class NestedModalUserTable extends Grid\LazyRenderable
+{
+    public function grid(): Grid
+    {
+        return Grid::make(new Administrator(), function (Grid $grid) {
+            // ★ resource() 是只读 getter，传参被静默丢弃，必须用 setResource
+            $grid->setResource('auth/users');      // 显式资源路径（自动 admin_url()）
+            $grid->showCreateButton();             // 重新打开创建按钮
+
+            // 行操作即可正常使用；编辑/查看为整页跳转、删除为 AJAX、
+            // QuickEdit 为嵌套弹窗（依赖 modal 补丁，v2.0.33/v3.0.16+）
+        });
+    }
+}
+```
+
+注意：异步表格的行操作默认渲染为 **⋮ 下拉分组**（`grid-dropdown-actions`），点行尾的竖三点按钮展开后才有编辑/删除项。
 
 ### 自定义行操作类（继承 `Dcat\Admin\Grid\RowAction`）
 ```php
