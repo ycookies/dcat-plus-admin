@@ -20,13 +20,17 @@ use Dcat\Admin\Layout\Navbar;
 use Dcat\Admin\Layout\SectionManager;
 use Dcat\Admin\Support\Context;
 use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Support\QiniuV3Adapter;
 use Dcat\Admin\Support\Setting;
 use Dcat\Admin\Support\Translator;
 use Dcat\Admin\Support\WebUploader;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\Filesystem;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -154,6 +158,7 @@ class AdminServiceProvider extends ServiceProvider {
         $this->compatibleBlade();
         $this->bootExtensions();
         $this->registerBladeDirective();
+        $this->patchQiniuStorageDriver();
 
         $this->app->register(FormStepServiceProvider::class);
         $this->app->register(DcatDistpickerServiceProvider::class);
@@ -184,6 +189,48 @@ class AdminServiceProvider extends ServiceProvider {
             \URL::forceScheme('https');
             $this->app['request']->server->set('HTTPS', true);
         }
+    }
+
+    /**
+     * 修复 zgldh/qiniu-laravel-storage 在 Flysystem v3 下的兼容问题.
+     *
+     * 该包的 QiniuAdapter::listContents() 返回 Flysystem v1 风格数组，
+     * Laravel 10+ 的 files()/directories() 会对 StorageAttributes 强类型
+     * 过滤直接 TypeError，媒体管理器浏览七牛盘即 500。
+     *
+     * 通过同名 Storage::extend('qiniu') 用兼容适配器（Support\QiniuV3Adapter）
+     * 覆盖其驱动注册。注册放在 App::booted 回调中，保证晚于 zgldh 在自己
+     * provider boot 阶段的注册（同名覆盖生效）；宿主若需完全自定义该驱动，
+     * 在自己的 App::booted 回调中再次 Storage::extend 覆盖即可。
+     *
+     * @return void
+     */
+    protected function patchQiniuStorageDriver() {
+        if (! class_exists(\zgldh\QiniuStorage\QiniuAdapter::class)) {
+            return;
+        }
+
+        $this->app->booted(function () {
+            Storage::extend('qiniu', function ($app, $config) {
+                $domains = $config['domains'] ?? [
+                    'default' => $config['domain'] ?? null,
+                    'https'   => null,
+                    'custom'  => null,
+                ];
+
+                $adapter = new QiniuV3Adapter(
+                    $config['access_key'],
+                    $config['secret_key'],
+                    $config['bucket'],
+                    $domains,
+                    $config['notify_url'] ?? null,
+                    $config['access'] ?? 'public',
+                    $config['hotlink_prevention_key'] ?? null
+                );
+
+                return new FilesystemAdapter(new Filesystem($adapter), $adapter, $config);
+            });
+        });
     }
 
     /**

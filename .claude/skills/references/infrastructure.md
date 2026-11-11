@@ -114,6 +114,10 @@ middleware group `admin`: admin.auth, admin.pjax, admin.bootstrap, admin.permiss
 - **全局 CSS 挂载点**：navbar 局部视图（`partials/navbar.blade.php`）的 `<style>` 块被主布局包含、全后台生效，跨页面样式/移动端适配优先放这里。
 - **UEditor 层级/浮动**：容器 z-index 基准 `admin.ueditor.z_index`（默认 990），内部弹窗/菜单自动 +10 派生；工具栏浮动偏移 `admin.ueditor.top_offset`（默认 60，让出导航栏）。
 
+## 存储兼容补丁
+
+- **qiniu 盘自动打补丁**：宿主安装 `zgldh/qiniu-laravel-storage` 时，`AdminServiceProvider` 会在 `App::booted` 回调用 `Support\QiniuV3Adapter` 覆盖 `Storage::extend('qiniu')`——zgldh 的 `listContents()` 返回 Flysystem v1 数组，Laravel 10+ 的 `files()/directories()` 强类型过滤 StorageAttributes 直接 TypeError（媒体管理器浏览七牛盘即 500）。补丁版返回 StorageAttributes、marker 分页拉全、delimiter='/' 还原子目录、putTime÷1e7 转秒、域名强制 https。宿主要完全自定义 qiniu 驱动：在自己的 `App::booted` 里再次 `Storage::extend('qiniu')` 覆盖即可（后注册者胜）。未安装 zgldh 的项目 class_exists 守卫零开销。
+
 ## 主题颜色
 
 4个内置主题:
