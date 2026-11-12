@@ -169,13 +169,41 @@ if (!window.__dcatStackedModalPatch) {
         $('body > .modal[data-nested-moved]').remove();
     });
 
-    // 嵌套内层弹窗提交成功的智能刷新：拦截 Dcat.reload（表单/行操作 ->refresh() 指令的
-    // 唯一出口），当前有嵌套内层弹窗打开时不整页刷新，改为只关内层并局部重载来源外层
-    // 弹窗里的异步表格（async-table 触发 table:load）。单层弹窗与普通页面提交不做任何
-    // 改动（透传原生整页刷新）；带 url 的定向跳转也透传
+    // 智能刷新拦截链（Dcat.reload 是表单/行操作 ->refresh() 与 grid 行操作
+    // 删除/批量删除完成后的唯一出口）：
+    // 1. 当前有嵌套内层弹窗打开时不整页刷新，改为只关内层并局部重载来源外层
+    //    弹窗里的异步表格（async-table 触发 table:load）；
+    // 2. 可见 modal 内含 async-table（dialog create / quick edit 保存后的刷新）
+    //    → 只触发表格重载，弹窗保持打开，不整页刷新；
+    // 3. 带 url 的定向重载（grid 行删除/批量删除完成后携带 data-redirect），
+    //    若最近一次点击发生在 async-table 内（删除确认框 swal 中的点击延续
+    //    上下文）→ 改写为该表格原地重载，不跳转到 data-redirect 指向的资源页；
+    //    其余场景透传原生行为。
+    // async-table 内点击由 document 捕获阶段监听记录（capture 不受业务
+    // stopPropagation 影响）；上下文为点击位引用，无时间窗。
     (function () {
         var origReload = Dcat.reload.bind(Dcat);
+        var asyncCtx = null;
+
+        document.addEventListener('click', function (e) {
+            if (! e.target || ! e.target.closest) {
+                return;
+            }
+            // swal 中的点击（删除确认的"确认"）延续既有上下文，不更新也不清除
+            if (e.target.closest('.swal2-container')) {
+                return;
+            }
+            asyncCtx = e.target.closest('.async-table') || null;
+        }, true);
+
         Dcat.reload = function (url) {
+            // 带 url 的定向重载来自异步表格行删除/批量删除 → 表格原地重载
+            if (url && asyncCtx && asyncCtx.isConnected) {
+                var $ctxTable = jQuery(asyncCtx);
+                asyncCtx = null;
+                $ctxTable.trigger('table:load');
+                return;
+            }
             if (url) {
                 return origReload(url);
             }
