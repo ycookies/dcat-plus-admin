@@ -79,6 +79,18 @@ HTML;
             $grid->rowSelector()->click();
         }
 
+        // 异步表格（弹窗/展开行）行操作适配：整页编辑与查看会离开当前上下文
+        // （弹窗场景下不可回退），自动替换为快捷编辑（弹窗表单）与弹窗查看。
+        // 用户已自定义 actions() 时尊重其配置，不自动替换。
+        if (! $grid->hasCustomActions()) {
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->quickEdit();
+                $actions->dialogView();
+                $actions->disableEdit();
+                $actions->disableView();
+            });
+        }
+
         if (! empty($this->payload[static::ROW_SELECTOR_COLUMN_NAME])) {
             [$key, $visibleColumn] = $this->payload[static::ROW_SELECTOR_COLUMN_NAME];
 

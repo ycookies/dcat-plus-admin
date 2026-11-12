@@ -29,6 +29,7 @@ class DialogForm
         'lang'           => null,
         'forceRefresh'   => false,
         'resetButton'    => true,
+        'viewOnly'       => false,
     ];
 
     /**
@@ -109,6 +110,19 @@ class DialogForm
     public function resetButton(bool $value = true)
     {
         $this->options['resetButton'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * 只读弹层（如查看详情）：隐藏提交/重置按钮，点 × 或遮罩即关闭.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function viewOnly(bool $value = true)
+    {
+        $this->options['viewOnly'] = $value;
 
         return $this;
     }
