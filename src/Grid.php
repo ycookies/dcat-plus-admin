@@ -943,6 +943,21 @@ HTML;
     }
 
     /**
+     * 设置异步表格弹窗查看的弹层尺寸.
+     *
+     * 支持 'sm'（600px×60%）/ 'lg'（800px×80%）/ 'xl'（1140px×90%）、
+     * 数组 ['800px', '600px'] 或宽度字符串 '80%'；不设置用
+     * config admin.dialog_form_area 默认尺寸。
+     *
+     * @param  mixed  $size
+     * @return $this
+     */
+    public function dialogViewSize($size)
+    {
+        return $this->option('dialog_view_size', $size);
+    }
+
+    /**
      * Create a grid instance.
      *
      * @param  mixed  ...$params
