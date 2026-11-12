@@ -66,6 +66,10 @@ HTML;
             $grid->setName($this->getDefaultName());
         }
 
+        // 记录构建阶段用户是否显式禁用了创建按钮（下方简化模式会再次覆盖，
+        // 以此区分"用户意图"与"框架默认"，决定是否自动重新启用）
+        $createExplicitlyDisabled = $grid->option('create_button') === false;
+
         if ($this->allowSimpleMode()) {
             $grid->disableCreateButton();
             $grid->disablePerPages();
@@ -89,6 +93,14 @@ HTML;
                 $actions->disableEdit();
                 $actions->disableView();
             });
+        }
+
+        // 异步表格默认启用「弹窗创建」：无需用户手写
+        // showCreateButton() + enableDialogCreate()（配合行操作的
+        // setResource 显式资源路径即可用）；用户已显式禁用创建按钮时尊重配置
+        if (! $createExplicitlyDisabled) {
+            $grid->showCreateButton();
+            $grid->enableDialogCreate();
         }
 
         if (! empty($this->payload[static::ROW_SELECTOR_COLUMN_NAME])) {
