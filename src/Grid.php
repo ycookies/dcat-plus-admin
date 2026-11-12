@@ -933,6 +933,16 @@ HTML;
     }
 
     /**
+     * 是否已通过 actions() 自定义行操作（异步表格自动适配时尊重用户配置）.
+     *
+     * @return bool
+     */
+    public function hasCustomActions()
+    {
+        return ! empty($this->actionsCallback);
+    }
+
+    /**
      * Create a grid instance.
      *
      * @param  mixed  ...$params

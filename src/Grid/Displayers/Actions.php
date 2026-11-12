@@ -4,6 +4,7 @@ namespace Dcat\Admin\Grid\Displayers;
 
 use Dcat\Admin\Actions\Action;
 use Dcat\Admin\Grid\Actions\Delete;
+use Dcat\Admin\Grid\Actions\DialogView;
 use Dcat\Admin\Grid\Actions\Edit;
 use Dcat\Admin\Grid\Actions\QuickEdit;
 use Dcat\Admin\Grid\Actions\Show;
@@ -40,10 +41,11 @@ class Actions extends AbstractDisplayer
      * @var array
      */
     protected $actions = [
-        'view'      => true,
-        'edit'      => true,
-        'quickEdit' => false,
-        'delete'    => true,
+        'view'       => true,
+        'edit'       => true,
+        'quickEdit'  => false,
+        'dialogView' => false,
+        'delete'     => true,
     ];
 
     /**
@@ -169,6 +171,28 @@ class Actions extends AbstractDisplayer
     public function quickEdit(bool $value = true)
     {
         return $this->setAction('quickEdit', $value);
+    }
+
+    /**
+     * 显示弹窗查看按钮（弹层打开详情页，不离开当前上下文）.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function dialogView(bool $value = true)
+    {
+        return $this->setAction('dialogView', $value);
+    }
+
+    /**
+     * Disable dialog view.
+     *
+     * @param  bool  $disable
+     * @return $this
+     */
+    public function disableDialogView(bool $disable = true)
+    {
+        return $this->setAction('dialogView', ! $disable);
     }
 
     /**
@@ -369,6 +393,19 @@ HTML;
         $label = trans('admin.quick_edit');
 
         return "<i data-title='{$label}' title='{$label}' class=\"feather icon-edit grid-action-icon tips\"></i> &nbsp;";
+    }
+
+    /**
+     * Render dialog view action.
+     *
+     * @return string
+     */
+    protected function renderDialogView()
+    {
+        $action = config('admin.grid.actions.dialog_view') ?: DialogView::class;
+        $action = $action::make($this->getViewLabel());
+
+        return $this->prepareAction($action);
     }
 
     /**

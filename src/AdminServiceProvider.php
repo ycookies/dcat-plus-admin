@@ -159,6 +159,7 @@ class AdminServiceProvider extends ServiceProvider {
         $this->bootExtensions();
         $this->registerBladeDirective();
         $this->patchQiniuStorageDriver();
+        $this->dialogContentRenderHook();
 
         $this->app->register(FormStepServiceProvider::class);
         $this->app->register(DcatDistpickerServiceProvider::class);
@@ -189,6 +190,26 @@ class AdminServiceProvider extends ServiceProvider {
             \URL::forceScheme('https');
             $this->app['request']->server->set('HTTPS', true);
         }
+    }
+
+    /**
+     * 弹窗加载详情页（异步表格 DialogView 等）时的最小化渲染：
+     * 请求带 _dialog_form_=1（DialogForm 约定）且非表单页（Form 页已有
+     * DialogForm::prepare 处理）时，Content 只渲染内容区、无侧栏导航。
+     * 保留完整静态资源，详情页组件样式不受影响。
+     *
+     * @return void
+     */
+    protected function dialogContentRenderHook() {
+        $this->app->booted(function () {
+            if (! \Dcat\Admin\Widgets\DialogForm::is()) {
+                return;
+            }
+
+            \Dcat\Admin\Layout\Content::composing(function (\Dcat\Admin\Layout\Content $content) {
+                $content->view('admin::layouts.form-content');
+            });
+        });
     }
 
     /**
