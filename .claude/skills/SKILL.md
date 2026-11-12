@@ -603,9 +603,11 @@ php artisan admin:minify               # 压缩前端资源
 
 - **references/form-fields.md** -- 63 个表单字段完整目录(方法签名/关键方法/分类/级联/联动/事件/步骤表单)
 - **references/grid-system.md** -- Grid 完整 API(列管理/30+显示器/21种筛选器/动作/工具/事件/导出导入)
+- **references/show-detail.md** -- 数据详情页(Show)完整 API(字段显示方法全目录/richText富文本识别/关联关系/row·card·fieldset·Descriptions布局/工具栏/魔术助手与陷阱)
 - **references/widgets.md** -- Widget 组件完整指南(基类渲染机制/通用方法/6容器型/Card·Box·Modal·Tab·Dropdown·Collapse/内容展示型/dcat-plus新增13个/异步交互Lazy·LazyTable·DialogForm·DialogTable·Tree/图表ApexCharts·ChinaMap·Calendar/Metrics统计卡片/自定义Widget/已知Bug)
 - **references/api-development.md** -- API 接口开发规范(BaseApiController 基类能力速查/lists过滤排序真实语法/returnData行为/getValidationRules返回结构/标准控制器骨架/Scramble注释/统一响应/Resource/会员端vs管理端差异/ai-delivery交付文档)
 - **references/database-schema.md** -- MySQL 数据结构与建表规范(脚手架字段语义识别规则/@scaffold:type与options指令/标准建表示例/Laravel migration具名类写法/索引安全/生成后人工补充)
 - **references/infrastructure.md** -- 基础设施(23个Artisan命令/50+Helper函数/9个中间件/40+资源别名/4个主题/30+Widget/扩展系统/Action系统/Repository/模型/配置全表/已知Bug)
 - **references/extension-development.md** -- 扩展开发完整指南(创建/生命周期/版本管理/菜单/路由/中间件/视图/资源/配置/自定义字段/自定义动作/完整示例/发布/陷阱)
+- **references/extension-workflow.md** -- 扩展开发工作流(阶段化流程/落地页/工作流指令)
 - **references/action-system.md** -- Action 系统完整指南(代码生成器/10种类型对照/handle返回值Response/可重写钩子/前端JS交互/各容器注册方式/异步渲染lazy-table+lazy-form/payload链路/实战示例/陷阱)
