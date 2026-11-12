@@ -958,6 +958,18 @@ HTML;
     }
 
     /**
+     * 启用弹窗查看：行操作「查看」以弹层打开详情页（最小化渲染），
+     * 不离开当前页面；可配合 dialogViewSize() 设置弹层尺寸.
+     *
+     * @param  bool  $val
+     * @return $this
+     */
+    public function enableDialogView(bool $val = true)
+    {
+        return $this->option('dialog_view', $val);
+    }
+
+    /**
      * Create a grid instance.
      *
      * @param  mixed  ...$params
