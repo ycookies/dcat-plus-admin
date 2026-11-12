@@ -71,6 +71,12 @@ class Bootstrap
      * 无打开计数，会误删导致外层背后页面可滚动）；hide 兜底清理 transition 回调丢
      * 失时的 backdrop 残留
      *
+     * 异步表格内的弹窗表单（dialog create / quick edit 共用资源表单）保存成功后，
+     * 响应携带 then:{action:'location',value:'资源列表页'}，handleJsonResponse
+     * 会在 1 秒后整页跳转把用户拽离当前页 → 记录 DialogForm 来源（是否
+     * async-table 内），命中的 location 指令改写为 refresh，复用 Dcat.reload
+     * 拦截链（嵌套=关内层刷新外层异步表格；非嵌套=pjax 刷新当前页）。
+     *
      * window.__dcatStackedModalPatch 幂等：PJAX/异步响应重复输出脚本时不会重复绑定
      */
     protected function addStackedModalScript()
@@ -170,21 +176,82 @@ if (!window.__dcatStackedModalPatch) {
     (function () {
         var origReload = Dcat.reload.bind(Dcat);
         Dcat.reload = function (url) {
+            if (url) {
+                return origReload(url);
+            }
+            // 嵌套内层：关内层 + 刷新来源外层的异步表格
             var $inner = $('.modal[data-nested-moved]:visible').first();
-            if (!$inner.length || url) {
-                return origReload(url || null);
+            if ($inner.length) {
+                var fromId = $inner.attr('data-nested-from');
+                $inner.modal('hide');
+                setTimeout(function () { $inner.remove(); }, 300);
+                var $outer = fromId ? $('#' + fromId) : $();
+                var $table = $outer.length ? $outer.find('.async-table').first() : $();
+                if ($table.length) {
+                    $table.trigger('table:load');
+                } else {
+                    origReload(null); // 找不到外层/表格时兜底整页刷新
+                }
+                return;
             }
-            var fromId = $inner.attr('data-nested-from');
-            $inner.modal('hide');
-            setTimeout(function () { $inner.remove(); }, 300);
-            var $outer = fromId ? $('#' + fromId) : $();
-            var $table = $outer.length ? $outer.find('.async-table').first() : $();
-            if ($table.length) {
-                $table.trigger('table:load');
-            } else {
-                origReload(null); // 找不到外层/表格时兜底整页刷新
+            // 异步表格弹窗：modal 内含 async-table（dialog create / quick edit
+            // 保存后的刷新）→ 只触发表格重载，弹窗保持打开，不整页刷新
+            var $modalTable = $('.modal.show').find('.async-table').first();
+            if ($modalTable.length) {
+                $modalTable.trigger('table:load');
+                return;
             }
+            return origReload(null);
         };
+    })();
+
+    // 异步表格内弹窗表单（dialog create / quick edit）保存后不跳转、只刷新：
+    // 两者都走 Form::dialog（Dcat.DialogForm）加载资源表单，提交成功后响应携带
+    // then:{action:'location',value:'资源列表页'}，handleJsonResponse 在 1 秒后
+    // 整页跳转——绕过上面的 Dcat.reload 拦截链。这里在打开弹窗时记录来源是否
+    // async-table，命中时把 location 指令改写为 refresh，回流到拦截链：
+    // 嵌套=关内层并刷新外层异步表格；非嵌套（expand/独立异步表格）=pjax 刷新当前页。
+    // window.__dcatDialogFormAsyncPatch 幂等；改写只对 10 秒内从 async-table
+    // 打开的弹窗生效，页面级弹窗与普通表单的 location 跳转不受影响
+    (function () {
+        if (window.__dcatDialogFormAsyncPatch) {
+            return;
+        }
+        window.__dcatDialogFormAsyncPatch = true;
+
+        var flag = '__dcatFromAsyncTable';
+
+        if (Dcat.DialogForm) {
+            var origDialogForm = Dcat.DialogForm;
+            Dcat.DialogForm = function (opts) {
+                var inst = origDialogForm.apply(this, arguments);
+                if (inst && inst.submit && !inst.__dcatAsyncFlag) {
+                    inst.__dcatAsyncFlag = true;
+                    var origSubmit = inst.submit.bind(inst);
+                    inst.submit = function () {
+                        // 记录触发按钮是否在异步表格内（展开行/独立异步表格同样命中）
+                        window[flag] = inst.$target && inst.$target.closest('.async-table').length
+                            ? Date.now() : 0;
+                        return origSubmit();
+                    };
+                }
+                return inst;
+            };
+        }
+
+        if (Dcat.handleJsonResponse) {
+            var origHandle = Dcat.handleJsonResponse.bind(Dcat);
+            Dcat.handleJsonResponse = function (response) {
+                try {
+                    var recent = window[flag] && Date.now() - window[flag] < 10000;
+                    var then = response && response.data && response.data.then;
+                    if (recent && then && then.action === 'location') {
+                        response.data.then = { action: 'refresh' };
+                    }
+                } catch (e) {}
+                return origHandle(response);
+            };
+        }
     })();
 }
 JS
