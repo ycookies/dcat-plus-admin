@@ -164,10 +164,39 @@ if (!window.__dcatStackedModalPatch) {
         });
 
     // 弹窗表单提交成功后 Dcat.reload() 触发 pjax 重载：页面级 modal 随容器替换等效关闭，
-    // 但移出到 body 的嵌套内层 modal 不在 pjax 容器内会残留，这里统一清理
+    // 但移出到 body 的嵌套内层 modal 不在 pjax 容器内会残留，这里统一清理。
+    // 同时清扫 layer 弹层的残留遮罩（viewOnly 弹窗 × 关闭是 hide 非 destroy，
+    // 某些环境（iframe-tabs 顶层窗口等）会留下遮挡全页的遮罩，导致网站不可用）
     $(document).on('pjax:complete', function () {
         $('body > .modal[data-nested-moved]').remove();
+        if (window.__dcatSweepLayerShades) {
+            window.__dcatSweepLayerShades();
+        }
     });
+
+    // 全局清扫 layer 残留遮罩：遮罩对应的 layer 已关闭或隐藏时移除遮罩。
+    // 同时处理顶层窗口（iframe-tabs 模式 layer 会开到 top）。
+    window.__dcatSweepLayerShades = function () {
+        var sweep = function (doc) {
+            try {
+                var shades = doc.querySelectorAll('[id^="layui-layer-shade"]');
+                for (var i = 0; i < shades.length; i++) {
+                    var idx = shades[i].id.replace('layui-layer-shade', '');
+                    var layer = doc.getElementById('layui-layer' + idx);
+                    var gone = ! layer || getComputedStyle(layer).display === 'none';
+                    if (gone && shades[i].parentNode) {
+                        shades[i].parentNode.removeChild(shades[i]);
+                    }
+                }
+            } catch (e) {}
+        };
+        sweep(document);
+        try {
+            if (window.top && top.document && top.document !== document) {
+                sweep(top.document);
+            }
+        } catch (e) {}
+    };
 
     // 智能刷新拦截链（Dcat.reload 是表单/行操作 ->refresh() 与 grid 行操作
     // 删除/批量删除完成后的唯一出口）：
