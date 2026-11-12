@@ -87,9 +87,10 @@ HTML;
         // （弹窗场景下不可回退），自动替换为快捷编辑（弹窗表单）与弹窗查看。
         // 用户已自定义 actions() 时尊重其配置，不自动替换。
         if (! $grid->hasCustomActions()) {
-            $grid->actions(function (Grid\Displayers\Actions $actions) {
+            $grid->actions(function (Grid\Displayers\Actions $actions) use ($grid) {
                 $actions->quickEdit();
-                $actions->dialogView();
+                // 弹窗查看尺寸可经 $grid->dialogViewSize('xl'|['w','h']) 配置
+                $actions->dialogView($grid->option('dialog_view_size'));
                 $actions->disableEdit();
                 $actions->disableView();
             });

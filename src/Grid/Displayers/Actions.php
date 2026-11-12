@@ -54,6 +54,13 @@ class Actions extends AbstractDisplayer
     protected $resource;
 
     /**
+     * 弹窗查看（dialogView）的弹层尺寸.
+     *
+     * @var mixed
+     */
+    protected $dialogViewSize;
+
+    /**
      * Append a action.
      *
      * @param  string|Renderable|Action|Htmlable  $action
@@ -176,11 +183,16 @@ class Actions extends AbstractDisplayer
     /**
      * 显示弹窗查看按钮（弹层打开详情页，不离开当前上下文）.
      *
-     * @param  bool  $value
+     * $size 支持预设名（'sm'/'lg'/'xl'，xl=1140px×90%）、
+     * 自定义数组（['800px', '600px']）或宽度字符串（'80%'）.
+     *
+     * @param  mixed  $size
      * @return $this
      */
-    public function dialogView(bool $value = true)
+    public function dialogView($size = null, bool $value = true)
     {
+        $this->dialogViewSize = $size;
+
         return $this->setAction('dialogView', $value);
     }
 
@@ -403,7 +415,7 @@ HTML;
     protected function renderDialogView()
     {
         $action = config('admin.grid.actions.dialog_view') ?: DialogView::class;
-        $action = $action::make($this->getViewLabel());
+        $action = $action::make($this->getViewLabel(), $this->dialogViewSize);
 
         return $this->prepareAction($action);
     }
