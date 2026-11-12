@@ -348,6 +348,15 @@ HTML;
      */
     protected function renderView()
     {
+        // 网格级 enableDialogView：整页查看替换为弹窗查看（不离开当前页面），
+        // 保持在原「查看」位置渲染；尺寸可经 dialogViewSize() 配置
+        if ($this->grid->option('dialog_view')) {
+            $action = config('admin.grid.actions.dialog_view') ?: DialogView::class;
+            $action = $action::make($this->getViewLabel(), $this->grid->option('dialog_view_size'));
+
+            return $this->prepareAction($action);
+        }
+
         $action = config('admin.grid.actions.view') ?: Show::class;
         $action = $action::make($this->getViewLabel());
 
