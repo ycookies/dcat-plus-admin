@@ -307,7 +307,7 @@ $grid->actions(function (Grid\Displayers\Actions $actions) {
 1. **CreateButton 被简化模式禁用**（刻意设计）：`Modal::content()` 检测到 LazyRenderable → `LazyTable->simple()` → payload `_simple_=1` → `Grid\LazyRenderable::prepare()` 自动 `disableCreateButton()/disablePerPages()/disableBatchDelete()/disableRefreshButton()`；
 2. **Actions 的 URL 全错**：Grid 构造时 `resource()` 默认取当前请求 PATH，异步请求是 `admin/dcat-api/render`，行操作会拼成 `admin/dcat-api/render/{id}/edit` → 404。
 
-**解法（两行，写在 renderable 的 `grid()` 里）**：
+**解法**：仅需一行（写在 renderable 的 `grid()` 里）：
 
 ```php
 class NestedModalUserTable extends Grid\LazyRenderable
@@ -317,14 +317,17 @@ class NestedModalUserTable extends Grid\LazyRenderable
         return Grid::make(new Administrator(), function (Grid $grid) {
             // ★ resource() 是只读 getter，传参被静默丢弃，必须用 setResource
             $grid->setResource('auth/users');      // 显式资源路径（自动 admin_url()）
-            $grid->showCreateButton();             // 重新打开创建按钮
 
-            // 行操作即可正常使用；编辑/查看为整页跳转、删除为 AJAX、
-            // QuickEdit 为嵌套弹窗（依赖 modal 补丁，v2.0.33/v3.0.16+）
+            // 以下均为默认行为（prepare 自动适配），无需手写：
+            // - showCreateButton() + enableDialogCreate()：弹窗创建按钮
+            // - 行操作快捷编辑（quickEdit）/弹窗查看（dialogView），整页编辑/查看自动禁用
         });
     }
 }
 ```
+
+- 用户显式 `$grid->disableCreateButton()` 或自定义 `actions()` 闭包时自动适配让位（尊重配置）；
+- 弹窗创建/快捷编辑/删除保存后均原地刷新（拦截链自动处理跳转，见 infrastructure.md 前端集成要点）。
 
 注意：异步表格的行操作默认渲染为 **⋮ 下拉分组**（`grid-dropdown-actions`），点行尾的竖三点按钮展开后才有编辑/删除项。
 
