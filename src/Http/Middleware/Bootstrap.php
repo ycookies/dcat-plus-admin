@@ -132,8 +132,14 @@ if (!window.__dcatStackedModalPatch) {
                 // 正常 modal 打开时：清理移出且已成孤儿的内层 modal
                 $('body > .modal[data-nested-moved]').remove();
             }
-            // 死因1：z-index 递增，backdrop 跟随到本层之下
-            var zIndex = 1040 + 20 * ($('.modal:visible').length + 1);
+            // 死因1：z-index 按现存层最高值 +20 递增（而非仅数可见层）——
+            // 已关闭内层的残留 backdrop z 不会压住重开的弹窗
+            var maxZ = 1040;
+            $('.modal-backdrop, .modal').each(function () {
+                var z = parseInt($(this).css('z-index')) || 0;
+                if (z > maxZ) maxZ = z;
+            });
+            var zIndex = maxZ + 20;
             $(this).css('z-index', zIndex);
             setTimeout(function () {
                 $('.modal-backdrop').last().css('z-index', zIndex - 1);
@@ -152,6 +158,20 @@ if (!window.__dcatStackedModalPatch) {
         })
         .on('hidden.bs.modal', '.modal', function (e) {
             if (e.target !== this) return;
+            // 孤儿 backdrop 清扫：z 不匹配任何可见 modal-1 的 backdrop 都是
+            // 已关闭层的残留（BS 在无过渡的嵌套场景下不会自行移除），残留会
+            // 盖住重开的弹窗与页面，导致点击无效、页面被遮罩挡住
+            var valid = {};
+            $('.modal:visible').each(function () {
+                var z = parseInt($(this).css('z-index'));
+                if (z) valid[z - 1] = true;
+            });
+            $('.modal-backdrop').each(function () {
+                var z = parseInt($(this).css('z-index'));
+                if (! valid[z]) {
+                    $(this).remove();
+                }
+            });
             var $visible = $('.modal:visible');
             if ($visible.length) {
                 // 关内层后仍有外层打开：恢复 modal-open 并对齐剩余 backdrop
