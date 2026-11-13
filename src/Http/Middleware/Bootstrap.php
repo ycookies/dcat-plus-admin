@@ -81,6 +81,11 @@ class Bootstrap
      */
     protected function addStackedModalScript()
     {
+        // select2 下拉被追加到 body 且 z-index 为 1051（低于嵌套/弹窗 modal 的
+        // 1070+ 与 backdrop），下拉会展开到弹窗背后 → 用户看到"点击没反应、
+        // 不展开"。全局提升到弹层体系（layer 19891015）之上
+        Admin::style('.select2-dropdown{z-index:29891017 !important;}');
+
         Admin::script(<<<'JS'
 if (!window.__dcatStackedModalPatch) {
     window.__dcatStackedModalPatch = true;
