@@ -247,16 +247,49 @@ if (!window.__dcatStackedModalPatch) {
             if (e.target.closest('.swal2-container')) {
                 return;
             }
-            asyncCtx = e.target.closest('.async-table') || null;
+            // 记录最近一次点击所在的表格容器：异步表格（async-table，
+            // bootstrap/展开行场景）或 DialogForm 加载的 grid（layer 引擎，
+            // simple-grid/dcat-grid 结构），供删除后的原地重载定位
+            asyncCtx = e.target.closest('.async-table, .simple-grid, .dcat-grid-con')
+                ? e.target.closest('.async-table, .simple-grid, .dcat-grid-con')
+                : null;
         }, true);
 
+        // 原地重载一个 grid 容器：
+        //  - async-table（LazyTable 容器）→ 触发 table:load（自带 ajax 分页链）
+        //  - DialogForm 加载的 grid → asyncRender 重新拉取 data-current/current
+        //    URL 替换内容（替换后 grid 自身脚本由 resolveHtml 重放）
+        var reloadGridInPlace = function ($ctx) {
+            if (! $ctx || ! $ctx.length) {
+                return false;
+            }
+            if ($ctx.hasClass('async-table')) {
+                $ctx.trigger('table:load');
+                return true;
+            }
+            var url = $ctx.attr('data-current') || $ctx.attr('data-url');
+            if (! url) {
+                // DialogForm grid：从容器内分页/表单 action 反推当前 URL
+                var $link = $ctx.find('.pagination a[href], form[action]').first();
+                url = $link.attr('href') || $link.attr('action');
+            }
+            if (url) {
+                Dcat.helpers.asyncRender(url, function (html) {
+                    $ctx.html(html);
+                });
+                return true;
+            }
+            return false;
+        };
+
         Dcat.reload = function (url) {
-            // 带 url 的定向重载来自异步表格行删除/批量删除 → 表格原地重载
+            // 带 url 的定向重载来自 grid 行删除/批量删除 → 原地重载
             if (url && asyncCtx && asyncCtx.isConnected) {
                 var $ctxTable = jQuery(asyncCtx);
                 asyncCtx = null;
-                $ctxTable.trigger('table:load');
-                return;
+                if (reloadGridInPlace($ctxTable)) {
+                    return;
+                }
             }
             if (url) {
                 return origReload(url);
@@ -276,11 +309,16 @@ if (!window.__dcatStackedModalPatch) {
                 }
                 return;
             }
-            // 异步表格弹窗：modal 内含 async-table（dialog create / quick edit
-            // 保存后的刷新）→ 只触发表格重载，弹窗保持打开，不整页刷新
+            // grid 弹窗内刷新（dialog create / quick edit 保存后）→ 只重载
+            // 弹窗内 grid，弹窗保持打开，不整页刷新。modal 引擎（BS4）与
+            // layer 引擎（DialogForm）分别命中：
             var $modalTable = $('.modal.show').find('.async-table').first();
+            if (! $modalTable.length) {
+                // layer 引擎：可见 layer 内的 async-table 或 DialogForm grid
+                $modalTable = $('.layui-layer:visible').find('.async-table, .simple-grid, .dcat-grid-con').first();
+            }
             if ($modalTable.length) {
-                $modalTable.trigger('table:load');
+                reloadGridInPlace($modalTable);
                 return;
             }
             return origReload(null);
@@ -291,17 +329,18 @@ if (!window.__dcatStackedModalPatch) {
     // 两者都走 Form::dialog（Dcat.DialogForm）加载资源表单，提交成功后响应携带
     // then:{action:'location',value:'资源列表页'}，handleJsonResponse 在 1 秒后
     // 整页跳转——绕过上面的 Dcat.reload 拦截链。这里在打开弹窗时记录来源是否
-    // async-table，命中时把 location 指令改写为 refresh，回流到拦截链：
-    // 嵌套=关内层并刷新外层异步表格；非嵌套（expand/独立异步表格）=pjax 刷新当前页。
-    // window.__dcatDialogFormAsyncPatch 幂等；改写只对 10 秒内从 async-table
-    // 打开的弹窗生效，页面级弹窗与普通表单的 location 跳转不受影响
+    // grid 容器（async-table 或 DialogForm 加载的 simple-grid），命中时把
+    // location 指令改写为 refresh，回流到拦截链：
+    // 嵌套=关内层并刷新外层异步表格；非嵌套=pjax 刷新当前页。
+    // 实例级标记（__dcatFromGrid）：DialogForm 实例即上下文，无时间窗竞态；
+    // 页面级弹窗与普通表单的 location 跳转不受影响
     (function () {
         if (window.__dcatDialogFormAsyncPatch) {
             return;
         }
         window.__dcatDialogFormAsyncPatch = true;
 
-        var flag = '__dcatFromAsyncTable';
+        var flag = '__dcatFromGrid';
 
         if (Dcat.DialogForm) {
             var origDialogForm = Dcat.DialogForm;
@@ -311,9 +350,10 @@ if (!window.__dcatStackedModalPatch) {
                     inst.__dcatAsyncFlag = true;
                     var origSubmit = inst.submit.bind(inst);
                     inst.submit = function () {
-                        // 记录触发按钮是否在异步表格内（展开行/独立异步表格同样命中）
-                        window[flag] = inst.$target && inst.$target.closest('.async-table').length
-                            ? Date.now() : 0;
+                        // 记录触发按钮是否在 grid 容器内（异步表格/DialogForm
+                        // 加载的 grid/展开行均命中）
+                        window[flag] = inst.$target && inst.$target.closest('.async-table, .simple-grid, .dcat-grid-con').length
+                            ? 1 : 0;
                         return origSubmit();
                     };
                 }
@@ -325,10 +365,11 @@ if (!window.__dcatStackedModalPatch) {
             var origHandle = Dcat.handleJsonResponse.bind(Dcat);
             Dcat.handleJsonResponse = function (response) {
                 try {
-                    var recent = window[flag] && Date.now() - window[flag] < 10000;
-                    var then = response && response.data && response.data.then;
-                    if (recent && then && then.action === 'location') {
-                        response.data.then = { action: 'refresh' };
+                    if (window[flag]) {
+                        var then = response && response.data && response.data.then;
+                        if (then && then.action === 'location') {
+                            response.data.then = { action: 'refresh' };
+                        }
                     }
                 } catch (e) {}
                 return origHandle(response);

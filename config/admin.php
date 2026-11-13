@@ -488,7 +488,11 @@ return [
         // default, blue, blue-light, green
         'color' => 'default',
 
-        // sidebar-separate
+        // 弹窗引擎：layer（默认，layui-layer 承载，天然支持多层叠加）或
+        // bootstrap（BS4 modal，遇到嵌套弹窗异常时可临时切回）。
+        'modal_driver' => env('ADMIN_MODAL_DRIVER', 'layer'),
+
+        // 可选：sidebar-separate。
         'body_class' => [],
 
         'horizontal_menu' => false,
