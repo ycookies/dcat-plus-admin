@@ -5,6 +5,7 @@ namespace Dcat\Admin\Widgets;
 use Closure;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Contracts\LazyRenderable;
+use Dcat\Admin\Form;
 use Dcat\Admin\Grid\LazyRenderable as LazyGrid;
 use Dcat\Admin\Support\Helper;
 use Dcat\Admin\Traits\InteractsWithRenderApi;
@@ -70,6 +71,13 @@ class Modal extends Widget
      * @var bool
      */
     protected $static = false;
+
+    /**
+     * 异步表格的 LazyGrid（layer 驱动下走 DialogForm 通道）.
+     *
+     * @var LazyGrid
+     */
+    protected $lazyGrid;
 
     /**
      * Modal constructor.
@@ -233,6 +241,11 @@ CSS
     public function content($content)
     {
         if ($content instanceof LazyGrid) {
+            // layer 驱动下保留 LazyGrid 原始引用（走 DialogForm 通道，
+            // 服务端渲染完整 grid，分页/筛选天然可用）；bootstrap 驱动
+            // 仍走 LazyTable 容器（table:load 链路）
+            $this->lazyGrid = $content;
+
             $content = $table =
                 LazyTable::make()
                 ->from($content)
@@ -388,6 +401,10 @@ JS
      */
     public function render()
     {
+        if ($this->useLayerDriver()) {
+            return $this->renderLayerDriver();
+        }
+
         $this->addLoadRenderableScript();
         $this->addScript();
 
@@ -400,26 +417,120 @@ JS
         return $this->renderButton();
     }
 
-    public function html()
+    /**
+     * 是否使用 layer 弹窗引擎（默认）.
+     *
+     * BS4 modal 官方不支持多实例叠加（嵌套弹窗六死因的总根源），
+     * layer 为自管理弹层系统：每层独立遮罩/独立销毁/天然多层叠加。
+     * 遇到兼容问题可在 config admin.layout.modal_driver 切回 bootstrap。
+     */
+    protected function useLayerDriver()
     {
-        $statick_backdrop = '';
-        if($this->static){
-            $statick_backdrop = 'data-backdrop="static"';
+        return config('admin.layout.modal_driver', 'layer') !== 'bootstrap';
+    }
+
+    /**
+     * layer 引擎渲染：不输出 BS4 modal DOM，按钮改为 layer 触发器.
+     *
+     * 统一走 DialogForm 通道（与 enableDialogCreate / quick edit 完全
+     * 同款打开方式）：LazyGrid（异步表格）与 LazyRenderable（异步表单）
+     * 都以 renderable->getUrl() 为内容源，layer 原生标题栏，_dialog_form_
+     * 服务端最小化渲染，resolveHtml 执行响应内组件脚本。
+     */
+    protected function renderLayerDriver()
+    {
+        return $this->renderLayerDialogForm();
+    }
+
+    /**
+     * DialogForm 通道：所有 renderable 内容统一走此通道.
+     *
+     * 复用 Form::dialog 成熟机制（同 enableDialogCreate / quick edit）：
+     * 点击按钮 → layer 打开 → 请求 data-url（renderable->getUrl()）→
+     * assets.resolveHtml 执行响应内组件脚本。viewOnly：无提交/重置
+     * 按钮，× 或遮罩关闭即销毁。
+     */
+    protected function renderLayerDialogForm()
+    {
+        $id = $this->id();
+        $title = trim(strip_tags((string) Helper::render($this->title)));
+        $width = $this->layerWidth();
+
+        // 异步表格：启用 simple 模式（与 LazyTable->simple() 对齐，
+        // prepare 的自动适配据此生效）并取渲染 URL
+        $url = null;
+        if ($this->lazyGrid) {
+            $this->lazyGrid->simple(true);
+            $url = $this->lazyGrid->getUrl();
+        } elseif ($this->getRenderable()) {
+            $url = $this->getRenderable()->getUrl();
         }
-        return <<<HTML
-<div {$this->formatHtmlAttributes()} {$statick_backdrop} role="dialog">
-    <div class="modal-dialog shadow {$this->centered} {$this->scrollable} modal-{$this->size}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{$this->renderTitle()}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">{$this->renderContent()}</div>
-            {$this->renderFooter()}
-        </div>
-    </div>
-</div>
-HTML;
+
+        // 内容区加内边距，表格/表单不贴着弹窗边框
+        // （DialogForm 的 layer 无特有 class，用「含 _dialog_form_ 请求
+        // 加载的 form-content/simple-grid 内容」特征命中）
+        Admin::style(
+            '.layui-layer:has(.form-content) .layui-layer-content,'.
+            '.layui-layer:has(.simple-grid) .layui-layer-content{padding:20px;}'
+        );
+
+        // 异步表格（LazyGrid）接管：DialogForm 加载 grid 后，把 layer 内的
+        // grid 容器注册为 AsyncTable（data-current 由接管逻辑补写）——
+        // 分页/排序/搜索/筛选链接 ajax 化，删除后原地重载（拦截链），
+        // 全部复用 LazyTable 同款机制。注册后立即触发一次 table:load：
+        // AsyncTable.load 会 ajax 拉取 data-current 渲染内容并 bind()
+        // 全部链接（与 LazyTable 首次加载一致，搜索/分页从此 ajax 化）。
+        // 注意：takeover 找到容器后先手动接管现有 form 的 submit（防
+        // load 返回前的点击窗口期导航），load 完成后 bind 会重新接管
+        if ($this->lazyGrid) {
+            // AsyncTable 定义在 grid-extend.js，仅 LazyTable 页面按需加载；
+            // DialogForm 通道必须显式引入，否则 Dcat.grid.AsyncTable 不存在
+            Admin::js('@grid-extension');
+            $gridUrl = json_encode($url);
+            Admin::script(<<<JS
+$(document).off('click.wmodal-grid-{$id}').on('click.wmodal-grid-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
+    // DialogForm 在自身点击监听中加载内容；等其 layer 出现后接管
+    var tries = 0;
+    (function takeover() {
+        var layers = document.querySelectorAll('.layui-layer');
+        for (var i = 0; i < layers.length; i++) {
+            var grid = layers[i].querySelector('.simple-grid, .dcat-grid-con');
+            if (grid && ! grid.hasAttribute('data-current')) {
+                var \$g = jQuery(grid);
+                \$g.attr('data-current', {$gridUrl});
+                Dcat.grid.AsyncTable({ container: \$g });
+                // 竞态防护：接管瞬间先接管容器内已有 form 的 submit
+                \$g.find('form').on('submit', function () {
+                    var \$f = jQuery(this);
+                    \$g.attr('data-current', \$f.attr('action') + '&' + \$f.serialize());
+                    \$g.trigger('table:load');
+                    return false;
+                });
+                \$g.trigger('table:load');
+                return;
+            }
+        }
+        if (++tries < 20) { setTimeout(takeover, 200); }
+    })();
+});
+JS
+        );
+        }
+
+        Form::dialog($title)
+            ->url($url)
+            ->click('.dcat-wmodal-toggle[data-modal-id='.$id.']')
+            ->dimensions($width, '80%')
+            ->viewOnly();
+
+        return $this->renderLayerButton();
+    }
+
+    protected function layerWidth()
+    {
+        $map = ['sm' => '300px', 'lg' => '800px', 'xl' => '1140px'];
+
+        return $map[$this->size] ?? '520px';
     }
 
     protected function renderTitle()
@@ -442,6 +553,24 @@ HTML;
 
         return <<<HTML
 <div class="modal-footer">{$footer}</div>
+HTML;
+    }
+
+    protected function renderLayerButton()
+    {
+        if (! $this->button) {
+            return;
+        }
+
+        $button = Helper::render($this->button);
+
+        // 如果没有HTML标签则添加一个 a 标签
+        if (! preg_match('/(\<\/[\d\w]+\s*\>+)/i', $button)) {
+            $button = "<a href=\"javascript:void(0)\">{$button}</a>";
+        }
+
+        return <<<HTML
+<span style="cursor: pointer" class="dcat-wmodal-toggle" data-modal-id="{$this->id()}">{$button}</span>
 HTML;
     }
 
