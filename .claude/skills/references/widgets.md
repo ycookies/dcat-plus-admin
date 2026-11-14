@@ -339,6 +339,13 @@ Swiper::make(['<div>幻灯片 1</div>', '<div>幻灯片 2</div>'])
 - **DialogForm**（非 Widget）· `make(?string $title, $url)` · `.click($selector)`/`.url($url)`/`.width($w)`/`.height($h)`/`.forceRefresh()`/`.saved($js)`/`.success($js)`/`.error($js)` — layer.js iframe 表单弹窗。控制器内用静态 `DialogForm::prepare(Form $form)` 切弹窗模式渲染表单
 - **DialogTable** · `make($title, ?LazyRenderable $table)` · `.from($r)`/`.button($b)`/`.width($w)`/`.maxmin(bool)`/`.resize(bool)`/`.onShown($js)`/`.onHidden($js)` — layer.js 表格选择弹窗
 
+⚠ **success/error/saved 必须传「语句」，不能传函数定义**：服务端把内容包进
+`function (success, response) { {$handler} }` 函数体（DialogForm.php render()）。
+传 `function xxx() {...}` 只会在 wrapper 内声明、从不调用 → 回调静默失效
+（弹窗照常关闭——`_destroy` 在 success 之后无条件执行，极易误判已生效）。
+正确写法：`->success('Dcat.reload()')` / `->success('window.location.reload();')`。
+官方调用点（QuickEdit/CreateButton）均为语句风格。
+
 ### 6.3 Tree（树形）
 
 `Dcat\Admin\Widgets\Tree` · 视图 `admin::widgets.tree` · 基于 jstree · `make($nodes=[])`
