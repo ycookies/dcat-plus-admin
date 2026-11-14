@@ -569,26 +569,15 @@ JS, true
             // DialogForm 提交走 Dcat.Form({redirect:!1})，响应的 then 指令
             // （refresh/location）会在 handleJsonResponse 前被 Dcat.Form 删除
             // → 表单 handle 里 ->refresh() 等链式调用失效。
-            // success 回调语义：响应带了 then（表单类显式 refresh/location/
-            // redirect）→ 交给 handleJsonResponse 正常执行，尊重业务意图；
-            // 响应无 then（默认成功，未指定后续动作）→ 兜底 Dcat.reload()
-            // 原地刷新（拦截链按上下文处理：grid 弹窗=重载弹窗内 grid；
-            // 嵌套=关内层刷新外层；普通页面=pjax 刷新当前页）
+            // success 回调语义：->refresh() 的原始作用是保存成功后重载整个
+            // 页面（弹窗表单提交后的标准行为，页面展示最新数据）。这里
+            // 直接整页重载；layer 由 DialogForm 自身销毁逻辑关闭
+            // 注意：success/error/saved 的内容会被 DialogForm 包进
+            // function (success, response) { ... } 函数体，必须是「语句」
+            // 而非函数定义（函数定义只会声明不会执行，静默失效）
             ->success(<<<'JS'
-function wmodalAfterSave(success, response) {
-    // 保存成功：关当前弹窗 + 刷新来源表格（点按钮所在的 grid 容器）。
-    // 不走响应 then/reload 指令，避免被 Dcat.Form 的 redirect:!1
-    // 删除链与整页重载兜底吞掉——上下文就是触发按钮本身
-    var wmodalLayers = document.querySelectorAll('.layui-layer');
-    var inner = null;
-    for (var i = wmodalLayers.length - 1; i >= 0; i--) {
-        if (wmodalLayers[i].querySelector('form')) { inner = wmodalLayers[i]; break; }
-    }
-    if (inner) { window.layer.close(Number(inner.id.replace('layui-layer', ''))); }
-    // 刷新来源表格：按钮最近的 grid 容器
-    var grid = this.closest && this.closest('.simple-grid, .dcat-grid-con, .async-table');
-    if (grid) { window.jQuery(grid).trigger('table:load'); }
-}
+// 保存成功：重载整个页面（->refresh() 的原始语义）
+window.location.reload();
 JS
             );
 
