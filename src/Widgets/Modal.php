@@ -576,12 +576,18 @@ JS, true
             // 嵌套=关内层刷新外层；普通页面=pjax 刷新当前页）
             ->success(<<<'JS'
 function wmodalAfterSave(success, response) {
-    var then = response && response.data && response.data.then;
-    if (! then || ! then.action) {
-        response.data = response.data || {};
-        response.data.then = { action: 'refresh', value: null };
+    // 保存成功：关当前弹窗 + 刷新来源表格（点按钮所在的 grid 容器）。
+    // 不走响应 then/reload 指令，避免被 Dcat.Form 的 redirect:!1
+    // 删除链与整页重载兜底吞掉——上下文就是触发按钮本身
+    var wmodalLayers = document.querySelectorAll('.layui-layer');
+    var inner = null;
+    for (var i = wmodalLayers.length - 1; i >= 0; i--) {
+        if (wmodalLayers[i].querySelector('form')) { inner = wmodalLayers[i]; break; }
     }
-    Dcat.handleJsonResponse(response);
+    if (inner) { window.layer.close(Number(inner.id.replace('layui-layer', ''))); }
+    // 刷新来源表格：按钮最近的 grid 容器
+    var grid = this.closest && this.closest('.simple-grid, .dcat-grid-con, .async-table');
+    if (grid) { window.jQuery(grid).trigger('table:load'); }
 }
 JS
             );
