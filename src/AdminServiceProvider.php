@@ -209,6 +209,18 @@ class AdminServiceProvider extends ServiceProvider {
             \Dcat\Admin\Layout\Content::composing(function (\Dcat\Admin\Layout\Content $content) {
                 $content->view('admin::layouts.form-content');
             });
+
+            // DialogForm 内容页的 layer 修复样式与交互脚本：弹窗内容页本身
+            // 会被 layer 引擎再承载（嵌套 grid 的滚动条/padding/保底高度、
+            // AsyncTable 接管、select2 z-index 等），这些依赖 navbar 局部
+            // 视图输出的全局样式与脚本——精简渲染页不会包含它们，需在此
+            // 显式注入与主页面一致的片段
+            \Dcat\Admin\Admin::style(
+                '.layui-layer-page .layui-layer-content{padding:20px;min-height:50vh;}'.
+                '.layui-layer-page .layui-layer-content::-webkit-scrollbar{width:5px;height:5px;}'.
+                '.layui-layer-page .layui-layer-content::-webkit-scrollbar-thumb{background-color:#c1c5cd;border-radius:3px;}'.
+                '.layui-layer-page .layui-layer-content::-webkit-scrollbar-track{background:transparent;}'
+            );
         });
     }
 

@@ -557,7 +557,7 @@ $(document).off('click.wmodal-grid-{$id}').on('click.wmodal-grid-{$id}', '.dcat-
         if (++tries < 20) { setTimeout(takeover, 200); }
     })();
 });
-JS
+JS, true
         );
         }
 
@@ -565,7 +565,26 @@ JS
             ->url($url)
             ->click('.dcat-wmodal-toggle[data-modal-id='.$id.']')
             ->dimensions($width, $height)
-            ->viewOnly($this->viewOnly);
+            ->viewOnly($this->viewOnly)
+            // DialogForm 提交走 Dcat.Form({redirect:!1})，响应的 then 指令
+            // （refresh/location）会在 handleJsonResponse 前被 Dcat.Form 删除
+            // → 表单 handle 里 ->refresh() 等链式调用失效。
+            // success 回调语义：响应带了 then（表单类显式 refresh/location/
+            // redirect）→ 交给 handleJsonResponse 正常执行，尊重业务意图；
+            // 响应无 then（默认成功，未指定后续动作）→ 兜底 Dcat.reload()
+            // 原地刷新（拦截链按上下文处理：grid 弹窗=重载弹窗内 grid；
+            // 嵌套=关内层刷新外层；普通页面=pjax 刷新当前页）
+            ->success(<<<'JS'
+function wmodalAfterSave(success, response) {
+    var then = response && response.data && response.data.then;
+    if (! then || ! then.action) {
+        response.data = response.data || {};
+        response.data.then = { action: 'refresh', value: null };
+    }
+    Dcat.handleJsonResponse(response);
+}
+JS
+            );
 
         return $this->renderLayerButton();
     }
