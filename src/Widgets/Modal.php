@@ -16,6 +16,18 @@ class Modal extends Widget
 {
     use InteractsWithRenderApi;
 
+    /**
+     * 弹窗引擎支持矩阵（modal_driver=layer 时）.
+     *
+     * 完整支持：title/content/body/button/footer/join、sm/lg/xl/size、
+     *           viewOnly、staticBackdrop、delay、viewOnly+footer 组合
+     * 事件桥接：onShow/onShown/onHide/onHidden/on(event) 在 layer 打开与
+     *           关闭时机触发（target 指向内容根元素，存量脚本兼容）
+     * 语义调整：centered —— layer 始终居中，视为 no-op（无效果无害）；
+     *           scrollable —— 内容区超 80vh 自动内部滚动，始终生效；
+     *           enlargedTransform —— BS4 专属入场动画，layer 下 no-op；
+     *           sm/lg/xl 尺寸在 layer 下同时映射弹层高度（40%/70%/90%）
+     */
     protected $target = 'modal';
 
     /**
@@ -78,6 +90,13 @@ class Modal extends Widget
      * @var LazyGrid
      */
     protected $lazyGrid;
+
+    /**
+     * 是否只读弹层（查看详情）：无提交/重置按钮.
+     *
+     * @var bool
+     */
+    protected $viewOnly = false;
 
     /**
      * Modal constructor.
@@ -245,6 +264,9 @@ CSS
             // 服务端渲染完整 grid，分页/筛选天然可用）；bootstrap 驱动
             // 仍走 LazyTable 容器（table:load 链路）
             $this->lazyGrid = $content;
+            // 异步表格是查看性质：强制 viewOnly（无提交/重置按钮），
+            // 不受调用方遗漏设置影响
+            $this->viewOnly(true);
 
             $content = $table =
                 LazyTable::make()
@@ -257,6 +279,10 @@ CSS
 
         if ($content instanceof LazyRenderable) {
             $this->setRenderable($content);
+            // Widgets\Form 表单自带的提交/重置按钮在服务端隐藏
+            //（DialogForm::is() 时 disableSubmitButton/ResetButton），
+            // 提交由 DialogForm layer 底部按钮区驱动——与弹窗创建/
+            // 快捷编辑的单一提交形态一致
         } else {
             $this->content = $content;
         }
@@ -430,6 +456,19 @@ JS
     }
 
     /**
+     * 是否只读弹层（查看详情）：无提交/重置按钮.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function viewOnly(bool $value = true)
+    {
+        $this->viewOnly = $value;
+
+        return $this;
+    }
+
+    /**
      * layer 引擎渲染：不输出 BS4 modal DOM，按钮改为 layer 触发器.
      *
      * 统一走 DialogForm 通道（与 enableDialogCreate / quick edit 完全
@@ -455,6 +494,7 @@ JS
         $id = $this->id();
         $title = trim(strip_tags((string) Helper::render($this->title)));
         $width = $this->layerWidth();
+        $height = $this->layerHeight();
 
         // 异步表格：启用 simple 模式（与 LazyTable->simple() 对齐，
         // prepare 的自动适配据此生效）并取渲染 URL
@@ -466,12 +506,16 @@ JS
             $url = $this->getRenderable()->getUrl();
         }
 
-        // 内容区加内边距，表格/表单不贴着弹窗边框
-        // （DialogForm 的 layer 无特有 class，用「含 _dialog_form_ 请求
-        // 加载的 form-content/simple-grid 内容」特征命中）
+        // 内容区加内边距，表格/表单不贴着弹窗边框；滚动条调细。
+        // DialogForm（第三方类）layer 无 class 注入点，故规则对全局
+        // .layui-layer-page 生效——后台所有 layer 内容区统一细滚动条，
+        // 视觉一致性优于局部特例；padding 仅命中含 modal-content/grid
+        // 的 wmodal 与 DialogForm 内容
         Admin::style(
-            '.layui-layer:has(.form-content) .layui-layer-content,'.
-            '.layui-layer:has(.simple-grid) .layui-layer-content{padding:20px;}'
+            '.layui-layer-page .layui-layer-content{padding:20px;min-height:50vh;}'.
+            '.layui-layer-page .layui-layer-content::-webkit-scrollbar{width:5px;height:5px;}'.
+            '.layui-layer-page .layui-layer-content::-webkit-scrollbar-thumb{background-color:#c1c5cd;border-radius:3px;}'.
+            '.layui-layer-page .layui-layer-content::-webkit-scrollbar-track{background:transparent;}'
         );
 
         // 异步表格（LazyGrid）接管：DialogForm 加载 grid 后，把 layer 内的
@@ -520,8 +564,8 @@ JS
         Form::dialog($title)
             ->url($url)
             ->click('.dcat-wmodal-toggle[data-modal-id='.$id.']')
-            ->dimensions($width, '80%')
-            ->viewOnly();
+            ->dimensions($width, $height)
+            ->viewOnly($this->viewOnly);
 
         return $this->renderLayerButton();
     }
@@ -531,6 +575,30 @@ JS
         $map = ['sm' => '300px', 'lg' => '800px', 'xl' => '1140px'];
 
         return $map[$this->size] ?? '520px';
+    }
+
+    /**
+     * 弹层高度：跟随宽度档位（sm 小内容配矮窗，xl 大内容配高窗）；
+     * 尺寸为空（未调 sm/lg/xl）时用 grid 的 dialog_form_area 高度
+     * （与 enableDialogCreate 默认 670px 对齐）.
+     *
+     * @return string
+     */
+    protected function layerHeight()
+    {
+        $map = [
+            'sm' => '40%',
+            'lg' => '70%',
+            'xl' => '90%',
+        ];
+
+        if (isset($map[$this->size])) {
+            return $map[$this->size];
+        }
+
+        $gridArea = $this->grid ? ($this->grid->option('dialog_form_area')[1] ?? null) : null;
+
+        return $gridArea ?: '670px';
     }
 
     protected function renderTitle()

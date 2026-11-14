@@ -505,6 +505,28 @@ class Form implements Renderable
     }
 
     /**
+     * handle() 的成功响应快捷方法.
+     *
+     * @param  string  $message
+     * @return Dcat\Admin\Http\JsonResponse
+     */
+    public function success(?string $message)
+    {
+        return \Dcat\Admin\Http\JsonResponse::make()->success($message);
+    }
+
+    /**
+     * handle() 的失败响应快捷方法.
+     *
+     * @param  string  $message
+     * @return Dcat\Admin\Http\JsonResponse
+     */
+    public function error(?string $message)
+    {
+        return \Dcat\Admin\Http\JsonResponse::make()->error($message);
+    }
+
+    /**
      * Disable reset button.
      *
      * @param  bool  $value
@@ -903,6 +925,17 @@ HTML;
 
         if (method_exists($this, 'form')) {
             $this->form();
+        }
+
+        // DialogForm 通道（弹窗创建/快捷编辑/异步表单弹窗统一）：表单自带的
+        // 提交/重置按钮隐藏，提交由 layer 底部按钮区驱动（DialogForm.submit
+        // 取 layer 内第一个 form 提交）——与资源表单弹窗保持单一提交形态。
+        // 同时补 _token 隐藏域：Widgets\Form 模板不带 token，弹窗内 AJAX
+        // 提交会被 CSRF 中间件 419 拦截
+        if (\Dcat\Admin\Widgets\DialogForm::is()) {
+            $this->disableSubmitButton();
+            $this->disableResetButton();
+            $this->hidden('_token')->default(csrf_token());
         }
     }
 
