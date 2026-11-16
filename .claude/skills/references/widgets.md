@@ -350,9 +350,10 @@ Swiper::make(['<div>幻灯片 1</div>', '<div>幻灯片 2</div>'])
 的响应链会在 handleJsonResponse 前删除 `data.then`，但 DialogForm 的 after 回调
 恰好先于该删除执行——Modal 的 success 语句在此读取 `response.data.then` 并分发：
 `download`→window.open 新窗；`redirect`/`location`→整页跳转（无值 reload，
-留 1s 给 toastr）；`script`→eval；`refresh` 及无指令→整页重载（原始语义），
-随后 return false 中断原链。表单 handle 里 `->refresh()/->download()/->location()`
-链式调用在弹窗内全部生效；error 链路不变（弹错误、弹窗保留、不重载）。
+留 1s 给 toastr）；`script`→eval；`refresh`→整页重载；**无指令→仅提示+关弹窗，
+不刷新**（与普通表单原生语义一致：无 then 只弹 toast）。随后 return false
+中断原链。即：`->success('msg')` 与 `->success('msg')->refresh()` 行为有区别
+（后者才重载页面）；error 链路不变（弹错误、弹窗保留、不重载）。
 
 ### 6.3 Tree（树形）
 
