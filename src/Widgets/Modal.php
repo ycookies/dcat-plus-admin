@@ -99,6 +99,14 @@ class Modal extends Widget
     protected $viewOnly = false;
 
     /**
+     * 同步内容复用式（关闭归位、状态延续）；默认销毁式（关闭即销毁，
+     * 页面零 DOM 残留）.
+     *
+     * @var bool
+     */
+    protected $keepAlive = false;
+
+    /**
      * 弹窗内工具表单成功自动关闭钩子是否已注册（进程级幂等）.
      *
      * @var bool
@@ -476,6 +484,23 @@ JS
     }
 
     /**
+     * 同步内容复用式：关闭归位、状态延续（元素身份保持，页面加载时
+     * 组件脚本绑定的处理器有效）。默认销毁式——关闭即销毁，页面零
+     * DOM 残留，重复打开每次都是初始状态；纯静态内容（内联 onclick
+     * 随 clone 保留）无需开启。依赖页面加载时脚本绑定的组件内容
+     * （Widgets\Form 工具表单、图表等）请开启本项或改用异步通道.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function keepAlive(bool $value = true)
+    {
+        $this->keepAlive = $value;
+
+        return $this;
+    }
+
+    /**
      * layer 引擎渲染：不输出 BS4 modal DOM，按钮改为 layer 触发器.
      *
      * 按内容类型分流：
@@ -614,9 +639,14 @@ JS
     /**
      * 原生 layer 通道：同步内容.
      *
-     * 内容一次性渲染进隐藏容器；点击时把容器节点整体搬入弹层（元素身份
-     * 不变——页面加载时组件脚本绑定的处理器/图表等全部有效，与 BS4
-     * modal show/hide 行为等价），关闭时归位隐藏容器以便重复打开。
+     * 销毁式（默认）：原始内容存 <template>（浏览器不渲染、不可见，仅作
+     * 模板源），每次点击 clone 全新节点开层，关闭随 layer 销毁——页面
+     * 不残留任何弹窗 DOM，重复打开每次都是初始状态。内联 onclick 等
+     * 静态属性随 clone 保留。
+     * keepAlive()：复用式——内容渲染进隐藏容器，点击整体搬入弹层（元素
+     * 身份不变，页面加载时组件脚本绑定的处理器有效），关闭归位以便重复
+     * 打开且状态延续。适用于依赖页面加载时脚本绑定的组件内容（工具表单
+     * Widgets\Form、图表等）。
      * 高度默认自适应（同 BS4），显式 size 时用映射档位。
      * 事件桥：onShow/onShown → 打开时机、onHide/onHidden → 关闭时机
      * （target/body 指向内容根元素，存量脚本兼容）。
@@ -633,14 +663,6 @@ JS
             $content .= '<div class="modal-footer" style="border-top: 1px solid #ebebeb;">'.$footer.'</div>';
         }
 
-        $box = '<div id="wmodal-box-'.$id.'" style="display:none">'.$content.'</div>';
-        if ($this->join) {
-            $boxHtml = $box;
-        } else {
-            Admin::html($box);
-            $boxHtml = '';
-        }
-
         $showScript = '';
         $hideScript = '';
         foreach ($this->events as $v) {
@@ -652,7 +674,17 @@ JS
             }
         }
 
-        Admin::script(<<<JS
+        if ($this->keepAlive) {
+            // 复用式：隐藏容器承载内容，关闭归位（状态延续）
+            $box = '<div id="wmodal-box-'.$id.'" style="display:none">'.$content.'</div>';
+            if ($this->join) {
+                $boxHtml = $box;
+            } else {
+                Admin::html($box);
+                $boxHtml = '';
+            }
+
+            Admin::script(<<<JS
 \$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
     var \$box = jQuery('#wmodal-box-{$id}');
     layer.open({
@@ -673,9 +705,51 @@ JS
     });
 });
 JS
-        );
+            );
 
-        // 弹窗内 Widgets\Form（工具表单，自带 handle 的同步表单）提交成功后
+            return $boxHtml.$this->renderLayerButton();
+        }
+
+        // 销毁式（默认）：内容存 <template>（单根 wrapper 包裹，template
+        // 不被浏览器渲染、不进可视 DOM），点击 clone 全新节点开层，关闭
+        // 随 layer 销毁——页面零残留、每次打开都是初始状态。clone 节点
+        // 需先入 DOM（瞬态载体）再交给 layer，否则 detached 节点开层异常
+        $tpl = '<template id="wmodal-tpl-'.$id.'"><div class="wmodal-tpl-wrap" style="display:none">'.$content.'</div></template>';
+        if ($this->join) {
+            $tplHtml = $tpl;
+        } else {
+            Admin::html($tpl);
+            $tplHtml = '';
+        }
+
+        Admin::script(<<<JS
+\$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
+    var tpl = document.getElementById('wmodal-tpl-{$id}');
+    if (! tpl) { return; }
+    // 每次全新 clone；先以隐藏态入 DOM（layer 要求 content 节点在文档中），
+    // 关闭随 layer 销毁，不在页面留下任何痕迹
+    var node = tpl.content.firstElementChild.cloneNode(true);
+    var \$box = jQuery(node).appendTo('body');
+    layer.open({
+        type: 1,
+        title: {$title},
+        area: [{$width}, {$height}],
+        content: \$box.show(),
+        success: function (layero) {
+            var target = \$box, body = \$box;
+            {$showScript}
+        },
+        end: function () {
+            // 销毁式：layer 关闭时可能把内容节点放回 body，显式移除——
+            // 页面零残留
+            \$box.remove();
+            var target = \$box, body = \$box;
+            {$hideScript}
+        }
+    });
+});
+JS
+        );
         // 自动关闭所在弹层（一次性包装 handleJsonResponse，幂等防重复注册）。
         // 用 form[action*=dcat-api/form] 精准识别工具表单——表格弹窗的筛选
         // 表单 action 不是该端点，不会误关；DialogForm 通道的表单不走
@@ -709,7 +783,7 @@ JS
             );
         }
 
-        return $boxHtml.$this->renderLayerButton();
+        return $tplHtml.$this->renderLayerButton();
     }
 
     /**
