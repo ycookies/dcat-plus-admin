@@ -6,6 +6,7 @@ use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Support\Helper;
+use Dcat\Admin\Widgets\Modal;
 use Illuminate\Contracts\Support\Arrayable;
 
 class DialogForm
@@ -233,6 +234,10 @@ class DialogForm
     protected function render()
     {
         $this->setUpOptions();
+
+        // 弹层高度内容自适应（配置高度降级为上限，覆盖快捷编辑/弹窗
+        // 创建/弹窗查看等不经 Widgets\Modal 的通道；幂等一次注入）
+        Modal::injectLayerFitScript();
 
         $opts = json_encode($this->options);
 
