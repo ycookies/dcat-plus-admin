@@ -521,9 +521,10 @@ JS
         $showScript = '';
         $hideScript = '';
         foreach ($this->events as $v) {
+            // 注意 'hidden.bs.modal' 不以 'hide' 开头（hidd≠hide），需并列匹配
             if (Str::startsWith($v['event'], 'show')) {
                 $showScript .= $v['script']."\n";
-            } elseif (Str::startsWith($v['event'], 'hide')) {
+            } elseif (Str::startsWith($v['event'], ['hide', 'hidden'])) {
                 $hideScript .= $v['script']."\n";
             }
         }
