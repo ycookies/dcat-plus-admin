@@ -147,6 +147,12 @@ Box::make('通知', $renderable)->solid()->collapsable()->removable();
 > 走原生 layer 通道——内容随页面渲染进隐藏容器，点击整体搬入弹层
 > （元素身份不变，页面加载时绑定的处理器有效），关闭归位可重复打开，
 > 高度自适应。onShow/onShown → 打开时机、onHide/onHidden → 关闭时机。
+>
+> **高度内容自适应**（全部 page 型 layer，含快捷编辑/弹窗查看）：配置高度
+> （`sm/lg/xl`、DialogForm area）只作为**上限**，实际高度随内容收缩、
+> 超出上限内容区内部滚动（90% 视口封顶）；内容变化（异步加载/分页）自动
+> 跟随。同步内容默认高度 auto。layer 开场动画已全局禁用（bounceIn 的
+> fill-mode:both 会把半程 scale 永久定格导致弹层渲染半高、改 height 无效）。
 
 ```php
 Modal::make()
