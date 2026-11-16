@@ -222,6 +222,24 @@ if (!window.__dcatStackedModalPatch) {
             }
         } catch (e) {}
     };
+    // 自动触发清扫：DialogForm 的 hide 复用（jQuery .hide() 只藏层 DOM，
+    // 不藏 shade）等场景，层隐藏/移除时若无 pjax 机会遮罩会永久残留。
+    // 监听层 display/移除变化 debounce 清扫；sweep 按 id 配对只清无主
+    // 遮罩，活跃弹层不受影响
+    (function () {
+        var t = null;
+        var schedule = function () {
+            if (t != null) { return; }
+            t = setTimeout(function () {
+                t = null;
+                if (window.__dcatSweepLayerShades) { window.__dcatSweepLayerShades(); }
+            }, 300);
+        };
+        new MutationObserver(schedule).observe(document.body, {
+            childList: true, attributes: true, subtree: true,
+            attributeFilter: ['style', 'class'],
+        });
+    })();
 
     // 智能刷新拦截链（Dcat.reload 是表单/行操作 ->refresh() 与 grid 行操作
     // 删除/批量删除完成后的唯一出口）：
