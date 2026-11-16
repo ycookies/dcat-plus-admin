@@ -488,11 +488,98 @@ JS
      */
     protected function renderLayerDriver()
     {
+        static::injectLayerFitScript();
+
         if ($this->getRenderable() || $this->lazyGrid) {
             return $this->renderLayerDialogForm();
         }
 
         return $this->renderLayerNative();
+    }
+
+    /**
+     * 弹层高度内容自适应（进程级一次注入，窗口级幂等）.
+     *
+     * 固定高度（DialogForm 的 area、sm/lg/xl 档位）降级为「上限」：实际高度
+     * 随内容收缩，永不超出配置值与 90% 视口（超出部分内容区内部滚动）。
+     * MutationObserver 持续跟随内容变化（异步加载、分页、筛选后自动调整），
+     * 调整后垂直居中（用户拖动过则不再强制回中）。覆盖全部 page 型 layer，
+     * 快捷编辑/弹窗创建/弹窗查看同步受益。DialogForm::render 亦调用本注入。
+     */
+    public static function injectLayerFitScript()
+    {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
+
+        Admin::script(<<<'JS'
+if (! window.__wmodalFit) {
+    window.__wmodalFit = true;
+    (function () {
+        var ANIM = 420, SETTLE = 1200, WATCH = 3500, TICK = 300;
+        var pending = null, timer = null;
+        function fit() {
+            pending = null;
+            var now = Date.now(), maxH = Math.round(window.innerHeight * 0.9), watching = false;
+            jQuery('.layui-layer.layui-layer-page').each(function () {
+                var el = this, $l = jQuery(el);
+                if ($l.css('display') === 'none') { return; }
+                var seen = $l.data('wmodal-seen');
+                if (seen == null) {
+                    $l.data('wmodal-seen', now);
+                    // 初次高度即「上限」；auto/百分比（未定高）用视口上限
+                    var inlineH = (el.style.height || '').trim();
+                    var auto = ! inlineH || inlineH === 'auto' || inlineH === '100%';
+                    $l.data('wmodal-cap', auto ? maxH : Math.max($l.height(), 160));
+                    watching = true;
+                    return;
+                }
+                var age = now - seen;
+                if (age < ANIM) { watching = true; return; } // 避开开场动画
+                if (age < WATCH) { watching = true; }         // 渐进加载观察期内
+                var cap = $l.data('wmodal-cap') || maxH;
+                var $title = $l.children('.layui-layer-title');
+                var $btn = $l.children('.layui-layer-btn');
+                var $content = $l.children('.layui-layer-content');
+                if (! $content.length) { return; }
+                var titleH = $title.length ? $title.outerHeight() : 0;
+                var btnH = $btn.length ? $btn.outerHeight(true) : 0;
+                var c = $content[0], prev = c.style.height;
+                c.style.height = 'auto';
+                var need = c.scrollHeight + titleH + btnH + 4;
+                c.style.height = prev;
+                var target = Math.min(Math.max(need, 160), cap, maxH);
+                // 加载稳定期（SETTLE）内只增不减：避免异步内容渐进加载时
+                // 先缩到半截、加载完成再弹回的抖动
+                if (target < $l.outerHeight() - 2 && age < SETTLE) { target = $l.outerHeight(); }
+                if (Math.abs($l.outerHeight() - target) <= 2) { return; }
+                $l.css('height', target + 'px');
+                var ch = target - titleH - btnH - 2;
+                if (ch > 0) { c.style.height = ch + 'px'; }
+                // 垂直居中（用户拖动过则不再强制回中）
+                var stored = $l.data('wmodal-top');
+                if (stored == null || parseInt(el.style.top) === parseInt(stored)) {
+                    var top = Math.max(0, Math.round((window.innerHeight - target) / 2));
+                    el.style.top = top + 'px';
+                    $l.data('wmodal-top', top);
+                }
+            });
+            // 观察期内轮询校准（内容渐进加载收敛保证），期满停表
+            if (watching) {
+                if (timer == null) { timer = setInterval(fit, TICK); }
+            } else if (timer != null) {
+                clearInterval(timer); timer = null;
+            }
+        }
+        function schedule() { if (pending == null) { pending = setTimeout(fit, 120); } }
+        new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+        jQuery(window).on('resize', fit);
+    })();
+}
+JS
+        );
     }
 
     /**
@@ -621,13 +708,18 @@ JS
             $url = $this->getRenderable()->getUrl();
         }
 
-        // 内容区加内边距，表格/表单不贴着弹窗边框；滚动条调细。
+        // 内容区加内边距，表格/表单不贴着弹窗边框；内容超出弹层上限时
+        // 内部滚动（overflow:auto 配合高度自适应 fitter）；滚动条调细。
         // DialogForm（第三方类）layer 无 class 注入点，故规则对全局
         // .layui-layer-page 生效——后台所有 layer 内容区统一细滚动条，
-        // 视觉一致性优于局部特例；padding 仅命中含 modal-content/grid
-        // 的 wmodal 与 DialogForm 内容
+        // 视觉一致性优于局部特例
         Admin::style(
-            '.layui-layer-page .layui-layer-content{padding:20px;min-height:50vh;}'.
+            // 禁用 layer 开场动画与过渡：bounceIn 的 fill-mode:both 会在
+            // 弹层隐藏/中断时把半程 scale 永久定格（内联样式无法覆盖，
+            // 高度自适应测量随之失真），且动画期间测量高度不可靠
+            '.layui-layer.layer-anim{animation:none!important;-webkit-animation:none!important}'.
+            '.layui-layer{transition:none!important}'.
+            '.layui-layer-page .layui-layer-content{padding:20px;overflow:auto;}'.
             '.layui-layer-page .layui-layer-content::-webkit-scrollbar{width:5px;height:5px;}'.
             '.layui-layer-page .layui-layer-content::-webkit-scrollbar-thumb{background-color:#c1c5cd;border-radius:3px;}'.
             '.layui-layer-page .layui-layer-content::-webkit-scrollbar-track{background:transparent;}'
