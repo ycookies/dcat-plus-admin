@@ -28,7 +28,10 @@ class DialogForm
         'buttonSelector' => null,
         'query'          => null,
         'lang'           => null,
-        'forceRefresh'   => false,
+        // × 关闭真销毁（清层登记 → layer 默认关闭流程销毁层壳/内容/遮罩，
+        // 下次点击重新请求最新内容）。false 为 jQuery .hide() 复用——层
+        // DOM 连同内容永久残留页面，故销毁式为全局默认
+        'forceRefresh'   => true,
         'resetButton'    => true,
         'viewOnly'       => false,
     ];
