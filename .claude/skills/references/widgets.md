@@ -144,9 +144,15 @@ Box::make('通知', $renderable)->solid()->collapsable()->removable();
 > **layer 驱动下按内容类型分流**（v3.0.19+）：`LazyRenderable`/`LazyGrid`
 > 走 DialogForm 通道（异步加载）；**同步内容**（纯 HTML 字符串 / Closure /
 > 普通 Renderable 组件，如 `->body('<b>...</b>')` 或 `->body(Card::make())`）
-> 走原生 layer 通道——内容随页面渲染进隐藏容器，点击整体搬入弹层
-> （元素身份不变，页面加载时绑定的处理器有效），关闭归位可重复打开，
-> 高度自适应。onShow/onShown → 打开时机、onHide/onHidden → 关闭时机。
+> 走原生 layer 通道。onShow/onShown → 打开时机、onHide/onHidden → 关闭时机。
+>
+> **关闭即销毁（默认，页面零 DOM 残留）**：同步内容存 `<template>`（不进
+> 可视 DOM），点击 clone 全新节点，关闭随 layer 销毁——重复打开每次都是
+> 初始状态。`keepAlive()` 显式开关：复用式（内容渲染进隐藏容器，关闭归位、
+> 状态延续），适用于依赖页面加载时脚本绑定的组件（Widgets\Form 工具表单、
+> 图表等）。**DialogForm 通道（异步 Modal/快捷编辑/弹窗创建/查看）同样
+> 关闭即销毁**（patchLayerOpen 包装 cancel 吞 hide 型 return false + 清
+> 触发器 counter），下次点击重新请求最新内容。
 >
 > **高度语义**（用户拍板）：**显式指定高度（`sm/lg/xl`、DialogForm
 > dimensions、配置 dialog_form_area）→ 恒定不变，开屏多大就多大**；
