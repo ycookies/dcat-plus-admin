@@ -471,14 +471,87 @@ JS
     /**
      * layer 引擎渲染：不输出 BS4 modal DOM，按钮改为 layer 触发器.
      *
-     * 统一走 DialogForm 通道（与 enableDialogCreate / quick edit 完全
-     * 同款打开方式）：LazyGrid（异步表格）与 LazyRenderable（异步表单）
-     * 都以 renderable->getUrl() 为内容源，layer 原生标题栏，_dialog_form_
-     * 服务端最小化渲染，resolveHtml 执行响应内组件脚本。
+     * 按内容类型分流：
+     * - LazyRenderable（异步表单）/ LazyGrid（异步表格）→ DialogForm 通道，
+     *   以 renderable->getUrl() 为内容源异步加载；
+     * - 同步内容（纯 HTML 字符串 / Closure / 普通 Renderable 组件）→
+     *   原生 layer 通道，内容随页面渲染进隐藏容器，点击整体搬入弹层。
+     *   DialogForm 通道没有内容源 URL，同步内容走它会点击报错（url 为
+     *   null）且无内容可加载。
      */
     protected function renderLayerDriver()
     {
-        return $this->renderLayerDialogForm();
+        if ($this->getRenderable() || $this->lazyGrid) {
+            return $this->renderLayerDialogForm();
+        }
+
+        return $this->renderLayerNative();
+    }
+
+    /**
+     * 原生 layer 通道：同步内容.
+     *
+     * 内容一次性渲染进隐藏容器；点击时把容器节点整体搬入弹层（元素身份
+     * 不变——页面加载时组件脚本绑定的处理器/图表等全部有效，与 BS4
+     * modal show/hide 行为等价），关闭时归位隐藏容器以便重复打开。
+     * 高度默认自适应（同 BS4），显式 size 时用映射档位。
+     * 事件桥：onShow/onShown → 打开时机、onHide/onHidden → 关闭时机
+     * （target/body 指向内容根元素，存量脚本兼容）。
+     */
+    protected function renderLayerNative()
+    {
+        $id = $this->id();
+        $title = json_encode(trim(strip_tags((string) Helper::render($this->title))));
+        $width = json_encode($this->layerWidth());
+        $height = json_encode($this->size ? $this->layerHeight() : 'auto');
+
+        $content = Helper::render($this->content);
+        if ($footer = Helper::render($this->footer)) {
+            $content .= '<div class="modal-footer" style="border-top: 1px solid #ebebeb;">'.$footer.'</div>';
+        }
+
+        $box = '<div id="wmodal-box-'.$id.'" style="display:none">'.$content.'</div>';
+        if ($this->join) {
+            $boxHtml = $box;
+        } else {
+            Admin::html($box);
+            $boxHtml = '';
+        }
+
+        $showScript = '';
+        $hideScript = '';
+        foreach ($this->events as $v) {
+            if (Str::startsWith($v['event'], 'show')) {
+                $showScript .= $v['script']."\n";
+            } elseif (Str::startsWith($v['event'], 'hide')) {
+                $hideScript .= $v['script']."\n";
+            }
+        }
+
+        Admin::script(<<<JS
+\$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
+    var \$box = jQuery('#wmodal-box-{$id}');
+    layer.open({
+        type: 1,
+        title: {$title},
+        area: [{$width}, {$height}],
+        content: \$box.show(),
+        success: function (layero) {
+            var target = \$box, body = \$box;
+            {$showScript}
+        },
+        end: function () {
+            // layer 销毁会连同搬入的节点一并移除，归位隐藏容器以便再次打开
+            \$box.appendTo('body').hide();
+            var target = \$box, body = \$box;
+            {$hideScript}
+        }
+    });
+});
+JS
+        );
+
+        return $boxHtml.$this->renderLayerButton();
     }
 
     /**
