@@ -146,13 +146,14 @@ Box::make('通知', $renderable)->solid()->collapsable()->removable();
 > 普通 Renderable 组件，如 `->body('<b>...</b>')` 或 `->body(Card::make())`）
 > 走原生 layer 通道。onShow/onShown → 打开时机、onHide/onHidden → 关闭时机。
 >
-> **关闭即销毁（默认，页面零 DOM 残留）**：同步内容存 `<template>`（不进
-> 可视 DOM），点击 clone 全新节点，关闭随 layer 销毁——重复打开每次都是
-> 初始状态。`keepAlive()` 显式开关：复用式（内容渲染进隐藏容器，关闭归位、
-> 状态延续），适用于依赖页面加载时脚本绑定的组件（Widgets\Form 工具表单、
-> 图表等）。**DialogForm 通道（异步 Modal/快捷编辑/弹窗创建/查看）同样
-> 关闭即销毁**（patchLayerOpen 包装 cancel 吞 hide 型 return false + 清
-> 触发器 counter），下次点击重新请求最新内容。
+> **关闭即销毁（全局默认，页面零 DOM 残留）**：同步内容存 `<template>`
+> （不进可视 DOM），点击 clone 全新节点，关闭随 layer 销毁——重复打开
+> 每次都是初始状态；**DialogForm 通道（异步 Modal/快捷编辑/弹窗创建/
+> 查看）由 `forceRefresh=true` 原生配置关闭即销毁**（Widgets\DialogForm
+> 默认已改 true，× 关闭清层登记→layer 真销毁，下次点击重新请求最新
+> 内容）。依赖页面加载时脚本绑定的组件内容（工具表单 Widgets\Form、
+> 图表）**不要放同步通道**——改用 LazyRenderable 异步通道，每次请求由
+> resolveHtml 重放组件脚本。
 >
 > **高度语义**（用户拍板）：**显式指定高度（`sm/lg/xl`、DialogForm
 > dimensions、配置 dialog_form_area）→ 恒定不变，开屏多大就多大**；
