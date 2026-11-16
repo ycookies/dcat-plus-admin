@@ -219,7 +219,11 @@ class AdminServiceProvider extends ServiceProvider {
             // 视图输出的全局样式与脚本——精简渲染页不会包含它们，需在此
             // 显式注入与主页面一致的片段
             \Dcat\Admin\Admin::style(
-                '.layui-layer-page .layui-layer-content{padding:20px;min-height:50vh;}'.
+                // 与 Widgets\Modal::renderLayerDialogForm 的内容区样式保持一致：
+                // overflow:auto 配合高度自适应（不可加 min-height 保底——
+                // 该样式会被 resolveHtml 注入主页面，异步弹窗打开一次后
+                // 全局生效，同步弹窗 auto 高度被 50vh 兜底成大空白）
+                '.layui-layer-page .layui-layer-content{padding:20px;overflow:auto;}'.
                 '.layui-layer-page .layui-layer-content::-webkit-scrollbar{width:5px;height:5px;}'.
                 '.layui-layer-page .layui-layer-content::-webkit-scrollbar-thumb{background-color:#c1c5cd;border-radius:3px;}'.
                 '.layui-layer-page .layui-layer-content::-webkit-scrollbar-track{background:transparent;}'

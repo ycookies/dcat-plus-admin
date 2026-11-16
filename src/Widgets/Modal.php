@@ -520,6 +520,43 @@ JS
 if (! window.__wmodalFit) {
     window.__wmodalFit = true;
     (function () {
+        // ① 包装 layer.open（幂等，当前窗口 + top 窗口——iframe-tabs 下
+        // DialogForm 使用 top.window.layer）：area 高度为 auto 的 page 层，
+        // layer 内部会「测量内容 → 把像素写死到 content.style.height」。
+        // 该测量受内容节点布局状态影响（经历挂载/归位周期后的节点复用、
+        // 异步内容加载中），第二次打开同一弹层时常测出虚高值（如 442px
+        // 写死 → 底部大空白），且 layer 居中计算也基于错误高度（top 为负）。
+        // 修法：开层后同步把 content 还原 auto，由内容自然撑开——开屏即
+        // 终态、无修正动画；居中在首帧前按真实高度重算
+        function patchLayerOpen(win) {
+            if (! win || ! win.layer || win.__wmodalOpenPatched) { return; }
+            win.__wmodalOpenPatched = true;
+            var origOpen = win.layer.open;
+            win.layer.open = function (opts) {
+                var idx = origOpen.apply(this, arguments);
+                try {
+                    if (opts && opts.type === 1 && opts.area && opts.area[1] === 'auto') {
+                        var el = document.getElementById('layui-layer' + idx);
+                        if (el) {
+                            var c = el.querySelector('.layui-layer-content');
+                            if (c) { c.style.height = 'auto'; }
+                            requestAnimationFrame(function () {
+                                var h = el.getBoundingClientRect().height;
+                                if (h > 0) {
+                                    el.style.top = Math.max(0, Math.round((window.innerHeight - h) / 2)) + 'px';
+                                }
+                            });
+                        }
+                    }
+                } catch (e) {}
+                return idx;
+            };
+        }
+        patchLayerOpen(window);
+        try { patchLayerOpen(window.top); } catch (e) {}
+
+        // ② 超高封顶守护：auto 层内容超 90% 视口时封顶一次转内部滚动；
+        // 显式高度层（首见判定）永不干预
         var pending = null;
         function fit() {
             pending = null;
@@ -527,7 +564,6 @@ if (! window.__wmodalFit) {
             jQuery('.layui-layer.layui-layer-page').each(function () {
                 var el = this, $l = jQuery(el);
                 if ($l.css('display') === 'none') { return; }
-                // 首见时判定形态：显式高度 → 归用户所有，永不干预
                 var auto = $l.data('wmodal-auto');
                 if (auto == null) {
                     var inlineH = (el.style.height || '').trim();
