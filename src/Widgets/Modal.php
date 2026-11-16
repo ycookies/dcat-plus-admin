@@ -498,13 +498,15 @@ JS
     }
 
     /**
-     * 弹层高度内容自适应（进程级一次注入，窗口级幂等）.
+     * 弹层超高封顶守护（进程级一次注入，窗口级幂等）.
      *
-     * 固定高度（DialogForm 的 area、sm/lg/xl 档位）降级为「上限」：实际高度
-     * 随内容收缩，永不超出配置值与 90% 视口（超出部分内容区内部滚动）。
-     * MutationObserver 持续跟随内容变化（异步加载、分页、筛选后自动调整），
-     * 调整后垂直居中（用户拖动过则不再强制回中）。覆盖全部 page 型 layer，
-     * 快捷编辑/弹窗创建/弹窗查看同步受益。DialogForm::render 亦调用本注入。
+     * 语义（用户拍板）：显式指定高度的弹层（sm/lg/xl 档位、DialogForm
+     * dimensions、配置 dialog_form_area）高度永不变化——开屏多大就多大；
+     * 只有未指定高度（area height=auto，即「内容自适应」形态）的弹层才
+     * 受本守护管辖：内容超高 90% 视口时封顶一次并转内部滚动（瞬时跳变，
+     * 全局已禁 layer 过渡，无动画感），内容回落后交还 auto。
+     * 无定时器轮询——两条通道都是内容就绪后才开层，开屏即终态高度；
+     * MutationObserver 只服务后续内容变化（分页/筛选）。
      */
     public static function injectLayerFitScript()
     {
@@ -518,64 +520,55 @@ JS
 if (! window.__wmodalFit) {
     window.__wmodalFit = true;
     (function () {
-        var ANIM = 420, SETTLE = 1200, WATCH = 3500, TICK = 300;
-        var pending = null, timer = null;
+        var pending = null;
         function fit() {
             pending = null;
-            var now = Date.now(), maxH = Math.round(window.innerHeight * 0.9), watching = false;
+            var maxH = Math.round(window.innerHeight * 0.9);
             jQuery('.layui-layer.layui-layer-page').each(function () {
                 var el = this, $l = jQuery(el);
                 if ($l.css('display') === 'none') { return; }
-                var seen = $l.data('wmodal-seen');
-                if (seen == null) {
-                    $l.data('wmodal-seen', now);
-                    // 初次高度即「上限」；auto/百分比（未定高）用视口上限
+                // 首见时判定形态：显式高度 → 归用户所有，永不干预
+                var auto = $l.data('wmodal-auto');
+                if (auto == null) {
                     var inlineH = (el.style.height || '').trim();
-                    var auto = ! inlineH || inlineH === 'auto' || inlineH === '100%';
-                    $l.data('wmodal-cap', auto ? maxH : Math.max($l.height(), 160));
-                    watching = true;
-                    return;
+                    auto = ! inlineH || inlineH === 'auto';
+                    $l.data('wmodal-auto', auto);
                 }
-                var age = now - seen;
-                if (age < ANIM) { watching = true; return; } // 避开开场动画
-                if (age < WATCH) { watching = true; }         // 渐进加载观察期内
-                var cap = $l.data('wmodal-cap') || maxH;
+                if (! auto) { return; }
                 var $title = $l.children('.layui-layer-title');
                 var $btn = $l.children('.layui-layer-btn');
                 var $content = $l.children('.layui-layer-content');
                 if (! $content.length) { return; }
-                var titleH = $title.length ? $title.outerHeight() : 0;
-                var btnH = $btn.length ? $btn.outerHeight(true) : 0;
+                var chrome = ($title.length ? $title.outerHeight() : 0)
+                           + ($btn.length ? $btn.outerHeight(true) : 0);
                 var c = $content[0], prev = c.style.height;
                 c.style.height = 'auto';
-                var need = c.scrollHeight + titleH + btnH + 4;
+                var need = c.scrollHeight + chrome + 4;
                 c.style.height = prev;
-                var target = Math.min(Math.max(need, 160), cap, maxH);
-                // 加载稳定期（SETTLE）内只增不减：避免异步内容渐进加载时
-                // 先缩到半截、加载完成再弹回的抖动
-                if (target < $l.outerHeight() - 2 && age < SETTLE) { target = $l.outerHeight(); }
-                if (Math.abs($l.outerHeight() - target) <= 2) { return; }
-                $l.css('height', target + 'px');
-                var ch = target - titleH - btnH - 2;
-                if (ch > 0) { c.style.height = ch + 'px'; }
+                if (need >= maxH) {
+                    // 超高：封顶 + 内容区内部滚动（瞬时，无过渡）
+                    if (Math.abs($l.outerHeight() - maxH) <= 2) { return; }
+                    $l.css('height', maxH + 'px');
+                    c.style.height = (maxH - chrome - 2) + 'px';
+                } else {
+                    // 未超高：确保交还原生 auto（内容回落场景）
+                    if ($l[0].style.height && $l[0].style.height !== 'auto') {
+                        $l.css('height', 'auto');
+                        c.style.height = '';
+                    } else { return; }
+                }
                 // 垂直居中（用户拖动过则不再强制回中）
                 var stored = $l.data('wmodal-top');
                 if (stored == null || parseInt(el.style.top) === parseInt(stored)) {
-                    var top = Math.max(0, Math.round((window.innerHeight - target) / 2));
+                    var top = Math.max(0, Math.round((window.innerHeight - $l.outerHeight()) / 2));
                     el.style.top = top + 'px';
                     $l.data('wmodal-top', top);
                 }
             });
-            // 观察期内轮询校准（内容渐进加载收敛保证），期满停表
-            if (watching) {
-                if (timer == null) { timer = setInterval(fit, TICK); }
-            } else if (timer != null) {
-                clearInterval(timer); timer = null;
-            }
         }
-        function schedule() { if (pending == null) { pending = setTimeout(fit, 120); } }
+        function schedule() { if (pending == null) { pending = setTimeout(fit, 180); } }
         new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
-        jQuery(window).on('resize', fit);
+        jQuery(window).on('resize', schedule);
     })();
 }
 JS
@@ -696,7 +689,9 @@ JS
         $id = $this->id();
         $title = trim(strip_tags((string) Helper::render($this->title)));
         $width = $this->layerWidth();
-        $height = $this->layerHeight();
+        // 未指定尺寸 → 高度 auto：DialogForm 是内容就绪后才开层，
+        // 开屏即终态高度（无二次调整）；显式尺寸原样固定、绝不缩放
+        $height = $this->size ? $this->layerHeight() : 'auto';
 
         // 异步表格：启用 simple 模式（与 LazyTable->simple() 对齐，
         // prepare 的自动适配据此生效）并取渲染 URL
