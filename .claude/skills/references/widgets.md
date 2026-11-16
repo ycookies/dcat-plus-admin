@@ -354,6 +354,13 @@ Swiper::make(['<div>幻灯片 1</div>', '<div>幻灯片 2</div>'])
 不刷新**（与普通表单原生语义一致：无 then 只弹 toast）。随后 return false
 中断原链。即：`->success('msg')` 与 `->success('msg')->refresh()` 行为有区别
 （后者才重载页面）；error 链路不变（弹错误、弹窗保留、不重载）。
+提示展示同样在此复刻（与 Ajax.js handleJsonResponse 一致）：`alert()`→
+`Dcat.swal[type](message, detail)`（SweetAlert，`detail()` 为正文）；否则
+toastr（`timeout($s)` 秒数可调；`info()/warning()` 对应 toast 类型）。
+JsonResponse 的 `->alert()/->detail()/->timeout()/->info()/->warning()/
+->refresh()/->download()/->redirect()/->location()/->script()` 在弹窗
+表单内全部生效（已逐项实测）；`statusCode()/html()/withValidation()/
+withException()` 不走该回调（HTTP 层/422 字段错误路径/异常转换）。
 
 ### 6.3 Tree（树形）
 
