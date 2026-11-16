@@ -148,10 +148,11 @@ Box::make('通知', $renderable)->solid()->collapsable()->removable();
 > （元素身份不变，页面加载时绑定的处理器有效），关闭归位可重复打开，
 > 高度自适应。onShow/onShown → 打开时机、onHide/onHidden → 关闭时机。
 >
-> **高度内容自适应**（全部 page 型 layer，含快捷编辑/弹窗查看）：配置高度
-> （`sm/lg/xl`、DialogForm area）只作为**上限**，实际高度随内容收缩、
-> 超出上限内容区内部滚动（90% 视口封顶）；内容变化（异步加载/分页）自动
-> 跟随。同步内容默认高度 auto。layer 开场动画已全局禁用（bounceIn 的
+> **高度语义**（用户拍板）：**显式指定高度（`sm/lg/xl`、DialogForm
+> dimensions、配置 dialog_form_area）→ 恒定不变，开屏多大就多大**；
+> **未指定尺寸 → area height=auto 内容自适应**——两条通道都是内容就绪后
+> 才开层，开屏即终态高度、无二次调整；仅当 auto 弹层内容超 90% 视口时
+> 封顶一次转内部滚动。layer 开场动画已全局禁用（bounceIn 的
 > fill-mode:both 会把半程 scale 永久定格导致弹层渲染半高、改 height 无效）。
 
 ```php
