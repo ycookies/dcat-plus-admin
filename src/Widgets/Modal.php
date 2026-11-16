@@ -584,11 +584,19 @@ JS, true
             // function (success, response) { ... } 函数体，必须是「语句」
             // 而非函数定义（函数定义只会声明不会执行，静默失效）
             ->success(<<<'JS'
-var wmsg = response.data && response.data.message;
+// 提示展示：与 Ajax.js handleJsonResponse 完全一致——alert() 用
+// SweetAlert（detail 为正文），否则 toastr（timeout 秒数可调）
+var wdata = response.data || {};
+var wmsg = wdata.message;
 if (typeof wmsg === 'string' && wmsg) {
-    Dcat[response.data.type || 'success'](wmsg);
+    var wtype = wdata.type || 'success';
+    if (wdata.alert) {
+        Dcat.swal[wtype](wmsg, wdata.detail);
+    } else {
+        Dcat[wtype](wmsg, null, wdata.timeout ? {timeOut: wdata.timeout * 1000} : {});
+    }
 }
-var wthen = response.data && response.data.then;
+var wthen = wdata.then;
 switch (wthen && wthen.action) {
     case 'download':
         window.open(wthen.value, '_blank');
