@@ -99,14 +99,6 @@ class Modal extends Widget
     protected $viewOnly = false;
 
     /**
-     * 同步内容复用式（关闭归位、状态延续）；默认销毁式（关闭即销毁，
-     * 页面零 DOM 残留）.
-     *
-     * @var bool
-     */
-    protected $keepAlive = false;
-
-    /**
      * 弹窗内工具表单成功自动关闭钩子是否已注册（进程级幂等）.
      *
      * @var bool
@@ -484,23 +476,6 @@ JS
     }
 
     /**
-     * 同步内容复用式：关闭归位、状态延续（元素身份保持，页面加载时
-     * 组件脚本绑定的处理器有效）。默认销毁式——关闭即销毁，页面零
-     * DOM 残留，重复打开每次都是初始状态；纯静态内容（内联 onclick
-     * 随 clone 保留）无需开启。依赖页面加载时脚本绑定的组件内容
-     * （Widgets\Form 工具表单、图表等）请开启本项或改用异步通道.
-     *
-     * @param  bool  $value
-     * @return $this
-     */
-    public function keepAlive(bool $value = true)
-    {
-        $this->keepAlive = $value;
-
-        return $this;
-    }
-
-    /**
      * layer 引擎渲染：不输出 BS4 modal DOM，按钮改为 layer 触发器.
      *
      * 按内容类型分流：
@@ -560,41 +535,6 @@ if (! window.__wmodalFit) {
             win.layer.open = function (opts) {
                 var idx = origOpen.apply(this, arguments);
                 try {
-                    // DialogForm 型层（yes+cancel 双回调为特征，快捷编辑/
-                    // 弹窗创建/弹窗查看/异步 Modal 全部经 DialogForm._popup）：
-                    // 其 × 关闭是 jQuery .hide() 复用（层 DOM 连同内容永久
-                    // 留在页面）。包装 cancel：吞掉 hide 型 return false，
-                    // 让 layer 走真销毁；layer 对对象 content 层的 close 是
-                    // 「unwrap 内容放回 body + 层壳不删」，故在 close 流程
-                    // （约 300ms）完成后把放回的内容与层壳一并移除；同时清
-                    // 全部 DialogForm 型触发器的 counter，下次点击重新请求
-                    // 最新内容（原 hide 复用的"免请求"以 DOM 残留为代价，
-                    // 且复用期间数据不会刷新）
-                    if (opts && opts.type === 1 && typeof opts.cancel === 'function' && typeof opts.yes === 'function') {
-                        var origCancel = opts.cancel;
-                        opts.cancel = function () {
-                            // 关闭前抓内容节点引用（layer close 会 unwrap 放回）
-                            var contentNodes = [];
-                            try {
-                                var el0 = document.getElementById('layui-layer' + idx);
-                                var c0 = el0 && el0.querySelector('.layui-layer-content');
-                                contentNodes = c0 ? [].slice.call(c0.querySelectorAll('.layui-layer-wrap > *')) : [];
-                            } catch (e) {}
-                            var r = origCancel.apply(this, arguments);
-                            if (r === false) {
-                                try {
-                                    jQuery('[data-modal-id], .grid-dialog-edit, .grid-dialog-create, [class*="dialog-view"]').removeAttr('counter');
-                                } catch (e) {}
-                                setTimeout(function () {
-                                    contentNodes.forEach(function (n) { n.remove && n.remove(); });
-                                    var el = document.getElementById('layui-layer' + idx);
-                                    el && el.remove();
-                                }, 400);
-                            }
-                            // 不返回 false → layer 默认关闭流程真销毁
-                            return undefined;
-                        };
-                    }
                     if (opts && opts.type === 1 && opts.area && opts.area[1] === 'auto') {
                         var el = document.getElementById('layui-layer' + idx);
                         if (el) {
@@ -672,16 +612,14 @@ JS
     }
 
     /**
-     * 原生 layer 通道：同步内容.
+     * 原生 layer 通道：同步内容（销毁式）.
      *
-     * 销毁式（默认）：原始内容存 <template>（浏览器不渲染、不可见，仅作
-     * 模板源），每次点击 clone 全新节点开层，关闭随 layer 销毁——页面
-     * 不残留任何弹窗 DOM，重复打开每次都是初始状态。内联 onclick 等
-     * 静态属性随 clone 保留。
-     * keepAlive()：复用式——内容渲染进隐藏容器，点击整体搬入弹层（元素
-     * 身份不变，页面加载时组件脚本绑定的处理器有效），关闭归位以便重复
-     * 打开且状态延续。适用于依赖页面加载时脚本绑定的组件内容（工具表单
-     * Widgets\Form、图表等）。
+     * 原始内容存 <template>（浏览器不渲染、不可见，仅作模板源），每次
+     * 点击 clone 全新节点开层，关闭随 layer 销毁——页面不残留任何弹窗
+     * DOM，重复打开每次都是初始状态。内联 onclick 等静态属性随 clone
+     * 保留；依赖页面加载时脚本绑定的组件内容（工具表单 Widgets\Form、
+     * 图表等）请改用 LazyRenderable 异步通道（每次请求由 resolveHtml
+     * 重新执行组件脚本）。
      * 高度默认自适应（同 BS4），显式 size 时用映射档位。
      * 事件桥：onShow/onShown → 打开时机、onHide/onHidden → 关闭时机
      * （target/body 指向内容根元素，存量脚本兼容）。
@@ -709,46 +647,10 @@ JS
             }
         }
 
-        if ($this->keepAlive) {
-            // 复用式：隐藏容器承载内容，关闭归位（状态延续）
-            $box = '<div id="wmodal-box-'.$id.'" style="display:none">'.$content.'</div>';
-            if ($this->join) {
-                $boxHtml = $box;
-            } else {
-                Admin::html($box);
-                $boxHtml = '';
-            }
-
-            Admin::script(<<<JS
-\$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
-    var \$box = jQuery('#wmodal-box-{$id}');
-    layer.open({
-        type: 1,
-        title: {$title},
-        area: [{$width}, {$height}],
-        content: \$box.show(),
-        success: function (layero) {
-            var target = \$box, body = \$box;
-            {$showScript}
-        },
-        end: function () {
-            // layer 销毁会连同搬入的节点一并移除，归位隐藏容器以便再次打开
-            \$box.appendTo('body').hide();
-            var target = \$box, body = \$box;
-            {$hideScript}
-        }
-    });
-});
-JS
-            );
-
-            return $boxHtml.$this->renderLayerButton();
-        }
-
-        // 销毁式（默认）：内容存 <template>（单根 wrapper 包裹，template
-        // 不被浏览器渲染、不进可视 DOM），点击 clone 全新节点开层，关闭
-        // 随 layer 销毁——页面零残留、每次打开都是初始状态。clone 节点
-        // 需先入 DOM（瞬态载体）再交给 layer，否则 detached 节点开层异常
+        // 销毁式：内容存 <template>（单根 wrapper 包裹，template 不被
+        // 浏览器渲染、不进可视 DOM），点击 clone 全新节点开层，关闭随
+        // layer 销毁——页面零残留、每次打开都是初始状态。clone 节点需
+        // 先入 DOM（瞬态载体）再交给 layer，否则 detached 节点开层异常
         $tpl = '<template id="wmodal-tpl-'.$id.'"><div class="wmodal-tpl-wrap" style="display:none">'.$content.'</div></template>';
         if ($this->join) {
             $tplHtml = $tpl;
@@ -913,6 +815,7 @@ JS, true
             ->click('.dcat-wmodal-toggle[data-modal-id='.$id.']')
             ->dimensions($width, $height)
             ->viewOnly($this->viewOnly)
+            ->forceRefresh()
             // DialogForm 提交走 Dcat.Form({redirect:!1})，其响应链会先删
             // data.then 再 handleJsonResponse → 表单 handle 里的 ->refresh()
             // / ->download() / ->location() 等指令全部失效。
