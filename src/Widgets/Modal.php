@@ -566,18 +566,47 @@ JS, true
             ->click('.dcat-wmodal-toggle[data-modal-id='.$id.']')
             ->dimensions($width, $height)
             ->viewOnly($this->viewOnly)
-            // DialogForm 提交走 Dcat.Form({redirect:!1})，响应的 then 指令
-            // （refresh/location）会在 handleJsonResponse 前被 Dcat.Form 删除
-            // → 表单 handle 里 ->refresh() 等链式调用失效。
-            // success 回调语义：->refresh() 的原始作用是保存成功后重载整个
-            // 页面（弹窗表单提交后的标准行为，页面展示最新数据）。这里
-            // 直接整页重载；layer 由 DialogForm 自身销毁逻辑关闭
+            // DialogForm 提交走 Dcat.Form({redirect:!1})，其响应链会先删
+            // data.then 再 handleJsonResponse → 表单 handle 里的 ->refresh()
+            // / ->download() / ->location() 等指令全部失效。
+            // 而本回调（DialogForm 的 after）恰好在该删除之前执行，此时
+            // response.data.then 完整 → 在此按服务端指令分发，并 return
+            // false 中断原链（避免 toastr 弹两次、Dcat.reload 被拦截链
+            // 改写为原地刷表格）：
+            //   download  → window.open 新窗口下载（与 Ajax.js 原生一致）
+            //   redirect  → 整页跳转（不走 Dcat.reload，防拦截链改写）
+            //   location  → 有值跳转/无值重载（原生留 1s 给 toastr 展示）
+            //   script    → eval 执行
+            //   refresh/无指令 → 重载整页（->refresh() 的原始语义兜底）
             // 注意：success/error/saved 的内容会被 DialogForm 包进
             // function (success, response) { ... } 函数体，必须是「语句」
             // 而非函数定义（函数定义只会声明不会执行，静默失效）
             ->success(<<<'JS'
-// 保存成功：重载整个页面（->refresh() 的原始语义）
-window.location.reload();
+var wmsg = response.data && response.data.message;
+if (typeof wmsg === 'string' && wmsg) {
+    Dcat[response.data.type || 'success'](wmsg);
+}
+var wthen = response.data && response.data.then;
+switch (wthen && wthen.action) {
+    case 'download':
+        window.open(wthen.value, '_blank');
+        break;
+    case 'redirect':
+        window.location = wthen.value;
+        break;
+    case 'location':
+        setTimeout(function () {
+            if (wthen.value) { window.location = wthen.value; }
+            else { window.location.reload(); }
+        }, 1000);
+        break;
+    case 'script':
+        (function () { eval(wthen.value); })();
+        break;
+    default:
+        window.location.reload();
+}
+return false;
 JS
             );
 
