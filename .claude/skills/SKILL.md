@@ -337,6 +337,84 @@ $form->hasMany('skus', 'SKU列表', function (Form\NestedForm $table) {
 $form->multipleSelect('roles', '角色')->options(Role::all()->pluck('name', 'id'));
 ```
 
+### 5.5 独立表单（弹窗表单）——必用 Modal + LazyRenderable 模式
+
+后台需要"独立表单"（弹窗编辑、非资源 CRUD 的快捷提交、自定义页面里的表单）时，
+**统一使用 `Widgets\Modal` + `LazyRenderable` 表单类**，不要手写裸 WidgetForm + POST 路由。
+
+#### 标准写法（两步）
+
+第一步：定义表单类（放 `Renderable/Form/` 或扩展 `src/Renderable/Form/`）：
+
+```php
+<?php
+
+use Dcat\Admin\Contracts\LazyRenderable;
+use Dcat\Admin\Traits\LazyWidget;
+use Dcat\Admin\Widgets\Form;
+use Throwable;
+
+class ModifyServerDomainsForm extends Form implements LazyRenderable
+{
+    use LazyWidget;
+
+    // 处理提交（AJAX，自动带 CSRF token，无需手写路由）
+    public function handle(array $input)
+    {
+        // $input 是全部表单值（含 payload 里隐藏携带的参数，如 appid）
+        try {
+            // ... 业务处理
+            return $this->response()->success('保存成功')->refresh(); // toast + 整页刷新
+        } catch (Throwable $e) {
+            return $this->response()->error('保存失败：' . $e->getMessage());
+        }
+    }
+
+    // 定义字段；上下文参数经 payload 传入
+    public function form()
+    {
+        $appid = (string) ($this->payload['appid'] ?? '');
+
+        $this->hidden('appid')->default($appid); // 把参数隐藏回传给 handle
+        $this->textarea('requestdomain', 'request 合法域名')->rows(3)->default('https://...');
+    }
+}
+```
+
+第二步：在页面/控制器里用 Modal 弹窗挂载：
+
+```php
+use Dcat\Admin\Widgets\Modal as WidgetModal;
+
+$modal = (new WidgetModal())->lg()->title('修改服务器域名');
+$modal->body((new ModifyServerDomainsForm())->payload(['appid' => $this->appid]));
+$html = $modal->button('<button class="btn btn-primary">配置域名</button>')->render();
+```
+
+#### 为什么必须用这种模式
+
+- 提交走 dcat 内置 AJAX（DialogForm 通道，layer 承载），自动携带 CSRF token、
+  自动弹成功/失败 toast；`->refresh()/->download()/->location()/->redirect()/->script()`
+  等 JsonResponse 指令在弹窗内全部生效（无指令=只提示不刷新，详见
+  references/widgets.md §6.2 的 then 指令分发说明）；
+- `payload()` 传上下文参数，`form()` 里 `$this->payload['xxx']` 取用，配合 `hidden` 回传给 `handle()`；
+- 无需注册 POST 路由、无需 redirect、无需手拼结果回显。
+
+#### 反例警告：裸 WidgetForm 的 CSRF 坑
+
+直接 `new \Dcat\Admin\Widgets\Form()` + `->action($url)->method('POST')` 渲染的表单，
+**模板（widgets/form.blade.php）不自带 `_token`**，POST 会被 CSRF 中间件静默拦截（302、
+无任何提示、后端代码根本没执行）。如果确实要用裸 WidgetForm，必须手动补：
+
+```php
+$form->hidden('_token')->default(csrf_token());
+```
+
+#### 真实参考（本仓库）
+
+- 表单类：`dcat-admin-extensions/dybang/wx-open-platform/src/Renderable/Form/ModifyServerDomainsForm.php`
+- 挂载处：`dcat-admin-extensions/dybang/wx-open-platform/src/Http/Controllers/AuthorizerListController.php` 的 `tab2()`
+
 ---
 
 ## 六、dcat-plus 新增表单扩展

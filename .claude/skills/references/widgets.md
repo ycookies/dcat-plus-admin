@@ -361,6 +361,9 @@ JsonResponse 的 `->alert()/->detail()/->timeout()/->info()/->warning()/
 ->refresh()/->download()/->redirect()/->location()/->script()` 在弹窗
 表单内全部生效（已逐项实测）；`statusCode()/html()/withValidation()/
 withException()` 不走该回调（HTTP 层/422 字段错误路径/异常转换）。
+注意 `error()` 链路上 then 指令不执行（`error('x')->refresh()` 不会刷新，
+error 只弹提示+保留弹窗）——与上游 DialogForm 行为一致；普通整页表单
+error+then 会执行，此为弹窗表单的已知语义差异。
 
 ### 6.3 Tree（树形）
 
