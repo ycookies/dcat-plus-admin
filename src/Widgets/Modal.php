@@ -560,6 +560,41 @@ if (! window.__wmodalFit) {
             win.layer.open = function (opts) {
                 var idx = origOpen.apply(this, arguments);
                 try {
+                    // DialogForm 型层（yes+cancel 双回调为特征，快捷编辑/
+                    // 弹窗创建/弹窗查看/异步 Modal 全部经 DialogForm._popup）：
+                    // 其 × 关闭是 jQuery .hide() 复用（层 DOM 连同内容永久
+                    // 留在页面）。包装 cancel：吞掉 hide 型 return false，
+                    // 让 layer 走真销毁；layer 对对象 content 层的 close 是
+                    // 「unwrap 内容放回 body + 层壳不删」，故在 close 流程
+                    // （约 300ms）完成后把放回的内容与层壳一并移除；同时清
+                    // 全部 DialogForm 型触发器的 counter，下次点击重新请求
+                    // 最新内容（原 hide 复用的"免请求"以 DOM 残留为代价，
+                    // 且复用期间数据不会刷新）
+                    if (opts && opts.type === 1 && typeof opts.cancel === 'function' && typeof opts.yes === 'function') {
+                        var origCancel = opts.cancel;
+                        opts.cancel = function () {
+                            // 关闭前抓内容节点引用（layer close 会 unwrap 放回）
+                            var contentNodes = [];
+                            try {
+                                var el0 = document.getElementById('layui-layer' + idx);
+                                var c0 = el0 && el0.querySelector('.layui-layer-content');
+                                contentNodes = c0 ? [].slice.call(c0.querySelectorAll('.layui-layer-wrap > *')) : [];
+                            } catch (e) {}
+                            var r = origCancel.apply(this, arguments);
+                            if (r === false) {
+                                try {
+                                    jQuery('[data-modal-id], .grid-dialog-edit, .grid-dialog-create, [class*="dialog-view"]').removeAttr('counter');
+                                } catch (e) {}
+                                setTimeout(function () {
+                                    contentNodes.forEach(function (n) { n.remove && n.remove(); });
+                                    var el = document.getElementById('layui-layer' + idx);
+                                    el && el.remove();
+                                }, 400);
+                            }
+                            // 不返回 false → layer 默认关闭流程真销毁
+                            return undefined;
+                        };
+                    }
                     if (opts && opts.type === 1 && opts.area && opts.area[1] === 'auto') {
                         var el = document.getElementById('layui-layer' + idx);
                         if (el) {
