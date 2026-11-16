@@ -577,7 +577,9 @@ JS, true
             //   redirect  → 整页跳转（不走 Dcat.reload，防拦截链改写）
             //   location  → 有值跳转/无值重载（原生留 1s 给 toastr 展示）
             //   script    → eval 执行
-            //   refresh/无指令 → 重载整页（->refresh() 的原始语义兜底）
+            //   refresh   → 重载整页（->refresh() 的原始语义）
+            //   无指令    → 仅提示+关弹窗，不刷新（与普通表单原生语义
+            //               一致：success 不链式指令时不做任何页面动作）
             // 注意：success/error/saved 的内容会被 DialogForm 包进
             // function (success, response) { ... } 函数体，必须是「语句」
             // 而非函数定义（函数定义只会声明不会执行，静默失效）
@@ -603,8 +605,9 @@ switch (wthen && wthen.action) {
     case 'script':
         (function () { eval(wthen.value); })();
         break;
-    default:
+    case 'refresh':
         window.location.reload();
+        break;
 }
 return false;
 JS
