@@ -99,6 +99,13 @@ class Modal extends Widget
     protected $viewOnly = false;
 
     /**
+     * 弹窗内工具表单成功自动关闭钩子是否已注册（进程级幂等）.
+     *
+     * @var bool
+     */
+    protected static $formAutoCloseHooked = false;
+
+    /**
      * Modal constructor.
      *
      * @param  string|Closure|Renderable  $title
@@ -551,6 +558,40 @@ JS
 });
 JS
         );
+
+        // 弹窗内 Widgets\Form（工具表单，自带 handle 的同步表单）提交成功后
+        // 自动关闭所在弹层（一次性包装 handleJsonResponse，幂等防重复注册）。
+        // 用 form[action*=dcat-api/form] 精准识别工具表单——表格弹窗的筛选
+        // 表单 action 不是该端点，不会误关；DialogForm 通道的表单不走
+        // handleJsonResponse（success 语句 return false 中断），互不影响。
+        // 注意：不能用 Dcat.Form.submitted——Dcat.Form 只是 new Form 的包装
+        // 函数，类静态方法未透传到全局，调用即抛 undefined
+        if (! static::$formAutoCloseHooked) {
+            static::$formAutoCloseHooked = true;
+
+            Admin::script(<<<'JS'
+if (! window.__wmodalFormAutoClose) {
+    window.__wmodalFormAutoClose = true;
+    var __origHjr = Dcat.handleJsonResponse;
+    Dcat.handleJsonResponse = function (response) {
+        var r = __origHjr.apply(this, arguments);
+        try {
+            if (response && response.status) {
+                var layers = jQuery('.layui-layer:visible').toArray().reverse();
+                for (var i = 0; i < layers.length; i++) {
+                    if (jQuery(layers[i]).find('form[action*="dcat-api/form"]').length) {
+                        window.layer.close(Number(String(layers[i].id).replace('layui-layer', '')));
+                        break;
+                    }
+                }
+            }
+        } catch (e) {}
+        return r;
+    };
+}
+JS
+            );
+        }
 
         return $boxHtml.$this->renderLayerButton();
     }
