@@ -210,6 +210,14 @@ class AdminServiceProvider extends ServiceProvider {
             }
 
             \Dcat\Admin\Layout\Content::composing(function (\Dcat\Admin\Layout\Content $content) {
+                // 从弹窗响应中剔除 layer.js：它是实例化全局单例的资产，
+                // 随弹窗响应重复执行会重建实例（index 起点跳到 1e5）并
+                // 丢失 layer.config({shade:false}) 全局配置，导致此后
+                // 所有弹窗带上默认遮罩。其余 baseJs 保留（详情页组件依赖）
+                $baseJs = \Dcat\Admin\Admin::asset()->baseJs;
+                unset($baseJs['layer']);
+                \Dcat\Admin\Admin::baseJs($baseJs, false);
+
                 $content->view('admin::layouts.form-content');
             });
 
