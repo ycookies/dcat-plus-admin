@@ -670,8 +670,16 @@ JS
         }
 
         // 含 <form> → 容器模式（提交脚本页面加载时绑定，template 内节点
-        // 不在文档树绑定会静默失败）；否则 → template clone 销毁式
+        // 不在文档树绑定会静默失败）；否则 → template clone 销毁式。
+        // 容器关闭行为由统一配置 destroy_on_close 派生：
+        //   true（默认）→ jQuery .detach() 摘出 DOM（页面零残留；detached
+        //                 节点保留全部事件绑定与表单状态，重开自动挂载）
+        //   false       → 归位隐藏（BS4 旧语义：节点留在页面 display:none）
         if (str_contains($content, '<form')) {
+            $destroyOnClose = (bool) config('admin.layout.dialog.destroy_on_close', true);
+            $closeLine = $destroyOnClose
+                ? "\$box.detach();"                    // 摘出 DOM：零残留，绑定/状态存于内存
+                : "\$box.appendTo('body').hide();";    // 归位隐藏：BS4 旧语义
             $box = '<div id="wmodal-box-'.$id.'" style="display:none">'.$content.'</div>';
             if ($this->join) {
                 $boxHtml = $box;
@@ -681,9 +689,13 @@ JS
             }
 
             Admin::script(<<<JS
+var \$boxCache = null;
 \$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
-    var \$box = jQuery('#wmodal-box-{$id}');
+    var \$box = \$boxCache || jQuery('#wmodal-box-{$id}');
+    \$boxCache = \$box;
     if (! \$box.length) { return; }
+    // detach 后的节点需先挂回文档再交 layer（layer 要求 content 在文档中）
+    if (! \$box.parent().length) { \$box.appendTo('body'); }
     layer.open({
         type: 1,
         title: {$title},
@@ -694,9 +706,9 @@ JS
             {$showScript}
         },
         end: function () {
-            // 归位隐藏容器：元素身份不变（页面加载时绑定的提交脚本持续
-            // 有效），关闭再开状态延续（BS4 modal show/hide 同款语义）
-            \$box.appendTo('body').hide();
+            // destroy_on_close：detach=摘出 DOM（零残留，绑定与状态保留在
+            // 内存，重开自动挂载）；hide=归位隐藏（节点留页面）
+            {$closeLine}
             var target = \$box, body = \$box;
             {$hideScript}
         }
