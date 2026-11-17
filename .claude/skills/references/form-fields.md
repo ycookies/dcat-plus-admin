@@ -288,6 +288,7 @@ $form->editor('content')->height(600)->options(['setup'=>JavaScript::make($js)])
 | `table($c,$lOrCb,Closure)` | Table (extends ArrayField) | 表格视图二维数组，**与 useTable 同款表格体验**（结构化表头/列宽/help 上收） |
 | `keyValue($c,$l)` | KeyValue | 键值对象 `{"k":"v"}`。`setKeyLabel()` `setValueLabel()` |
 | `list($c,$l)` | ListField | 一维数组。`max($n)` `min($n)` |
+| `draggableList($c,$l)` | DraggableList | 可拖拽列表（sortable/nestable），SKU 规格属性场景：内置"新增/管理规格" xl 弹窗（SkuAttributesTable） |
 
 ```php
 // embeds
