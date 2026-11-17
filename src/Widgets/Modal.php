@@ -897,7 +897,16 @@ JS
     {
         $map = ['sm' => '300px', 'lg' => '800px', 'xl' => '1140px'];
 
-        return $map[$this->size] ?? (config('admin.layout.dialog.width') ?: '520px');
+        if (isset($map[$this->size])) {
+            return $map[$this->size];
+        }
+
+        // size(string) 支持任意自定义值（'600px'/'80%'），非档位键不再丢弃
+        if ($this->size && preg_match('/^\d+(\.\d+)?(px|%|vw|vh)$/', $this->size)) {
+            return $this->size;
+        }
+
+        return config('admin.layout.dialog.width') ?: '520px';
     }
 
     /**
