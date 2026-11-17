@@ -864,20 +864,17 @@ HTML;
     }
 
     /**
-     * 保存成功后的默认前端动作（子类可覆写自定义）：
-     * 交给 Dcat.handleJsonResponse 按响应指令分发——toast 提示、
-     * then 指令（refresh/download/location/script…）执行、弹层内
-     * 工具表单成功自动关闭（Modal 注入的钩子接管关层）。
-     * 原实现为空：裸 Widgets\Form 提交成功后无任何反馈（POST 发出、
-     * 响应正常，但 toast 不弹、弹层不关，表现为"点了没反应"）。
+     * 保存成功后的前端动作钩子（子类可覆写自定义）。
+     * 保持为空：Dcat.Form 响应链尾部会统一调用
+     * Dcat.handleJsonResponse(response)（toast 提示 + then 指令执行 +
+     * 弹层内工具表单自动关层钩子），此处再调会导致 toast 弹两次。
+     * 注意"提交无反应"的真因是表单提交脚本未绑定（如同步 template
+     * 场景），与 savedScript 无关——脚本绑定恢复后框架链路自然生效。
      *
-     * @return string
+     * @return string|void
      */
     protected function savedScript()
     {
-        return <<<'JS'
-if (window.Dcat && Dcat.handleJsonResponse) { Dcat.handleJsonResponse(data); }
-JS;
     }
 
     /**
