@@ -91,6 +91,10 @@ class Bootstrap
         // 的 click 处理以 span 为 target 时才正常切换——桌面/移动端同修
         Admin::style('.switchery small{pointer-events:none !important;}');
 
+        // 移动端（≤800px，与弹窗宽度自适应同款阈值）隐藏 layer 的最小化/
+        // 最大化按钮：小屏上无意义且挤占标题栏（移动端弹窗已满宽展示）
+        Admin::style('@media (max-width: 800px){.layui-layer-min,.layui-layer-max{display:none !important;}}');
+
         // 兜底委托：真实（受信任）点击在部分场景下 switchery 自身监听不
         // 响应（绑定层缺陷，桌面/移动端均可复现）。document 捕获阶段记录
         // 点击前状态，微任务后校验——switchery 正常处理则不动；未处理
