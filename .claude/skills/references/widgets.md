@@ -146,17 +146,26 @@ Box::make('通知', $renderable)->solid()->collapsable()->removable();
 > 普通 Renderable 组件，如 `->body('<b>...</b>')` 或 `->body(Card::make())`）
 > 走原生 layer 通道。onShow/onShown → 打开时机、onHide/onHidden → 关闭时机。
 >
+> **统一弹窗配置（单一事实源 `admin.layout.dialog`）**：同步内容/异步
+> 内容/Form::dialog 三条链路的默认值全部由此派生，不再各自为政——
+> `destroy_on_close`（关闭即销毁）、`shade`（遮罩，false=无灰底）、
+> `width`/`height`（null=自适应，显式值恒定）、`maxmin`。改全局弹窗
+> 行为只改这一处。
+>
 > **关闭即销毁（全局默认，页面零 DOM 残留）**：同步内容存 `<template>`
 > （不进可视 DOM），点击 clone 全新节点，关闭随 layer 销毁——重复打开
 > 每次都是初始状态；**DialogForm 通道（异步 Modal/快捷编辑/弹窗创建/
-> 查看）由 `forceRefresh=true` 原生配置关闭即销毁**（Widgets\DialogForm
-> 默认已改 true，× 关闭清层登记→layer 真销毁，下次点击重新请求最新
-> 内容）。依赖页面加载时脚本绑定的组件内容（工具表单 Widgets\Form、
-> 图表）**不要放同步通道**——改用 LazyRenderable 异步通道，每次请求由
-> resolveHtml 重放组件脚本。
+> 查看）由 `forceRefresh` 原生配置关闭即销毁**（默认从
+> `dialog.destroy_on_close` 派生=true，× 关闭清层登记→layer 真销毁，
+> 下次点击重新请求最新内容）。依赖页面加载时脚本绑定的组件内容（工具
+> 表单 Widgets\Form、图表）**不要放同步通道**——改用 LazyRenderable
+> 异步通道，每次请求由 resolveHtml 重放组件脚本。
+> ⚠ 弹窗内容响应（form-content）会**剔除 layer.js**——layer.js 重复
+> 执行会重建实例（index 起点跳 1e5）并丢失 layer.config 全局配置（如
+> shade:false），是历史上"弹窗带灰遮罩"问题的根源。
 >
 > **高度语义**（用户拍板）：**显式指定高度（`sm/lg/xl`、DialogForm
-> dimensions、配置 dialog_form_area）→ 恒定不变，开屏多大就多大**；
+> dimensions、config dialog.height）→ 恒定不变，开屏多大就多大**；
 > **未指定尺寸 → area height=auto 内容自适应**——两条通道都是内容就绪后
 > 才开层，开屏即终态高度、无二次调整；仅当 auto 弹层内容超 90% 视口时
 > 封顶一次转内部滚动。layer 开场动画已全局禁用（bounceIn 的
