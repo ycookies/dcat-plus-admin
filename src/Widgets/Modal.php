@@ -636,9 +636,12 @@ JS
      * 原始内容存 <template>（浏览器不渲染、不可见，仅作模板源），每次
      * 点击 clone 全新节点开层，关闭随 layer 销毁——页面不残留任何弹窗
      * DOM，重复打开每次都是初始状态。内联 onclick 等静态属性随 clone
-     * 保留；依赖页面加载时脚本绑定的组件内容（工具表单 Widgets\Form、
-     * 图表等）请改用 LazyRenderable 异步通道（每次请求由 resolveHtml
-     * 重新执行组件脚本）。
+     * 保留。
+     * 含 &lt;form&gt; 的内容（工具表单 Widgets\Form + handle 等）自动切换
+     * 「隐藏容器」模式：容器随页面渲染进 DOM（页面加载时提交脚本才能
+     * 绑定成功——template 内节点不在文档树，jQuery 选择器找不到），点击
+     * 整体搬入弹层（元素身份不变，绑定全部有效），关闭归位隐藏容器
+     * （与 BS4 modal show/hide 等价，状态延续）。
      * 高度默认自适应（同 BS4），显式 size 时用映射档位。
      * 事件桥：onShow/onShown → 打开时机、onHide/onHidden → 关闭时机
      * （target/body 指向内容根元素，存量脚本兼容）。
@@ -664,6 +667,45 @@ JS
             } elseif (Str::startsWith($v['event'], ['hide', 'hidden'])) {
                 $hideScript .= $v['script']."\n";
             }
+        }
+
+        // 含 <form> → 容器模式（提交脚本页面加载时绑定，template 内节点
+        // 不在文档树绑定会静默失败）；否则 → template clone 销毁式
+        if (str_contains($content, '<form')) {
+            $box = '<div id="wmodal-box-'.$id.'" style="display:none">'.$content.'</div>';
+            if ($this->join) {
+                $boxHtml = $box;
+            } else {
+                Admin::html($box);
+                $boxHtml = '';
+            }
+
+            Admin::script(<<<JS
+\$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
+    var \$box = jQuery('#wmodal-box-{$id}');
+    if (! \$box.length) { return; }
+    layer.open({
+        type: 1,
+        title: {$title},
+        area: [{$width}, {$height}],
+        content: \$box.show(),
+        success: function (layero) {
+            var target = \$box, body = \$box;
+            {$showScript}
+        },
+        end: function () {
+            // 归位隐藏容器：元素身份不变（页面加载时绑定的提交脚本持续
+            // 有效），关闭再开状态延续（BS4 modal show/hide 同款语义）
+            \$box.appendTo('body').hide();
+            var target = \$box, body = \$box;
+            {$hideScript}
+        }
+    });
+});
+JS
+            );
+
+            return $boxHtml.$this->renderLayerButton();
         }
 
         // 销毁式：内容存 <template>（单根 wrapper 包裹，template 不被
