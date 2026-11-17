@@ -278,13 +278,74 @@
         display: none;
     }
 
-    @media (max-width: 768px) {
+    /*
+     * 移动端（≤800px）：去掉强制 768px 横向滚动，登录框水平居中。
+     * html 字号放大到 28vw，使 3.125rem 登录框 ≈ 87.5vw；上限 128px 避免平板/大屏过大。
+     * 几何尺寸继续走 rem 跟随缩放，字号改固定像素保证可读，
+     * 输入框字号 ≥16px 可避免 iOS Safari 聚焦时自动放大页面。
+     */
+    @media (max-width: 800px) {
         html {
-            font-size: 76.8px;
+            font-size: min(28vw, 128px);
         }
 
         .login32-page {
-            min-width: 768px;
+            min-width: 0;
+            /* 竖屏下 100% 100% 拉伸失真明显，改为 cover 裁切 */
+            background-size: cover;
+        }
+
+        .login32-page .loginBodyCenter {
+            width: 100%;
+        }
+
+        .login32-page .loginBodyMain {
+            right: 0;
+            left: 0;
+            justify-content: center;
+        }
+
+        .login32-page .loginTitle p {
+            padding-top: .32rem;
+        }
+
+        /* 输入类控件加高到触控友好尺寸（320px 窄屏下不低于 38px） */
+        .login32-page .loginInput,
+        .login32-page .loginCaptcha,
+        .login32-page .loginCaptcha img {
+            height: max(.34rem, 38px);
+        }
+
+        .login32-page .loginInput .icon {
+            font-size: 14px;
+        }
+
+        .login32-page .loginInput input {
+            font-size: 16px;
+        }
+
+        .login32-page .rememberPwd {
+            font-size: 13px;
+        }
+
+        .login32-page .rememberPwd input {
+            width: 15px;
+            height: 15px;
+        }
+
+        .login32-page .forget,
+        .login32-page .captcha-refresh {
+            font-size: 13px;
+        }
+
+        .login32-page .loginBut {
+            height: max(.34rem, 38px);
+            font-size: 16px;
+        }
+
+        .login32-page .loginError {
+            font-size: 12px;
+            line-height: 18px;
         }
     }
 </style>
