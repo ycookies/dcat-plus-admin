@@ -702,7 +702,15 @@ JS
         layer.open({
             type: 1,
             title: {$title},
-            area: [{$width}, {$height}],
+            // 移动端宽度自适应：屏幕或视口 ≤800px（与 DialogForm 通道同款
+            // 判定阈值）时宽度收窄为满屏，避免桌面 px 宽度溢出手机视口；
+            // 高度沿用既有语义（auto 自适应/百分比恒定）不受影响
+            area: (function () {
+                var a = [{$width}, {$height}];
+                var small = Math.min(window.screen ? window.screen.width : 9999, document.documentElement.clientWidth) <= 800;
+                if (small) { a[0] = '100%'; }
+                return a;
+            })(),
             content: \$box.show(),
             success: function (layero) {
                 var target = \$box, body = \$box;
@@ -747,7 +755,13 @@ JS
     layer.open({
         type: 1,
         title: {$title},
-        area: [{$width}, {$height}],
+        // 移动端宽度自适应（同上：屏幕/视口 ≤800px 收窄为满屏）
+        area: (function () {
+            var a = [{$width}, {$height}];
+            var small = Math.min(window.screen ? window.screen.width : 9999, document.documentElement.clientWidth) <= 800;
+            if (small) { a[0] = '100%'; }
+            return a;
+        })(),
         content: \$box.show(),
         success: function (layero) {
             var target = \$box, body = \$box;
