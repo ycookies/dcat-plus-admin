@@ -86,6 +86,37 @@ class Bootstrap
         // 不展开"。全局提升到弹层体系（layer 19891015）之上
         Admin::style('.select2-dropdown{z-index:29891017 !important;}');
 
+        // switchery 开关滑块点击无反应修复：真实点击的命中目标常为滑块
+        // <small>（pointer-events:none 使命中目标恒为外层 span），switchery
+        // 的 click 处理以 span 为 target 时才正常切换——桌面/移动端同修
+        Admin::style('.switchery small{pointer-events:none !important;}');
+
+        // 兜底委托：真实（受信任）点击在部分场景下 switchery 自身监听不
+        // 响应（绑定层缺陷，桌面/移动端均可复现）。document 捕获阶段记录
+        // 点击前状态，微任务后校验——switchery 正常处理则不动；未处理
+        // （状态未变）则手动翻转 checkbox 并派发 change，保证表单取值正确。
+        // 捕获阶段先于 switchery 的目标阶段执行，微任务校验在其之后，
+        // 不会双切
+        Admin::script(<<<'JS'
+if (! window.__dcatSwitcheryFallback) {
+    window.__dcatSwitcheryFallback = true;
+    document.addEventListener('click', function (e) {
+        var sp = e.target && e.target.closest ? e.target.closest('.switchery') : null;
+        if (! sp) { return; }
+        var cb = sp.previousElementSibling;
+        if (! cb || cb.type !== 'checkbox') { return; }
+        var before = cb.checked;
+        setTimeout(function () {
+            if (cb.checked === before) {
+                cb.checked = ! before;
+                cb.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }, 0);
+    }, true);
+}
+JS
+        );
+
         Admin::script(<<<'JS'
 if (!window.__dcatStackedModalPatch) {
     window.__dcatStackedModalPatch = true;
