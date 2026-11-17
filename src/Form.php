@@ -169,6 +169,7 @@ class Form implements Renderable {
         'tree'                => Field\Tree::class,
         'table'               => Field\Table::class,
         'list'                => Field\ListField::class,
+        'draggableList'       => Field\DraggableList::class,
         'timezone'            => Field\Timezone::class,
         'keyValue'            => Field\KeyValue::class,
         'tel'                 => Field\Tel::class,
