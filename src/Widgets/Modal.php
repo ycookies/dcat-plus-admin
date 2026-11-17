@@ -689,31 +689,35 @@ JS
             }
 
             Admin::script(<<<JS
-var \$boxCache = null;
-\$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
-    var \$box = \$boxCache || jQuery('#wmodal-box-{$id}');
-    \$boxCache = \$box;
-    if (! \$box.length) { return; }
-    // detach 后的节点需先挂回文档再交 layer（layer 要求 content 在文档中）
-    if (! \$box.parent().length) { \$box.appendTo('body'); }
-    layer.open({
-        type: 1,
-        title: {$title},
-        area: [{$width}, {$height}],
-        content: \$box.show(),
-        success: function (layero) {
-            var target = \$box, body = \$box;
-            {$showScript}
-        },
-        end: function () {
-            // destroy_on_close：detach=摘出 DOM（零残留，绑定与状态保留在
-            // 内存，重开自动挂载）；hide=归位隐藏（节点留页面）
-            {$closeLine}
-            var target = \$box, body = \$box;
-            {$hideScript}
-        }
+// IIFE 隔离：同页多个容器模式 Modal 的脚本合并进同一 <script>，
+// var 顶层声明会互相覆盖（A 的缓存被 B 命中 → 显示 A 的内容）
+(function () {
+    var \$boxCache = null;
+    \$(document).off('click.wmodal-native-{$id}').on('click.wmodal-native-{$id}', '.dcat-wmodal-toggle[data-modal-id={$id}]', function () {
+        var \$box = \$boxCache || jQuery('#wmodal-box-{$id}');
+        \$boxCache = \$box;
+        if (! \$box.length) { return; }
+        // detach 后的节点需先挂回文档再交 layer（layer 要求 content 在文档中）
+        if (! \$box.parent().length) { \$box.appendTo('body'); }
+        layer.open({
+            type: 1,
+            title: {$title},
+            area: [{$width}, {$height}],
+            content: \$box.show(),
+            success: function (layero) {
+                var target = \$box, body = \$box;
+                {$showScript}
+            },
+            end: function () {
+                // destroy_on_close：detach=摘出 DOM（零残留，绑定与状态保留在
+                // 内存，重开自动挂载）；hide=归位隐藏（节点留页面）
+                {$closeLine}
+                var target = \$box, body = \$box;
+                {$hideScript}
+            }
+        });
     });
-});
+})();
 JS
             );
 
