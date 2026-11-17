@@ -21,6 +21,14 @@ class SkuField extends Field
         '@goods-sku'
     ];
 
+    public function __construct($column, $arguments = [])
+    {
+        parent::__construct($column, $arguments);
+
+        // 默认补齐扩展列变量：未调用 addColumn() 时模板不会缺变量报错
+        $this->addVariables(['extra_column' => json_encode([])]);
+    }
+
     public function render()
     {
         $token = app(InternalRouteToken::class);
