@@ -516,6 +516,15 @@ JS
         }
         $done = true;
 
+        // 统一弹窗配置注入 JS（admin.layout.dialog 单一事实源）：
+        // patchLayerOpen 据此对缺省 shade 的弹层强制补齐全局默认
+        $dialogDefaults = [
+            'shade'        => (bool) config('admin.layout.dialog.shade', false),
+            'destroyOnClose' => (bool) config('admin.layout.dialog.destroy_on_close', true),
+        ];
+
+        Admin::script('window.__dialogDefaults = '.json_encode($dialogDefaults).';');
+
         Admin::script(<<<'JS'
 if (! window.__wmodalFit) {
     window.__wmodalFit = true;
@@ -533,6 +542,16 @@ if (! window.__wmodalFit) {
             win.__wmodalOpenPatched = true;
             var origOpen = win.layer.open;
             win.layer.open = function (opts) {
+                try {
+                    // 统一弹窗配置兜底（window.__dialogDefaults 由服务端
+                    // 从 admin.layout.dialog 注入）：未显式声明 shade 的
+                    // 弹层强制应用全局默认——layer 实例被重建时（如历史
+                    // 版本的重复加载）会丢失 layer.config 全局配置，此
+                    // 处按配置源补齐，保证三条链路遮罩行为一致
+                    if (opts && opts.shade === undefined) {
+                        opts.shade = (window.__dialogDefaults || {}).shade;
+                    }
+                } catch (e) {}
                 var idx = origOpen.apply(this, arguments);
                 try {
                     if (opts && opts.type === 1 && opts.area && opts.area[1] === 'auto') {
@@ -878,7 +897,7 @@ JS
     {
         $map = ['sm' => '300px', 'lg' => '800px', 'xl' => '1140px'];
 
-        return $map[$this->size] ?? '520px';
+        return $map[$this->size] ?? (config('admin.layout.dialog.width') ?: '520px');
     }
 
     /**

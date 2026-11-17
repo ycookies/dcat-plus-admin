@@ -23,15 +23,17 @@ class DialogForm
      */
     protected $options = [
         'title'          => 'Form',
-        'area'           => ['700px', '670px'],
+        // 默认尺寸从统一配置 admin.layout.dialog 派生（与同步内容通道、
+        // Modal 一致）：null → 高度 auto 内容自适应，显式值恒定不变
+        'area'           => null,
         'defaultUrl'     => null,
         'buttonSelector' => null,
         'query'          => null,
         'lang'           => null,
         // × 关闭真销毁（清层登记 → layer 默认关闭流程销毁层壳/内容/遮罩，
         // 下次点击重新请求最新内容）。false 为 jQuery .hide() 复用——层
-        // DOM 连同内容永久残留页面，故销毁式为全局默认
-        'forceRefresh'   => true,
+        // DOM 连同内容永久残留页面。默认从统一配置 destroy_on_close 派生
+        'forceRefresh'   => null,
         'resetButton'    => true,
         'viewOnly'       => false,
     ];
@@ -47,6 +49,20 @@ class DialogForm
 
     public function __construct(?string $title = null, $url = null)
     {
+        // 统一弹窗配置派生默认值（单一事实源 admin.layout.dialog）：
+        // 未显式设置 area/forceRefresh 时按全局配置补齐
+        $dialog = config('admin.layout.dialog', []);
+        if ($this->options['area'] === null) {
+            $w = $dialog['width'] ?? null;
+            $h = $dialog['height'] ?? null;
+            // 宽度兜底 700px（整页表单内容较宽，auto 会塌陷）；高度 null
+            // = auto 内容自适应（用户拍板语义，超高 90% 视口封顶滚动）
+            $this->options['area'] = [$w ?: '700px', $h ?: 'auto'];
+        }
+        if ($this->options['forceRefresh'] === null) {
+            $this->options['forceRefresh'] = (bool) ($dialog['destroy_on_close'] ?? true);
+        }
+
         $this->title($title);
 
         $this->url($url);

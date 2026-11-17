@@ -545,6 +545,23 @@ return [
         // bootstrap（BS4 modal，遇到嵌套弹窗异常时可临时切回）。
         'modal_driver' => env('ADMIN_MODAL_DRIVER', 'layer'),
 
+        // 弹窗统一配置（单一事实源：同步内容 / 异步内容 / Form::dialog
+        // 三条链路的默认值全部由此派生，不再各自为政）。
+        'dialog' => [
+            // 关闭即销毁：清层壳/内容/遮罩，下次打开重新请求最新内容
+            'destroy_on_close' => true,
+            // 遮罩（shade:false 时弹窗无灰底；layer 实例重建会丢此配置，
+            // 打开时由统一入口强制补齐）
+            'shade' => false,
+            // 默认宽度：null=内容自适应，或 '700px'/'80%' 显式恒定
+            'width' => null,
+            // 默认高度：null=内容自适应（超高 90% 视口封顶内部滚动），
+            // 或 '670px'/'70%' 显式恒定
+            'height' => null,
+            // 层内最小化/最大化按钮
+            'maxmin' => true,
+        ],
+
         // 可选：sidebar-separate。
         'body_class' => [],
 
