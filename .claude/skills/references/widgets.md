@@ -133,7 +133,7 @@ Box::make('通知', $renderable)->solid()->collapsable()->removable();
 |------|------|
 | `title($t)` / `body($c)` / `content($c)` / `footer($f)` | body 是 content 别名 |
 | `button($html)` | 触发按钮 HTML（默认渲染只返回触发器，弹窗 HTML 注入页面底部） |
-| `sm()` / `lg()` / `xl()` / `size(string)` | 尺寸（sm=300/lg=800/xl=1140 px） |
+| `sm()` / `lg()` / `xl()` / `size(string)` | 尺寸（sm=300/lg=800/xl=1140 px）；移动端（屏幕/视口 ≤800px）宽度自动收窄为 100% 满屏，高度语义不变 |
 | `centered()` / `scrollable()` / `staticBackdrop()` | 居中/滚动/静态背景 |
 | `delay(int $ms)` | 显示延迟（异步图表需设，避免渲染异常） |
 | `join(bool=true)` | true: 触发器+弹窗拼一起返回；false（默认）: 弹窗注入底部 |
