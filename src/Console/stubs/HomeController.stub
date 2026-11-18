@@ -6,6 +6,7 @@ use Dcat\Admin\Support\ErpDashboardData;
 use App\Http\Controllers\Controller;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Layout\Row;
 use Dcat\Admin\Widgets\Alert;
 use Dcat\Admin\Widgets\ApexCharts\Chart;
 use Dcat\Admin\Widgets\Card;
@@ -62,7 +63,158 @@ class HomeController extends Controller
                 'marqueeNotice' => $marqueeNotice->render(),
                 'recentOrders' => $recentOrders->render(),
                 'inventoryWarnings' => $inventoryWarnings->render(),
-            ]));
+            ]))
+            ->row(function (Row $row) {
+                // 环境探针：三列卡片（服务器信息 / 项目信息 / 项目依赖）
+                [$systemCard, $projectCard, $dependencyCard] = $this->probeCards();
+                $row->column(4, $systemCard);
+                $row->column(4, $projectCard);
+                $row->column(4, $dependencyCard);
+            });
+    }
+
+    /**
+     * 环境探针卡片：服务器信息 / 项目信息 / 项目依赖。
+     */
+    protected function probeCards(): array
+    {
+        $make = function (string $title, array $items) {
+            return Card::make($title, $this->probeList($items))
+                ->withHeaderBorder()
+                ->class('erp-probe-card', true);
+        };
+
+        return [
+            $make('服务器信息', $this->systemProbeItems()),
+            $make('项目信息', $this->projectProbeItems()),
+            $make('项目依赖', $this->dependencyProbeItems()),
+        ];
+    }
+
+    /**
+     * 服务器环境探针数据。
+     */
+    protected function systemProbeItems(): array
+    {
+        $curl = curl_version();
+
+        return [
+            ['操作系统', php_uname('s').' '.php_uname('r')],
+            ['PHP 版本', PHP_VERSION],
+            ['Web Server', $_SERVER['SERVER_SOFTWARE'] ?? '未知'],
+            ['数据库版本', $this->databaseVersion()],
+            ['Host', request()->getHost()],
+            ['支持最大内存', ini_get('memory_limit') ?: '未知'],
+            ['最大执行时间', (ini_get('max_execution_time') ?: '0').'/S'],
+            ['上传文件大小', ini_get('upload_max_filesize') ?: '未知'],
+            ['SSL 是否安装', is_array($curl) && ! empty($curl['ssl_version'])],
+            ['Openssl 是否安装', extension_loaded('openssl')],
+            ['PDO 是否安装', extension_loaded('PDO')],
+        ];
+    }
+
+    /**
+     * 项目运行状态探针数据。
+     */
+    protected function projectProbeItems(): array
+    {
+        return [
+            ['Laravel 版本', app()->version()],
+            ['Dcat Admin 版本', Admin::VERSION],
+            ['时区', config('app.timezone')],
+            ['是否开启调试模式', (bool) config('app.debug')],
+            ['Storage 目录可写?', is_writable(storage_path())],
+            ['Cache 目录可写?', is_writable(storage_path('framework/cache'))],
+            ['缓存驱动', config('cache.default')],
+            ['Session 驱动', config('session.driver')],
+            ['项目大小', $this->directorySize(base_path())],
+            ['依赖大小', $this->directorySize(base_path('vendor'))],
+            ['公共资源大小', $this->directorySize(public_path('vendor'))],
+        ];
+    }
+
+    /**
+     * composer.json 直接依赖清单（跳过 php / ext-* 平台依赖）。
+     */
+    protected function dependencyProbeItems(): array
+    {
+        $composer = json_decode((string) @file_get_contents(base_path('composer.json')), true);
+        $items = [];
+
+        foreach ($composer['require'] ?? [] as $name => $constraint) {
+            if ($name === 'php' || str_starts_with($name, 'ext-')) {
+                continue;
+            }
+
+            $items[] = [$name, $constraint];
+        }
+
+        return $items;
+    }
+
+    protected function databaseVersion(): string
+    {
+        try {
+            return (string) \Illuminate\Support\Facades\DB::connection()
+                ->getPdo()
+                ->getAttribute(\PDO::ATTR_SERVER_VERSION);
+        } catch (\Throwable $e) {
+            return '未知';
+        }
+    }
+
+    protected function directorySize(string $path): string
+    {
+        if (! is_dir($path)) {
+            return '0 B';
+        }
+
+        $bytes = 0;
+
+        try {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)
+            );
+
+            foreach ($files as $file) {
+                try {
+                    $bytes += $file->getSize();
+                } catch (\Throwable $e) {
+                }
+            }
+        } catch (\Throwable $e) {
+            return '未知';
+        }
+
+        return number_format($bytes / 1048576, 2).' MB';
+    }
+
+    /**
+     * 「标签 → 徽标」两列列表。
+     */
+    protected function probeList(array $items): string
+    {
+        $rows = '';
+
+        foreach ($items as [$label, $value]) {
+            $rows .= '<div class="erp-probe-row">'
+                .'<span class="erp-probe-label">'.e($label).'</span>'
+                .$this->probeBadge($value)
+                .'</div>';
+        }
+
+        return '<div class="erp-probe-list">'.$rows.'</div>';
+    }
+
+    protected function probeBadge($value): string
+    {
+        if (is_bool($value)) {
+            return '<span class="badge erp-probe-badge '.($value ? 'badge-light-success' : 'badge-light-danger').'">'
+                .($value ? 'true' : 'false')
+                .'</span>';
+        }
+
+        return '<span class="badge erp-probe-badge badge-light-primary">'.e((string) $value).'</span>';
     }
 
     /**
@@ -268,6 +420,7 @@ class HomeController extends Controller
 .erp-activity { position:relative; display:flex; gap:11px; padding:0 0 17px; }.erp-activity:last-child { padding-bottom:0; }.erp-activity:before { position:absolute; top:30px; bottom:-2px; left:14px; width:1px; background:#e7ebf3; content:""; }.erp-activity:last-child:before { display:none; }.erp-activity-icon { display:flex; align-items:center; justify-content:center; flex:0 0 29px; width:29px; height:29px; border-radius:9px; color:#fff; font-size:14px; }.erp-activity-title { color:var(--erp-text); font-size:12px; font-weight:750; }.erp-activity-content { margin-top:3px; color:var(--erp-muted); font-size:11px; line-height:1.5; }.erp-activity-time { display:block; margin-top:4px; color:#a9b1bf; font-size:10px; }
 .erp-dashboard .alert { margin-bottom:20px; padding:13px 16px; border:0; border-radius:10px; font-size:12px; }.erp-dashboard .alert-heading { font-size:13px; font-weight:700; }
 body.dark-mode .erp-dashboard,.dark-mode .erp-dashboard { --erp-text:#dbe3f5; --erp-muted:#99a5bb; --erp-border:#343a50; }.dark-mode .erp-dashboard .card,.dark-mode .erp-dashboard .erp-action { background:#252a3b; }.dark-mode .erp-dashboard .card-header,.dark-mode .erp-dashboard .erp-data-table thead th { border-color:#343a50; background:#2a3043; }.dark-mode .erp-dashboard .erp-data-table td,.dark-mode .erp-dashboard .erp-todo-item { border-color:#343a50; }.dark-mode .erp-dashboard .erp-overview-value,.dark-mode .erp-dashboard strong,.dark-mode .erp-dashboard .erp-order-no,.dark-mode .erp-dashboard .erp-todo-title,.dark-mode .erp-dashboard .erp-activity-title { color:#e6edfb; }.dark-mode .erp-dashboard .erp-stock-bar { background:#57333c; }.dark-mode .erp-dashboard__date,.dark-mode .erp-notice-bar { border-color:#353b55; background:#252a3b; }.dark-mode .erp-notice-bar .dcat-marquee-notice__item { color:#bcc7dc!important; }.dark-mode .erp-hero-swiper .swiper-button-prev,.dark-mode .erp-hero-swiper .swiper-button-next { border-color:rgba(255,255,255,.3); }
+.erp-probe-card { margin-bottom:20px; border:1px solid var(--erp-border,#e8ecf4); border-radius:14px; background:#fff; box-shadow:0 5px 20px rgba(29,42,69,.045); }.erp-probe-card .card-header { min-height:58px; padding:17px 21px; border-bottom:1px solid var(--erp-border,#e8ecf4); background:linear-gradient(180deg,#fff,#fdfdff); }.erp-probe-card .card-box-title { color:#1d2a45; font-size:15px; font-weight:750; }.erp-probe-card .card-body { padding:2px 20px; }.erp-probe-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #f0f2f7; }.erp-probe-row:last-child { border-bottom:0; }.erp-probe-label { min-width:0; color:#53617a; font-size:13px; }.erp-probe-badge { max-width:62%; overflow:hidden; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }.badge-light-danger { color:#d94e60; background:#fff0f2; }.dark-mode .erp-probe-card,.dark-mode .erp-probe-card .card-header { border-color:#343a50; background:#252a3b; }.dark-mode .erp-probe-card .card-header { background:#2a3043; }.dark-mode .erp-probe-card .card-box-title { color:#e6edfb; }.dark-mode .erp-probe-row { border-color:#343a50; }.dark-mode .erp-probe-label { color:#99a5bb; }
 @media (max-width:1199px) { .erp-action-grid { grid-template-columns:repeat(2,1fr); } }
 @media (max-width:767px) { .erp-dashboard__intro { align-items:flex-start; flex-direction:column; gap:10px; }.erp-dashboard__hero { grid-template-columns:1fr; gap:12px; }.erp-notice-bar__state { display:none; } }
 @media (max-width:575px) { .erp-dashboard .card-body { padding:16px; }.erp-hero-swiper { border-radius:12px; }.erp-banner-card__content { padding:22px 18px 0 23px; }.erp-banner-card h3 { max-width:285px; font-size:19px; }.erp-banner-card p { max-width:285px; }.erp-banner-card__metrics { padding:10px 15px 11px 23px; }.erp-banner-card__metric strong { font-size:16px; }.erp-hero-swiper .swiper-button-prev,.erp-hero-swiper .swiper-button-next { display:none; }.erp-notice-bar { padding:0 9px; }.erp-notice-bar__label { min-width:95px; }.erp-action-grid { grid-template-columns:1fr 1fr; }.erp-dashboard__date { font-size:10px; } }
