@@ -9,10 +9,17 @@ use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Layout\Row;
 use Dcat\Admin\Widgets\Alert;
 use Dcat\Admin\Widgets\ApexCharts\Chart;
-use Dcat\Admin\Widgets\Card;
 use Dcat\Admin\Widgets\MarqueeNotice;
 use Dcat\Admin\Widgets\Swiper;
 use Dcat\Admin\Widgets\Table;
+use Dcat\Admin\Layout\Column;
+use Dcat\Admin\Widgets\Card;
+use Dcat\Admin\Widgets\Linkbox;
+use Dcat\Admin\Widgets\MediaList;
+use Dcat\Admin\Widgets\Callout;
+use Dcat\Admin\Widgets\ListGroup;
+use Dcat\Admin\Widgets\InfoList;
+use Dcat\Admin\Widgets\CoverCard;
 
 class HomeController extends Controller
 {
@@ -70,7 +77,86 @@ class HomeController extends Controller
                 $row->column(4, $systemCard);
                 $row->column(4, $projectCard);
                 $row->column(4, $dependencyCard);
-            });
+            })
+            ->row(function (Row $row) {
+                $html = '<img src="'.env('APP_URL').'/vendor/dcat-admin/images/opensource-maintainer.png" width="100%" alt="开源维护作者" />';
+                $card = \Dcat\Admin\Widgets\Card::make('开源维护作者', $html)->withHeaderBorder()->class('erp-dashboard-card erp-notices-card', true);
+                $row->column(12, $card->render());
+             })
+            ->row(function (Row $row) {
+                    $row->column(9, function (Column $column) {
+                        $yue = date('m');
+                        $year = date('Y');
+                        $events_list = [
+                            [
+                                'title' => '今天的事项',
+                                'start' => $year.'-'.$yue.'-01 14:00:00', // 示例日期，您可以根据需要替换
+                                'backgroundColor' => '#f56954', // red
+                                'borderColor' => '#f56954', // red
+                                'allDay' => false, // 指示事件是否为全天事件。默认为 false
+                                'description' => '这是今天的事项描述', // 描述信息
+                                'showModal' => true,
+                            ],
+                            [
+                                'title' => '长事项',
+                                'start' => $year.'-'.$yue.'-27 00:00:00', // 示例日期，您可以根据需要替换
+                                'end' => $year.'-'.$yue.'-30 00:00:00', // 示例日期，您可以根据需要替换
+                                'backgroundColor' => '#f39c12', // yellow
+                                'borderColor' => '#f39c12', // yellow
+                                'description' => '长事项描述', // 描述信息
+                                'showModal' => true,
+                            ],
+                            [
+                                'title' => 'Meeting 11111',
+                                'start' => $year.'-'.$yue.'-02 10:30:00', // 示例日期，您可以根据需要替换
+                                'allDay' => false,
+                                'backgroundColor' => '#0073b7', // Blue
+                                'borderColor' => '#0073b7', // Blue
+                            ],
+                            [
+                                'title' => 'Lunch 2222',
+                                'start' => $year.'-'.$yue.'-02 12:00:00', // 示例日期，您可以根据需要替换
+                                'end' => $year.'-'.$yue.'-02 14:00:00', // 示例日期，您可以根据需要替换
+                                'allDay' => false,
+                                'backgroundColor' => '#00c0ef', // Info (aqua)
+                                'borderColor' => '#00c0ef', // Info (aqua)
+                            ],
+                            [
+                                'title' => 'Birthday Party',
+                                'start' => $year.'-'.$yue.'-03 19:00:00', // 示例日期，您可以根据需要替换
+                                'end' => $year.'-'.$yue.'-03 22:30:00', // 示例日期，您可以根据需要替换
+                                'allDay' => false,
+                                'backgroundColor' => '#00a65a', // Success (green)
+                                'borderColor' => '#00a65a', // Success (green)
+                            ],
+                            [
+                                'title' => 'Click for baidu',
+                                'start' => $year.'-'.$yue.'-28 00:00:00', // 示例日期，您可以根据需要替换
+                                'end' => $year.'-'.$yue.'-29 00:00:00', // 示例日期，您可以根据需要替换
+                                'url' => 'https://www.baidu.com/',
+                                'backgroundColor' => '#3c8dbc', // Primary (light-blue)
+                                'borderColor' => '#3c8dbc', // Primary (light-blue)
+                            ],
+                        ];
+                        $calendar = \Dcat\Admin\Widgets\Calendar::make();
+                        $calendar->eventItem($events_list);
+                        $Card = Card::make($calendar->render());
+                        $column->row($Card->render());
+                    });
+                    $row->column(3, function (Column $column) {
+
+                        $cover_card = CoverCard::make()->add('开源公众号','关注公众号 随时了解更新动态')
+                            ->bg(env('APP_URL').'/vendor/dcat-admin/images/card-bg1.jpeg')
+                            ->avatar(env('APP_URL').'/vendor/dcat-admin/images/wxgzh_qrcode.jpg');
+                        $column->row($cover_card->render());
+                        $cover_card1 = CoverCard::make()->add('赞助捐助开源','鼓励作者持续更新')
+                            ->bg(env('APP_URL').'/vendor/dcat-admin/images/card-bg2.jpeg')
+                            ->avatar(env('APP_URL').'/vendor/dcat-admin/images/weixinpay.jpg');
+                        $column->row($cover_card1->render());
+                        
+
+                    });
+                });
     }
 
     /**
