@@ -188,6 +188,18 @@ $form->datetimeRangePicker('start_at', 'end_at', '活动时间');
 $form->dateRangePicker('start_date', 'end_date', '活动日期');   // 回显自动截断时间部分
 ```
 
+**hourPicker 时刻选择器（v3.0.25+，自 fithub 扩展移植）**：点击弹层、按凌晨/上午/下午/晚上分组平铺时刻小按钮（非滚轮），中文零配置。值 =「HH:MM」与 time 字段同格式（后端零改动）；选中回填触发框并高亮，default/编辑回显渲染时即高亮，支持清空（存空字符串）：
+
+```php
+$form->hourPicker('open_time', '开门时间')->default('09:00')->step(30);
+```
+
+| 方法 | 说明 |
+|------|------|
+| `step(int $minutes)` | 档位间隔（分钟），默认 60 整小时；可选 10/15/30 等（须能整除 60，非法回退 60） |
+| `hideSmallHours()` | 隐藏凌晨组（00:00~05:59 不进候选；已有值恰在凌晨时回显文本保留，仅按钮不出现） |
+| `placeholder(string)` | 触发框空态文案，默认「选择时间」 |
+
 ## 七、上传类字段（WebUploader）
 
 源码 `Field/File.php` + `UploadField` + `WebUploader` trait。
