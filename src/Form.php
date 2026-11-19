@@ -51,6 +51,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @method Field\Date date($column, $label = '')
  * @method Field\Datetime datetime($column, $label = '')
  * @method Field\Time time($column, $label = '')
+ * @method Field\HourPicker hourPicker($column, $label = '')
  * @method Field\Year year($column, $label = '')
  * @method Field\Month month($column, $label = '')
  * @method Field\DateRange dateRange($start, $end, $label = '')
@@ -137,6 +138,7 @@ class Form implements Renderable {
         'wangEditor'          => Field\WangEditor::class,
         'email'               => Field\Email::class,
         'hidden'              => Field\Hidden::class,
+        'hourPicker'          => Field\HourPicker::class,
         'id'                  => Field\Id::class,
         'ip'                  => Field\Ip::class,
         'map'                 => Field\Map::class,
