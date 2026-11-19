@@ -97,53 +97,101 @@ function extend(Dcat) {
         return new Loading(Dcat, opt);
     };
 
-    // 按钮加载状态
-    $.fn.buttonLoading = function (start) {
-        let $this = $(this),
-            loadingId = $this.attr('data-loading'),
-            content;
-
-        if (start === false) {
-            if (! loadingId) {
-                return $this;
-            }
-
-            $this.find('.waves-ripple').remove();
-
-            return $this
-                .removeClass('disabled btn-loading waves-effect')
-                .removeAttr('disabled')
-                .removeAttr('data-loading')
-                .html(
-                    $this.find('.' + loadingId).html()
-                );
-        }
-
-        if (loadingId) {
-            return $this;
-        }
-
-        content = $this.html();
-
-        loadingId = 'ld-'+Dcat.helpers.random();
-
-        let loading = `<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>`;
+    // 按钮加载状态。
+    // 宿主解析（统一三点动画语义，底层根治）：
+    //  1) 自身带 .btn / .layui-layer-btn0 / .layui-layer-btn1 → 自身即宿主
+    //     （Form 提交、Pjax、DialogForm 提交按钮等既有调用，行为不变）；
+    //  2) 自身无按钮类但内部有 → 动画施加到内部第一个真实按钮（Modal 按钮
+    //     wrapper .dcat-wmodal-toggle 场景）：三点动画出现在按钮中间且按钮
+    //     盒保留（与 enableDialogCreate 原生表现一致），不再把整个按钮挪进
+    //     隐藏 div（旧实现按钮消失、布局塌陷）；
+    //  3) 内部也无按钮（纯文本/任意 HTML）→ 追加模式：原内容原样保留，仅
+    //     末尾追加小号 spinner，加载完摘除——零布局塌陷。
+    //  状态标记（data-loading）一律写在宿主上；start/stop 双向对齐解析，
+    //  对外壳调用 stop 自动下钻（DialogForm 持有的是外壳引用）。
+    function findHost($el) {
         let btnClass = ['btn', 'layui-layer-btn0', 'layui-layer-btn1'];
 
         for (let i in btnClass) {
-            if ($this.hasClass(btnClass[i])) {
-                loading = LOADING_SVG[0].replace('{color}', 'currentColor').replace('{width}', '50px;height:11px;');
+            if ($el.hasClass(btnClass[i])) {
+                return $el;
             }
         }
 
-        return $this
-            .addClass('disabled btn-loading')
-            .attr('disabled', true)
-            .attr('data-loading', loadingId)
-            .html(`
-<div class="${loadingId}" style="display:none">${content}</div>
-${loading}
-`);
+        let $inner = $el.find('.btn, .layui-layer-btn0, .layui-layer-btn1').first();
+
+        return $inner.length ? $inner : null;
+    }
+
+    $.fn.buttonLoading = function (start) {
+        this.each(function () {
+            let $this = $(this);
+
+            if (start === false) {
+                let loadingId = $this.attr('data-loading');
+
+                if (! loadingId) {
+                    // 外壳调用对齐：start 时状态写在了内部真实按钮上
+                    let $inner = findHost($this);
+
+                    if ($inner && $inner[0] !== $this[0]) {
+                        $inner.buttonLoading(false);
+                    }
+
+                    return;
+                }
+
+                $this.find('.waves-ripple').remove();
+
+                let $saved = $this.find('.' + loadingId);
+
+                $this.removeClass('disabled btn-loading waves-effect')
+                    .removeAttr('disabled')
+                    .removeAttr('data-loading');
+
+                if ($saved.length) {
+                    // 替换模式（按钮宿主）：还原原始内容
+                    $this.html($saved.html());
+                } else {
+                    // 追加模式（纯文本宿主）：仅摘除追加的 spinner
+                    $this.find('.btn-loading-append').remove();
+                }
+
+                return;
+            }
+
+            let $host = findHost($this),
+                $target = $host || $this;
+
+            // 加载中防重入（状态标记在宿主上，外壳重复调用同样命中）
+            if ($target.attr('data-loading')) {
+                return;
+            }
+
+            let content = $target.html();
+
+            let loadingId = 'ld-' + Dcat.helpers.random();
+
+            let loading = $host
+                // 按钮宿主：三点脉动动画（50px×11px SVG），按钮盒保留
+                ? LOADING_SVG[0].replace('{color}', 'currentColor').replace('{width}', '50px;height:11px;')
+                // 纯文本宿主：小号 spinner（追加模式，原文不动）
+                : '<span class="btn-loading-append spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>';
+
+            $target.addClass('disabled btn-loading')
+                .attr('disabled', true)
+                .attr('data-loading', loadingId);
+
+            if ($host) {
+                // 替换模式：原内容存隐藏 div，恢复时还原
+                $target.html(`<div class="${loadingId}" style="display:none">${content}</div>${loading}`);
+            } else {
+                // 追加模式：原文保留，末尾追加
+                $target.append(loading);
+            }
+        });
+
+        return this;
     }
 
 }

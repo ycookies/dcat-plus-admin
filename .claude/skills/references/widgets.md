@@ -146,6 +146,12 @@ Box::make('通知', $renderable)->solid()->collapsable()->removable();
 > 普通 Renderable 组件，如 `->body('<b>...</b>')` 或 `->body(Card::make())`）
 > 走原生 layer 通道。onShow/onShown → 打开时机、onHide/onHidden → 关闭时机。
 >
+> **按钮 loading 统一三点动画**：触发按钮点击后有异步等待时（DialogForm
+> 通道），`buttonLoading` 自动下钻把三点脉动动画落在内部真实 `.btn` 上
+> （按钮盒保留、外壳不动，与 enableDialogCreate 原生表现一致）；纯文本
+> 触发器（内部无 `.btn`）原内容原样保留、仅末尾追加小号 spinner——不
+> 隐藏/替换任何已有内容，零布局塌陷。
+>
 > **统一弹窗配置（单一事实源 `admin.layout.dialog`）**：同步内容/异步
 > 内容/Form::dialog 三条链路的默认值全部由此派生，不再各自为政——
 > `destroy_on_close`（关闭即销毁）、`shade`（遮罩，false=无灰底）、
