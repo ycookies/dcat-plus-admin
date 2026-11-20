@@ -380,6 +380,7 @@ helpers.enable              true
 
 permission.enable           true
 permission.except           ['/', 'auth/login', 'auth/logout', 'auth/setting']
+permission.role_editor_form 'new'   // 角色编辑表单：new=Blade 权限矩阵（默认）/ legacy=经典 Dcat Form 树表单；切换后须 config:clear
 
 menu.cache.enable           false
 menu.cache.store            'file'
