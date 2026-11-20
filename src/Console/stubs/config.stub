@@ -265,8 +265,8 @@ return [
             'token_ttl' => 3600,
         ],
 
-        // 角色编辑表单：new 使用路由权限矩阵（Blade 页面）；
-        // legacy 使用经典 Dcat 表单（权限/菜单树）。
+        // 角色编辑表单：默认 'new'（路由权限矩阵 Blade 页面）；
+        // 如需旧版表单（权限/菜单树），将值改为 'legacy'。
         'role_editor_form' => 'new',
 
     ],
