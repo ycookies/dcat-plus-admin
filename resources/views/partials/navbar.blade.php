@@ -73,7 +73,7 @@
 
     <div class="navbar-wrapper">
         <div class="navbar-container content">
-            @if($menu_style !== 'horizontal_menu')
+            @if($menu_style !== 'horizontal_menu' && $menu_style !== 'top_side_menu')
             <div class="mr-auto float-left bookmark-wrapper d-flex align-items-center">
                 <ul class="nav navbar-nav">
                     <li class="nav-item mr-auto">
@@ -87,6 +87,9 @@
 
             <div class="navbar-collapse d-flex justify-content-between">
                 <div class="navbar-left d-flex align-items-center">
+                    @if($menu_style === 'top_side_menu')
+                        @include('admin::partials.top-side-menu.top-bar')
+                    @endif
                     {!! Dcat\Admin\Admin::navbar()->render('left') !!}
                 </div>
 
@@ -358,6 +361,10 @@
                     <label class="lc-switch-label">
                         <input type="radio" name="menu_style" value="two_col_menu" {{ $menu_style === 'two_col_menu' ? 'checked' : '' }}>
                         <span>双栏菜单</span>
+                    </label>
+                    <label class="lc-switch-label">
+                        <input type="radio" name="menu_style" value="top_side_menu" {{ $menu_style === 'top_side_menu' ? 'checked' : '' }}>
+                        <span>顶栏菜单</span>
                     </label>
                 </div>
             </div>

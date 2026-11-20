@@ -1,0 +1,130 @@
+/**
+ * 顶栏菜单模式（menu_style = top_side_menu）：顶栏一级 + 左侧二级
+ * 样式全部限定在 body.top-side-menu 作用域内，不影响其他菜单模式
+ */
+
+/* ==================== 顶栏一级菜单条 ==================== */
+/* 约束 navbar-left 为可收缩 flex 项（默认 min-width:auto 会按 max-content 撑爆固定 navbar），
+   使一级菜单条在 navbar 内横向滚动，navbar-right 保持原位 */
+body.top-side-menu .navbar .navbar-left {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* 右侧图标区禁止被 flex 收缩挤压（否则内部 ul 换行竖排、collapse 被撑高） */
+body.top-side-menu .navbar .navbar-right {
+    flex-shrink: 0;
+}
+
+body.top-side-menu .ts-top-menu {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0 10px;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+body.top-side-menu .ts-top-menu::-webkit-scrollbar {
+    height: 3px;
+}
+
+body.top-side-menu .ts-top-menu::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, .15);
+    border-radius: 3px;
+}
+
+body.top-side-menu .ts-top-item {
+    margin: 0 2px;
+}
+
+body.top-side-menu .ts-top-item > .ts-top-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    white-space: nowrap;
+    border-radius: .25rem;
+    color: inherit;
+    opacity: .75;
+}
+
+body.top-side-menu .ts-top-item > .ts-top-link i {
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+body.top-side-menu .ts-top-item > .ts-top-link:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, .04);
+}
+
+body.top-side-menu .ts-top-item > .ts-top-link .ts-top-label {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 激活态：底部高亮条 + 文字加深（颜色跟随 navbar 配色） */
+body.top-side-menu .ts-top-item > .ts-top-link {
+    position: relative;
+}
+
+body.top-side-menu .ts-top-item.active > .ts-top-link {
+    opacity: 1;
+    font-weight: 600;
+}
+
+body.top-side-menu .ts-top-item.active > .ts-top-link::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 2px;
+    height: 3px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: .85;
+}
+
+/* ==================== 左侧二级面板 ==================== */
+body.top-side-menu .ts-sidebar-panels .ts-panel {
+    display: none;
+}
+
+body.top-side-menu .ts-sidebar-panels .ts-panel.active {
+    display: block;
+}
+
+body.top-side-menu .ts-sidebar-panels .ts-panel .nav-sidebar {
+    padding-top: 10px;
+}
+
+/* 面板组标题 */
+body.top-side-menu .ts-panel-title {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px 6px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: .65;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.top-side-menu .ts-panel-title i {
+    margin-right: 8px;
+}
+
+/* ==================== 小屏降级 ==================== */
+@media (max-width: 991.98px) {
+    body.top-side-menu .ts-top-label {
+        max-width: 96px;
+    }
+}

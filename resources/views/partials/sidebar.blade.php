@@ -71,54 +71,9 @@
 {{-- ==================== 双栏菜单模式 ==================== --}}
 @if($menuStyle === 'two_col_menu')
 @php
-    // 获取 Menu 单例（bootstrap.php 中的 Admin::menu()->add() 已在同一个实例上调用）
+    // 获取 Menu 单例，合并数据库菜单 + add() 动态菜单（合并/重编号逻辑统一收口在 Menu::getMergedNodes()）
     $menuBuilder = \Dcat\Admin\Admin::menu();
-    // 确保 register() 已执行（注册默认 section + helpers）
-    $menuBuilder->register();
-
-    // 获取数据库菜单
-    $menuModel = config('admin.database.menu_model');
-    $allNodes = (new $menuModel())->allNodes()->toArray();
-
-    // 合并所有通过 add() 动态添加的菜单（含 bootstrap.php 中的自定义菜单 + Helpers）
-    // 【关键】分别重新编号每个来源的 ID，避免不同来源 ID 冲突
-    // getAddedNodes() 返回二维数组，每个 add() 调用是一组独立的节点
-    $addedNodeGroups = $menuBuilder->getAddedNodes();
-
-    // 数据库节点：重新编号，ID 从 1 开始
-    $globalId = 0;
-    $dbIdMap = []; // old_id => new_id
-    foreach ($allNodes as &$dbNode) {
-        $globalId++;
-        $dbIdMap[(int)$dbNode['id']] = $globalId;
-        $dbNode['_old_parent_id'] = (int)$dbNode['parent_id'];
-        $dbNode['id'] = $globalId;
-    }
-    unset($dbNode);
-    // 更新数据库节点的 parent_id
-    foreach ($allNodes as &$dbNode) {
-        $oldPid = $dbNode['_old_parent_id'];
-        $dbNode['parent_id'] = ($oldPid === 0) ? 0 : ($dbIdMap[$oldPid] ?? 0);
-        unset($dbNode['_old_parent_id']);
-    }
-    unset($dbNode);
-
-    // 动态节点：按组重新编号，每组独立的 ID 映射
-    foreach ($addedNodeGroups as $group) {
-        $groupOldToNew = []; // 组内的 old_id => new_id
-        // 第一步：分配新 ID
-        foreach ($group as $gNode) {
-            $globalId++;
-            $groupOldToNew[(int)$gNode['id']] = $globalId;
-        }
-        // 第二步：更新 id 和 parent_id
-        foreach ($group as $gNode) {
-            $oldPid = (int)$gNode['parent_id'];
-            $gNode['id'] = $groupOldToNew[(int)$gNode['id']];
-            $gNode['parent_id'] = ($oldPid === 0) ? 0 : ($groupOldToNew[$oldPid] ?? 0);
-            $allNodes[] = $gNode;
-        }
-    }
+    $allNodes = $menuBuilder->getMergedNodes();
 
     $menus = \Dcat\Admin\Support\Helper::buildNestedArray($allNodes);
     $builder = $menuBuilder;
@@ -140,6 +95,60 @@
     </div>
 </div>
 <script src="{{ admin_asset('vendor/dcat-admin/dcat/plugins/two-col-menu/js/index.js') }}"></script>
+
+{{-- ==================== 顶栏菜单模式（顶栏一级 + 左侧二级） ==================== --}}
+@elseif($menuStyle === 'top_side_menu')
+@php
+    // 获取 Menu 单例，合并数据库菜单 + add() 动态菜单（合并/重编号逻辑统一收口在 Menu::getMergedNodes()）
+    $menuBuilder = \Dcat\Admin\Admin::menu();
+    $allNodes = $menuBuilder->getMergedNodes();
+
+    $menus = \Dcat\Admin\Support\Helper::buildNestedArray($allNodes);
+    $builder = $menuBuilder;
+    // 服务端按当前 path 推断激活的顶层项（与 Menu::isActive 同源；JS 端会在每次 pjax 后按 pathname 重算）
+    $activeGroupId = $menuBuilder->inferActiveItemId($menus);
+@endphp
+<link rel="stylesheet" href="{{ admin_asset('vendor/dcat-admin/dcat/plugins/top-side-menu/css/index.css') }}">
+<div class="main-menu">
+    <div class="main-menu-content">
+        <aside class="main-sidebar shadow {{ $configData['sidebar_style'] }} top-side-menu-sidebar">
+
+            <div class="navbar-header">
+                <ul class="nav navbar-nav flex-row">
+                    <li class="nav-item mr-auto">
+                        <a href="{{ admin_url('/') }}" class="navbar-brand waves-effect waves-light">
+                            <span class="logo-mini">{!! config('admin.logo-mini') !!}</span>
+                            <span class="logo-lg">{!! config('admin.logo') !!}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="p-0 sidebar pb-3 ts-sidebar-panels">
+                {{-- 保留扩展注入点 --}}
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
+                    {!! admin_section(Dcat\Admin\Admin::SECTION['LEFT_SIDEBAR_MENU_TOP']) !!}
+                </ul>
+
+                @foreach($menus as $item)
+                    @continue(! $builder->visible($item))
+                    <div class="ts-panel {{ $item['id'] == $activeGroupId ? 'active' : '' }}" data-panel-id="{{ $item['id'] }}">
+                        <div class="ts-panel-title" title="{{ $builder->translate($item['title']) }}">
+                            <i class="{{ $item['icon'] ?: config('admin.menu.default_icon', 'feather icon-circle') }}"></i>
+                            <span>{{ $builder->translate($item['title']) }}</span>
+                        </div>
+                        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
+                            @foreach($item['children'] ?? [] as $child)
+                                @include('admin::partials.menu', ['item' => $child, 'builder' => $builder])
+                            @endforeach
+                        </ul>
+                    </div>
+                @endforeach
+            </div>
+        </aside>
+    </div>
+</div>
+<script src="{{ admin_asset('vendor/dcat-admin/dcat/plugins/top-side-menu/js/index.js') }}"></script>
 
 {{-- ==================== 水平菜单模式 ==================== --}}
 @elseif($menuStyle === 'horizontal_menu' || ($configData['horizontal_menu'] ?? false))

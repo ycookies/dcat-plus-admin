@@ -135,6 +135,21 @@ middleware group `admin`: admin.auth, admin.pjax, admin.bootstrap, admin.permiss
 
 自定义主题: Color::extend('我的主题', ['primary' => '#xxx', ...])
 
+## 菜单模式 (menu_style)
+
+`layout_config` 设置分组的 `menu_style` 四态，navbar「布局配置」滑出面板可视化切换（`LayoutConfigController::save()` 白名单，Content::applyClasses() 映射 body class）：
+
+| 值 | body class | 渲染 |
+|----|-----------|------|
+| default_menu（默认） | - | 左侧树形 sidebar，LEFT_SIDEBAR_MENU 三段 section |
+| horizontal_menu | horizontal-menu | sidebar 替换为 `.main-horizontal-sidebar` 横条，主 navbar 跳过（partials/menu.blade.php 按 `admin.layout.horizontal_menu` 输出 BS4 dropdown） |
+| two_col_menu | two-col-menu | 左图标栏+右详情栏，插件 `dist/dcat/plugins/two-col-menu/`，partials/two-col-menu/* |
+| top_side_menu | top-side-menu | 顶栏一级（navbar-left 内 `.ts-top-menu`，全部纯切换链接）+ 左侧二级面板（`.ts-panel` 按组渲染全部、CSS 控制显隐），插件 `dist/dcat/plugins/top-side-menu/`，partials/top-side-menu/top-bar.blade.php；本模式隐藏汉堡、强制 sidebar 展开 |
+
+**top_side_menu 要点**：数据统一走 `Menu::getMergedNodes()`（DB allNodes + add() 动态节点合并重编号，单例缓存；two_col 也复用它）；服务端 `Menu::inferActiveItemId()` 按 path 推断激活组（isActive 同源）；JS 每次整页加载一次（sidebar 在 pjax 容器外），`pjax:complete` 后按 pathname 精确匹配重算激活（localStorage 兜底 → 第一组）；`linkPath()` 必须排除 `href="#"`（父项 fragment 会解析成当前页路径导致全面板误命中）。激活优先级：pathname 匹配 > localStorage(topSideMenuState) > 第一组。
+
+**已知限制**：top_side 与 iframe-tabs 组合未深度适配（点击高亮可用，pathname 重算不触发）；demo/flat 菜单（一级多子级少）下顶栏拥挤属数据形态问题，层级菜单才能体现「顶栏一级+左侧二级」效果。
+
 ## Widget 完整目录
 
 | 类 | 说明 | 关键方法 |
