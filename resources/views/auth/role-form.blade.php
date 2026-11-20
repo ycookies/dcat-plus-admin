@@ -43,7 +43,7 @@
 
         <main class="role-page__content">
             <section class="role-panel role-panel--basic">
-                <div class="box-header with-border">
+                {{-- <div class="box-header with-border">
                     <h3 class="box-title">{{ trans('admin.role_basic_information') }}</h3>
                     @if($editing)
                         <div class="role-panel__timestamps text-muted">
@@ -51,7 +51,7 @@
                             <span class="ml-2">{{ trans('admin.updated_at') }} {{ $role->updated_at }}</span>
                         </div>
                     @endif
-                </div>
+                </div> --}}
 
                 <div class="role-panel__body role-fields">
                     <div class="role-field">
@@ -93,6 +93,13 @@
                         </div>
                         @error('name')<div class="role-field__error">{{ $message }}</div>@enderror
                     </div>
+
+                    @if($editing)
+                        <div class="role-field role-field--meta">
+                            <span>{{ trans('admin.created_at') }} {{ $role->created_at }}</span>
+                            <span class="ml-3">{{ trans('admin.updated_at') }} {{ $role->updated_at }}</span>
+                        </div>
+                    @endif
                 </div>
             </section>
 
@@ -223,7 +230,6 @@
     }
     /* 面板头直接用主题 .box-header.with-border + .box-title，不再自定义 */
     .role-panel .box-header .box-title { line-height: 30px; }
-    .role-panel__timestamps { margin-left: auto; font-size: 12px; }
     .role-panel__body { padding: 18px; }
     .role-panel__body--flush { padding: 0; }
 
@@ -248,6 +254,7 @@
     .role-field__help, .role-field__error { display: flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 12.5px; }
     .role-field__help { color: var(--role-muted); }
     .role-field__error { color: var(--role-danger); }
+    .role-field--meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 0; margin-top: -6px; color: var(--role-muted); font-size: 12.5px; }
 
     .role-page__actions {
         position: sticky; z-index: 20; bottom: 0;
@@ -283,7 +290,6 @@
         .role-page__hero-meta { display: none; }
         .role-page__hero-icon { width: 44px; height: 44px; flex-basis: 44px; border-radius: .25rem; }
         .role-page__hero h1 { font-size: 20px; }
-        .role-panel__timestamps { display: none; }
         .role-panel__body { padding: 14px; }
         .role-fields { grid-template-columns: 1fr; gap: 13px; }
         .role-page__actions { padding: 10px; }
