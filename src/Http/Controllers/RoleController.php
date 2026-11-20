@@ -78,7 +78,7 @@ class RoleController extends AdminController
      * Laravel Blade role creation page. No Dcat Form instance is involved.
      *
      * The "legacy" mode renders the classic Dcat form instead, configured
-     * via admin.permission.role_editor.form.
+     * via admin.permission.role_editor_form.
      */
     public function create(Content $content)
     {
@@ -137,12 +137,12 @@ class RoleController extends AdminController
 
     protected function usingLegacyForm(): bool
     {
-        return config('admin.permission.role_editor.form', 'new') === 'legacy';
+        return config('admin.permission.role_editor_form', 'new') === 'legacy';
     }
 
     /**
      * The classic Dcat form backed by permission/menu trees, kept for the
-     * "legacy" mode of admin.permission.role_editor.form.
+     * "legacy" mode of admin.permission.role_editor_form.
      */
     protected function legacyForm()
     {
