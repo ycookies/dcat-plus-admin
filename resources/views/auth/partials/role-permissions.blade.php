@@ -116,8 +116,8 @@
                                 <div class="rp-resource-card__identity">
                                     <span class="rp-resource-card__copy">
                                         <span class="rp-resource-card__heading">
-                                            <strong>{{ $resource['title'] }}</strong>
-                                            <code>/{{ $resource['uri'] }}</code>
+                                            <strong title="{{ $resource['title'] }}">{{ $resource['title'] }}</strong>
+                                            <code title="/{{ $resource['uri'] }}">/{{ $resource['uri'] }}</code>
                                         </span>
                                         @if($resource['description'])
                                             <small>{{ $resource['description'] }}</small>
