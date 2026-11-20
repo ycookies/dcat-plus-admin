@@ -258,7 +258,7 @@
 
     .role-page__actions {
         position: sticky; z-index: 20; bottom: 0;
-        display: flex; justify-content: space-between; align-items: center;
+        display: flex; justify-content: center; align-items: center;
         gap: 12px; padding: 13px 18px; margin-top: 16px;
         border: 1px solid var(--role-border); border-radius: .25rem;
         background: var(--role-surface);
