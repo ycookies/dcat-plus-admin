@@ -8,7 +8,7 @@
             @method('PUT')
         @endif
 
-        <header class="role-page__hero">
+        {{-- <header class="role-page__hero">
             <div class="role-page__identity">
                 <span class="role-page__hero-icon"><i class="feather icon-shield"></i></span>
                 <div>
@@ -25,7 +25,7 @@
                     <span class="role-page__id-badge">ID {{ $role->getKey() }}</span>
                 @endif
             </div>
-        </header>
+        </header> --}}
 
         @if($errors->any())
             <div class="role-page__errors">
@@ -43,16 +43,12 @@
 
         <main class="role-page__content">
             <section class="role-panel role-panel--basic">
-                <div class="role-panel__header">
-                    <span class="role-panel__number">01</span>
-                    <div class="role-panel__heading">
-                        <h2>{{ trans('admin.role_basic_information') }}</h2>
-                        <p>{{ trans('admin.slug') }} · {{ trans('admin.name') }}</p>
-                    </div>
+                <div class="box-header with-border">
+                    <h3 class="box-title">{{ trans('admin.role_basic_information') }}</h3>
                     @if($editing)
-                        <div class="role-panel__timestamps">
+                        <div class="role-panel__timestamps text-muted">
                             <span>{{ trans('admin.created_at') }} {{ $role->created_at }}</span>
-                            <span>{{ trans('admin.updated_at') }} {{ $role->updated_at }}</span>
+                            <span class="ml-2">{{ trans('admin.updated_at') }} {{ $role->updated_at }}</span>
                         </div>
                     @endif
                 </div>
@@ -102,12 +98,8 @@
 
             <div class="role-page__authorization-grid {{ $bindMenu ? '' : 'role-page__authorization-grid--single' }}">
                 <section class="role-panel">
-                    <div class="role-panel__header">
-                        <span class="role-panel__number">02</span>
-                        <div class="role-panel__heading">
-                            <h2>{{ trans('admin.permissions') }}</h2>
-                            <p>{{ trans('admin.resource_routes') }} · {{ trans('admin.single_routes') }}</p>
-                        </div>
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ trans('admin.permissions') }}</h3>
                     </div>
                     <div class="role-panel__body role-panel__body--flush">
                         @include('admin::auth.partials.role-permissions', $permissionEditor)
@@ -116,12 +108,8 @@
 
                 @if($bindMenu)
                     <section class="role-panel role-panel--menu">
-                        <div class="role-panel__header">
-                            <span class="role-panel__number">03</span>
-                            <div class="role-panel__heading">
-                                <h2>{{ trans('admin.menu') }}</h2>
-                                <p>{{ trans('admin.role_menu_editor_help') }}</p>
-                            </div>
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ trans('admin.menu') }}</h3>
                         </div>
                         <div class="role-panel__body role-panel__body--flush">
                             @include('admin::auth.partials.role-menus', $menuEditor)
@@ -233,22 +221,9 @@
         background: var(--role-surface);
         box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
     }
-    .role-panel__header {
-        display: flex; align-items: center; gap: 12px;
-        min-height: 68px; padding: 13px 18px;
-        border-bottom: 1px solid var(--role-border);
-        background: var(--role-surface-soft);
-    }
-    .role-panel__number {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 36px; height: 36px; flex: 0 0 36px;
-        border-radius: .2rem; color: var(--role-primary);
-        background: var(--role-primary-soft); font-size: 13px; font-weight: 800;
-    }
-    .role-panel__heading { min-width: 0; }
-    .role-panel__heading h2 { margin: 0; color: var(--role-text); font-size: 17px; line-height: 1.35; font-weight: 750; }
-    .role-panel__heading p { margin: 2px 0 0; color: var(--role-muted); font-size: 13px; }
-    .role-panel__timestamps { margin-left: auto; display: grid; gap: 2px; text-align: right; color: var(--role-muted); font-size: 12px; }
+    /* 面板头直接用主题 .box-header.with-border + .box-title，不再自定义 */
+    .role-panel .box-header .box-title { line-height: 30px; }
+    .role-panel__timestamps { margin-left: auto; font-size: 12px; }
     .role-panel__body { padding: 18px; }
     .role-panel__body--flush { padding: 0; }
 
@@ -308,7 +283,6 @@
         .role-page__hero-meta { display: none; }
         .role-page__hero-icon { width: 44px; height: 44px; flex-basis: 44px; border-radius: .25rem; }
         .role-page__hero h1 { font-size: 20px; }
-        .role-panel__header { padding: 12px 14px; }
         .role-panel__timestamps { display: none; }
         .role-panel__body { padding: 14px; }
         .role-fields { grid-template-columns: 1fr; gap: 13px; }
