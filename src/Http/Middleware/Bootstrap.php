@@ -340,8 +340,16 @@ if (!window.__dcatStackedModalPatch) {
             if (url && asyncCtx && asyncCtx.isConnected) {
                 var $ctxTable = jQuery(asyncCtx);
                 asyncCtx = null;
-                if (reloadGridInPlace($ctxTable)) {
-                    return;
+                // 仅真正的异步上下文才原地重载：async-table（自带 table:load 链）、
+                // 弹窗内 grid（layer/modal 引擎承载）、或带 data-current 的接管容器。
+                // 普通页面自身的 dcat-grid-con 是标准表格盒子（无 data-current，
+                // 兜底从分页/表单反推的 URL 经 asyncRender 裸 ajax 拉取，不带
+                // X-PJAX 头会拉回整页嵌套进表格盒子）→ 必须透传 pjax 整页刷新
+                var inDialog = $ctxTable.closest('.layui-layer, .modal').length > 0;
+                if ($ctxTable.hasClass('async-table') || inDialog || $ctxTable.attr('data-current')) {
+                    if (reloadGridInPlace($ctxTable)) {
+                        return;
+                    }
                 }
             }
             if (url) {
