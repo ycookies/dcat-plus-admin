@@ -116,8 +116,8 @@
                                 <div class="rp-resource-card__identity">
                                     <span class="rp-resource-card__copy">
                                         <span class="rp-resource-card__heading">
-                                            <strong title="{{ $resource['title'] }}">{{ $resource['title'] }}</strong>
-                                            <code title="/{{ $resource['uri'] }}">/{{ $resource['uri'] }}</code>
+                                            <strong data-tip="{{ $resource['title'] }}">{{ $resource['title'] }}</strong>
+                                            <code data-tip="/{{ $resource['uri'] }}">/{{ $resource['uri'] }}</code>
                                         </span>
                                         @if($resource['description'])
                                             <small>{{ $resource['description'] }}</small>
@@ -650,6 +650,28 @@
 
     $root.find('.tab-pane').each(function () {
         refreshPane($(this));
+    });
+
+    // 省略号截断的文本悬停时用 layer.tips 显示全文
+    // （内嵌浏览器不渲染原生 title，layer 与后台弹窗同一体系）。
+    // layer 随页面尾部资产加载，此处需等 Dcat.ready。
+    Dcat.ready(function () {
+        var tipsNamespace = '.rolePermissionTips',
+            tipIndex = null;
+
+        $root.off(tipsNamespace)
+            .on('mouseenter' + tipsNamespace, '[data-tip]', function () {
+                var text = $.trim($(this).data('tip'));
+                if (! text) return;
+
+                tipIndex = layer.tips(text, this, { tips: 3, time: 0 });
+            })
+            .on('mouseleave' + tipsNamespace, '[data-tip]', function () {
+                if (tipIndex !== null) {
+                    layer.close(tipIndex);
+                    tipIndex = null;
+                }
+            });
     });
 })(window.jQuery);
 </script>
