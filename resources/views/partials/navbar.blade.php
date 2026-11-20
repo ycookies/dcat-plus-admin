@@ -73,7 +73,7 @@
 
     <div class="navbar-wrapper">
         <div class="navbar-container content">
-            @if($menu_style !== 'horizontal_menu' && $menu_style !== 'top_side_menu')
+            @if($menu_style !== 'horizontal_menu')
             <div class="mr-auto float-left bookmark-wrapper d-flex align-items-center">
                 <ul class="nav navbar-nav">
                     <li class="nav-item mr-auto">

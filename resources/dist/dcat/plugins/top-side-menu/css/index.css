@@ -133,6 +133,16 @@ body.top-side-menu .ts-panel-title i {
     margin-right: 8px;
 }
 
+/* 侧栏折叠态（汉堡按钮切换）：面板标题只留图标，与 sidebar-mini 行为一致 */
+body.top-side-menu.sidebar-collapse .ts-panel-title {
+    justify-content: center;
+    padding: 12px 8px 6px;
+}
+
+body.top-side-menu.sidebar-collapse .ts-panel-title span {
+    display: none;
+}
+
 /* ==================== 小屏降级 ==================== */
 @media (max-width: 991.98px) {
     body.top-side-menu .ts-top-label {

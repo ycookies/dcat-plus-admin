@@ -527,9 +527,8 @@ class Content implements Renderable
             $data['horizontal_menu'] = false;
             $data['body_class'][] = 'two-col-menu';
         } elseif ($menuStyle === 'top_side_menu') {
-            // 顶栏一级 + 左侧二级：侧栏必须保持展开（本模式隐藏汉堡按钮，无法再切换）
+            // 顶栏一级 + 左侧二级（保留汉堡按钮，侧栏折叠能力与默认模式一致）
             $data['horizontal_menu'] = false;
-            $data['sidebar_collapsed'] = false;
             $data['body_class'][] = 'top-side-menu';
         }
 
