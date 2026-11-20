@@ -31,7 +31,8 @@
                                class="icon-nav-link {!! $builder->isActive($item) ? 'active' : '' !!}"
                                data-id="{{ $item['id'] ?? '' }}"
                                title="{!! $builder->translate($item['title']) !!}">
-                                <i class="{{ $item['icon'] ?: $defaultIcon }}"></i>
+                                {{-- 与 menu-item/sub-menu 同款 fa fa-fw 前缀，兼容裸值图标（如 fa-font） --}}
+                                <i class="fa fa-fw {{ $item['icon'] ?: $defaultIcon }}"></i>
                                 <span class="icon-nav-text">{!! $builder->translate($item['title']) !!}</span>
                             </a>
                         </li>
