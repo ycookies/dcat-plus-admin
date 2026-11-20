@@ -134,7 +134,8 @@
                     @continue(! $builder->visible($item))
                     <div class="ts-panel {{ $item['id'] == $activeGroupId ? 'active' : '' }}" data-panel-id="{{ $item['id'] }}">
                         <div class="ts-panel-title" title="{{ $builder->translate($item['title']) }}">
-                            <i class="{{ $item['icon'] ?: config('admin.menu.default_icon', 'feather icon-circle') }}"></i>
+                            {{-- 与 partials/menu.blade.php 同款 fa fa-fw 前缀，兼容裸值图标 --}}
+                            <i class="fa fa-fw {{ $item['icon'] ?: config('admin.menu.default_icon', 'feather icon-circle') }}"></i>
                             <span>{{ $builder->translate($item['title']) }}</span>
                         </div>
                         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">

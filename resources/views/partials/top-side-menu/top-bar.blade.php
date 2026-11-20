@@ -12,7 +12,8 @@
         {{-- 顶栏只展示 parent_id=0 的一级菜单；所有项均为纯切换链接（与 learnku 示例同款 void(0)，pjax 安全），点击只切换左侧对应子菜单面板 --}}
         <li class="nav-item ts-top-item {{ $item['id'] == $tsActiveId ? 'active' : '' }}" data-id="{{ $item['id'] }}">
             <a class="nav-link ts-top-link" href="javascript:void(0);" data-id="{{ $item['id'] }}">
-                <i class="{{ $item['icon'] ?: $tsDefaultIcon }}"></i>
+                {{-- 与 partials/menu.blade.php 同款 fa fa-fw 前缀：兼容裸值图标（如 fa-font），feather 类靠后加载覆盖字体族不受影响 --}}
+                <i class="fa fa-fw {{ $item['icon'] ?: $tsDefaultIcon }}"></i>
                 <span class="ts-top-label" title="{{ $tsBuilder->translate($item['title']) }}">{{ $tsBuilder->translate($item['title']) }}</span>
             </a>
         </li>
