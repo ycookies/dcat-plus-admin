@@ -17,6 +17,13 @@ body.top-side-menu .navbar .navbar-right {
     flex-shrink: 0;
 }
 
+/* iframe-tabs 壳页（admin-iframe-tab-host）的插件 CSS 会把 .navbar-container 设为 flex，
+   .navbar-collapse 随之成为 flex 项，其 min-width:auto ≈ 内容 min-content 拒绝收缩，
+   会把 .navbar-right 顶出屏幕——放开收缩限制，恢复「顶栏滚动 + 右侧固定」布局 */
+body.top-side-menu .navbar .navbar-collapse {
+    min-width: 0;
+}
+
 body.top-side-menu .ts-top-menu {
     display: flex;
     flex-direction: row;

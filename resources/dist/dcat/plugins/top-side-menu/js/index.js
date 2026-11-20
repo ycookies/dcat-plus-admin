@@ -67,7 +67,9 @@ Dcat.ready(function () {
     }
 
     // ========== 按当前 pathname 重算激活状态 ==========
-    function syncByPath() {
+    // trustServer=true（整页加载时）：未命中 pathname 时信任服务端 inferActiveItemId 的渲染结果
+    //（覆盖顶栏一级直达场景）；pjax 重算时服务端标记已过期，不可信任
+    function syncByPath(trustServer) {
         var current = location.pathname.replace(/^\/+|\/+$/g, '');
         var matchedLink = null;
 
@@ -89,7 +91,11 @@ Dcat.ready(function () {
             return;
         }
 
-        // 未命中（如工作台等不在菜单内的页面）：localStorage 记忆 > 第一组
+        // 未命中（如工作台、顶栏一级直达页）：整页加载信任服务端推断 > localStorage 记忆 > 第一组
+        if (trustServer && $topItems.filter('.active').first().length) {
+            return;
+        }
+
         var state = loadState();
         if (state.groupId && $panelOf(state.groupId).length) {
             activateGroup(state.groupId);
@@ -126,8 +132,8 @@ Dcat.ready(function () {
     });
 
     // ========== 初始 + 每次 pjax 完成后重算 ==========
-    syncByPath();
+    syncByPath(true);
     $(document).on('pjax:complete', function () {
-        syncByPath();
+        syncByPath(false);
     });
 });
