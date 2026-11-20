@@ -2,6 +2,7 @@
 
 namespace Dcat\Admin\Http\Controllers;
 
+use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Http\Auth\Permission;
 use Dcat\Admin\Http\JsonResponse;
@@ -75,9 +76,19 @@ class RoleController extends AdminController
 
     /**
      * Laravel Blade role creation page. No Dcat Form instance is involved.
+     *
+     * The "legacy" mode renders the classic Dcat form instead, configured
+     * via admin.permission.role_editor.form.
      */
     public function create(Content $content)
     {
+        if ($this->usingLegacyForm()) {
+            return $content
+                ->title($this->title())
+                ->description(trans('admin.create'))
+                ->body($this->legacyForm());
+        }
+
         $roleModel = config('admin.database.roles_model');
 
         return $this->editor($content, new $roleModel(), false);
@@ -88,11 +99,22 @@ class RoleController extends AdminController
      */
     public function edit($id, Content $content)
     {
+        if ($this->usingLegacyForm()) {
+            return $content
+                ->title($this->title())
+                ->description(trans('admin.edit'))
+                ->body($this->legacyForm()->edit($id));
+        }
+
         return $this->editor($content, $this->findRole($id), true);
     }
 
     public function store()
     {
+        if ($this->usingLegacyForm()) {
+            return $this->legacyForm()->store();
+        }
+
         /** @var Request $request */
         $request = request();
         $roleModel = config('admin.database.roles_model');
@@ -103,10 +125,92 @@ class RoleController extends AdminController
 
     public function update($id)
     {
+        if ($this->usingLegacyForm()) {
+            return $this->legacyForm()->update($id);
+        }
+
         /** @var Request $request */
         $request = request();
 
         return $this->persist($request, $this->findRole($id), true);
+    }
+
+    protected function usingLegacyForm(): bool
+    {
+        return config('admin.permission.role_editor.form', 'new') === 'legacy';
+    }
+
+    /**
+     * The classic Dcat form backed by permission/menu trees, kept for the
+     * "legacy" mode of admin.permission.role_editor.form.
+     */
+    protected function legacyForm()
+    {
+        $with = ['permissions'];
+
+        if ($bindMenu = config('admin.menu.role_bind_menu', true)) {
+            $with[] = 'menus';
+        }
+
+        return Form::make(RoleRepository::with($with), function (Form $form) use ($bindMenu) {
+            $roleTable = config('admin.database.roles_table');
+            $connection = config('admin.database.connection');
+
+            $id = $form->getKey();
+
+            $form->display('id', 'ID');
+
+            $form->text('slug', trans('admin.slug'))
+                ->required()
+                ->creationRules(['required', "unique:{$connection}.{$roleTable}"])
+                ->updateRules(['required', "unique:{$connection}.{$roleTable},slug,$id"]);
+
+            $form->text('name', trans('admin.name'))->required();
+
+            $form->tree('permissions')
+                ->nodes(function () {
+                    $permissionModel = config('admin.database.permissions_model');
+                    $permissionModel = new $permissionModel();
+
+                    return $permissionModel->allNodes();
+                })
+                ->customFormat(function ($v) {
+                    if (! $v) {
+                        return [];
+                    }
+
+                    return array_column($v, 'id');
+                });
+
+            if ($bindMenu) {
+                $form->tree('menus', trans('admin.menu'))
+                    ->treeState(false)
+                    ->setTitleColumn('title')
+                    ->nodes(function () {
+                        $model = config('admin.database.menu_model');
+
+                        return (new $model())->allNodes();
+                    })
+                    ->customFormat(function ($v) {
+                        if (! $v) {
+                            return [];
+                        }
+
+                        return array_column($v, 'id');
+                    });
+            }
+
+            $form->display('created_at', trans('admin.created_at'));
+            $form->display('updated_at', trans('admin.updated_at'));
+
+            $roleModel = config('admin.database.roles_model');
+            if ($id == $roleModel::ADMINISTRATOR_ID) {
+                $form->disableDeleteButton();
+            }
+        })->saved(function () {
+            $model = config('admin.database.menu_model');
+            (new $model())->flushCache();
+        });
     }
 
     public function destroy($id)

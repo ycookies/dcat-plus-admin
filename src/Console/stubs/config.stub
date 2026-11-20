@@ -265,6 +265,19 @@ return [
             'token_ttl' => 3600,
         ],
 
+        // 角色权限编辑器。
+        'role_editor' => [
+            // 角色编辑表单：new 使用路由权限矩阵（Blade 页面）；
+            // legacy 使用经典 Dcat 表单（权限/菜单树）。
+            'form' => 'new',
+
+            // new 模式：勾选路由时自动创建缺失的权限记录。
+            'auto_create' => true,
+
+            // new 模式：菜单树级联勾选（父联动子）。
+            'menu_cascade' => true,
+        ],
+
     ],
 
     /*
