@@ -35,16 +35,20 @@ body.top-side-menu .ts-top-menu {
     padding: 0;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: thin;
+    /* 不设 scrollbar-width：标准属性会禁用下方 ::-webkit-scrollbar 伪元素定制（Chrome 新版行为），导致滚动条变回系统粗条 */
 }
 
 body.top-side-menu .ts-top-menu::-webkit-scrollbar {
-    height: 3px;
+    height: 2px;
+}
+
+body.top-side-menu .ts-top-menu::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 body.top-side-menu .ts-top-menu::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, .15);
-    border-radius: 3px;
+    background: rgba(0, 0, 0, .12);
+    border-radius: 2px;
 }
 
 body.top-side-menu .ts-top-item {
