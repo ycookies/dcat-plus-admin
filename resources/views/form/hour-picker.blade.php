@@ -42,5 +42,8 @@
                 <button type="button" class="hp-clear">✕ 清空</button>
             </div>
         </div>
+
+        @include('admin::form.help-block')
+
     </div>
 </div>
