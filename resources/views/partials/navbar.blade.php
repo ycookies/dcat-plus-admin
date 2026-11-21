@@ -1453,6 +1453,28 @@ code { color: {{ $tc['darker'] }} !important; }
             alert('请求失败，请重试');
         });
     });
+
+    // 汉堡按钮折叠状态回存 layout_config——与布局面板「侧边栏折叠」开关同一持久化通道。
+    // AdminLTE PushMenu 自身无持久化（enableRemember 默认关），汉堡点击此前是纯客户端
+    // 切换，刷新即丢；面板开关路径可存但汉堡不走。此处把两条入口收敛到同一配置源：
+    // 折叠/展开时把 sidebar_collapsed 回存，下次整页加载由服务端渲染 body class 还原。
+    // 仅桌面（≥992px）绑定：移动端 AdminLTE autoCollapse 的自动折叠不触发回存。
+    @if(Dcat\Admin\Admin::user() && Dcat\Admin\Admin::user()->isAdministrator())
+    $(document).on('collapsed.lte.pushmenu shown.lte.pushmenu', '[data-widget="pushmenu"]', function () {
+        if (window.innerWidth <= 992) return;
+        var collapsed = document.body.classList.contains('sidebar-collapse');
+        var fd = new FormData();
+        fd.append('sidebar_collapsed', collapsed ? '1' : '0');
+        fetch('{{ admin_url('dcat-sys/layout/save') }}', {
+            method: 'POST',
+            body: fd,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': (typeof Dcat !== 'undefined' && Dcat.token) ? Dcat.token : ''
+            }
+        }).catch(function () {});
+    });
+    @endif
 })();
 </script>
 {!! admin_section(Dcat\Admin\Admin::SECTION['NAVBAR_AFTER']) !!}
