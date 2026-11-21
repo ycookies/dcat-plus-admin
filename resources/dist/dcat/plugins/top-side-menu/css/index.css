@@ -143,6 +143,16 @@ body.top-side-menu.sidebar-collapse .ts-panel-title span {
     display: none;
 }
 
+/* 折叠态鼠标滑过侧栏临时展开：标题恢复 图标+文字（对齐子菜单 nav-link p 的 hover 行为） */
+body.top-side-menu.sidebar-collapse .main-sidebar:hover .ts-panel-title {
+    justify-content: flex-start;
+    padding: 12px 15px 6px;
+}
+
+body.top-side-menu.sidebar-collapse .main-sidebar:hover .ts-panel-title span {
+    display: inline;
+}
+
 /* ==================== 小屏降级 ==================== */
 @media (max-width: 991.98px) {
     body.top-side-menu .ts-top-label {
