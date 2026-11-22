@@ -56,6 +56,7 @@ class Panel implements Renderable
             'fields' => new Collection(),
             'tools'  => new Tools($this),
             'rows'   => $this->parent->rows(),
+            'tabs'   => new Collection(),
             'style'  => 'default',
             'title'  => trans('admin.detail'),
         ];
@@ -180,6 +181,19 @@ class Panel implements Renderable
     public function fill($fields)
     {
         $this->variables['fields'] = $fields;
+
+        return $this;
+    }
+
+    /**
+     * 设置页签分组数据，非空时模板以 nav-tabs 形式渲染
+     *
+     * @param  Collection  $tabs
+     * @return $this
+     */
+    public function tabs(Collection $tabs)
+    {
+        $this->variables['tabs'] = $tabs;
 
         return $this;
     }

@@ -1269,3 +1269,8 @@ body.dark-mode:not(.sidebar-separate) .main-sidebar .sidebar{
     max-width: 100%;
     height: auto;
 }
+
+/* 详情页 tab 分组：页签条与内容区间距 */
+.show-detail-tabs {
+    margin-bottom: .75rem;
+}

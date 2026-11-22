@@ -96,6 +96,20 @@ class Show implements Renderable
     protected $rows;
 
     /**
+     * 页签分组，由 tab() 定义
+     *
+     * @var \Illuminate\Support\Collection
+     */
+    protected $tabs;
+
+    /**
+     * 当前页签，tab() 闭包执行期间指向当前组
+     *
+     * @var \Illuminate\Support\Fluent|null
+     */
+    protected $currentTab;
+
+    /**
      * Show constructor.
      *
      * @param  mixed  $id  $id
@@ -270,6 +284,7 @@ class Show implements Renderable
     {
         $this->fields = new Collection();
         $this->relations = new Collection();
+        $this->tabs = new Collection();
     }
 
     /**
@@ -361,6 +376,46 @@ class Show implements Renderable
     }
 
     /**
+     * 添加一个页签分组，闭包内定义的 field/relation/row 归入该页签；
+     * 不调用 tab() 则维持原有平铺形态
+     *
+     * @param  string  $title
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function tab(string $title, Closure $callback)
+    {
+        $tab = new Fluent([
+            'id'        => 'show-tab-'.uniqid(),
+            'title'     => $title,
+            'fields'    => new Collection(),
+            'relations' => new Collection(),
+            'rows'      => new Collection(),
+        ]);
+
+        $this->tabs->push($tab);
+
+        $previous = $this->currentTab;
+        $this->currentTab = $tab;
+
+        try {
+            call_user_func($callback, $this);
+        } finally {
+            $this->currentTab = $previous;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function tabs()
+    {
+        return $this->tabs;
+    }
+
+    /**
      * Show all fields.
      *
      * @return Show
@@ -403,9 +458,11 @@ class Show implements Renderable
 
         $field->setParent($this);
 
-        $this->overwriteExistingField($name);
-        
-        $this->fields->push($field);
+        $fields = $this->resolveFieldContainer();
+
+        $this->overwriteExistingField($name, $fields);
+
+        $fields->push($field);
 
         return $field;
     }
@@ -424,46 +481,81 @@ class Show implements Renderable
 
         $relation->setParent($this);
 
-        $this->overwriteExistingRelation($name);
+        $relations = $this->resolveRelationContainer();
 
-        $this->relations->push($relation);
+        $this->overwriteExistingRelation($name, $relations);
+
+        $relations->push($relation);
 
         return $relation;
+    }
+
+    /**
+     * 解析字段收纳容器：tab() 闭包内归入当前页签
+     *
+     * @return Collection
+     */
+    protected function resolveFieldContainer(): Collection
+    {
+        return $this->currentTab ? $this->currentTab->fields : $this->fields;
+    }
+
+    /**
+     * 解析关联面板收纳容器：tab() 闭包内归入当前页签
+     *
+     * @return Collection
+     */
+    protected function resolveRelationContainer(): Collection
+    {
+        return $this->currentTab ? $this->currentTab->relations : $this->relations;
+    }
+
+    /**
+     * 解析行组收纳容器：tab() 闭包内归入当前页签
+     *
+     * @return Collection
+     */
+    protected function resolveRowContainer(): Collection
+    {
+        return $this->currentTab ? $this->currentTab->rows : $this->rows;
     }
 
     /**
      * Overwrite existing field.
      *
      * @param  string  $name
+     * @param  Collection  $fields  字段收纳容器，原地移除同名旧字段
      */
-    protected function overwriteExistingField($name)
+    protected function overwriteExistingField($name, Collection $fields)
     {
-        if ($this->fields->isEmpty()) {
+        if ($fields->isEmpty()) {
             return;
         }
-        $this->fields = $this->fields->filter(
-            function (Field $field) use ($name) {
-                return $field->getName() != $name;
+
+        $fields->each(function (Field $field, $key) use ($name, $fields) {
+            if ($field->getName() == $name) {
+                $fields->forget($key);
             }
-        );
+        });
     }
 
     /**
      * Overwrite existing relation.
      *
      * @param  string  $name
+     * @param  Collection  $relations  关联收纳容器，原地移除同名旧关联
      */
-    protected function overwriteExistingRelation($name)
+    protected function overwriteExistingRelation($name, Collection $relations)
     {
-        if ($this->relations->isEmpty()) {
+        if ($relations->isEmpty()) {
             return;
         }
 
-        $this->relations = $this->relations->filter(
-            function (Relation $relation) use ($name) {
-                return $relation->getName() != $name;
+        $relations->each(function (Relation $relation, $key) use ($name, $relations) {
+            if ($relation->getName() == $name) {
+                $relations->forget($key);
             }
-        );
+        });
     }
 
     /**
@@ -479,7 +571,7 @@ class Show implements Renderable
      */
     public function divider()
     {
-        $this->fields->push(new Divider());
+        $this->resolveFieldContainer()->push(new Divider());
     }
 
     /**
@@ -487,7 +579,7 @@ class Show implements Renderable
      */
     public function newline()
     {
-        $this->fields->push(new Newline());
+        $this->resolveFieldContainer()->push(new Newline());
     }
 
     /**
@@ -497,7 +589,7 @@ class Show implements Renderable
      */
     public function html($html = '')
     {
-        $this->fields->push((new Html($html))->setParent($this));
+        $this->resolveFieldContainer()->push((new Html($html))->setParent($this));
     }
 
     /**
@@ -657,7 +749,7 @@ class Show implements Renderable
             call_user_func($this->builder, $this);
         }
 
-        if ($this->fields->isEmpty()) {
+        if ($this->fields->isEmpty() && $this->tabs->isEmpty()) {
             $this->all();
         }
 
@@ -668,10 +760,15 @@ class Show implements Renderable
         $this->fields->each->fill($model);
         $this->relations->each->model($model);
 
+        $this->tabs->each(function ($tab) use ($model) {
+            $tab->fields->each->fill($model);
+            $tab->relations->each->model($model);
+        });
+
         $this->callComposing();
 
         $data = [
-            'panel'     => $this->panel->fill($this->fields),
+            'panel'     => $this->panel->fill($this->fields)->tabs($this->tabs),
             'relations' => $this->relations,
         ];
 
@@ -686,7 +783,7 @@ class Show implements Renderable
      */
     public function row(Closure $callback)
     {
-        $this->rows->push(new Row($callback, $this));
+        $this->resolveRowContainer()->push(new Row($callback, $this));
 
         return $this;
     }
@@ -713,14 +810,14 @@ class Show implements Renderable
     
     public function card(Closure $callback)
     {
-        $this->rows->push(new Descriptions($callback, $this));
+        $this->resolveRowContainer()->push(new Descriptions($callback, $this));
 
         return $this;
     }
 
     public function fieldset(Closure $callback)
     {
-        $this->rows->push(new Fieldset($callback, $this));
+        $this->resolveRowContainer()->push(new Fieldset($callback, $this));
 
         return $this;
     }

@@ -34,6 +34,8 @@ if ($show->model()->status == 1) { $show->field('reject_reason'); }
 | `fields(?array $fields)` | 全部字段 Collection；传字段名数组批量取字段 |
 | `relation($name, $label, $builder=null)` | 一对多关联展示（内嵌表格，见下文） |
 | `relations()` | 全部关联 Collection |
+| `tab($title, Closure)` | 页签分组：闭包内 `field()`/`relation()`/`row()`/`card()`/`fieldset()` 归入该页签（见「布局」节） |
+| `tabs()` | 全部页签 Collection |
 | `html($html)` / `divider()` / `newline()` | 自定义 HTML / 分割线 / 换行 |
 | `row(Closure)` | 行布局：`$show->row(function (Show\Row $row) { $row->width(6)->field(...); ... })` |
 | `card(Closure)` | Descriptions 卡片布局（见下文） |
@@ -148,6 +150,22 @@ $show->fieldset(function (Show\Fieldset $field) {
     $field->field('audio', '音频')->audio('/a.mp3');
 });
 ```
+
+### tab 页签分组（v3.0.28+）
+
+```php
+$show->tab('基本信息', function ($show) {
+    $show->field('name', '姓名');
+    $show->field('phone', '电话');
+})->tab('订单记录', function ($show) {
+    $show->relation('orders', '订单', function (Grid $grid) { ... }); // 关联面板可入 tab
+});
+```
+
+- 链式调用多次 `tab()` 依次追加页签；首个页签默认激活（Bootstrap `nav-tabs` 原生切换，无额外 JS）
+- 闭包内 `field()`/`relation()`/`row()`/`card()`/`fieldset()`/`divider()`/`html()` 均归入当前页签
+- 不调用 `tab()` 维持原有平铺形态；tab 外定义的字段平铺渲染在页签上方
+- 顶部面板标题与工具栏不受影响；页签内字段同 tab 去重（同名覆盖）
 
 ## 六、工具栏 tools()
 
