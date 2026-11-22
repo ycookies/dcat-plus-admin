@@ -466,11 +466,16 @@ HTML;
         return $this->unescape()->as(function ($value) use ($field) {
             $content = is_string($value) ? json_decode($value, true) : $value;
             if (is_array($content)) {
-                array_walk($content, function (&$v, $k) {
-                    $v = htmlspecialchars($v);
+                array_walk_recursive($content, function (&$v, $k) {
+                    // PHP8 下标量校验，数组/对象等复杂值转 JSON 字符串后再转义
+                    $v = is_scalar($v) || $v === null
+                        ? htmlspecialchars((string) $v)
+                        : htmlspecialchars(json_encode($v, JSON_UNESCAPED_UNICODE));
                 });
             } else {
-                $content = htmlspecialchars($content);
+                $content = is_scalar($content) || $content === null
+                    ? htmlspecialchars((string) $content)
+                    : htmlspecialchars(json_encode($content, JSON_UNESCAPED_UNICODE));
             }
             $field->wrap(false);
 
