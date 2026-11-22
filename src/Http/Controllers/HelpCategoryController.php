@@ -22,9 +22,15 @@ class HelpCategoryController extends AdminController
             $grid->column('sort', '排序')->editable();
             $grid->column('is_active', '启用')->switch();
             $grid->column('created_at', '创建时间');
-
+            // 显示快捷编辑按钮
+            $grid->showQuickEditButton();
             $grid->quickSearch('name');
             $grid->enableDialogCreate();
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                // $actions->disableView();
+                // $actions->disableEdit();
+                // $actions->disableDelete();
+            });
         });
     }
 
