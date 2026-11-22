@@ -95,6 +95,13 @@ class Field implements Renderable
      */
     protected $width = ['field' => 10, 'label' => 2];
 
+    /**
+     * 字段展示类型，渲染为 field-type-* 样式钩子
+     *
+     * @var string
+     */
+    protected $type = 'input';
+
     protected $dedicated_line = false;
 
     protected $help;
@@ -146,6 +153,19 @@ class Field implements Renderable
             'label' => $label,
             'field' => $field,
         ];
+
+        return $this;
+    }
+
+    /**
+     * 设置字段展示类型（渲染为 field-type-* class）
+     *
+     * @param  string  $type
+     * @return $this
+     */
+    public function type(string $type)
+    {
+        $this->type = $type;
 
         return $this;
     }
@@ -216,6 +236,8 @@ class Field implements Renderable
      */
     public function richText()
     {
+        $this->type = 'richText';
+
         return $this->unescape()->as(function ($value) {
             if ($value === null || $value === '') {
                 return '';
@@ -235,6 +257,8 @@ class Field implements Renderable
      */
     public function image($server = '', $width = 200, $height = 200)
     {
+        $this->type = 'image';
+
         return $this->unescape()->as(function ($path) use ($server, $width, $height) {
             if (empty($path)) {
                 return '';
@@ -271,6 +295,8 @@ class Field implements Renderable
      */
     public function file($server = '', $download = true)
     {
+        $this->type = 'file';
+
         $field = $this;
 
         return $this->unescape()->as(function ($path) use ($server, $field) {
@@ -334,6 +360,8 @@ HTML;
      */
     public function link($href = '', $target = '_blank')
     {
+        $this->type = 'link';
+
         return $this->unescape()->as(function ($link) use ($href, $target) {
             $href = $href ?: $link;
 
@@ -349,6 +377,8 @@ HTML;
      */
     public function label($style = 'primary')
     {
+        $this->type = 'label';
+
         $self = $this;
 
         return $this->unescape()->as(function ($value) use ($self, $style) {
@@ -369,6 +399,8 @@ HTML;
      */
     public function dot($options = [], $default = 'default')
     {
+        $this->type = 'dot';
+
         return $this->unescape()->prepend(function ($_, $original) use ($options, $default) {
             $style = is_null($original) ? $default : Arr::get((array) $options, $original, $default);
 
@@ -388,6 +420,8 @@ HTML;
      */
     public function badge($style = 'blue')
     {
+        $this->type = 'badge';
+
         $self = $this;
 
         return $this->unescape()->as(function ($value) use ($self, $style) {
@@ -425,6 +459,8 @@ HTML;
      */
     public function json()
     {
+        $this->type = 'json';
+
         $field = $this;
 
         return $this->unescape()->as(function ($value) use ($field) {
@@ -518,6 +554,8 @@ HTML;
      */
     public function view($view, array $data = [])
     {
+        $this->type = 'view';
+
         $name = $this->name;
 
         return $this->unescape()->as(function ($value) use ($view, $name, $data) {
@@ -592,6 +630,8 @@ HTML;
      */
     public function bold($color = null)
     {
+        $this->type = 'bold';
+
         $color = $color ?: Admin::color()->dark80();
 
         return $this->unescape()->as(function ($value) use ($color) {
@@ -612,6 +652,8 @@ HTML;
      */
     public function bool(array $map = [], $default = false)
     {
+        $this->type = 'bool';
+
         return $this->unescape()->as(function ($value) use ($map, $default) {
             $bool = empty($map) ? $value : Arr::get($map, $value, $default);
 
@@ -641,6 +683,8 @@ HTML;
     public function __call($method, $arguments = [])
     {
         if ($class = Arr::get(static::$extendedFields, $method)) {
+            $this->type = $method;
+
             return $this->callExtendedField($class, $arguments);
         }
 
@@ -732,6 +776,7 @@ HTML;
             'label'   => $this->getLabel(),
             'wrapped' => $this->border,
             'width'   => $this->width,
+            'type'    => Str::kebab($this->type ?: 'input'),
             'dedicated_line'   => $this->dedicated_line,
             'help'=> $this->help
         ];
@@ -862,6 +907,8 @@ HTML;
      * author eRic
      */
     public function html($html = ''){
+        $this->type = 'html';
+
         return $this->unescape()->as(function ($value) use ($html) {
             if(!empty($html)){
                 $value = $html;
@@ -879,6 +926,8 @@ HTML;
      * author eRic
      */
     public function audio($server = '', $width='100%', $height = '26px'){
+        $this->type = 'audio';
+
         return $this->unescape()->as(function ($path) use ($server, $width, $height) {
             if(!empty($server)){
                 $path = $server;
@@ -896,7 +945,8 @@ HTML;
      * author eRic
      */
     public function video($server = '', $width='100', $height = '100'){
-        
+        $this->type = 'video';
+
         return $this->unescape()->as(function ($path) use ($server, $width, $height) {
             if(!empty($server)){
                 $path = $server;
