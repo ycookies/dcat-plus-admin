@@ -1263,3 +1263,9 @@ body.dark-mode:not(.sidebar-separate) .main-sidebar .sidebar{
     border-left:0px !important;
     left:-.8rem !important;
 }
+
+/* 详情页 html 字段内图片自适应：超宽缩至容器 100%，未超宽保持原尺寸 */
+.show-field.field-type-html img {
+    max-width: 100%;
+    height: auto;
+}
