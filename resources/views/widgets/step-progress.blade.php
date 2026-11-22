@@ -3,13 +3,21 @@
         <div class="step-progress__item step-progress__item--{{ $step['state'] }}">
             @if($style == 'arrow')
                 <span class="step-progress__num">{{ $step['num'] }}</span>
-                <span class="step-progress__title" @if($step['description']) data-toggle="tooltip" title="{{ $step['description'] }}" @endif>{{ $step['title'] }}</span>
+                @if($step['description'])
+                    <span class="step-progress__title tips"   data-title="{{ $step['description'] }}">{{ $step['title'] }}</span>
+                @else 
+                    <span class="step-progress__title " >{{ $step['title'] }}</span>
+                @endif
             @else
                 <span class="step-progress__circle">
                     <span class="step-progress__num">{{ $step['num'] }}</span>
                     <i class="step-progress__check feather icon-check"></i>
                 </span>
-                <span class="step-progress__title" @if($step['description']) data-toggle="tooltip" title="{{ $step['description'] }}" @endif>{{ $step['title'] }}</span>
+                @if($step['description'])
+                    <span class="step-progress__title tips"   data-title="{{ $step['description'] }}">{{ $step['title'] }}</span>
+                @else 
+                    <span class="step-progress__title " >{{ $step['title'] }}</span>
+                @endif
             @endif
         </div>
     @endforeach
@@ -33,14 +41,17 @@
 .step-progress--check .step-progress__item--done .step-progress__num{display:none;}
 .step-progress--check .step-progress__item--done .step-progress__check{display:inline-block;}
 /* 箭头分段式 */
-.step-progress--arrow{padding:4px 0;}
-.step-progress--arrow .step-progress__item{flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;padding:11px 20px 11px 30px;background:#eef0f5;color:#9aa0ac;clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%);}
-.step-progress--arrow .step-progress__item + .step-progress__item{margin-left:-16px;}
+.step-progress--arrow{padding:6px 0;}
+.step-progress--arrow .step-progress__item{flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;padding:13px 22px 13px 32px;background:#f3f5f9;color:#9aa0ac;clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%);transition:filter .18s ease;}
+.step-progress--arrow .step-progress__item + .step-progress__item{margin-left:-18px;}
 .step-progress--arrow .step-progress__item::after{display:none;}
-.step-progress--arrow .step-progress__item--done{background:var(--sp-primary);color:#fff;}
-.step-progress--arrow .step-progress__item--done .step-progress__title{color:#fff;}
+.step-progress--arrow .step-progress__item--todo:hover{filter:brightness(.96);}
+.step-progress--arrow .step-progress__num{display:inline-flex;align-items:center;justify-content:center;flex:none;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;background:rgba(31,42,68,.08);}
+.step-progress--arrow .step-progress__item--done{background:linear-gradient(135deg, var(--sp-primary) 0%, var(--sp-primary-deep) 100%);color:#fff;filter:drop-shadow(0 4px 10px var(--sp-primary-halo));}
+.step-progress--arrow .step-progress__item--done .step-progress__num{background:rgba(255,255,255,.22);}
+.step-progress--arrow .step-progress__item--done .step-progress__title{color:#fff;font-weight:600;}
 .step-progress--arrow .step-progress__item--current{background:var(--sp-primary-halo);color:var(--sp-primary);font-weight:600;}
-.step-progress--arrow .step-progress__num{font-weight:600;}
+.step-progress--arrow .step-progress__item--current .step-progress__num{background:var(--sp-primary);color:#fff;}
 /* 深色模式 */
 body.dark-mode .step-progress__item:not(:last-child)::after{background:#3e434c;}
 body.dark-mode .step-progress__item--done:not(:last-child)::after{background:var(--sp-primary);}
@@ -52,14 +63,10 @@ body.dark-mode .step-progress__item--done .step-progress__title{color:#d5d9e0;}
 body.dark-mode .step-progress__item--current .step-progress__title{color:#c3cbff;}
 body.dark-mode .step-progress__item--todo .step-progress__title{color:#6b7280;}
 body.dark-mode .step-progress--arrow .step-progress__item{background:#33373f;color:#7d8492;}
-body.dark-mode .step-progress--arrow .step-progress__item--done{background:var(--sp-primary);color:#fff;}
-body.dark-mode .step-progress--arrow .step-progress__item--current{color:#c3cbff;}
+body.dark-mode .step-progress--arrow .step-progress__num{background:rgba(255,255,255,.08);}
+body.dark-mode .step-progress--arrow .step-progress__item--done{background:linear-gradient(135deg, var(--sp-primary) 0%, var(--sp-primary-deep) 100%);color:#fff;}
+body.dark-mode .step-progress--arrow .step-progress__item--done .step-progress__num{background:rgba(255,255,255,.22);}
+body.dark-mode .step-progress--arrow .step-progress__item--done .step-progress__title{color:#fff;}
+body.dark-mode .step-progress--arrow .step-progress__item--current{background:#2a2e35;color:#c3cbff;filter:drop-shadow(0 3px 8px rgba(0,0,0,.35));}
+body.dark-mode .step-progress--arrow .step-progress__item--current .step-progress__num{background:var(--sp-primary);color:#fff;}
 </style>
-
-<script>
-(function () {
-    var el = document.getElementById('{{ $id }}');
-    if (!el || !window.jQuery) return;
-    jQuery(el).find('[data-toggle="tooltip"]').tooltip();
-})();
-</script>

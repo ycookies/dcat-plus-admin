@@ -56,7 +56,7 @@ class StepProgress extends Widget
 
         // 主题色注入为 CSS 变量，跟随后台主题色与深色模式
         $primary = Admin::color()->get('primary', '#586cb1');
-        $this->setHtmlAttribute('style', '--sp-primary: '.$primary.';--sp-primary-halo: '.$this->formatHalo($primary).';');
+        $this->setHtmlAttribute('style', '--sp-primary: '.$primary.';--sp-primary-halo: '.$this->formatHalo($primary).';--sp-primary-deep: '.$this->formatShade($primary).';');
     }
 
     /**
@@ -174,5 +174,34 @@ class StepProgress extends Widget
         [$r, $g, $b] = array_map('hexdec', str_split($hex, 2));
 
         return 'rgba('.$r.', '.$g.', '.$b.', '.$alpha.')';
+    }
+
+    /**
+     * 主题色 hex 加深（渐变端点用）.
+     *
+     * @param  string  $hex
+     * @param  float  $ratio
+     * @return string
+     */
+    protected function formatShade(string $hex, float $ratio = 0.82): string
+    {
+        $hex = ltrim(trim($hex), '#');
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+
+        if (strlen($hex) !== 6 || ! ctype_xdigit($hex)) {
+            return $hex;
+        }
+
+        [$r, $g, $b] = array_map('hexdec', str_split($hex, 2));
+
+        return sprintf(
+            '#%02x%02x%02x',
+            (int) max(0, round($r * $ratio)),
+            (int) max(0, round($g * $ratio)),
+            (int) max(0, round($b * $ratio))
+        );
     }
 }
