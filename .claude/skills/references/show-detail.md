@@ -162,7 +162,8 @@ $show->tab('基本信息', function ($show) {
 });
 ```
 
-- 链式调用多次 `tab()` 依次追加页签；首个页签默认激活（Bootstrap `nav-tabs` 原生切换，无额外 JS）
+- 链式调用多次 `tab()` 依次追加页签；首个页签默认激活（Bootstrap `nav-tabs` 原生切换）
+- **hash 记忆**：点击页签写入 URL hash，刷新按 hash 恢复激活页签；id 以「请求路径+实例序号+页签序号」为种子跨渲染稳定，旧/不匹配 hash 自动回落第一个页签（脚本作用域 `.show-detail-tabs`，每请求注册一次，同 `Form\Tab` 行为）
 - 闭包内 `field()`/`relation()`/`row()`/`card()`/`fieldset()`/`divider()`/`html()` 均归入当前页签
 - 不调用 `tab()` 维持原有平铺形态；tab 外定义的字段平铺渲染在页签上方
 - 顶部面板标题与工具栏不受影响；页签内字段同 tab 去重（同名覆盖）

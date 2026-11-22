@@ -34,6 +34,20 @@ class Show implements Renderable
         }
 
     /**
+     * 本请求内已构造的 Show 实例数，用于生成跨渲染稳定的页签 id
+     *
+     * @var int
+     */
+    protected static $constructedTimes = 0;
+
+    /**
+     * 当前实例序号
+     *
+     * @var int
+     */
+    protected $instanceIndex;
+
+    /**
      * @var string
      */
     protected $view = 'admin::show.container';
@@ -110,6 +124,13 @@ class Show implements Renderable
     protected $currentTab;
 
     /**
+     * 页签 hash 记忆脚本是否已注册（每请求一次即可）
+     *
+     * @var bool
+     */
+    protected static $tabScriptRegistered = false;
+
+    /**
      * Show constructor.
      *
      * @param  mixed  $id  $id
@@ -133,6 +154,7 @@ class Show implements Renderable
         }
         $this->rows = new Collection();
         $this->builder = $builder;
+        $this->instanceIndex = ++static::$constructedTimes;
 
         $this->initModel($model);
         $this->initPanel();
@@ -385,8 +407,10 @@ class Show implements Renderable
      */
     public function tab(string $title, Closure $callback)
     {
+        // id 以「请求路径 + 实例序号 + 页签序号」为种子：同一页面每次渲染结果一致，
+        // hash 写入 URL 后刷新仍能按 hash 恢复激活页签；实例序号保证同页多个页签组不冲突
         $tab = new Fluent([
-            'id'        => 'show-tab-'.uniqid(),
+            'id'        => sprintf('show-tab-%s-%d', substr(md5(request()->path().':'.$this->instanceIndex), 0, 8), $this->tabs->count() + 1),
             'title'     => $title,
             'fields'    => new Collection(),
             'relations' => new Collection(),
@@ -413,6 +437,33 @@ class Show implements Renderable
     public function tabs()
     {
         return $this->tabs;
+    }
+
+    /**
+     * 页签 hash 记忆：点击写入 URL hash，刷新按 hash 恢复激活页签（同 Form\Tab 行为）
+     *
+     * @return void
+     */
+    protected function registerTabScript(): void
+    {
+        if (static::$tabScriptRegistered) {
+            return;
+        }
+        static::$tabScriptRegistered = true;
+
+        Admin::script(<<<'JS'
+(function () {
+    var hash = document.location.hash;
+    if (hash) {
+        $('.show-detail-tabs a[href="' + hash + '"]').tab('show');
+    }
+
+    // Change hash for page-reload
+    $('.show-detail-tabs a').on('shown.bs.tab', function (e) {
+        history.pushState(null, null, e.target.hash);
+    });
+})();
+JS);
     }
 
     /**
@@ -764,6 +815,10 @@ class Show implements Renderable
             $tab->fields->each->fill($model);
             $tab->relations->each->model($model);
         });
+
+        if ($this->tabs->isNotEmpty()) {
+            $this->registerTabScript();
+        }
 
         $this->callComposing();
 
