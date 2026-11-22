@@ -354,7 +354,21 @@ Swiper::make(['<div>幻灯片 1</div>', '<div>幻灯片 2</div>'])
     ->loop()->autoplay(4000)->pagination()->navigation();
 ```
 
-### 5.5 其他
+### 5.5 步骤条
+
+- **StepProgress** · `make(array $steps=[], int $current=1, string $style='dot')` — 向导式步骤进度条，横向。`.current(int)`（1-based 位置，之前 done/当前 current/之后 todo）/`.style(string)`（`dot` 圆点连线=默认 / `check` 打勾（完成步圆点显示 ✓）/ `arrow` 箭头分段）/`.add($title,$description='',$num=null)`/`.steps(array)`。**序号由数据决定原样展示**（每项 `['num','title','description']`，字符串项回退位置序号）；`description` 悬浮 tips（data-toggle=tooltip，组件自带初始化脚本）；颜色取后台主题色（CSS 变量 `--sp-primary` 注入），深色模式适配；样式/脚本经 resolveHtml 提取入全局队列
+
+```php
+use Dcat\Admin\Widgets\StepProgress;
+
+StepProgress::make([
+    ['num' => 1, 'title' => '填写', 'description' => '悬浮提示内容'],
+    ['num' => 2, 'title' => '验证'],
+    ['num' => 3, 'title' => '支付'],
+])->current(3)->style(StepProgress::STYLE_DOT);   // dot | check | arrow
+```
+
+### 5.6 其他
 
 - **DarkModeSwitcher** · `make(?bool $defaultDarkMode=null)` — 暗色模式切换按钮（implements Renderable，非 Widget）
 - **Dump** · `make($content, ?string $padding=null)` · `.padding($p)`/`.maxWidth($w)` — 美化打印数组/对象/JSON
