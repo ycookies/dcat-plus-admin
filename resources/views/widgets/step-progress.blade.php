@@ -43,7 +43,7 @@
 /* 箭头分段式 */
 .step-progress--arrow{padding:6px 0;}
 .step-progress--arrow .step-progress__item{flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;padding:13px 22px 13px 32px;background:#f3f5f9;color:#9aa0ac;clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%);transition:filter .18s ease;}
-.step-progress--arrow .step-progress__item + .step-progress__item{margin-left:-18px;}
+.step-progress--arrow .step-progress__item + .step-progress__item{margin-left:-13px;}
 .step-progress--arrow .step-progress__item::after{display:none;}
 .step-progress--arrow .step-progress__item--todo:hover{filter:brightness(.96);}
 .step-progress--arrow .step-progress__num{display:inline-flex;align-items:center;justify-content:center;flex:none;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;background:rgba(31,42,68,.08);}
