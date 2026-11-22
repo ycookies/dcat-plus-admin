@@ -93,7 +93,7 @@ class Field implements Renderable
     /**
      * @var int
      */
-    protected $width = ['field' => 8, 'label' => 2];
+    protected $width = ['field' => 10, 'label' => 2];
 
     protected $dedicated_line = false;
 
