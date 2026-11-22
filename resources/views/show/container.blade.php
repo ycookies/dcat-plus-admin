@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row page-detail-show">
     <div class="col-md-12">{!! $panel !!}</div>
 
     @if($relations->count())
