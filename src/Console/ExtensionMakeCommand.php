@@ -204,9 +204,16 @@ TREE;
 
         $basePackage = Helper::slug(basename($this->package));
 
+        // make version.php（清理 {migrationEntries} 占位符）
+        $this->putFile('version.php', str_replace(
+            ['{migrationEntries}'],
+            [''],
+            file_get_contents(__DIR__.'/stubs/extension/version.stub')
+        ));
+
         // make class
         $classContents = str_replace(
-            ['{namespace}', '{className}', '{title}', '{path}', '{basePackage}', '{property}', '{registerTheme}'],
+            ['{namespace}', '{className}', '{title}', '{path}', '{basePackage}', '{property}', '{registerTheme}', '{apiRegisterCalls}', '{apiMethods}', '{menuProperty}'],
             [
                 $this->namespace,
                 $this->className,
@@ -215,6 +222,9 @@ TREE;
                 $basePackage,
                 $this->makeProviderContent(),
                 $this->makeRegisterThemeContent(),
+                '',
+                '',
+                $this->makeMenuContent($basePackage),
             ],
             file_get_contents(__DIR__.'/stubs/extension/extension.stub')
         );
@@ -270,6 +280,31 @@ TEXT;
 
         return <<<'TEXT'
 Admin::baseCss($this->formatAssetFiles($this->css));
+TEXT;
+    }
+
+    /**
+     * 生成示例菜单属性（主题类型不注册菜单）.
+     *
+     * @param string $basePackage
+     *
+     * @return string
+     */
+    protected function makeMenuContent($basePackage)
+    {
+        if ($this->option('theme')) {
+            return '';
+        }
+
+        return <<<TEXT
+    // 定义菜单
+    protected \$menu = [
+        [
+            'title' => '菜单名称',
+            'uri'   => '$basePackage',
+            'icon'  => 'feather icon-book',
+        ]
+    ];
 TEXT;
     }
 

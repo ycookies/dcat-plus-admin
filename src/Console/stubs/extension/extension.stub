@@ -25,14 +25,7 @@ class {className}ServiceProvider extends ServiceProvider
             // 'cashier/paycenter/page',
         ]
     ];
-    // 定义菜单
-    protected $menu = [
-        [
-            'title' => '菜单名称',
-            'uri'   => '{path}',
-            'icon'  => 'feather icon-book',
-        ]
-    ];
+{menuProperty}
 
 	public function register()
 	{
