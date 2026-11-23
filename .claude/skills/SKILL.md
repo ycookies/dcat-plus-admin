@@ -687,5 +687,6 @@ php artisan admin:minify               # 压缩前端资源
 - **references/database-schema.md** -- MySQL 数据结构与建表规范(脚手架字段语义识别规则/@scaffold:type与options指令/标准建表示例/Laravel migration具名类写法/索引安全/生成后人工补充)
 - **references/infrastructure.md** -- 基础设施(23个Artisan命令/50+Helper函数/9个中间件/40+资源别名/4个主题/30+Widget/扩展系统/Action系统/Repository/模型/配置全表/已知Bug)
 - **references/extension-development.md** -- 扩展开发完整指南(创建/生命周期/版本管理/菜单/路由/中间件/视图/资源/配置/自定义字段/自定义动作/完整示例/发布/陷阱)
+- **references/theme-development.md** -- 主题开发完整指南(四层机制选型/内置配色方案与分色CSS链路/Color类PHP·JS取色/admin.layout布局配置/主题扩展--theme骨架与资产发布/CSS覆盖要点/视图覆盖/运行时注入API/陷阱)
 - **references/extension-workflow.md** -- 扩展开发工作流(阶段化流程/落地页/工作流指令)
 - **references/action-system.md** -- Action 系统完整指南(代码生成器/10种类型对照/handle返回值Response/可重写钩子/前端JS交互/各容器注册方式/异步渲染lazy-table+lazy-form/payload链路/实战示例/陷阱)
