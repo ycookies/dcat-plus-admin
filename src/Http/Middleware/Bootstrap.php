@@ -174,8 +174,12 @@ if (!window.__dcatStackedModalPatch) {
             }
             // 死因1：z-index 按现存层最高值 +20 递增（而非仅数可见层）——
             // 已关闭内层的残留 backdrop z 不会压住重开的弹窗
+            // 扫描集含 .layui-layer：表单开在 layer 弹窗（DialogForm 等）内时，
+            // 直用 BS4 modal 的插件弹窗（如 form-media 媒体选择器）也要开在
+            // layer 之上（layer 基座 19891014+，仅扫 .modal/.modal-backdrop
+            // 会取不到它，picker 会被压在 layer 下面）
             var maxZ = 1040;
-            $('.modal-backdrop, .modal').each(function () {
+            $('.modal-backdrop, .modal, .layui-layer').each(function () {
                 var z = parseInt($(this).css('z-index')) || 0;
                 if (z > maxZ) maxZ = z;
             });

@@ -91,9 +91,6 @@
     color: #292e35;
 }
 
-.lake-form-media-modal {
-    z-index: 99999999 !important;
-}
 .lake-form-media-modal .modal-dialog {
     border: 1px solid #d4d6da;
 }
